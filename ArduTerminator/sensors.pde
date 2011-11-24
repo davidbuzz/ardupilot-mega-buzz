@@ -7,7 +7,7 @@ void ReadSCP1000(void) {}
 
 static void init_barometer(void)
 {
-	int flashcount = 0;
+	/* int flashcount = 0;
 	long 			ground_pressure = 0;
 	int 			ground_temperature;
 
@@ -51,13 +51,17 @@ static void init_barometer(void)
 	
     Serial.printf_P(PSTR("abs_pressure %ld\n"), abs_pressure);
     gcs_send_text_P(SEVERITY_MEDIUM, PSTR("barometer calibration complete."));
+    */
 }
 
 static long read_barometer(void)
 {
- 	float x, scaling, temp;
+/*  	float x, scaling, temp;
 
 	barometer.Read();		// Get new data from absolute pressure sensor
+
+
+        //TODO BUZZ - MAYBE WE COULD PREVENT TERMINATION SYSTEM WORKING TILL WE REACH ALTITUDE? 
 
 
 	//abs_pressure 			= (abs_pressure + barometer.Press) >> 1;		// Small filtering
@@ -66,12 +70,14 @@ static long read_barometer(void)
 	temp 					= ((float)g.ground_temperature) + 273.15f;
 	x 						= log(scaling) * temp * 29271.267f;
 	return 	(x / 10);
+*/
+return 0;
 }
 
 // in M/S * 100
 static void read_airspeed(void)
 {
-	#if GPS_PROTOCOL != GPS_PROTOCOL_IMU	// Xplane will supply the airspeed
+	/* #if GPS_PROTOCOL != GPS_PROTOCOL_IMU	// Xplane will supply the airspeed
 		if (g.airspeed_offset == 0) {
             // runtime enabling of airspeed, we need to do instant
             // calibration before we can use it. This isn't as
@@ -84,24 +90,27 @@ static void read_airspeed(void)
 		airspeed_pressure 	= max(((int)airspeed_raw - g.airspeed_offset), 0);
 		airspeed 			= sqrt((float)airspeed_pressure * g.airspeed_ratio) * 100;
 	#endif
+*/
 
 	calc_airspeed_errors();
 }
 
 static void zero_airspeed(void)
 {
-	airspeed_raw = (float)adc.Ch(AIRSPEED_CH);
+	/* airspeed_raw = (float)adc.Ch(AIRSPEED_CH);
 	for(int c = 0; c < 10; c++){
 		delay(20);
 		airspeed_raw = (airspeed_raw * .90) + ((float)adc.Ch(AIRSPEED_CH) * .10);
 	}
 	g.airspeed_offset.set_and_save(airspeed_raw);
+*/
 }
 
 #endif // HIL_MODE != HIL_MODE_ATTITUDE
 
 static void read_battery(void)
 {
+  /* 
 	battery_voltage1 = BATTERY_VOLTAGE(analogRead(BATTERY_PIN1)) * .1 + battery_voltage1 * .9;
 	battery_voltage2 = BATTERY_VOLTAGE(analogRead(BATTERY_PIN2)) * .1 + battery_voltage2 * .9;
 	battery_voltage3 = BATTERY_VOLTAGE(analogRead(BATTERY_PIN3)) * .1 + battery_voltage3 * .9;
@@ -122,5 +131,6 @@ static void read_battery(void)
 		if(battery_voltage < LOW_VOLTAGE)	low_battery_event();
 		if(g.battery_monitoring == 4 && current_total > g.pack_capacity)	low_battery_event();
 	#endif
+*/
 }
 

@@ -28,6 +28,7 @@ static bool mavlink_active;
 static NOINLINE void send_heartbeat(mavlink_channel_t chan)
 {
 #ifdef MAVLINK10
+/* 
     uint8_t base_mode = MAV_MODE_FLAG_CUSTOM_MODE_ENABLED;
     uint8_t system_status = MAV_STATE_ACTIVE;
     uint32_t custom_mode = control_mode;
@@ -98,7 +99,9 @@ static NOINLINE void send_heartbeat(mavlink_channel_t chan)
         base_mode,
         custom_mode,
         system_status);
+*/
 #else // MAVLINK10
+
     mavlink_msg_heartbeat_send(
         chan,
         mavlink_system.type,
@@ -108,13 +111,13 @@ static NOINLINE void send_heartbeat(mavlink_channel_t chan)
 
 static NOINLINE void send_attitude(mavlink_channel_t chan)
 {
-    Vector3f omega = dcm.get_gyro();
+    Vector3f omega;// = 0;//dcm.get_gyro();
     mavlink_msg_attitude_send(
         chan,
         micros(),
-        dcm.roll,
-        dcm.pitch,
-        dcm.yaw,
+        0,//dcm.roll,
+        0,//dcm.pitch,
+        0,//dcm.yaw,
         omega.x,
         omega.y,
         omega.z);
@@ -281,7 +284,7 @@ static void NOINLINE send_meminfo(mavlink_channel_t chan)
 
 static void NOINLINE send_location(mavlink_channel_t chan)
 {
-    Matrix3f rot = dcm.get_dcm_matrix(); // neglecting angle of attack for now
+    Matrix3f rot;// = dcm.get_dcm_matrix(); // neglecting angle of attack for now
     mavlink_msg_global_position_int_send(
         chan,
         millis(),
@@ -299,8 +302,8 @@ static void NOINLINE send_nav_controller_output(mavlink_channel_t chan)
 {
     mavlink_msg_nav_controller_output_send(
         chan,
-        nav_roll / 1.0e2,
-        nav_pitch / 1.0e2,
+        0, //nav_roll / 1.0e2,
+        0, //nav_pitch / 1.0e2,
         nav_bearing / 1.0e2,
         target_bearing / 1.0e2,
         wp_distance,
@@ -408,8 +411,8 @@ static void NOINLINE send_vfr_hud(mavlink_channel_t chan)
         chan,
         (float)airspeed / 100.0,
         (float)g_gps->ground_speed / 100.0,
-        (dcm.yaw_sensor / 100) % 360,
-        (uint16_t)(100 * g.channel_throttle.norm_output()),
+        0,//(dcm.yaw_sensor / 100) % 360,
+        (int)g.channel_throttle.servo_out,
         current_loc.alt / 100.0,
         0);
 }
@@ -417,10 +420,10 @@ static void NOINLINE send_vfr_hud(mavlink_channel_t chan)
 #if HIL_MODE != HIL_MODE_ATTITUDE
 static void NOINLINE send_raw_imu1(mavlink_channel_t chan)
 {
-    Vector3f accel = imu.get_accel();
-    Vector3f gyro = imu.get_gyro();
+    Vector3f accel;// = imu.get_accel();
+    Vector3f gyro;// = imu.get_gyro();
 
-    mavlink_msg_raw_imu_send(
+   /*  mavlink_msg_raw_imu_send(
         chan,
         micros(),
         accel.x * 1000.0 / gravity,
@@ -432,31 +435,34 @@ static void NOINLINE send_raw_imu1(mavlink_channel_t chan)
         compass.mag_x,
         compass.mag_y,
         compass.mag_z);
+        */
 }
 
 static void NOINLINE send_raw_imu2(mavlink_channel_t chan)
 {
-    mavlink_msg_scaled_pressure_send(
+    /* mavlink_msg_scaled_pressure_send(
         chan,
         micros(),
         (float)barometer.Press/100.0,
         (float)(barometer.Press-g.ground_pressure)/100.0,
         (int)(barometer.Temp*10));
+        */
 }
 
 static void NOINLINE send_raw_imu3(mavlink_channel_t chan)
 {
-    Vector3f mag_offsets = compass.get_offsets();
+    /* Vector3f mag_offsets = compass.get_offsets();
 
     mavlink_msg_sensor_offsets_send(chan,
                                     mag_offsets.x,
                                     mag_offsets.y,
                                     mag_offsets.z,
-                                    compass.get_declination(),
+                                    0,//compass.get_declination(),
                                     barometer.RawPress,
                                     barometer.RawTemp,
-                                    imu.gx(), imu.gy(), imu.gz(),
-                                    imu.ax(), imu.ay(), imu.az());
+                                    0,0,0,//imu.gx(), imu.gy(), imu.gz(),
+                                    0,0,0); //imu.ax(), imu.ay(), imu.az());
+      */
 }
 #endif // HIL_MODE != HIL_MODE_ATTITUDE
 
@@ -593,7 +599,7 @@ static bool mavlink_try_send_message(mavlink_channel_t chan, enum ap_message id,
         if (chan == MAVLINK_COMM_0) {
             gcs0.queued_param_send();
         } else {
-            gcs3.queued_param_send();
+ //           gcs3.queued_param_send();
         }
         break;
 
@@ -602,7 +608,7 @@ static bool mavlink_try_send_message(mavlink_channel_t chan, enum ap_message id,
         if (chan == MAVLINK_COMM_0) {
             gcs0.queued_waypoint_send();
         } else {
-            gcs3.queued_waypoint_send();
+     //       gcs3.queued_waypoint_send();
         }
         break;
 
@@ -1036,7 +1042,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
                     break;
 
                 case MAV_ACTION_RETURN:
-                    set_mode(RTL);
+//                    set_mode(RTL);
                     result=1;
                     break;
 
@@ -1045,7 +1051,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
                     break;
 
                 case MAV_ACTION_HALT:
-                    do_loiter_at_location();
+                  //  do_loiter_at_location();
                     result=1;
                     break;
 
@@ -1433,7 +1439,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
         mavlink_set_mag_offsets_t packet;
         mavlink_msg_set_mag_offsets_decode(msg, &packet);
         if (mavlink_check_target(packet.target_system,packet.target_component)) break;
-        compass.set_offsets(Vector3f(packet.mag_ofs_x, packet.mag_ofs_y, packet.mag_ofs_z));
+       /*  compass.set_offsets(Vector3f(packet.mag_ofs_x, packet.mag_ofs_y, packet.mag_ofs_z)); */
         break;
     }
 #endif
@@ -1819,13 +1825,14 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
             mavlink_msg_attitude_decode(msg, &packet);
 
             // set dcm hil sensor
-            dcm.setHil(packet.roll,packet.pitch,packet.yaw,packet.rollspeed,
+            /* dcm.setHil(packet.roll,packet.pitch,packet.yaw,packet.rollspeed,
             packet.pitchspeed,packet.yawspeed);
+            */
             break;
         }
 #endif
 #if HIL_MODE == HIL_MODE_SENSORS
-
+/* 
     case MAVLINK_MSG_ID_RAW_IMU:
         {
             // decode
@@ -1854,7 +1861,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 
             imu.set_accel(accels);
 
-            compass.setHIL(packet.xmag,packet.ymag,packet.zmag);
+              compass.setHIL(packet.xmag,packet.ymag,packet.zmag);  
             break;
         }
 
@@ -1870,6 +1877,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
             barometer.setHIL(temp,packet.press_diff1 + 101325);
             break;
         }
+*/
 #endif // HIL_MODE
 
 #if MOUNT == ENABLED
@@ -2033,7 +2041,7 @@ static void mavlink_delay(unsigned long t)
 static void gcs_send_message(enum ap_message id)
 {
     gcs0.send_message(id);
-    gcs3.send_message(id);
+   // gcs3.send_message(id);
 }
 
 /*
@@ -2042,7 +2050,7 @@ static void gcs_send_message(enum ap_message id)
 static void gcs_data_stream_send(uint16_t freqMin, uint16_t freqMax)
 {
     gcs0.data_stream_send(freqMin, freqMax);
-    gcs3.data_stream_send(freqMin, freqMax);
+   // gcs3.data_stream_send(freqMin, freqMax);
 }
 
 /*
@@ -2051,19 +2059,19 @@ static void gcs_data_stream_send(uint16_t freqMin, uint16_t freqMax)
 static void gcs_update(void)
 {
 	gcs0.update();
-    gcs3.update();
+   // gcs3.update();
 }
 
 static void gcs_send_text(gcs_severity severity, const char *str)
 {
     gcs0.send_text(severity, str);
-    gcs3.send_text(severity, str);
+   // gcs3.send_text(severity, str);
 }
 
 static void gcs_send_text_P(gcs_severity severity, const prog_char_t *str)
 {
     gcs0.send_text(severity, str);
-    gcs3.send_text(severity, str);
+   // gcs3.send_text(severity, str);
 }
 
 /*

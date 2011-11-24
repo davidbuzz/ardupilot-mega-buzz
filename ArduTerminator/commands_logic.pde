@@ -8,12 +8,14 @@ handle_process_nav_cmd()
 {
 	// reset navigation integrators
 	// -------------------------
+
+
 	reset_I();
 
 		gcs_send_text_fmt(PSTR("Executing command ID #%i"),next_nav_command.id);
 	switch(next_nav_command.id){
 
-		case MAV_CMD_NAV_TAKEOFF:
+/* 		case MAV_CMD_NAV_TAKEOFF:
 			do_takeoff();
 			break;
 
@@ -40,7 +42,7 @@ handle_process_nav_cmd()
 		case MAV_CMD_NAV_RETURN_TO_LAUNCH:
 			do_RTL();
 			break;
-
+*/
 		default:
 			break;
 	}
@@ -52,10 +54,11 @@ handle_process_condition_command()
 	gcs_send_text_fmt(PSTR("Executing command ID #%i"),next_nonnav_command.id);
 	switch(next_nonnav_command.id){
 
+  /* 
 		case MAV_CMD_CONDITION_DELAY:
 			do_wait_delay();
 			break;
-
+*/
 		case MAV_CMD_CONDITION_DISTANCE:
 			do_within_distance();
 			break;
@@ -63,6 +66,7 @@ handle_process_condition_command()
 		case MAV_CMD_CONDITION_CHANGE_ALT:
 			do_change_alt();
 			break;
+
 
 	/*	case MAV_CMD_NAV_LAND_OPTIONS:	//    TODO - Add the command or equiv to MAVLink (repair in verify_condition() also)
 			gcs_send_text_P(SEVERITY_LOW,PSTR("Landing options set"));
@@ -88,6 +92,7 @@ static void handle_process_do_command()
 	gcs_send_text_fmt(PSTR("Executing command ID #%i"),next_nonnav_command.id);
 	switch(next_nonnav_command.id){
 
+  /* 
 		case MAV_CMD_DO_JUMP:
 			do_jump();
 			break;
@@ -95,11 +100,11 @@ static void handle_process_do_command()
 		case MAV_CMD_DO_CHANGE_SPEED:
 			do_change_speed();
 			break;
-
+*/
 		case MAV_CMD_DO_SET_HOME:
 			do_set_home();
 			break;
-
+/*
 		case MAV_CMD_DO_SET_SERVO:
 			do_set_servo();
 			break;
@@ -115,6 +120,7 @@ static void handle_process_do_command()
 		case MAV_CMD_DO_REPEAT_RELAY:
 			do_repeat_relay();
 			break;
+*/
 
 #if MOUNT == ENABLED
 		// Sets the region of interest (ROI) for a sensor set or the
@@ -122,7 +128,7 @@ static void handle_process_do_command()
 		// system to control the vehicle attitude and the attitude of various
 		// devices such as cameras.
 		//    |Region of interest mode. (see MAV_ROI enum)| Waypoint index/ target ID. (see MAV_ROI enum)| ROI index (allows a vehicle to manage multiple cameras etc.)| Empty| x the location of the fixed ROI (see MAV_FRAME)| y| z|
-		case MAV_CMD_DO_SET_ROI:
+/* 		case MAV_CMD_DO_SET_ROI:
 			camera_mount.set_roi_cmd();
 			break;
 
@@ -133,6 +139,7 @@ static void handle_process_do_command()
 		case MAV_CMD_DO_MOUNT_CONTROL:		// Mission command to control a camera mount |pitch(deg*100) or lat, depending on mount mode.| roll(deg*100) or lon depending on mount mode| yaw(deg*100) or alt (in cm) depending on mount mode| Empty| Empty| Empty| Empty|
 			camera_mount.control_cmd();
 			break;
+*/
 #endif
 	}
 }
@@ -156,7 +163,7 @@ static void handle_no_commands()
 static bool verify_nav_command()	// Returns true if command complete
 {
 	switch(nav_command_ID) {
-
+/* 
 		case MAV_CMD_NAV_TAKEOFF:
 			return verify_takeoff();
 			break;
@@ -164,11 +171,11 @@ static bool verify_nav_command()	// Returns true if command complete
 		case MAV_CMD_NAV_LAND:
 			return verify_land();
 			break;
-
+*/
 		case MAV_CMD_NAV_WAYPOINT:
 			return verify_nav_wp();
 			break;
-
+/* 
 		case MAV_CMD_NAV_LOITER_UNLIM:
 			return verify_loiter_unlim();
 			break;
@@ -184,7 +191,7 @@ static bool verify_nav_command()	// Returns true if command complete
 		case MAV_CMD_NAV_RETURN_TO_LAUNCH:
 			return verify_RTL();
 			break;
-
+*/
 		default:
 			gcs_send_text_P(SEVERITY_HIGH,PSTR("verify_nav: Invalid or no current Nav cmd"));
 			return false;
@@ -197,7 +204,7 @@ static bool verify_condition_command()		// Returns true if command complete
 	switch(non_nav_command_ID) {
     case NO_COMMAND:
         break;
-
+/* 
     case MAV_CMD_CONDITION_DELAY:
         return verify_wait_delay();
         break;
@@ -214,7 +221,7 @@ static bool verify_condition_command()		// Returns true if command complete
         return 0;
         break;
         
-
+*/
     default:
         gcs_send_text_P(SEVERITY_HIGH,PSTR("verify_conditon: Invalid or no current Condition cmd"));
         break;
@@ -226,6 +233,7 @@ static bool verify_condition_command()		// Returns true if command complete
 //  Nav (Must) commands
 /********************************************************************************/
 
+/* 
 static void do_RTL(void)
 {
 	control_mode 	= RTL;
@@ -255,12 +263,12 @@ static void do_takeoff()
 	takeoff_complete 	= false;			// set flag to use gps ground course during TO.  IMU will be doing yaw drift correction
 											// Flag also used to override "on the ground" throttle disable
 }
-
+*/
 static void do_nav_wp()
 {
 	set_next_WP(&next_nav_command);
 }
-
+/* 
 static void do_land()
 {
 	set_next_WP(&next_nav_command);
@@ -283,10 +291,11 @@ static void do_loiter_time()
 	loiter_time = millis();
 	loiter_time_max = next_nav_command.p1; // units are (seconds * 10)
 }
-
+*/
 /********************************************************************************/
 //  Verify Nav (Must) commands
 /********************************************************************************/
+/* 
 static bool verify_takeoff()
 {
 	if (g_gps->ground_speed > 300){
@@ -342,7 +351,7 @@ static bool verify_land()
 	update_crosstrack();
 	return false;
 }
-
+*/
 static bool verify_nav_wp()
 {
 	hold_course = -1;
@@ -353,13 +362,14 @@ static bool verify_nav_wp()
 	}
 	// add in a more complex case
 	// Doug to do
-	if(loiter_sum > 300){
+	/* if(loiter_sum > 300){
 		gcs_send_text_P(SEVERITY_MEDIUM,PSTR("Missed WP"));
 		return true;
 	}
+*/
 	return false;
 }
-
+/*
 static bool verify_loiter_unlim()
 {
 	update_loiter();
@@ -400,17 +410,18 @@ static bool verify_RTL()
 		return false;
 	}
 }
-
+*/
 /********************************************************************************/
 //  Condition (May) commands
 /********************************************************************************/
 
+/* 
 static void do_wait_delay()
 {
 	condition_start = millis();
 	condition_value  = next_nonnav_command.lat * 1000;	// convert to milliseconds
 }
-
+*/
 static void do_change_alt()
 {
 	condition_rate		= next_nonnav_command.lat;
@@ -420,6 +431,7 @@ static void do_change_alt()
 	offset_altitude 	= 0;											// For future nav calculations
 }
 
+ 
 static void do_within_distance()
 {
 	condition_value  = next_nonnav_command.lat;
@@ -428,7 +440,7 @@ static void do_within_distance()
 /********************************************************************************/
 // Verify Condition (May) commands
 /********************************************************************************/
-
+/* 
 static bool verify_wait_delay()
 {
 	if ((unsigned)(millis() - condition_start) > condition_value){
@@ -437,7 +449,7 @@ static bool verify_wait_delay()
 	}
 	return false;
 }
-
+*/
 static bool verify_change_alt()
 {
 	if( (condition_rate>=0 && current_loc.alt >= condition_value) || (condition_rate<=0 && current_loc.alt <= condition_value)) {
@@ -461,11 +473,12 @@ static bool verify_within_distance()
 //  Do (Now) commands
 /********************************************************************************/
 
+/* 
 static void do_loiter_at_location()
 {
 	next_WP = current_loc;
 }
-
+*/
 static void do_jump()
 {
 	struct Location temp;
@@ -496,6 +509,7 @@ static void do_jump()
 	}
 }
 
+/* 
 static void do_change_speed()
 {
 	// Note: we have no implementation for commanded ground speed, only air speed and throttle
@@ -505,7 +519,7 @@ static void do_change_speed()
 	if(next_nonnav_command.lat > 0)
 		g.throttle_cruise.set_and_save(next_nonnav_command.lat);
 }
-
+*/
 static void do_set_home()
 {
 	if(next_nonnav_command.p1 == 1 && GPS_enabled) {
@@ -519,6 +533,7 @@ static void do_set_home()
 	}
 }
 
+/* 
 static void do_set_servo()
 {
 	APM_RC.OutputCh(next_nonnav_command.p1 - 1, next_nonnav_command.alt);
@@ -572,3 +587,4 @@ static void do_repeat_relay()
 	event_repeat	= next_nonnav_command.alt * 2;
 	update_events();
 }
+*/

@@ -28,9 +28,10 @@ static void stabilize()
 	}
 
 	if(crash_timer > 0){
-		nav_roll = 0;
+		/* nav_roll = 0; */
 	}
 
+/* 
     if (inverted_flight) {
         // we want to fly upside down. We need to cope with wrap of
         // the roll_sensor interfering with wrap of nav_roll, which
@@ -40,6 +41,7 @@ static void stabilize()
         nav_roll += 18000;
         if (dcm.roll_sensor < 0) nav_roll -= 36000;
     }
+    */
 
 	// For Testing Only
 	// roll_sensor = (radio_in[CH_RUDDER] - radio_trim[CH_RUDDER]) * 10;
@@ -48,20 +50,29 @@ static void stabilize()
 
 	// Calculate dersired servo output for the roll
 	// ---------------------------------------------
+/* 
 	g.channel_roll.servo_out = g.pidServoRoll.get_pid((nav_roll - dcm.roll_sensor), delta_ms_fast_loop, speed_scaler);
 	long tempcalc = nav_pitch +
 	        fabs(dcm.roll_sensor * g.kff_pitch_compensation) +
 	        (g.channel_throttle.servo_out * g.kff_throttle_to_pitch) -
 	        (dcm.pitch_sensor - g.pitch_trim);
+
     if (inverted_flight) {
         // when flying upside down the elevator control is inverted
         tempcalc = -tempcalc;
     }
-	g.channel_pitch.servo_out = g.pidServoPitch.get_pid(tempcalc, delta_ms_fast_loop, speed_scaler);
+    */
+    g.channel_roll.servo_out = (float)g.channel_roll.radio_in;
+    g.channel_pitch.servo_out = g.channel_pitch.radio_in;
+    g.channel_rudder.servo_out = g.channel_rudder.radio_in;
+    
+    
+    
+//	g.channel_pitch.servo_out = g.pidServoPitch.get_pid(tempcalc, delta_ms_fast_loop, speed_scaler);
 
 	// Mix Stick input to allow users to override control surfaces
 	// -----------------------------------------------------------
-	if ((control_mode < FLY_BY_WIRE_A) || (ENABLE_STICK_MIXING == 1 && control_mode > FLY_BY_WIRE_B && failsafe == FAILSAFE_NONE)) {
+	/*if ((control_mode < FLY_BY_WIRE_A) || (ENABLE_STICK_MIXING == 1 && control_mode > FLY_BY_WIRE_B && failsafe == FAILSAFE_NONE)) {
 
 
 		// TODO: use RC_Channel control_mix function?
@@ -87,24 +98,25 @@ static void stabilize()
 
 		//Serial.printf_P(PSTR(" servo_out[CH_ROLL] "));
 		//Serial.println(servo_out[CH_ROLL],DEC);
-	}
+	}*/
+
 
 	// stick mixing performed for rudder for all cases including FBW unless disabled for higher modes
 	// important for steering on the ground during landing
 	// -----------------------------------------------
-	if (control_mode <= FLY_BY_WIRE_B || (ENABLE_STICK_MIXING == 1 && failsafe == FAILSAFE_NONE)) {
+	/* if (control_mode <= FLY_BY_WIRE_B || (ENABLE_STICK_MIXING == 1 && failsafe == FAILSAFE_NONE)) {
 		ch4_inf = (float)g.channel_rudder.radio_in - (float)g.channel_rudder.radio_trim;
 		ch4_inf = fabs(ch4_inf);
 		ch4_inf = min(ch4_inf, 400.0);
 		ch4_inf = ((400.0 - ch4_inf) /400.0);
-	}
+	}*/
 
 	// Apply output to Rudder
 	// ----------------------
-	calc_nav_yaw(speed_scaler);
+/*	calc_nav_yaw(speed_scaler);
 	g.channel_rudder.servo_out *= ch4_inf;
 	g.channel_rudder.servo_out += g.channel_rudder.pwm_to_angle();
-
+*/
 	// Call slew rate limiter if used
 	// ------------------------------
 	//#if(ROLL_SLEW_LIMIT != 0)
@@ -114,27 +126,30 @@ static void stabilize()
 
 static void crash_checker()
 {
-	if(dcm.pitch_sensor < -4500){
+	/* if(dcm.pitch_sensor < -4500){
 		crash_timer = 255;
 	}
 	if(crash_timer > 0)
 		crash_timer--;
+*/
 }
 
 
 static void calc_throttle()
 {
   if (g.airspeed_enabled == false) {
-	int throttle_target = g.throttle_cruise + throttle_nudge;
+	/* int throttle_target = g.throttle_cruise + throttle_nudge; */
 
 		// no airspeed sensor, we use nav pitch to determine the proper throttle output
 		// AUTO, RTL, etc
 		// ---------------------------------------------------------------------------
+/* 
 		if (nav_pitch >= 0) {
 			g.channel_throttle.servo_out = throttle_target + (g.throttle_max - throttle_target) * nav_pitch / g.pitch_limit_max;
 		} else {
 			g.channel_throttle.servo_out = throttle_target - (throttle_target - g.throttle_min) * nav_pitch / g.pitch_limit_min;
 		}
+*/
 
 		g.channel_throttle.servo_out = constrain(g.channel_throttle.servo_out, g.throttle_min.get(), g.throttle_max.get());
 	} else {
@@ -160,6 +175,7 @@ static void calc_throttle()
 // ----------------------------------------------------------------------------------------
 static void calc_nav_yaw(float speed_scaler)
 {
+ /* 
 #if HIL_MODE != HIL_MODE_ATTITUDE
 	Vector3f temp = imu.get_accel();
 	long error = -temp.y;
@@ -170,11 +186,13 @@ static void calc_nav_yaw(float speed_scaler)
 	g.channel_rudder.servo_out = g.kff_rudder_mix * g.channel_roll.servo_out;
 	// XXX probably need something here based on heading
 #endif
+*/
 }
 
 
 static void calc_nav_pitch()
 {
+  /* 
 	// Calculate the Pitch of the plane
 	// --------------------------------
 	if (g.airspeed_enabled == true) {
@@ -183,6 +201,7 @@ static void calc_nav_pitch()
 		nav_pitch = g.pidNavPitchAltitude.get_pid(altitude_error, dTnav);
     }
 	nav_pitch = constrain(nav_pitch, g.pitch_limit_min.get(), g.pitch_limit_max.get());
+*/
 }
 
 
@@ -200,11 +219,13 @@ static void calc_nav_roll()
 	// positive error = right turn
 	// Calculate the required roll of the plane
 	// ----------------------------------------
+/*
 	nav_roll = g.pidNavRoll.get_pid(bearing_error, dTnav, nav_gain_scaler);	//returns desired bank angle in degrees*100
 	nav_roll = constrain(nav_roll, -g.roll_limit.get(), g.roll_limit.get());
+*/
 
 	Vector3f omega;
-	omega = dcm.get_gyro();
+	//omega = dcm.get_gyro();
 
 	// rate limiter
 	long rate		= degrees(omega.z) * 100; 										// 3rad = 17188 , 6rad = 34377
@@ -212,8 +233,10 @@ static void calc_nav_roll()
 	int dampener 	= rate * YAW_DAMPENER;											// 34377 * .175 = 6000
 
 	// add in yaw dampener
+/* 
 	nav_roll		-= dampener;
 	nav_roll		= constrain(nav_roll, -g.roll_limit.get(), g.roll_limit.get());
+*/
 }
 
 
@@ -336,7 +359,7 @@ static void set_servos(void)
 				OR
 				5 - Home location is not set
 			*/
-			if ( 
+			/* if ( 
 					(control_mode == CIRCLE || control_mode >= FLY_BY_WIRE_B) &&
 					(abs(home.alt - current_loc.alt) < 1000) &&
 					((g.airspeed_enabled ? airspeed : g_gps->ground_speed) < 500 ) &&
@@ -345,6 +368,7 @@ static void set_servos(void)
 				g.channel_throttle.servo_out = 0;
 				g.channel_throttle.calc_pwm();
 			}
+*/
 			
 		#endif
 

@@ -36,15 +36,15 @@ static void navigate()
 	nav_bearing = target_bearing;
 
 	// check if we have missed the WP
-	loiter_delta = (target_bearing - old_target_bearing)/100;
+	/* loiter_delta = (target_bearing - old_target_bearing)/100;  */
 
 	// reset the old value
-	old_target_bearing = target_bearing;
+	/* old_target_bearing = target_bearing;  */
 
 	// wrap values
-	if (loiter_delta > 180) loiter_delta -= 360;
+	/* if (loiter_delta > 180) loiter_delta -= 360;
 	if (loiter_delta < -180) loiter_delta += 360;
-	loiter_sum += abs(loiter_delta);
+	loiter_sum += abs(loiter_delta); */
 
 	// control mode specific updates to nav_bearing
 	// --------------------------------------------
@@ -64,6 +64,7 @@ void calc_distance_error()
 
 static void calc_airspeed_errors()
 {
+  /* 
     // XXX excess casting here
 	if(control_mode>=AUTO && airspeed_nudge > 0) {
 		airspeed_error = g.airspeed_cruise + airspeed_nudge - airspeed;
@@ -72,18 +73,19 @@ static void calc_airspeed_errors()
 		airspeed_error = g.airspeed_cruise - airspeed;
 		airspeed_energy_error = (long)(((long)g.airspeed_cruise * (long)g.airspeed_cruise) - ((long)airspeed * (long)airspeed))/20000; //Changed 0.00005f * to / 20000 to avoid floating point calculation
 	}
+*/
 }
 
 static void calc_bearing_error()
 {
-	if(takeoff_complete == true  || g.compass_enabled == true) {
-		bearing_error = nav_bearing - dcm.yaw_sensor;
-	} else {
+	//if(takeoff_complete == true  || g.compass_enabled == true) {
+	//	bearing_error = nav_bearing - dcm.yaw_sensor;
+	//} else {
 
 		// TODO: we need to use the Yaw gyro for in between GPS reads,
 		// maybe as an offset from a saved gryo value.
 		bearing_error = nav_bearing - g_gps->ground_course;
-	}
+	//}
 
 	bearing_error = wrap_180(bearing_error);
 }
@@ -142,7 +144,7 @@ static long wrap_180(long error)
 
 static void update_loiter()
 {
-	float power;
+/* 	float power;
 
 	if(wp_distance <= g.loiter_radius){
 		power = float(wp_distance) / float(g.loiter_radius);
@@ -158,6 +160,8 @@ static void update_loiter()
 		loiter_time = millis();			// keep start time for loiter updating till we get within LOITER_RANGE of orbit
 		
 	}
+*/
+
 /*
 	if (wp_distance < g.loiter_radius){
 		nav_bearing += 9000;
@@ -167,11 +171,12 @@ static void update_loiter()
 
 	update_crosstrack();
 */
-	nav_bearing = wrap_360(nav_bearing);
+	//nav_bearing = wrap_360(nav_bearing);
 }
 
 static void update_crosstrack(void)
 {
+  /* 
 	// Crosstrack Error
 	// ----------------
 	if (abs(wrap_180(target_bearing - crosstrack_bearing)) < 4500) {	 // If we are too far off or too close we don't do track following
@@ -179,11 +184,12 @@ static void update_crosstrack(void)
 		nav_bearing += constrain(crosstrack_error * g.crosstrack_gain, -g.crosstrack_entry_angle.get(), g.crosstrack_entry_angle.get());
 		nav_bearing = wrap_360(nav_bearing);
 	}
+*/
 }
 
 static void reset_crosstrack()
 {
-	crosstrack_bearing 	= get_bearing(&prev_WP, &next_WP);	// Used for track following
+	//crosstrack_bearing 	= get_bearing(&prev_WP, &next_WP);	// Used for track following
 }
 
 static long get_distance(struct Location *loc1, struct Location *loc2)

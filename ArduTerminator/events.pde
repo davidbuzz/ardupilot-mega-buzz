@@ -3,6 +3,7 @@
 
 static void failsafe_short_on_event()
 {
+  /* 
 	// This is how to handle a short loss of control signal failsafe.
 	failsafe = FAILSAFE_SHORT;
 	ch3_failsafe_timer = millis();
@@ -29,10 +30,12 @@ static void failsafe_short_on_event()
 			break;
 	}
     gcs_send_text_fmt(PSTR("flight mode = %u"), (unsigned)control_mode);
+    */
 }
 
 static void failsafe_long_on_event()
 {
+  
 	// This is how to handle a long loss of control signal failsafe.
 	gcs_send_text_P(SEVERITY_LOW, PSTR("Failsafe - Long event on"));
 	APM_RC.clearOverride();		//  If the GCS is locked up we allow control to revert to RC
@@ -43,17 +46,18 @@ static void failsafe_long_on_event()
 		case FLY_BY_WIRE_A: // middle position
 		case FLY_BY_WIRE_B: // middle position
 		case CIRCLE: 
-			set_mode(RTL);
-			break;
-
+			//set_mode(RTL);
+		//	break;
+		case RTL: 
 		case AUTO: 
 		case LOITER: 
-			if(g.long_fs_action == 1) {
-				set_mode(RTL);
-			}
+		//	if(g.long_fs_action == 1) {
+			//	set_mode(RTL);
+		//	}
 			break;
-			
-		case RTL: 
+		case TERMINATE:
+                        set_mode(TERMINATE);
+                        break;
 		default:
 			break;
 	}
@@ -61,6 +65,7 @@ static void failsafe_long_on_event()
 
 static void failsafe_short_off_event()
 {
+  /* 
 	// We're back in radio contact
 	gcs_send_text_P(SEVERITY_LOW, PSTR("Failsafe - Short event off"));
 	failsafe = FAILSAFE_NONE;
@@ -72,19 +77,23 @@ static void failsafe_short_off_event()
 	// Reset control integrators
 	// ---------------------
 	reset_I();
+*/
 }
 
 #if BATTERY_EVENT == ENABLED
+/* 
 static void low_battery_event(void)
 {
 	gcs_send_text_P(SEVERITY_HIGH,PSTR("Low Battery!"));
 	set_mode(RTL);
 	g.throttle_cruise = THROTTLE_CRUISE;
 }
+*/
 #endif
 
 static void update_events(void)	// Used for MAV_CMD_DO_REPEAT_SERVO and MAV_CMD_DO_REPEAT_RELAY
 {
+  /* 
 	if(event_repeat == 0 || (millis() - event_timer) < event_delay)
 		return;
 
@@ -107,4 +116,5 @@ static void update_events(void)	// Used for MAV_CMD_DO_REPEAT_SERVO and MAV_CMD_
 			relay.toggle();
 		}
 	}
+*/
 }

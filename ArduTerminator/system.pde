@@ -8,6 +8,7 @@ The init_ardupilot function processes everything we need for an in - air restart
 
 #if CLI_ENABLED == ENABLED
 
+/* 
 // Functions called from the top-level menu
 static int8_t	process_logs(uint8_t argc, const Menu::arg *argv);	// in Log.pde
 static int8_t	setup_mode(uint8_t argc, const Menu::arg *argv);	// in setup.pde
@@ -50,7 +51,7 @@ static void run_cli(void)
         main_menu.run();
     }
 }
-
+*/
 #endif // CLI_ENABLED
 
 static void init_ardupilot()
@@ -136,20 +137,22 @@ static void init_ardupilot()
 	mavlink_system.sysid = g.sysid_this_mav;
 
 
-#if HIL_MODE != HIL_MODE_ATTITUDE
+//#if HIL_MODE != HIL_MODE_ATTITUDE
+/* 
 	adc.Init();	 		// APM ADC library initialization
 	barometer.Init();	// APM Abs Pressure sensor initialization
-
-	if (g.compass_enabled==true) {
+*/
+	/* if (g.compass_enabled==true) {
         compass.set_orientation(MAG_ORIENTATION);							// set compass's orientation on aircraft
 		if (!compass.init()) {
             Serial.println_P(PSTR("Compass initialisation failed!"));
             g.compass_enabled = false;
         } else {
-            dcm.set_compass(&compass);
+           // dcm.set_compass(&compass);
             compass.get_offsets();						// load offsets to account for airframe magnetic interference
         }
 	}
+*/
 	/*
 	Init is depricated - Jason
 	if(g.sonar_enabled){
@@ -157,10 +160,10 @@ static void init_ardupilot()
 		Serial.print("Sonar init: ");	Serial.println(SONAR_PIN, DEC);
 	}
 	*/
-#endif
+//#endif
 
 #if LOGGING_ENABLED == ENABLED
-	DataFlash.Init(); 	// DataFlash log initialization
+//	DataFlash.Init(); 	// DataFlash log initialization
 #endif
 
 	// Do GPS init
@@ -170,7 +173,7 @@ static void init_ardupilot()
 
 	// init the GCS
 	gcs0.init(&Serial);
-	gcs3.init(&Serial3);
+	//gcs3.init(&Serial3);
 
 	//mavlink_system.sysid = MAV_SYSTEM_ID;				// Using g.sysid_this_mav
 	mavlink_system.compid = 1;	//MAV_COMP_ID_IMU;   // We do not check for comp id
@@ -193,7 +196,7 @@ static void init_ardupilot()
 	// the system in an odd state, we don't let the user exit the top
 	// menu; they must reset in order to fly.
 	//
-#if CLI_ENABLED == ENABLED && CLI_SLIDER_ENABLED == ENABLED
+/* #if CLI_ENABLED == ENABLED && CLI_SLIDER_ENABLED == ENABLED
 	if (digitalRead(SLIDE_SWITCH_PIN) == 0) {
 		digitalWrite(A_LED_PIN,HIGH);		// turn on setup-mode LED
 		Serial.printf_P(PSTR("\n"
@@ -206,11 +209,15 @@ static void init_ardupilot()
         run_cli();
 	}
 #else
+*/
     Serial.printf_P(PSTR("\nPress ENTER 3 times to start interactive setup\n\n"));
-#endif // CLI_ENABLED
+//#endif // CLI_ENABLED
 
 	if(g.log_bitmask != 0){
-		start_new_log();
+		//	TODO - Here we will check  on the length of the last log
+		//  We don't want to create a bunch of little logs due to powering on and off
+		byte last_log_num = get_num_logs();
+		start_new_log(last_log_num);
 	}
 
 	// read in the flight switches
@@ -223,10 +230,12 @@ static void init_ardupilot()
 		// Get necessary data from EEPROM
 		//----------------
 		//read_EEPROM_airstart_critical();
+/* 
 #if HIL_MODE != HIL_MODE_ATTITUDE
 		imu.init(IMU::WARM_START);
 		dcm.set_centripetal(1);
 #endif
+*/
 
 		// This delay is important for the APM_RC library to work.
 		// We need some time for the comm between the 328 and 1280 to be established.
@@ -251,7 +260,8 @@ static void init_ardupilot()
 			Log_Write_Startup(TYPE_GROUNDSTART_MSG);
 	}
 
-    set_mode(MANUAL);
+    // BUZZ DEFAULT TO AUTO 
+    set_mode(AUTO);
 
 	// set the correct flight mode
 	// ---------------------------
@@ -263,6 +273,7 @@ static void init_ardupilot()
 //********************************************************************************
 static void startup_ground(void)
 {
+  /* 
     set_mode(INITIALISING);
 
 	gcs_send_text_P(SEVERITY_LOW,PSTR("<startup_ground> GROUND START"));
@@ -285,6 +296,20 @@ static void startup_ground(void)
 	// read the radio to set trims
 	// ---------------------------
 	trim_radio();		// This was commented out as a HACK.  Why?  I don't find a problem.
+
+#if HIL_MODE != HIL_MODE_ATTITUDE
+if (g.airspeed_enabled == true)
+   {
+	// initialize airspeed sensor
+	// --------------------------
+	zero_airspeed();
+	gcs_send_text_P(SEVERITY_LOW,PSTR("<startup_ground> zero airspeed calibrated"));
+   }
+else
+  {
+	gcs_send_text_P(SEVERITY_LOW,PSTR("<startup_ground> NO airspeed"));
+  }
+#endif
 
 	// Save the settings for in-air restart
 	// ------------------------------------
@@ -314,6 +339,7 @@ static void startup_ground(void)
 	demo_servos(3);
 
 	gcs_send_text_P(SEVERITY_LOW,PSTR("\n\n Ready to FLY."));
+*/
 }
 
 static void set_mode(byte mode)
@@ -343,11 +369,11 @@ static void set_mode(byte mode)
 			break;
 
 		case RTL:
-			do_RTL();
+			//do_RTL();
 			break;
 
 		case LOITER:
-			do_loiter_at_location();
+			//do_loiter_at_location();
 			break;
 
 		case GUIDED:
@@ -355,7 +381,7 @@ static void set_mode(byte mode)
 			break;
 
 		default:
-			do_RTL();
+			//do_RTL();
 			break;
 	}
 
@@ -408,7 +434,10 @@ static void check_short_failsafe()
 
 static void startup_IMU_ground(void)
 {
+  
+  
 #if HIL_MODE != HIL_MODE_ATTITUDE
+/* 
     gcs_send_text_P(SEVERITY_MEDIUM, PSTR("Warming up ADC..."));
  	mavlink_delay(500);
 
@@ -420,19 +449,10 @@ static void startup_IMU_ground(void)
 
 	imu.init(IMU::COLD_START, mavlink_delay);
 	dcm.set_centripetal(1);
-
+*/
 	// read Baro pressure at ground
 	//-----------------------------
 	init_barometer();
-
-    if (g.airspeed_enabled == true) {
-        // initialize airspeed sensor
-        // --------------------------
-        zero_airspeed();
-        gcs_send_text_P(SEVERITY_LOW,PSTR("<startup_ground> zero airspeed calibrated"));
-    } else {
-        gcs_send_text_P(SEVERITY_LOW,PSTR("<startup_ground> NO airspeed"));
-    }
 
 #endif // HIL_MODE_ATTITUDE
 
@@ -473,10 +493,10 @@ static void update_GPS_light(void)
 static void resetPerfData(void) {
 	mainLoop_count 			= 0;
 	G_Dt_max 				= 0;
-	dcm.gyro_sat_count 		= 0;
-	imu.adc_constraints 	= 0;
-	dcm.renorm_sqrt_count 	= 0;
-	dcm.renorm_blowup_count = 0;
+	//dcm.gyro_sat_count 		= 0;
+	//imu.adc_constraints 	= 0;
+	//dcm.renorm_sqrt_count 	= 0;
+	//dcm.renorm_blowup_count = 0;
 	gps_fix_count 			= 0;
 	pmTest1					= 0;
 	perf_mon_timer 			= millis();

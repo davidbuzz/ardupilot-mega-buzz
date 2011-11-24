@@ -2,6 +2,7 @@
 
 #if CLI_ENABLED == ENABLED
 
+/* 
 // Functions called from the setup menu
 static int8_t	setup_radio			(uint8_t argc, const Menu::arg *argv);
 static int8_t	setup_show			(uint8_t argc, const Menu::arg *argv);
@@ -228,12 +229,13 @@ setup_flightmodes(uint8_t argc, const Menu::arg *argv)
 				mode != FLY_BY_WIRE_B &&
 				mode != AUTO &&
 				mode != RTL &&
-				mode != LOITER)
+				mode != LOITER && 
+                                mode != TERMINATE)
 			{
 				if (mode < MANUAL)
 					mode = LOITER;
 				else if (mode >LOITER)
-					mode = MANUAL;
+					mode = TERMINATE;
 				else
 					mode += radioInputSwitch;
 			}
@@ -290,6 +292,7 @@ setup_erase(uint8_t argc, const Menu::arg *argv)
 static int8_t
 setup_compass(uint8_t argc, const Menu::arg *argv)
 {
+   
 	if (!strcmp_P(argv[1].str, PSTR("on"))) {
         compass.set_orientation(MAG_ORIENTATION);	// set compass's orientation on aircraft
 		if (!compass.init()) {
@@ -309,6 +312,7 @@ setup_compass(uint8_t argc, const Menu::arg *argv)
 
 	g.compass_enabled.save();
 	report_compass();
+ 
 	return 0;
 }
 
@@ -325,11 +329,7 @@ setup_batt_monitor(uint8_t argc, const Menu::arg *argv)
 	report_batt_monitor();
 	return 0;
 }
-
-/***************************************************************************/
-// CLI reports
-/***************************************************************************/
-
+ 
 static void report_batt_monitor()
 {
 	//print_blanks(2);
@@ -475,9 +475,9 @@ static void report_flight_modes()
 	print_blanks(2);
 }
 
-/***************************************************************************/
+// ************************************************************************** 
 // CLI utilities
-/***************************************************************************/
+// ************************************************************************** 
 
 static void
 print_PID(PID * pid)
@@ -598,5 +598,5 @@ print_gyro_offsets(void)
 						(float)imu.gz());
 }
 
-
+*/
 #endif // CLI_ENABLED
