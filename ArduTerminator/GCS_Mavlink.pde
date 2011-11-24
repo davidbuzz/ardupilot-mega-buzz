@@ -102,6 +102,10 @@ static NOINLINE void send_heartbeat(mavlink_channel_t chan)
 */
 #else // MAVLINK10
 
+              //BUZZ: 
+                fprintf(stdout, "heartbeat %i\n", chan);
+                fflush(stdout);
+
     mavlink_msg_heartbeat_send(
         chan,
         mavlink_system.type,
@@ -468,6 +472,11 @@ static void NOINLINE send_raw_imu3(mavlink_channel_t chan)
 
 static void NOINLINE send_gps_status(mavlink_channel_t chan)
 {
+  
+         //BUZZ: 
+                fprintf(stdout, "send_gps_status %i\n", chan);
+                fflush(stdout);
+                
     mavlink_msg_gps_status_send(
         chan,
         g_gps->num_sats,
@@ -599,7 +608,7 @@ static bool mavlink_try_send_message(mavlink_channel_t chan, enum ap_message id,
         if (chan == MAVLINK_COMM_0) {
             gcs0.queued_param_send();
         } else {
- //           gcs3.queued_param_send();
+            gcs3.queued_param_send();
         }
         break;
 
@@ -608,7 +617,7 @@ static bool mavlink_try_send_message(mavlink_channel_t chan, enum ap_message id,
         if (chan == MAVLINK_COMM_0) {
             gcs0.queued_waypoint_send();
         } else {
-     //       gcs3.queued_waypoint_send();
+             gcs3.queued_waypoint_send();
         }
         break;
 
@@ -962,7 +971,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
         }
 
 #ifdef MAVLINK10
-    case MAVLINK_MSG_ID_COMMAND_LONG:
+ /*    case MAVLINK_MSG_ID_COMMAND_LONG:
         {
             // decode
             mavlink_command_long_t packet;
@@ -1021,7 +1030,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 
             break;
         }
-
+*/
 #else // MAVLINK10
     case MAVLINK_MSG_ID_ACTION:
         {
@@ -1035,6 +1044,11 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
             // do action
             send_text(SEVERITY_LOW,PSTR("action received: "));
 //Serial.println(packet.action);
+
+            //BUZZ:    TIP : Buttons in APM Planner labeled:   'Auto'(13), 'Manual'(12) , RTL(3) , takeoff(24) , loiter(27), all  trigger this code here: 
+                fprintf(stdout, "packet: %i\n", packet.action);
+                fflush(stdout);
+                
             switch(packet.action){
 
                 case MAV_ACTION_LAUNCH:
@@ -1151,6 +1165,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
             mavlink_msg_set_mode_decode(msg, &packet);
 
 #ifdef MAVLINK10
+/* 
             if (!(packet.base_mode & MAV_MODE_FLAG_CUSTOM_MODE_ENABLED)) {
                 // we ignore base_mode as there is no sane way to map
                 // from that bitmap to a APM flight mode. We rely on
@@ -1170,7 +1185,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
                 set_mode(packet.custom_mode);
                 break;
             }
-
+*/
 #else // MAVLINK10
 
             switch(packet.mode){
@@ -2041,7 +2056,7 @@ static void mavlink_delay(unsigned long t)
 static void gcs_send_message(enum ap_message id)
 {
     gcs0.send_message(id);
-   // gcs3.send_message(id);
+     gcs3.send_message(id);
 }
 
 /*
@@ -2050,7 +2065,7 @@ static void gcs_send_message(enum ap_message id)
 static void gcs_data_stream_send(uint16_t freqMin, uint16_t freqMax)
 {
     gcs0.data_stream_send(freqMin, freqMax);
-   // gcs3.data_stream_send(freqMin, freqMax);
+     gcs3.data_stream_send(freqMin, freqMax);
 }
 
 /*
@@ -2059,19 +2074,19 @@ static void gcs_data_stream_send(uint16_t freqMin, uint16_t freqMax)
 static void gcs_update(void)
 {
 	gcs0.update();
-   // gcs3.update();
+     gcs3.update();
 }
 
 static void gcs_send_text(gcs_severity severity, const char *str)
 {
     gcs0.send_text(severity, str);
-   // gcs3.send_text(severity, str);
+     gcs3.send_text(severity, str);
 }
 
 static void gcs_send_text_P(gcs_severity severity, const prog_char_t *str)
 {
     gcs0.send_text(severity, str);
-   // gcs3.send_text(severity, str);
+     gcs3.send_text(severity, str);
 }
 
 /*

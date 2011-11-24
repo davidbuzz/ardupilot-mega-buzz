@@ -26,7 +26,7 @@ static int8_t
 planner_gcs(uint8_t argc, const Menu::arg *argv)
 {
   gcs0.init(&Serial);
- // gcs3.init(&Serial3);
+  gcs3.init(&Serial3);
   
   int loopcount = 0;
   while (1) {

@@ -170,7 +170,7 @@ AP_GPS_HIL              g_gps_driver(NULL);
 ////////////////////////////////////////////////////////////////////////////////
 //
 GCS_MAVLINK	gcs0(Parameters::k_param_streamrates_port0);
-//GCS_MAVLINK	gcs3(Parameters::k_param_streamrates_port3);
+GCS_MAVLINK	gcs3(Parameters::k_param_streamrates_port3);
 
 ////////////////////////////////////////////////////////////////////////////////
 // SONAR selection

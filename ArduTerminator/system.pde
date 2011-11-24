@@ -173,7 +173,7 @@ static void init_ardupilot()
 
 	// init the GCS
 	gcs0.init(&Serial);
-	//gcs3.init(&Serial3);
+	gcs3.init(&Serial3);
 
 	//mavlink_system.sysid = MAV_SYSTEM_ID;				// Using g.sysid_this_mav
 	mavlink_system.compid = 1;	//MAV_COMP_ID_IMU;   // We do not check for comp id

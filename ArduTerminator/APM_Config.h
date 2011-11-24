@@ -50,6 +50,6 @@
 
 // The following are the recommended settings for Xplane simulation. Remove the leading "/* and trailing "*/" to enable:
 
-/*
+/* 
 #define HIL_MODE            HIL_MODE_ATTITUDE
 */
