@@ -33,6 +33,7 @@ static void failsafe_short_on_event()
     */
 }
 
+/* 
 static void failsafe_long_on_event()
 {
   
@@ -46,17 +47,12 @@ static void failsafe_long_on_event()
 		case FLY_BY_WIRE_A: // middle position
 		case FLY_BY_WIRE_B: // middle position
 		case CIRCLE: 
-			//set_mode(RTL);
-		//	break;
-		case RTL: 
 		case AUTO: 
 		case LOITER: 
-		//	if(g.long_fs_action == 1) {
-			//	set_mode(RTL);
-		//	}
                   set_mode(AUTO);
 			break;
-
+  //BUZZ TODO NOTE HERE I  IMPLEMENTED  RTL = TERMINATE  ( FOR GROUND USAGE ) 
+		case RTL: 
 		case TERMINATE:
                         set_mode(TERMINATE);
                         break;
@@ -64,6 +60,7 @@ static void failsafe_long_on_event()
 			break;
 	}
 }
+*/
 
 static void failsafe_short_off_event()
 {

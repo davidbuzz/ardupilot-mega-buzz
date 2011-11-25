@@ -25,7 +25,7 @@ static void init_commands()
 
 static void update_auto()
 {
-	if (g.command_index >= g.command_total) {
+/* 	if (g.command_index >= g.command_total) {
 		handle_no_commands();
 		if(g.command_total == 0) {
 			next_WP.lat 		= home.lat + 1000;	// so we don't have bad calcs
@@ -41,6 +41,7 @@ static void update_auto()
 		next_nav_command.id 	= CMD_BLANK;
 		process_next_command();
 	}
+*/
 }
 
 // this is only used by an air-start

@@ -677,7 +677,7 @@ static void slow_loop()
 	switch (slow_loopCounter){
 		case 0:
 			slow_loopCounter++;
-			check_long_failsafe();
+			//check_long_failsafe();
 			superslow_loopCounter++;
 			if(superslow_loopCounter >=200) {				//	200 = Execute every minute
 				#if HIL_MODE != HIL_MODE_ATTITUDE
@@ -703,9 +703,9 @@ static void slow_loop()
 
 			update_aux_servo_function(&g.rc_5, &g.rc_6, &g.rc_7, &g.rc_8);
 
-#if MOUNT == ENABLED
-			camera_mount.update_mount_type();
-#endif
+//#if MOUNT == ENABLED
+			//camera_mount.update_mount_type();
+//#endif
 			break;
 
 		case 2:

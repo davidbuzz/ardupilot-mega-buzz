@@ -2,6 +2,7 @@
 
 static void read_control_switch()
 {
+  /* 
 	byte switchPosition = readSwitch();
 	if (oldSwitchPosition != switchPosition){
 
@@ -20,6 +21,7 @@ static void read_control_switch()
         // fly upside down when that channel goes above INVERTED_FLIGHT_PWM
         inverted_flight = (control_mode != MANUAL && APM_RC.InputCh(g.inverted_flight_ch-1) > INVERTED_FLIGHT_PWM);
     }
+    */
 }
 
 static byte readSwitch(void){
@@ -34,13 +36,15 @@ static byte readSwitch(void){
 
 static void reset_control_switch()
 {
+  /* 
 	oldSwitchPosition = 0;
 	read_control_switch();
+*/
 }
 
 static void update_servo_switches()
 {
-	if (!g.switch_enable) {
+/* 	if (!g.switch_enable) {
         // switches are disabled in EEPROM (see SWITCH_ENABLE option)
         // this means the EEPROM control of all channel reversal is enabled
 		return;
@@ -57,4 +61,5 @@ static void update_servo_switches()
 		g.reverse_ch1_elevon = (PINE & 64) ? true : false;
 		g.reverse_ch2_elevon = (PINL & 64) ? true : false;
 	}
+*/
 }

@@ -358,12 +358,13 @@ static void set_mode(byte mode)
 		// don't switch modes if we are already in the correct mode.
 		return;
 	}
-	if(g.auto_trim > 0 && control_mode == MANUAL)
+	/* if(g.auto_trim > 0 && control_mode == MANUAL)
 		trim_control_surfaces();
-
+*/
 	control_mode = mode;
 	crash_timer = 0;
 
+/* 
 	switch(control_mode)
 	{
 		case INITIALISING:
@@ -372,22 +373,16 @@ static void set_mode(byte mode)
 		case STABILIZE:
 		case FLY_BY_WIRE_A:
 		case FLY_BY_WIRE_B:
+		case LOITER:
+		case GUIDED:
 			break;
 
 		case AUTO:
-			update_auto();
+			//update_auto();
 			break;
 
 		case RTL:
 			//do_RTL();
-			break;
-
-		case LOITER:
-			//do_loiter_at_location();
-			break;
-
-		case GUIDED:
-			set_guided_WP();
 			break;
 
 		default:
@@ -397,11 +392,13 @@ static void set_mode(byte mode)
 
 	if (g.log_bitmask & MASK_LOG_MODE)
 		Log_Write_Mode(control_mode);
+*/
 }
 
+/*
 static void check_long_failsafe()
 {
-	// only act on changes
+ 	// only act on changes
 	// -------------------
 	if(failsafe != FAILSAFE_LONG  && failsafe != FAILSAFE_GCS){
 		if(rc_override_active && millis() - rc_override_fs_timer > FAILSAFE_LONG_TIME) {
@@ -422,10 +419,13 @@ static void check_long_failsafe()
 		if(failsafe == FAILSAFE_LONG && rc_override_active && millis() - rc_override_fs_timer < FAILSAFE_SHORT_TIME) failsafe = FAILSAFE_NONE;
 		if(failsafe == FAILSAFE_LONG && !rc_override_active && !ch3_failsafe) failsafe = FAILSAFE_NONE;
 	}
+
 }
+*/
 
 static void check_short_failsafe()
 {
+  /* 
 	// only act on changes
 	// -------------------
 	if(failsafe == FAILSAFE_NONE){
@@ -439,6 +439,7 @@ static void check_short_failsafe()
 			failsafe_short_off_event();
 		}
 	}
+*/
 }
 
 /* 

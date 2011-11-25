@@ -1069,7 +1069,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
                     break;
 
                 case MAV_ACTION_RETURN:
-//                    set_mode(RTL);
+                    set_mode(RTL);
                     result=1;
                     break;
 
@@ -1097,7 +1097,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
                     break;
 
                 case MAV_ACTION_SET_MANUAL:
-                    set_mode(MANUAL);
+                    set_mode(AUTO); // only AUTO,  or RTL/TERMINATE 
                     result=1;
                     break;
 
@@ -1154,7 +1154,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
                 */
 
                 case MAV_ACTION_LOITER:
-                    set_mode(LOITER);
+                    set_mode(AUTO);
                     result=1;
                     break;
 
@@ -1204,27 +1204,28 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
             switch(packet.mode){
 
                 case MAV_MODE_MANUAL:
-					set_mode(MANUAL);
+					set_mode(AUTO);  // only AUTO or RTL/TERMINATE
 					break;
 
 				case MAV_MODE_GUIDED:
-					set_mode(GUIDED);
+					//set_mode(AUTO);
 					break;
 
 				case MAV_MODE_AUTO:
-					if(mav_nav == 255 || mav_nav == MAV_NAV_WAYPOINT) 	set_mode(AUTO);
-					if(mav_nav == MAV_NAV_RETURNING)					set_mode(RTL);
-					if(mav_nav == MAV_NAV_LOITER)						set_mode(LOITER);
-					mav_nav = 255;
+					//if(mav_nav == 255 || mav_nav == MAV_NAV_WAYPOINT) 	
+                                        set_mode(AUTO);
+					//if(mav_nav == MAV_NAV_RETURNING)					set_mode(RTL);
+					//if(mav_nav == MAV_NAV_LOITER)						set_mode(LOITER);
+					//mav_nav = 255;
 					break;
 
                 case MAV_MODE_TEST1:
-					set_mode(STABILIZE);
+					//set_mode(STABILIZE);
 					break;
 
                 case MAV_MODE_TEST2:
-					if(mav_nav == 255 || mav_nav == 1) 	set_mode(FLY_BY_WIRE_A);
-					if(mav_nav == 2)					set_mode(FLY_BY_WIRE_B);
+					if(mav_nav == 255 || mav_nav == 1) 	//set_mode(FLY_BY_WIRE_A);
+					if(mav_nav == 2)			//		set_mode(FLY_BY_WIRE_B);
 					//if(mav_nav == 3)					set_mode(FLY_BY_WIRE_C);
 					mav_nav = 255;
 					break;
@@ -1609,10 +1610,10 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 					guided_WP.alt += home.alt;
 				}
 
-				set_mode(GUIDED);
+				set_mode(AUTO);
 
 				// make any new wp uploaded instant (in case we are already in Guided mode)
-				set_guided_WP();
+			//	set_guided_WP();
 
 				// verify we recevied the command
 				mavlink_msg_waypoint_ack_send(
@@ -1656,7 +1657,8 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
                  #endif
                  
                  // on-upload of a new flight-plane, reset the control mode to AUTO ( ie un-terminate! ) 
-                 control_mode = AUTO;
+             //    control_mode = AUTO;
+                 set_mode(AUTO);
 
 					send_text(SEVERITY_LOW,PSTR("flight plan received"));
 					waypoint_receiving = false;
