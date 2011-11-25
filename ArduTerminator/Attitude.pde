@@ -3,10 +3,10 @@
 //****************************************************************
 // Function that controls aileron/rudder, elevator, rudder (if 4 channel control) and throttle to produce desired attitude and airspeed.
 //****************************************************************
-
+  /*
 static void stabilize()
 {
-  /* 
+ 
 	float ch1_inf = 1.0;
 	float ch2_inf = 1.0;
 	float ch4_inf = 1.0;
@@ -27,13 +27,13 @@ static void stabilize()
 		}
 		speed_scaler = constrain(speed_scaler, 0.6, 1.67);		// This case is constrained tighter as we don't have real speed info
 	}
-*/
+ 
 
 	if(crash_timer > 0){
-		/* nav_roll = 0; */
+		  nav_roll = 0; 
 	}
 
-/* 
+  
     if (inverted_flight) {
         // we want to fly upside down. We need to cope with wrap of
         // the roll_sensor interfering with wrap of nav_roll, which
@@ -43,7 +43,7 @@ static void stabilize()
         nav_roll += 18000;
         if (dcm.roll_sensor < 0) nav_roll -= 36000;
     }
-    */
+   
 
 	// For Testing Only
 	// roll_sensor = (radio_in[CH_RUDDER] - radio_trim[CH_RUDDER]) * 10;
@@ -52,7 +52,7 @@ static void stabilize()
 
 	// Calculate dersired servo output for the roll
 	// ---------------------------------------------
-/* 
+  
 	g.channel_roll.servo_out = g.pidServoRoll.get_pid((nav_roll - dcm.roll_sensor), delta_ms_fast_loop, speed_scaler);
 	long tempcalc = nav_pitch +
 	        fabs(dcm.roll_sensor * g.kff_pitch_compensation) +
@@ -63,7 +63,7 @@ static void stabilize()
         // when flying upside down the elevator control is inverted
         tempcalc = -tempcalc;
     }
-    */
+  
     g.channel_roll.servo_out = (float)g.channel_roll.radio_in;
     g.channel_pitch.servo_out = g.channel_pitch.radio_in;
     g.channel_rudder.servo_out = g.channel_rudder.radio_in;
@@ -74,7 +74,7 @@ static void stabilize()
 
 	// Mix Stick input to allow users to override control surfaces
 	// -----------------------------------------------------------
-	/*if ((control_mode < FLY_BY_WIRE_A) || (ENABLE_STICK_MIXING == 1 && control_mode > FLY_BY_WIRE_B && failsafe == FAILSAFE_NONE)) {
+	 if ((control_mode < FLY_BY_WIRE_A) || (ENABLE_STICK_MIXING == 1 && control_mode > FLY_BY_WIRE_B && failsafe == FAILSAFE_NONE)) {
 
 
 		// TODO: use RC_Channel control_mix function?
@@ -100,31 +100,32 @@ static void stabilize()
 
 		//Serial.printf_P(PSTR(" servo_out[CH_ROLL] "));
 		//Serial.println(servo_out[CH_ROLL],DEC);
-	}*/
+	} 
 
 
 	// stick mixing performed for rudder for all cases including FBW unless disabled for higher modes
 	// important for steering on the ground during landing
 	// -----------------------------------------------
-	/* if (control_mode <= FLY_BY_WIRE_B || (ENABLE_STICK_MIXING == 1 && failsafe == FAILSAFE_NONE)) {
+	  if (control_mode <= FLY_BY_WIRE_B || (ENABLE_STICK_MIXING == 1 && failsafe == FAILSAFE_NONE)) {
 		ch4_inf = (float)g.channel_rudder.radio_in - (float)g.channel_rudder.radio_trim;
 		ch4_inf = fabs(ch4_inf);
 		ch4_inf = min(ch4_inf, 400.0);
 		ch4_inf = ((400.0 - ch4_inf) /400.0);
-	}*/
+	} 
 
 	// Apply output to Rudder
 	// ----------------------
-/*	calc_nav_yaw(speed_scaler);
+ 	calc_nav_yaw(speed_scaler);
 	g.channel_rudder.servo_out *= ch4_inf;
 	g.channel_rudder.servo_out += g.channel_rudder.pwm_to_angle();
-*/
+ 
 	// Call slew rate limiter if used
 	// ------------------------------
 	//#if(ROLL_SLEW_LIMIT != 0)
 	//	g.channel_roll.servo_out = roll_slew_limit(g.channel_roll.servo_out);
 	//#endif
 }
+*/
 
 static void crash_checker()
 {
@@ -288,6 +289,8 @@ static void reset_I(void)
 /*****************************************
 * Set the flight control servos based on the current calculated values
 *****************************************/
+
+//  also see read_radio() for the bit that needs to happen first 
 static void set_servos(void)
 {
 	int flapSpeedSource = 0;
@@ -309,6 +312,9 @@ static void set_servos(void)
 // from radio, to servos
 //radio_in -> radio_out -> servo_out
 
+ 
+/*
+// NOT NEEDED, BUZZ, inputs are read to *.radio_in in read_radio() 
 	g.channel_roll.radio_out 		= APM_RC.InputCh(CH_ROLL);     //CH_1
 	g.channel_pitch.radio_out 		= APM_RC.InputCh(CH_PITCH);   //CH_2
 	g.channel_throttle.radio_out 		= APM_RC.InputCh(CH_THROTTLE); //CH_3 
@@ -318,21 +324,48 @@ static void set_servos(void)
 	g.rc_6.radio_out 		= APM_RC.InputCh(CH_6);  
 	g.rc_7.radio_out 		= APM_RC.InputCh(CH_7);
 	g.rc_8.radio_out 		= APM_RC.InputCh(CH_8);
-
-// NOT NEEDED, BUZZ
-	/* 		g.channel_roll.radio_out 		= g.channel_roll.radio_in;
-			g.channel_pitch.radio_out 		= g.channel_pitch.radio_in;
-		g.channel_throttle.radio_out 	= g.channel_throttle.radio_in;
-		g.channel_rudder.radio_out 		= g.channel_rudder.radio_in;
-
-
-			g.rc_5.radio_out 		= g.rc_5.radio_in;
-			g.rc_6.radio_out 		= g.rc_6.radio_in;
-		g.rc_7.radio_out 	= g.rc_7.radio_in;
-		g.rc_8.radio_out 		= g.rc_8.radio_in;
 */
 
-//#if HIL_MODE !=  HIL_MODE_ATTITUDE
+
+// THIS IS JUST A BLANK PASS_THROUGH OF THE VALUES ALREADY IN *.radio_in from read_radio , no re-read needed! 
+  
+  if ( control_mode == AUTO ) { 
+  	  		g.channel_roll.radio_out 		= g.channel_roll.radio_in;
+  			g.channel_pitch.radio_out 		= g.channel_pitch.radio_in;
+  		g.channel_throttle.radio_out 	= g.channel_throttle.radio_in;
+  		g.channel_rudder.radio_out 		= g.channel_rudder.radio_in;
+  
+  
+  			g.rc_5.radio_out 		= g.rc_5.radio_in;
+  			g.rc_6.radio_out 		= g.rc_6.radio_in;
+  		g.rc_7.radio_out 	= g.rc_7.radio_in;
+  		g.rc_8.radio_out 		= g.rc_8.radio_in;
+  }  
+  
+  // don't pass input to output in case of TERMINATE ! 
+  if ( ( control_mode == RTL  ) || (   control_mode == TERMINATE ) )  { 
+    
+    // max-out all output chanels except throttle !   
+    // we can figure out if we need to reverse any later! 
+    // TODO REVERSING? 
+    
+  	  		g.channel_roll.radio_out 		=  2000; // g.channel_roll.radio_in;
+  			g.channel_pitch.radio_out 		= 2000;// g.channel_pitch.radio_in;
+  		        g.channel_throttle.radio_out 	= 0;// g.channel_throttle.radio_in;
+  		        g.channel_rudder.radio_out 		= 2000;//g.channel_rudder.radio_in;
+  
+  
+  			g.rc_5.radio_out 		= 2000; //g.rc_5.radio_in;
+  			g.rc_6.radio_out 		= 2000; //g.rc_6.radio_in;
+  		        g.rc_7.radio_out 	        = 2000;             //DROP = 7 
+  		        g.rc_8.radio_out 		= 2000; //g.rc_8.radio_in;
+  
+  } 
+
+
+
+
+
 	// send values to the PWM timers for output
 	// ----------------------------------------
  	APM_RC.OutputCh(CH_1, g.channel_roll.radio_out); // send to Servos
@@ -345,9 +378,6 @@ static void set_servos(void)
 	g.rc_6.output_ch(CH_6);
 	g.rc_7.output_ch(CH_7);
 	g.rc_8.output_ch(CH_8);
-
-//#endif
-
 
      APM_RC.OutputCh(CH_5, 	g.rc_5.radio_out);
      APM_RC.OutputCh(CH_6, 	g.rc_6.radio_out);
@@ -458,7 +488,7 @@ static void set_servos(void)
 /* 	if (g_rc_function[RC_Channel_aux::k_flap_auto] != NULL) {
 		if(control_mode < FLY_BY_WIRE_B) {
 			// only use radio_in if the channel is not used as flight_mode_channel
-			if (g_rc_function[RC_Channel_aux::k_flap_auto] != rc_array[g.flight_mode_channel-1]) {
+			g_rc_function[RC_Channel_aux::k_flap_auto] != rc_array[g.flight_mode_channel-1]) {
 				g_rc_function[RC_Channel_aux::k_flap_auto]->radio_out = g_rc_function[RC_Channel_aux::k_flap_auto]->radio_in;
 			} else {
 				g_rc_function[RC_Channel_aux::k_flap_auto]->radio_out = g_rc_function[RC_Channel_aux::k_flap_auto]->radio_trim;
@@ -502,9 +532,8 @@ static void demo_servos(byte i) {
 */
 }
 
-
-static void terminate_servos( ) {
-
+void terminate_servos () { 
+  
 		APM_RC.OutputCh(3, 900); // throttle to OFF
 		mavlink_delay(400);
 		APM_RC.OutputCh(5, 2000); // chan 5 ( bottle drop?) to FULL
@@ -515,5 +544,5 @@ static void terminate_servos( ) {
 		APM_RC.OutputCh(4, 2000);  //AIL?
 		//APM_RC.OutputCh(1, 900);  //ANTYTHING ELSE?  
 		mavlink_delay(400);
+} 
 
-}

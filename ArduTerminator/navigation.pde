@@ -16,11 +16,11 @@ static void navigate()
             current_loc = get_cmd_with_index(0);
 	}
 
-	if(next_WP.lat == 0){
+	//if(next_WP.lat == 0){
 		//return;
-	}
+	//}
 
-        if ( control_mode == TERMINATE ) { 
+        if ( control_mode == TERMINATE  || control_mode == RTL ) { 
               return; // its too late, we can no longer navigate!  
         }
         
@@ -94,7 +94,8 @@ static void navigate()
              fprintf(stdout,"%d %d | %lu %lu \n", wp_nearest, wp_nearest_distance, xx, yy  ) ;
           #endif
      
-          if ( xx < 2000 | yy < 2000 ) {   
+          //200 = approx 3.5-4 meters in real testing
+          if ( xx < 400 | yy < 400 ) {   
           #ifdef HIL_MODE ==  HIL_MODE_ATTITUDE
 
               fprintf(stdout,"\n\n\n TERMINATED!! ... within set DISTANCE\n\n\n"  ) ; 
@@ -102,7 +103,9 @@ static void navigate()
             fprintf(stdout,"crossed nearest: %d distance from: %d |  posn: %i %i |  boundary lines: %i %i -> %i %i -> %i %i | %lu %lu \n",wp_nearest, wp_nearest_distance, current_loc.lat, current_loc.lng, WP_B.lat, WP_B.lng, WP_A.lat, WP_A.lng, WP_C.lat,WP_C.lng, xx , yy ); 
           #endif
 
-            control_mode = TERMINATE;
+            
+            //control_mode = RTL;  // OR TERMINATE 
+            // set_mode(RTL);  - done in terminate() function! 
             
             terminate();
           }
@@ -185,7 +188,12 @@ static void navigate()
 //BUZZ! TODO implelent this function here 
 void terminate() { 
   
-   terminate_servos( );  // in Attitude.pde 
+  
+// put us in the mode so that we  stop passing in-chans to out channs 
+set_mode(RTL);  // or TERMINATE 
+   
+   
+ // terminate_servos( );  // in Attitude.pde 
 
 }
 

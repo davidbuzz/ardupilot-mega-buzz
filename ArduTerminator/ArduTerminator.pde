@@ -2,10 +2,27 @@
 
 #define THISFIRMWARE "ArduTerminator V2.251"
 /*
+  ArduTerminator, based apon the excellent work of the authors of ArduPlane and ArduPilot, see below for their details
+  Author: Buzz aka DavidBuzz email: davidbuzz@gmail.com
+  Date: Nov 2011 
+  
+  NOTES FOR THE WARY:
+  
+  * only valid flight modes are AUTO and RTL.   everything else is AUTO.    'TERMINATE' is a synonym for RTL, but GCS doesn't understand it, so we use RTL. 
+  * if channel 8 < 1230 , then we also flight-terminate, but not if the channel is disconnected or empty ( in which case it reads 900 exactly ) 
+  * unterminateing is as simple as flicking the switch on channel 8, OR uploading a new set of wapoints, or clicking 'Auto' or 'Manual' in APM Planner.
+  *  termination "boundary" is a certain "thickness"  ( approx 10 ft ) , if you come toward boundary from either side it will terminate. 
+  *  GPS drift is a bitch, leave yourslf plenty of room , or you'll accidentially terminate! 
+  *  at terminate, all channels go to full  (2000) except throttle which goes to minimum ( 0 ) 
+  *  when you connect to the termination module via mavlink, it reports it's sysid of 2 , so you can tell it's not the navigational APM. ( with a sysid of 1 ) 
+  * 
+*/
+
+/*
+ArduPilot and ArduPlane Notice/s: 
 Authors:    Doug Weibel, Jose Julio, Jordi Munoz, Jason Short
 Thanks to:  Chris Anderson, HappyKillMore, Bill Premerlani, James Cohen, JB from rotorFX, Automatik, Fefenin, Peter Meister, Remzibi
 Please contribute your ideas!
-
 
 This firmware is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -97,7 +114,7 @@ static void update_events(void);
 // All GPS access should be through this pointer.
 static GPS         *g_gps;
 
-// flight modes convenience array
+// flight modes convenience array, there are 6 potential modes, we just point to the first of them! 
 static AP_Int8		*flight_modes = &g.flight_mode1;
 
 #if HIL_MODE == HIL_MODE_DISABLED

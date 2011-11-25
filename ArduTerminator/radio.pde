@@ -71,7 +71,9 @@ static void read_radio()
 //		g.channel_pitch.set_pwm((BOOL_TO_SIGN(g.reverse_ch2_elevon) * int(ch2_temp - elevon2_trim) + BOOL_TO_SIGN(g.reverse_ch1_elevon) * int(ch1_temp - elevon1_trim)) / 2 + 1500);
 //	}
 
-         g.channel_roll.set_pwm(APM_RC.InputCh(CH_ROLL));
+         
+        // this writes it all to g.channel_xxxx.radio_in (to RADIO_IN! )  variables! 
+        g.channel_roll.set_pwm(APM_RC.InputCh(CH_ROLL));
         g.channel_pitch.set_pwm(APM_RC.InputCh(CH_PITCH));
 	g.channel_throttle.set_pwm(APM_RC.InputCh(CH_3));
 	g.channel_rudder.set_pwm(APM_RC.InputCh(CH_4));

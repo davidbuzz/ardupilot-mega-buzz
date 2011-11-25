@@ -1068,6 +1068,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
                     //set_mode(TAKEOFF);
                     break;
 
+                // also called RTL 
                 case MAV_ACTION_RETURN:
                     set_mode(RTL);
                     result=1;
@@ -1203,12 +1204,12 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 
             switch(packet.mode){
 
-                case MAV_MODE_MANUAL:
+                                case MAV_MODE_MANUAL:
 					set_mode(AUTO);  // only AUTO or RTL/TERMINATE
 					break;
 
 				case MAV_MODE_GUIDED:
-					//set_mode(AUTO);
+					set_mode(AUTO);
 					break;
 
 				case MAV_MODE_AUTO:
@@ -1220,10 +1221,11 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 					break;
 
                 case MAV_MODE_TEST1:
-					//set_mode(STABILIZE);
+					set_mode(AUTO);
 					break;
 
                 case MAV_MODE_TEST2:
+                                        set_mode(AUTO);
 					if(mav_nav == 255 || mav_nav == 1) 	//set_mode(FLY_BY_WIRE_A);
 					if(mav_nav == 2)			//		set_mode(FLY_BY_WIRE_B);
 					//if(mav_nav == 3)					set_mode(FLY_BY_WIRE_C);
@@ -1650,13 +1652,12 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 						result);
 
             //BUZZ: 
-                         #ifdef HIL_MODE ==  HIL_MODE_ATTITUDE
-
+                 #ifdef HIL_MODE ==  HIL_MODE_ATTITUDE
                  fprintf(stdout, "flight plan received\n");
                  fflush(stdout);
                  #endif
                  
-                 // on-upload of a new flight-plane, reset the control mode to AUTO ( ie un-terminate! ) 
+                 // BUZZ on-upload of a new flight-plane, reset the control mode to AUTO ( ie un-terminate! ) 
              //    control_mode = AUTO;
                  set_mode(AUTO);
 
