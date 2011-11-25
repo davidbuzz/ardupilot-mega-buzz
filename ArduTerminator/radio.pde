@@ -33,6 +33,8 @@ static void init_rc_in()
 
 static void init_rc_out()
 {
+  // BUZ:   I don't know why this is here twice, I just leave it like this.  :-) 
+  
 	APM_RC.OutputCh(CH_1, 	g.channel_roll.radio_trim);					// Initialization of servo outputs
 	APM_RC.OutputCh(CH_2, 	g.channel_pitch.radio_trim);
 	APM_RC.OutputCh(CH_3, 	g.channel_throttle.radio_min);
@@ -53,22 +55,24 @@ static void init_rc_out()
 	APM_RC.OutputCh(CH_5, 	g.rc_5.radio_trim);
 	APM_RC.OutputCh(CH_6, 	g.rc_6.radio_trim);
 	APM_RC.OutputCh(CH_7,   g.rc_7.radio_trim);
-    APM_RC.OutputCh(CH_8,   g.rc_8.radio_trim);
+        APM_RC.OutputCh(CH_8,   g.rc_8.radio_trim);
 }
 
 static void read_radio()
 {
-	ch1_temp = APM_RC.InputCh(CH_ROLL);
-	ch2_temp = APM_RC.InputCh(CH_PITCH);
+//	ch1_temp = APM_RC.InputCh(CH_ROLL);
+//	ch2_temp = APM_RC.InputCh(CH_PITCH);
 
 	//if(g.mix_mode == 0){
-	g.channel_roll.set_pwm(ch1_temp);
-	g.channel_pitch.set_pwm(ch2_temp);
+//	g.channel_roll.set_pwm(ch1_temp);
+//	g.channel_pitch.set_pwm(ch2_temp);
 //	}else{
 //		g.channel_roll.set_pwm(BOOL_TO_SIGN(g.reverse_elevons) * (BOOL_TO_SIGN(g.reverse_ch2_elevon) * int(ch2_temp - elevon2_trim) - BOOL_TO_SIGN(g.reverse_ch1_elevon) * int(ch1_temp - elevon1_trim)) / 2 + 1500);
 //		g.channel_pitch.set_pwm((BOOL_TO_SIGN(g.reverse_ch2_elevon) * int(ch2_temp - elevon2_trim) + BOOL_TO_SIGN(g.reverse_ch1_elevon) * int(ch1_temp - elevon1_trim)) / 2 + 1500);
 //	}
 
+         g.channel_roll.set_pwm(APM_RC.InputCh(CH_ROLL));
+        g.channel_pitch.set_pwm(APM_RC.InputCh(CH_PITCH));
 	g.channel_throttle.set_pwm(APM_RC.InputCh(CH_3));
 	g.channel_rudder.set_pwm(APM_RC.InputCh(CH_4));
 	g.rc_5.set_pwm(APM_RC.InputCh(CH_5));
@@ -82,9 +86,9 @@ static void read_radio()
 	//#endif
 
         // BUZZ: THIS SHOULD PASS IN GPS DATA, NOT RADIO THROTTLE CHANNEL! 
-        control_failsafe(g.channel_throttle.radio_in);
+  //      control_failsafe(g.channel_throttle.radio_in);
 
-	g.channel_throttle.servo_out = g.channel_throttle.control_in;
+//	g.channel_throttle.servo_out = g.channel_throttle.control_in;
 
 	/* if (g.channel_throttle.servo_out > 50) {
 		if(g.airspeed_enabled == true) {
@@ -94,7 +98,7 @@ static void read_radio()
 		}
 	} else {
   */
-		airspeed_nudge = 0;
+//		airspeed_nudge = 0;
 		/* throttle_nudge = 0;  */
 	//}
 

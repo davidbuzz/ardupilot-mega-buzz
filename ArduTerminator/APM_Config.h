@@ -6,7 +6,8 @@
 // For example if you wanted the Port 3 baud rate to be 38400 you would add a statement like the one below (uncommented)
 //#define SERIAL3_BAUD        38400
 
-#define GPS_PROTOCOL  GPS_PROTOCOL_AUTO
+#define GPS_PROTOCOL  GPS_PROTOCOL_MTK16
+
 #define GCS_PROTOCOL		GCS_PROTOCOL_MAVLINK
 
 #define SERIAL0_BAUD        115200
@@ -50,6 +51,8 @@
 
 // The following are the recommended settings for Xplane simulation. Remove the leading "/* and trailing "*/" to enable:
 
-/* 
-#define HIL_MODE            HIL_MODE_ATTITUDE
-*/
+//NORMAL: 
+//#define HIL_MODE            HIL_MODE_NONE
+//HIL & SIL 
+//#define HIL_MODE            HIL_MODE_ATTITUDE
+

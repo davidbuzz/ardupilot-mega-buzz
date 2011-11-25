@@ -103,8 +103,10 @@ static NOINLINE void send_heartbeat(mavlink_channel_t chan)
 #else // MAVLINK10
 
               //BUZZ: 
-                fprintf(stdout, "heartbeat %i\n", chan);
-                fflush(stdout);
+             #ifdef HIL_MODE ==  HIL_MODE_ATTITUDE
+            //    fprintf(stdout, "heartbeat %i\n", chan);
+            //    fflush(stdout);
+            #endif
 
     mavlink_msg_heartbeat_send(
         chan,
@@ -474,8 +476,11 @@ static void NOINLINE send_gps_status(mavlink_channel_t chan)
 {
   
          //BUZZ: 
-                fprintf(stdout, "send_gps_status %i\n", chan);
-                fflush(stdout);
+                      #ifdef HIL_MODE ==  HIL_MODE_ATTITUDE
+
+         //       fprintf(stdout, "send_gps_status %i\n", chan);
+         //       fflush(stdout);
+         #endif
                 
     mavlink_msg_gps_status_send(
         chan,
@@ -895,6 +900,12 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
     struct Location tell_command = {};                // command for telemetry
 	static uint8_t mav_nav=255;							// For setting mode (some require receipt of 2 messages...)
 
+             #ifdef HIL_MODE ==  HIL_MODE_ATTITUDE
+
+     //           fprintf(stdout, "msg: %i\n", msg->msgid);
+      //          fflush(stdout);
+      #endif
+
     switch (msg->msgid) {
 
     case MAVLINK_MSG_ID_REQUEST_DATA_STREAM:
@@ -1046,8 +1057,10 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 //Serial.println(packet.action);
 
             //BUZZ:    TIP : Buttons in APM Planner labeled:   'Auto'(13), 'Manual'(12) , RTL(3) , takeoff(24) , loiter(27), all  trigger this code here: 
+                #ifdef HIL_MODE ==  HIL_MODE_ATTITUDE
                 fprintf(stdout, "packet: %i\n", packet.action);
                 fflush(stdout);
+                #endif
                 
             switch(packet.action){
 
@@ -1113,7 +1126,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
                 case MAV_ACTION_CALIBRATE_ACC:
                 case MAV_ACTION_CALIBRATE_PRESSURE:
                 case MAV_ACTION_REBOOT:  // this is a rough interpretation
-                    startup_IMU_ground();
+                 //   startup_IMU_ground();
                     result=1;
                     break;
 
@@ -1471,9 +1484,16 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 
             // defaults
             tell_command.id = packet.command;
+            
+            //BUZZ:
+                #ifdef HIL_MODE ==  HIL_MODE_ATTITUDE
+                  fprintf(stdout," waypoint from gcs: %i %i\n", msg->msgid, packet.frame);
+                  fflush(stdout);
+                #endif
 
 			switch (packet.frame)
 			{
+    // vi ../libraries/GCS_MAVLink/include/mavlink_types.h
 				case MAV_FRAME_MISSION:
 				case MAV_FRAME_GLOBAL:
 					{
@@ -1628,6 +1648,16 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 						msg->compid,
 						result);
 
+            //BUZZ: 
+                         #ifdef HIL_MODE ==  HIL_MODE_ATTITUDE
+
+                 fprintf(stdout, "flight plan received\n");
+                 fflush(stdout);
+                 #endif
+                 
+                 // on-upload of a new flight-plane, reset the control mode to AUTO ( ie un-terminate! ) 
+                 control_mode = AUTO;
+
 					send_text(SEVERITY_LOW,PSTR("flight plan received"));
 					waypoint_receiving = false;
 					// XXX ignores waypoint radius for individual waypoints, can
@@ -1715,10 +1745,21 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 
     case MAVLINK_MSG_ID_RC_CHANNELS_OVERRIDE:
         {
+          
+          //BUZZ
+                //BUZZ: 
+                             #ifdef HIL_MODE ==  HIL_MODE_ATTITUDE
+
+           //     fprintf(stdout, "RC_CHANNELS_OVERRIDE\n");
+           //     fflush(stdout);
+           #endif
+           
             // allow override of RC channel values for HIL
             // or for complete GCS control of switch position
             // and RC PWM values.
 			if(msg->sysid != g.sysid_my_gcs) break;		// Only accept control from our gcs
+
+          /* 
             mavlink_rc_channels_override_t packet;
             int16_t v[8];
             mavlink_msg_rc_channels_override_decode(msg, &packet);
@@ -1736,15 +1777,16 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
             v[7] = packet.chan8_raw;
             rc_override_active = APM_RC.setHIL(v);
 			rc_override_fs_timer = millis();
+            */
             break;
         }
 
     case MAVLINK_MSG_ID_HEARTBEAT:
         {
             // We keep track of the last time we received a heartbeat from our GCS for failsafe purposes
-			if(msg->sysid != g.sysid_my_gcs) break;
-			rc_override_fs_timer = millis();
-			pmTest1++;
+		//	if(msg->sysid != g.sysid_my_gcs) break;
+		//	rc_override_fs_timer = millis();
+		//	pmTest1++;
             break;
         }
 
@@ -1752,7 +1794,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
         // This is used both as a sensor and to pass the location
         // in HIL_ATTITUDE mode.
 #ifdef MAVLINK10
-	case MAVLINK_MSG_ID_GPS_RAW_INT:
+/*	case MAVLINK_MSG_ID_GPS_RAW_INT:
         {
             // decode
             mavlink_gps_raw_int_t packet;
@@ -1764,6 +1806,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
                           packet.vel*1.0e-2, packet.cog*1.0e-2, 0, 0);
             break;
         }
+ */
 #else // MAVLINK10
 	case MAVLINK_MSG_ID_GPS_RAW:
         {
@@ -1790,7 +1833,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
             break;
         }
 #ifdef MAVLINK10
-	case MAVLINK_MSG_ID_HIL_STATE:
+/* 	case MAVLINK_MSG_ID_HIL_STATE:
 		{
 			mavlink_hil_state_t packet;
 			mavlink_msg_hil_state_decode(msg, &packet);
@@ -1830,6 +1873,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 
 			break;
 		}
+*/
 #endif // MAVLINK10
 #endif
 #if HIL_MODE == HIL_MODE_ATTITUDE
@@ -1840,9 +1884,9 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
             mavlink_msg_attitude_decode(msg, &packet);
 
             // set dcm hil sensor
-            /* dcm.setHil(packet.roll,packet.pitch,packet.yaw,packet.rollspeed,
+             dcm.setHil(packet.roll,packet.pitch,packet.yaw,packet.rollspeed,
             packet.pitchspeed,packet.yawspeed);
-            */
+            
             break;
         }
 #endif
@@ -1896,7 +1940,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 #endif // HIL_MODE
 
 #if MOUNT == ENABLED
-    case MAVLINK_MSG_ID_MOUNT_CONFIGURE:
+/*     case MAVLINK_MSG_ID_MOUNT_CONFIGURE:
 		{
 			camera_mount.configure_msg(msg);
 			break;
@@ -1913,6 +1957,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 			camera_mount.status_msg(msg);
 			break;
 		}
+*/
 #endif // MOUNT == ENABLED
     } // end switch
 } // end handle mavlink

@@ -22,6 +22,7 @@ version 2.1 of the License, or (at your option) any later version.
 #include <avr/eeprom.h>
 #include <avr/pgmspace.h>
 #include <math.h>
+#include "vectors.h"
 
 // Libraries
 #include <FastSerial.h>
@@ -107,27 +108,27 @@ static APM_BMP085_Class        barometer;
 static AP_Compass_HMC5843      compass(Parameters::k_param_compass);
 
 // real GPS selection
-#if   GPS_PROTOCOL == GPS_PROTOCOL_AUTO
-AP_GPS_Auto     g_gps_driver(&Serial1, &g_gps);
-
-#elif GPS_PROTOCOL == GPS_PROTOCOL_NMEA
-AP_GPS_NMEA     g_gps_driver(&Serial1);
-
-#elif GPS_PROTOCOL == GPS_PROTOCOL_SIRF
-AP_GPS_SIRF     g_gps_driver(&Serial1);
-
-#elif GPS_PROTOCOL == GPS_PROTOCOL_UBLOX
-AP_GPS_UBLOX    g_gps_driver(&Serial1);
-
-#elif GPS_PROTOCOL == GPS_PROTOCOL_MTK
-AP_GPS_MTK      g_gps_driver(&Serial1);
-
-#elif GPS_PROTOCOL == GPS_PROTOCOL_MTK16
+//#if   GPS_PROTOCOL == GPS_PROTOCOL_AUTO
+//AP_GPS_Auto     g_gps_driver(&Serial1, &g_gps);
+//
+//#elif GPS_PROTOCOL == GPS_PROTOCOL_NMEA
+//AP_GPS_NMEA     g_gps_driver(&Serial1);
+//
+//#elif GPS_PROTOCOL == GPS_PROTOCOL_SIRF
+//AP_GPS_SIRF     g_gps_driver(&Serial1);
+//
+//#elif GPS_PROTOCOL == GPS_PROTOCOL_UBLOX
+//AP_GPS_UBLOX    g_gps_driver(&Serial1);
+//
+//#elif GPS_PROTOCOL == GPS_PROTOCOL_MTK
+//AP_GPS_MTK      g_gps_driver(&Serial1);
+//
+//#el
+#if GPS_PROTOCOL == GPS_PROTOCOL_MTK16
 AP_GPS_MTK16    g_gps_driver(&Serial1);
 
 #elif GPS_PROTOCOL == GPS_PROTOCOL_NONE
-AP_GPS_None     g_gps_driver(NULL);
-
+//AP_GPS_None     g_gps_driver(NULL);
 #else
  #error Unrecognised GPS_PROTOCOL setting.
 #endif // GPS PROTOCOL
@@ -144,7 +145,7 @@ AP_GPS_HIL              g_gps_driver(NULL);
 */
 #elif HIL_MODE == HIL_MODE_ATTITUDE     /*    BUZZ:  THIS IS THE ONLY MODE WE USE FOR TESTING THIS IN HIL */
 //AP_ADC_HIL              adc;
-//AP_DCM_HIL              dcm;
+AP_DCM_HIL              dcm;
 AP_GPS_HIL              g_gps_driver(NULL);
 //AP_Compass_HIL          compass; // never used
 //AP_IMU_Shim             imu; // never used
@@ -211,7 +212,8 @@ static const char* flight_mode_strings[] = {
 	"RTL",
 	"Loiter",
 	"Takeoff",
-	"Land"};
+	"Land",
+        "Terminate"};
 
 
 /* Radio values
@@ -266,6 +268,9 @@ const	float radius_of_earth 	= 6378100;	// meters
 const	float gravity 			= 9.81;		// meters/ sec^2
 static long	nav_bearing;						// deg * 100 : 0 to 360 current desired bearing to navigate
 static long	target_bearing;						// deg * 100 : 0 to 360 location of the plane to the target
+static long	bearing_A;
+static long	bearing_B;
+static long	bearing_C;						
 static long	crosstrack_bearing;					// deg * 100 : 0 to 360 desired angle of plane to target
 static float	nav_gain_scaler 		= 1;		// Gain scaling for headwind/tailwind TODO: why does this variable need to be initialized to 1?
 static long    hold_course       	 	= -1;		// deg * 100 dir of plane
@@ -344,6 +349,8 @@ static int     throttle_nudge = 0;                 // 0-(throttle_max - throttle
 // ---------
 static long	wp_distance;						// meters - distance between plane and next waypoint
 static long	wp_totalDistance;					// meters - distance between old and next waypoint
+static long	wp_nearest ;	 // wp number ! 
+static long	wp_nearest_distance;
 
 // repeating event control
 // -----------------------
@@ -366,6 +373,11 @@ static struct 	Location home;						// home location
 static struct 	Location prev_WP;					// last waypoint
 static struct 	Location current_loc;				// current location
 static struct 	Location next_WP;					// next waypoint
+
+static struct 	Location WP_A;
+static struct 	Location WP_B;
+static struct 	Location WP_C;
+
 static struct  	Location guided_WP;					// guided mode waypoint
 static struct 	Location next_nav_command;			// command preloaded
 static struct 	Location next_nonnav_command;		// command preloaded
@@ -584,7 +596,8 @@ Serial.println(tempaccel.z, DEC);
 			medium_loopCounter++;
 
 
-			if(g_gps->new_data){
+                        //BUZZ TODO re-instate the test for GPS lock first ! 
+			//if(g_gps->new_data){
 				g_gps->new_data 	= false;
 				dTnav 				= millis() - nav_loopTimer;
 				nav_loopTimer 		= millis();
@@ -592,7 +605,7 @@ Serial.println(tempaccel.z, DEC);
 				// calculate the plane's desired bearing
 				// -------------------------------------
 				navigate();
-			}
+			//}
 
 			break;
 
@@ -762,7 +775,7 @@ static void update_GPS(void)
 static void update_current_flight_mode(void)
 {
 	if(control_mode == AUTO){
-		crash_checker();
+		//crash_checker();
 
 		switch(nav_command_ID){
 			case MAV_CMD_NAV_TAKEOFF:
@@ -807,9 +820,9 @@ static void update_current_flight_mode(void)
 
 			default:
 				hold_course = -1;
-				calc_nav_roll();
-				calc_nav_pitch();
-				calc_throttle();
+			//	calc_nav_roll();
+			//	calc_nav_pitch();
+			//	calc_throttle();
 				break;
 		}
 	}else{
@@ -818,10 +831,10 @@ static void update_current_flight_mode(void)
 			case LOITER:
 			case GUIDED:
 				hold_course = -1;
-				crash_checker();
-				calc_nav_roll();
-				calc_nav_pitch();
-				calc_throttle();
+			//	crash_checker();
+			//	calc_nav_roll();
+			//	calc_nav_pitch();
+			//	calc_throttle();
 				break;
 
 			case FLY_BY_WIRE_A:
@@ -840,7 +853,7 @@ static void update_current_flight_mode(void)
 				// We use g.pitch_limit_min because its magnitude is
 				// normally greater than g.pitch_limit_max
 				/* nav_roll = g.channel_roll.norm_input() * g.roll_limit; */
-				altitude_error = g.channel_pitch.norm_input() * g.pitch_limit_min;
+			/* 	altitude_error = g.channel_pitch.norm_input() * g.pitch_limit_min;
 
 				if ((current_loc.alt>=home.alt+g.FBWB_min_altitude) || (g.FBWB_min_altitude == -1)) {
 	 				altitude_error = g.channel_pitch.norm_input() * g.pitch_limit_min;
@@ -864,6 +877,7 @@ static void update_current_flight_mode(void)
 
 				calc_throttle();
 				calc_nav_pitch();
+                            */
 				break;
 
 			case STABILIZE:
@@ -881,17 +895,20 @@ static void update_current_flight_mode(void)
 				nav_pitch 		= 0;
 */
 
-				if (failsafe != FAILSAFE_NONE){
+				/* if (failsafe != FAILSAFE_NONE){
 					g.channel_throttle.servo_out = g.throttle_cruise;
 				}
+                                  */
 				break;
 
 			case MANUAL:
 				// servo_out is for Sim control only
 				// ---------------------------------
+                                 /* 
 				g.channel_roll.servo_out = g.channel_roll.pwm_to_angle();
 				g.channel_pitch.servo_out = g.channel_pitch.pwm_to_angle();
 				g.channel_rudder.servo_out = g.channel_rudder.pwm_to_angle();
+                                  */
 				break;
 				//roll: -13788.000,  pitch: -13698.000,   thr: 0.000, rud: -13742.000
 
@@ -899,6 +916,7 @@ static void update_current_flight_mode(void)
 	}
 }
 
+/* 
 static void update_navigation()
 {
 	// wp_distance is in ACTUAL meters, not the *100 meters we get from the GPS
@@ -906,20 +924,21 @@ static void update_navigation()
 
 	// distance and bearing calcs only
 	if(control_mode == AUTO){
-		verify_commands();
+		// verify_commands();
 	}else{
 
 		switch(control_mode){
 			case LOITER:
 			case RTL:
 			case GUIDED:
-				update_loiter();
-				calc_bearing_error();
+				//update_loiter();
+			//	calc_bearing_error();
 				break;
 
 		}
 	}
 }
+*/
 
 
 static void update_alt()

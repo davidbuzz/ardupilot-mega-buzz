@@ -180,6 +180,7 @@ static void init_ardupilot()
 	mavlink_system.type = MAV_FIXED_WING;
 
 	rc_override_active = APM_RC.setHIL(rc_override);		// Set initial values for no override
+
 	init_rc_in();		// sets up rc channels from radio
 	init_rc_out();		// sets up the timer libs
 
@@ -210,7 +211,7 @@ static void init_ardupilot()
 	}
 #else
 */
-    Serial.printf_P(PSTR("\nPress ENTER 3 times to start interactive setup\n\n"));
+ //   Serial.printf_P(PSTR("\nPress ENTER 3 times to start interactive setup\n\n"));
 //#endif // CLI_ENABLED
 
 	if(g.log_bitmask != 0){
@@ -223,7 +224,7 @@ static void init_ardupilot()
 	// read in the flight switches
 	update_servo_switches();
 
-	if (ENABLE_AIR_START == 1) {
+	//if (ENABLE_AIR_START == 1) {
 		// Perform an air start and get back to flying
 		gcs_send_text_P(SEVERITY_LOW,PSTR("<init_ardupilot> AIR START"));
 
@@ -254,11 +255,20 @@ static void init_ardupilot()
 			Log_Write_Startup(TYPE_AIRSTART_MSG);
 		reload_commands_airstart();		// Get set to resume AUTO from where we left off
 
-	}else {
-		startup_ground();
-		if (g.log_bitmask & MASK_LOG_CMD)
-			Log_Write_Startup(TYPE_GROUNDSTART_MSG);
-	}
+
+
+        digitalWrite(B_LED_PIN, HIGH);		// Set LED B high to indicate IMU ready
+	digitalWrite(A_LED_PIN, LOW);
+	digitalWrite(C_LED_PIN, LOW);
+
+        demo_servos(1);
+
+
+	//}else {
+		//startup_ground();
+	//	if (g.log_bitmask & MASK_LOG_CMD)
+	//		Log_Write_Startup(TYPE_GROUNDSTART_MSG);
+	//}
 
     // BUZZ DEFAULT TO AUTO 
     set_mode(AUTO);
@@ -431,13 +441,13 @@ static void check_short_failsafe()
 	}
 }
 
-
+/* 
 static void startup_IMU_ground(void)
 {
   
   
 #if HIL_MODE != HIL_MODE_ATTITUDE
-/* 
+  
     gcs_send_text_P(SEVERITY_MEDIUM, PSTR("Warming up ADC..."));
  	mavlink_delay(500);
 
@@ -449,18 +459,21 @@ static void startup_IMU_ground(void)
 
 	imu.init(IMU::COLD_START, mavlink_delay);
 	dcm.set_centripetal(1);
-*/
+ 
 	// read Baro pressure at ground
 	//-----------------------------
-	init_barometer();
+	//init_barometer();
 
 #endif // HIL_MODE_ATTITUDE
 
 	digitalWrite(B_LED_PIN, HIGH);		// Set LED B high to indicate IMU ready
 	digitalWrite(A_LED_PIN, LOW);
 	digitalWrite(C_LED_PIN, LOW);
-}
 
+//demo_servos(1);
+
+}
+*/
 
 static void update_GPS_light(void)
 {

@@ -324,11 +324,11 @@ static bool verify_takeoff()
 		return false;
 	}
 }
-
+*/
 static bool verify_land()
 {
 	// we don't verify landing - we never go to a new Nav command after Land
-	if (((wp_distance > 0) && (wp_distance <= (2*g_gps->ground_speed/100)))
+/* 	if (((wp_distance > 0) && (wp_distance <= (2*g_gps->ground_speed/100)))
 		|| (current_loc.alt <= next_WP.alt + 300)){
 
 		land_complete = 1;		//Set land_complete if we are within 2 seconds distance or within 3 meters altitude
@@ -349,9 +349,10 @@ static bool verify_land()
 	}
 
 	update_crosstrack();
+*/
 	return false;
 }
-*/
+
 static bool verify_nav_wp()
 {
 	hold_course = -1;
@@ -481,7 +482,7 @@ static void do_loiter_at_location()
 */
 static void do_jump()
 {
-	struct Location temp;
+/* 	struct Location temp;
 	gcs_send_text_fmt(PSTR("In jump.  Jumps left: %i"),next_nonnav_command.lat);
 	if(next_nonnav_command.lat > 0) {
 
@@ -507,6 +508,7 @@ static void do_jump()
 		next_WP = prev_WP;		// Need to back "next_WP" up as it was set to the next waypoint following the jump
 		process_next_command();
 	}
+*/
 }
 
 /* 

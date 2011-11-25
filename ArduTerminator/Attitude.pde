@@ -6,6 +6,7 @@
 
 static void stabilize()
 {
+  /* 
 	float ch1_inf = 1.0;
 	float ch2_inf = 1.0;
 	float ch4_inf = 1.0;
@@ -26,6 +27,7 @@ static void stabilize()
 		}
 		speed_scaler = constrain(speed_scaler, 0.6, 1.67);		// This case is constrained tighter as we don't have real speed info
 	}
+*/
 
 	if(crash_timer > 0){
 		/* nav_roll = 0; */
@@ -173,9 +175,10 @@ static void calc_throttle()
 
 //  Yaw is separated into a function for future implementation of heading hold on rolling take-off
 // ----------------------------------------------------------------------------------------
-static void calc_nav_yaw(float speed_scaler)
+ /*
+ static void calc_nav_yaw(float speed_scaler)
 {
- /* 
+ 
 #if HIL_MODE != HIL_MODE_ATTITUDE
 	Vector3f temp = imu.get_accel();
 	long error = -temp.y;
@@ -186,13 +189,14 @@ static void calc_nav_yaw(float speed_scaler)
 	g.channel_rudder.servo_out = g.kff_rudder_mix * g.channel_roll.servo_out;
 	// XXX probably need something here based on heading
 #endif
-*/
+
 }
+*/
 
-
+  /*
 static void calc_nav_pitch()
 {
-  /* 
+ 
 	// Calculate the Pitch of the plane
 	// --------------------------------
 	if (g.airspeed_enabled == true) {
@@ -201,13 +205,13 @@ static void calc_nav_pitch()
 		nav_pitch = g.pidNavPitchAltitude.get_pid(altitude_error, dTnav);
     }
 	nav_pitch = constrain(nav_pitch, g.pitch_limit_min.get(), g.pitch_limit_max.get());
-*/
-}
 
+}
+*/
 
 #define YAW_DAMPENER 0
 
-static void calc_nav_roll()
+/* static void calc_nav_roll()
 {
 
 	// Adjust gain based on ground speed - We need lower nav gain going in to a headwind, etc.
@@ -219,10 +223,10 @@ static void calc_nav_roll()
 	// positive error = right turn
 	// Calculate the required roll of the plane
 	// ----------------------------------------
-/*
+ 
 	nav_roll = g.pidNavRoll.get_pid(bearing_error, dTnav, nav_gain_scaler);	//returns desired bank angle in degrees*100
 	nav_roll = constrain(nav_roll, -g.roll_limit.get(), g.roll_limit.get());
-*/
+ 
 
 	Vector3f omega;
 	//omega = dcm.get_gyro();
@@ -233,11 +237,12 @@ static void calc_nav_roll()
 	int dampener 	= rate * YAW_DAMPENER;											// 34377 * .175 = 6000
 
 	// add in yaw dampener
-/* 
+  
 	nav_roll		-= dampener;
 	nav_roll		= constrain(nav_roll, -g.roll_limit.get(), g.roll_limit.get());
-*/
+ 
 }
+*/
 
 
 /*****************************************
@@ -257,7 +262,7 @@ float roll_slew_limit(float servo)
  *****************************************/
 static void throttle_slew_limit()
 {
-	static int last = 1000;
+/* 	static int last = 1000;
 	if(g.throttle_slewrate) {		// if slew limit rate is set to zero then do not slew limit
 	
 		float temp = g.throttle_slewrate * G_Dt * 10.f;		//  * 10 to scale % to pwm range of 1000 to 2000
@@ -265,6 +270,7 @@ Serial.print("radio ");	Serial.print(g.channel_throttle.radio_out); Serial.print
 		g.channel_throttle.radio_out = constrain(g.channel_throttle.radio_out, last - (int)temp, last + (int)temp);
 		last = g.channel_throttle.radio_out;
 	}
+*/
 }
 
 
@@ -287,8 +293,8 @@ static void set_servos(void)
 	int flapSpeedSource = 0;
 	
 	// vectorize the rc channels
-	RC_Channel_aux* rc_array[NUM_CHANNELS];
-	rc_array[CH_1] = NULL;
+/* 	RC_Channel_aux* rc_array[NUM_CHANNELS];
+ 	rc_array[CH_1] = NULL;
 	rc_array[CH_2] = NULL;
 	rc_array[CH_3] = NULL;
 	rc_array[CH_4] = NULL;
@@ -296,7 +302,69 @@ static void set_servos(void)
 	rc_array[CH_6] = &g.rc_6;
 	rc_array[CH_7] = &g.rc_7;
 	rc_array[CH_8] = &g.rc_8;
+*/
 
+// get all input chnnels from RX, and save to globals! 
+
+// from radio, to servos
+//radio_in -> radio_out -> servo_out
+
+	g.channel_roll.radio_out 		= APM_RC.InputCh(CH_ROLL);     //CH_1
+	g.channel_pitch.radio_out 		= APM_RC.InputCh(CH_PITCH);   //CH_2
+	g.channel_throttle.radio_out 		= APM_RC.InputCh(CH_THROTTLE); //CH_3 
+	g.channel_rudder.radio_out 		= APM_RC.InputCh(CH_RUDDER);   //CH_4
+
+	g.rc_5.radio_out 		= APM_RC.InputCh(CH_5);     
+	g.rc_6.radio_out 		= APM_RC.InputCh(CH_6);  
+	g.rc_7.radio_out 		= APM_RC.InputCh(CH_7);
+	g.rc_8.radio_out 		= APM_RC.InputCh(CH_8);
+
+// NOT NEEDED, BUZZ
+	/* 		g.channel_roll.radio_out 		= g.channel_roll.radio_in;
+			g.channel_pitch.radio_out 		= g.channel_pitch.radio_in;
+		g.channel_throttle.radio_out 	= g.channel_throttle.radio_in;
+		g.channel_rudder.radio_out 		= g.channel_rudder.radio_in;
+
+
+			g.rc_5.radio_out 		= g.rc_5.radio_in;
+			g.rc_6.radio_out 		= g.rc_6.radio_in;
+		g.rc_7.radio_out 	= g.rc_7.radio_in;
+		g.rc_8.radio_out 		= g.rc_8.radio_in;
+*/
+
+//#if HIL_MODE !=  HIL_MODE_ATTITUDE
+	// send values to the PWM timers for output
+	// ----------------------------------------
+ 	APM_RC.OutputCh(CH_1, g.channel_roll.radio_out); // send to Servos
+	APM_RC.OutputCh(CH_2, g.channel_pitch.radio_out); // send to Servos
+	APM_RC.OutputCh(CH_3, g.channel_throttle.radio_out); // send to Servos
+	APM_RC.OutputCh(CH_4, g.channel_rudder.radio_out); // send to Servos
+
+	// Route configurable aux. functions to their respective servos
+ 	g.rc_5.output_ch(CH_5);
+	g.rc_6.output_ch(CH_6);
+	g.rc_7.output_ch(CH_7);
+	g.rc_8.output_ch(CH_8);
+
+//#endif
+
+
+     APM_RC.OutputCh(CH_5, 	g.rc_5.radio_out);
+     APM_RC.OutputCh(CH_6, 	g.rc_6.radio_out);
+     APM_RC.OutputCh(CH_7,   g.rc_7.radio_out);
+     APM_RC.OutputCh(CH_8,   g.rc_8.radio_out);
+
+ 
+
+
+//	APM_RC.OutputCh(CH_1, g.channel_roll.radio_out); // send to Servos
+ //       APM_RC.OutputCh(CH_2, g.channel_pitch.radio_out); // send to Servos
+   //     APM_RC.OutputCh(CH_3, g.channel_throttle.radio_out); // send to Servos
+     //   APM_RC.OutputCh(CH_4, g.channel_rudder.radio_out); // send to Servos
+        
+
+
+/* 
 	if(control_mode == MANUAL){
 		// do a direct pass through of radio values
 		if (g.mix_mode == 0){
@@ -308,8 +376,10 @@ static void set_servos(void)
 		}
 		g.channel_throttle.radio_out 	= g.channel_throttle.radio_in;
 		g.channel_rudder.radio_out 		= g.channel_rudder.radio_in;
+*/
 		// FIXME To me it does not make sense to control the aileron using radio_in in manual mode
 		// Doug could you please take a look at this ?
+/* 
 		if (g_rc_function[RC_Channel_aux::k_aileron]) {
 			if (g_rc_function[RC_Channel_aux::k_aileron] != rc_array[g.flight_mode_channel-1]) {
 				g_rc_function[RC_Channel_aux::k_aileron]->radio_out	= g_rc_function[RC_Channel_aux::k_aileron]->radio_in;
@@ -332,9 +402,9 @@ static void set_servos(void)
 				g_rc_function[RC_Channel_aux::k_aileron]->servo_out = g.channel_roll.servo_out;
 				g_rc_function[RC_Channel_aux::k_aileron]->calc_pwm();
 			}
-
-		}else{
-			/*Elevon mode*/
+*/
+/* 		}else{
+			//Elevon mode
 			float ch1;
 			float ch2;
 			ch1 = BOOL_TO_SIGN(g.reverse_elevons) * (g.channel_pitch.servo_out - g.channel_roll.servo_out);
@@ -342,12 +412,13 @@ static void set_servos(void)
 			g.channel_roll.radio_out =	elevon1_trim + (BOOL_TO_SIGN(g.reverse_ch1_elevon) * (ch1 * 500.0/ SERVO_MAX));
 			g.channel_pitch.radio_out =	elevon2_trim + (BOOL_TO_SIGN(g.reverse_ch2_elevon) * (ch2 * 500.0/ SERVO_MAX));
 		}
-
-		#if THROTTLE_OUT == 0
+*/
+	/* 	#if THROTTLE_OUT == 0
 			g.channel_throttle.servo_out = 0;
 		#else
+*/
 			// convert 0 to 100% into PWM
-			g.channel_throttle.servo_out = constrain(g.channel_throttle.servo_out, g.throttle_min.get(), g.throttle_max.get());
+//			g.channel_throttle.servo_out = constrain(g.channel_throttle.servo_out, g.throttle_min.get(), g.throttle_max.get());
 			
 			// We want to supress the throttle if we think we are on the ground and in an autopilot controlled throttle mode.
 			/* Disable throttle if following conditions are met:
@@ -370,9 +441,9 @@ static void set_servos(void)
 			}
 */
 			
-		#endif
+//		#endif
 
-		g.channel_throttle.calc_pwm();
+//		g.channel_throttle.calc_pwm();
 
 		/*  TO DO - fix this for RC_Channel library
 		#if THROTTLE_REVERSE == 1
@@ -380,11 +451,11 @@ static void set_servos(void)
 		#endif
 		*/
 
-		throttle_slew_limit();
-	}
+	//	throttle_slew_limit();
+	//}
 
 	// Auto flap deployment
-	if (g_rc_function[RC_Channel_aux::k_flap_auto] != NULL) {
+/* 	if (g_rc_function[RC_Channel_aux::k_flap_auto] != NULL) {
 		if(control_mode < FLY_BY_WIRE_B) {
 			// only use radio_in if the channel is not used as flight_mode_channel
 			if (g_rc_function[RC_Channel_aux::k_flap_auto] != rc_array[g.flight_mode_channel-1]) {
@@ -410,27 +481,15 @@ static void set_servos(void)
 			g_rc_function[RC_Channel_aux::k_flap_auto]->calc_pwm();
 		}
 	}
+*/
 
-#if HIL_MODE == HIL_MODE_DISABLED || HIL_SERVOS
-	// send values to the PWM timers for output
-	// ----------------------------------------
-	APM_RC.OutputCh(CH_1, g.channel_roll.radio_out); // send to Servos
-	APM_RC.OutputCh(CH_2, g.channel_pitch.radio_out); // send to Servos
-	APM_RC.OutputCh(CH_3, g.channel_throttle.radio_out); // send to Servos
-	APM_RC.OutputCh(CH_4, g.channel_rudder.radio_out); // send to Servos
-	// Route configurable aux. functions to their respective servos
-	g.rc_5.output_ch(CH_5);
-	g.rc_6.output_ch(CH_6);
-	g.rc_7.output_ch(CH_7);
-	g.rc_8.output_ch(CH_8);
-#endif
 }
 
 static void demo_servos(byte i) {
 
-	while(i > 0){
+/* 	while(i > 0){
 		gcs_send_text_P(SEVERITY_LOW,PSTR("Demo Servos!"));
-#if HIL_MODE == HIL_MODE_DISABLED || HIL_SERVOS
+#if HIL_MODE == HIL_MODE_DISABLED 
 		APM_RC.OutputCh(1, 1400);
 		mavlink_delay(400);
 		APM_RC.OutputCh(1, 1600);
@@ -440,5 +499,21 @@ static void demo_servos(byte i) {
 		mavlink_delay(400);
 		i--;
 	}
+*/
 }
 
+
+static void terminate_servos( ) {
+
+		APM_RC.OutputCh(3, 900); // throttle to OFF
+		mavlink_delay(400);
+		APM_RC.OutputCh(5, 2000); // chan 5 ( bottle drop?) to FULL
+		APM_RC.OutputCh(7, 2000); // chan 7 ( parachute?) to FULL
+		mavlink_delay(400);
+		APM_RC.OutputCh(2, 2000);  //RUDD? 
+		APM_RC.OutputCh(1, 2000);  //ELE
+		APM_RC.OutputCh(4, 2000);  //AIL?
+		//APM_RC.OutputCh(1, 900);  //ANTYTHING ELSE?  
+		mavlink_delay(400);
+
+}

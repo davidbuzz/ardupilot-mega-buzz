@@ -54,7 +54,9 @@ static void failsafe_long_on_event()
 		//	if(g.long_fs_action == 1) {
 			//	set_mode(RTL);
 		//	}
+                  set_mode(AUTO);
 			break;
+
 		case TERMINATE:
                         set_mode(TERMINATE);
                         break;
