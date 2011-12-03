@@ -306,6 +306,10 @@ static void NOINLINE send_location(mavlink_channel_t chan)
 
 static void NOINLINE send_nav_controller_output(mavlink_channel_t chan)
 {
+  
+  crosstrack_error = g_gps->ground_course/100;  //BUZZ HACK 
+  airspeed_error = 30; 
+  
     mavlink_msg_nav_controller_output_send(
         chan,
         0, //nav_roll / 1.0e2,

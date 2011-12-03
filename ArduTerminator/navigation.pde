@@ -36,6 +36,9 @@ static void navigate()
             wp_nearest_distance = d;
           }
         }
+        
+        // tell GCS an approximaton ... ie the distance to the nearest point 
+        wp_distance = wp_nearest_distance; 
 
         //  WAYPOINT 'A' is the "nearest one"   :-)      
          WP_A =  get_cmd_with_index(wp_nearest);
@@ -93,6 +96,16 @@ static void navigate()
           #ifdef HIL_MODE ==  HIL_MODE_ATTITUDE
              fprintf(stdout,"%d %d | %lu %lu \n", wp_nearest, wp_nearest_distance, xx, yy  ) ;
           #endif
+          
+          // update the nav_bearing, so the GCS gets a line pointinghte right way! 
+            nav_bearing = get_bearing( &current_loc , &WP_A  ) ; 
+            
+            // update the target bearing ot the next waypoint away that we were working with.... 
+            if ( xx < 400 ) { 
+            target_bearing = get_bearing(  &current_loc, &WP_B ) ; 
+            } else { 
+            target_bearing = get_bearing( &current_loc, &WP_C  ) ;               
+            }
      
           //200 = approx 3.5-4 meters in real testing
           if ( xx < 400 | yy < 400 ) {   
