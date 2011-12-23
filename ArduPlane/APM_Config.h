@@ -36,3 +36,5 @@
 #define AIRSPEED_CRUISE     25
 #define THROTTLE_FAILSAFE   ENABLED
 */
+
+

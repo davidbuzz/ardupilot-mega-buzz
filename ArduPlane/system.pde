@@ -60,7 +60,7 @@ static void init_ardupilot()
 {
     bool need_log_erase = false;
 
-#if USB_MUX_PIN > 0
+#if USB_MUX_PIN > 0 
     // on the APM2 board we have a mux thet switches UART0 between
     // USB and the board header. If the right ArduPPM firmware is
     // installed we can detect if USB is connected using the
@@ -77,6 +77,10 @@ static void init_ardupilot()
         delay(1000);
     }
 #endif
+
+#if TELEMETRY_ON_SERIAL0 == 1   // we might put telemetry to Serial0 instead of Serial3, even without the MUX, 
+        delay( 1000 ) ; 
+#endif 
 
 	// Console serial port
 	//
@@ -169,11 +173,22 @@ static void init_ardupilot()
         // baud rate
         Serial.begin(map_baudrate(g.serial3_baud, SERIAL3_BAUD), 128, 128);
     }
-#else
-    // we have a 2nd serial port for telemetry
+#endif
+
+// wack serial zero into the baud rate that we are supposed to use in Serial3
+#if TELEMETRY_ON_SERIAL0 == 1 
+     Serial.begin(57600, 128, 128); //TODO DONT HARDCODE THIS, BUT DONT MAKE IT SERIAL0_BAUD OR SERIAL3_BAUD it may clash! 
+#endif 
+
+#if SERIAL3_INIT == 1 
+    // we have a 2nd serial port, possibly for telemetry, or maybe for other stuff 
     Serial3.begin(map_baudrate(g.serial3_baud, SERIAL3_BAUD), 128, 128);
+#endif
+#if TELEMETRY_ON_SERIAL0 != 1  && SERIAL3_INIT == 1 
+     // ok, so we're doing hte classic APM1 thing for telemetry.. 
 	gcs3.init(&Serial3);
 #endif
+
 
 	mavlink_system.sysid = g.sysid_this_mav;
 

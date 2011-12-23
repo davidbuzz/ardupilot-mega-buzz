@@ -248,7 +248,7 @@ byte    control_mode        = INITIALISING;
 byte    oldSwitchPosition;              // for remembering the control mode switch
 bool    inverted_flight     = false;
 
-#if USB_MUX_PIN > 0
+#if USB_MUX_PIN > 0  
 static bool usb_connected;
 #endif
 
