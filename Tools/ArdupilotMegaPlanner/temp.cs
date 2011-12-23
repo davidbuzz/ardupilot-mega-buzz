@@ -9,13 +9,10 @@ using System.Text.RegularExpressions;
 using System.IO.Ports;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Net;
 
 using GMap.NET.WindowsForms;
 using GMap.NET.CacheProviders;
-
-//using SharpVectors.Renderers.Forms;
-//using SharpVectors.Converters;
-
 
 namespace ArdupilotMega
 {
@@ -865,6 +862,14 @@ namespace ArdupilotMega
 
             Console.WriteLine("Removed {0} images",removed);
         }
-    }
+        private void BUT_lang_edit_Click(object sender, EventArgs e)
+        {
+            new resedit.Form1().Show();
+        }
 
+        private void BUT_georefimage_Click(object sender, EventArgs e)
+        {
+            new georefimage().Show();
+        }
+    }
 }

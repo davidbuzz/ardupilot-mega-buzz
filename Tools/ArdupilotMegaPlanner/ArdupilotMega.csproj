@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ArdupilotMega</RootNamespace>
     <AssemblyName>ArdupilotMegaPlanner</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -136,17 +136,17 @@
     </Reference>
     <Reference Include="IronPython, Version=2.7.0.40, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\IronPython 2.7.1\IronPython.dll</HintPath>
-      <Private>True</Private>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\IronPython 2.7.1\IronPython-2.6.1\IronPython.dll</HintPath>
     </Reference>
     <Reference Include="IronPython.Modules, Version=2.7.0.40, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\IronPython 2.7.1\IronPython.Modules.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\IronPython 2.7.1\IronPython-2.6.1\IronPython.Modules.dll</HintPath>
     </Reference>
     <Reference Include="KMLib">
       <HintPath>..\..\..\..\..\Desktop\DIYDrones\kml-library\KmlTestbed\bin\Release\KMLib.dll</HintPath>
+    </Reference>
+    <Reference Include="MetaDataExtractor">
+      <HintPath>..\..\..\..\..\Desktop\DIYDrones\myquad\MetaDataExtractorCSharp240d\bin\Release\MetaDataExtractor.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.DirectX, Version=1.0.2902.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <SpecificVersion>False</SpecificVersion>
@@ -158,19 +158,26 @@
       <HintPath>..\..\..\..\..\..\..\Windows\Microsoft.NET\DirectX for Managed Code\1.0.2902.0\Microsoft.DirectX.DirectInput.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Microsoft.Dynamic, Version=1.1.0.20, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\IronPython 2.7.1\Microsoft.Dynamic.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Microsoft.Dynamic">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\IronPython 2.7.1\IronPython-2.6.1\Microsoft.Dynamic.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Scripting, Version=1.1.0.20, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\IronPython 2.7.1\Microsoft.Scripting.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\IronPython 2.7.1\IronPython-2.6.1\Microsoft.Scripting.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting.Core">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\IronPython 2.7.1\IronPython-2.6.1\Microsoft.Scripting.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting.Debugging">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\IronPython 2.7.1\IronPython-2.6.1\Microsoft.Scripting.Debugging.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting.ExtensionAttribute, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\IronPython 2.7.1\IronPython-2.6.1\Microsoft.Scripting.ExtensionAttribute.dll</HintPath>
     </Reference>
     <Reference Include="OpenTK, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Desktop\DIYDrones\opentk\trunk\Binaries\OpenTK\Release\OpenTK.dll</HintPath>
+      <HintPath>..\..\..\..\..\Desktop\DIYDrones\virtualglobebook-OpenGlobe-ddf1d7e\ThirdParty\OpenTKGL4\Binaries\OpenTK\Release\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="OpenTK.GLControl, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -180,27 +187,43 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\Desktop\DIYDrones\myquad\sharpkml\SharpKml\bin\Release\SharpKml.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.configuration" />
-    <Reference Include="System.Data" />
+    <Reference Include="System">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.configuration">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Data">
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System.Data.SQLite">
       <HintPath>..\..\..\..\..\Desktop\DIYDrones\myquad\greatmaps_e1bb830a18a3\Demo.WindowsForms\bin\Debug\x86\System.Data.SQLite.DLL</HintPath>
     </Reference>
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Management" />
+    <Reference Include="System.Drawing">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Management">
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System.Speech">
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Web" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
+    <Reference Include="System.Web">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Windows.Forms">
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Private>False</Private>
+    </Reference>
     <Reference Include="ZedGraph, Version=5.1.2.878, Culture=neutral, PublicKeyToken=02a83cbd123fcd60, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\ArdupilotSim\ArdupilotSim\bin\Release\ZedGraph.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AGauge.cs">
+    <Compile Include="Controls\AGauge.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="ArduinoDetect.cs" />
@@ -218,7 +241,21 @@
     </Compile>
     <Compile Include="CommsTCPSerial.cs" />
     <Compile Include="CommsUdpSerial.cs" />
-    <Compile Include="georefimage.cs" />
+    <Compile Include="Controls\ImageLabel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\ImageLabel.Designer.cs">
+      <DependentUpon>ImageLabel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ResEdit.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ResEdit.Designer.cs">
+      <DependentUpon>ResEdit.cs</DependentUpon>
+    </Compile>
+    <Compile Include="georefimage.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="HIL\Aircraft.cs" />
     <Compile Include="HIL\Point3d.cs" />
     <Compile Include="HIL\QuadCopter.cs" />
@@ -237,12 +274,6 @@
     <Compile Include="GCSViews\FlightPlanner.Designer.cs">
       <DependentUpon>FlightPlanner.cs</DependentUpon>
     </Compile>
-    <Compile Include="GCSViews\test.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="GCSViews\test.Designer.cs">
-      <DependentUpon>test.cs</DependentUpon>
-    </Compile>
     <Compile Include="Joystick.cs" />
     <Compile Include="JoystickSetup.cs">
       <SubType>Form</SubType>
@@ -252,14 +283,14 @@
     </Compile>
     <Compile Include="MAVLinkTypes.cs" />
     <Compile Include="MAVLinkTypesenum.cs" />
-    <Compile Include="MyButton.cs">
+    <Compile Include="Controls\MyButton.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Common.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ArduinoComms.cs" />
-    <Compile Include="MyLabel.cs">
+    <Compile Include="Controls\MyLabel.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="MyUserControl.cs">
@@ -322,7 +353,7 @@
     <Compile Include="GCSViews\Simulation.Designer.cs">
       <DependentUpon>Simulation.cs</DependentUpon>
     </Compile>
-    <Compile Include="MyTrackBar.cs">
+    <Compile Include="Controls\MyTrackBar.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="CurrentState.cs" />
@@ -377,12 +408,21 @@
     <Compile Include="temp.Designer.cs">
       <DependentUpon>temp.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="AGauge.resx">
+    <EmbeddedResource Include="Controls\AGauge.resx">
       <DependentUpon>AGauge.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Camera.resx">
       <DependentUpon>Camera.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\ImageLabel.resx">
+      <DependentUpon>ImageLabel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="georefimage.resx">
+      <DependentUpon>georefimage.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ResEdit.resx">
+      <DependentUpon>ResEdit.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="GCSViews\Configuration.ru-RU.resx">
       <DependentUpon>Configuration.cs</DependentUpon>
@@ -419,13 +459,14 @@
     </EmbeddedResource>
     <EmbeddedResource Include="RAW_Sensor.resx">
       <DependentUpon>RAW_Sensor.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="MavlinkLog.resx">
       <DependentUpon>MavlinkLog.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="GCSViews\Configuration.resx">
       <DependentUpon>Configuration.cs</DependentUpon>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="GCSViews\Configuration.zh-Hans.resx">
@@ -446,34 +487,28 @@
     </EmbeddedResource>
     <EmbeddedResource Include="GCSViews\Help.resx">
       <DependentUpon>Help.cs</DependentUpon>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="GCSViews\Help.zh-Hans.resx">
       <DependentUpon>Help.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="GCSViews\Simulation.resx">
       <DependentUpon>Simulation.cs</DependentUpon>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="GCSViews\Simulation.zh-Hans.resx">
       <DependentUpon>Simulation.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="GCSViews\Terminal.resx">
       <DependentUpon>Terminal.cs</DependentUpon>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="GCSViews\Terminal.zh-Hans.resx">
       <DependentUpon>Terminal.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="GCSViews\test.resx">
-      <DependentUpon>test.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="HUD.resx">
       <DependentUpon>HUD.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="JoystickSetup.resx">
       <DependentUpon>JoystickSetup.cs</DependentUpon>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="JoystickSetup.zh-Hans.resx">
       <DependentUpon>JoystickSetup.cs</DependentUpon>
@@ -483,17 +518,14 @@
     </EmbeddedResource>
     <EmbeddedResource Include="GCSViews\Firmware.resx">
       <DependentUpon>Firmware.cs</DependentUpon>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="GCSViews\FlightData.resx">
       <DependentUpon>FlightData.cs</DependentUpon>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="GCSViews\FlightPlanner.resx">
       <DependentUpon>FlightPlanner.cs</DependentUpon>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="ElevationProfile.resx">
@@ -501,9 +533,11 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Log.resx">
       <DependentUpon>Log.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="LogBrowse.resx">
       <DependentUpon>LogBrowse.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
@@ -520,7 +554,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Setup\Setup.resx">
       <DependentUpon>Setup.cs</DependentUpon>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Setup\Setup.zh-Hans.resx">
       <DependentUpon>Setup.cs</DependentUpon>
@@ -544,6 +578,9 @@
     <None Include="defines.h">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="m3u\networklink.kml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="MAC\Info.plist" />
     <None Include="MAC\run.sh" />
     <None Include="mykey.snk" />
@@ -563,20 +600,29 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="JSBSim.exe">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="mavcmd.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="Resources\new frames-13.png" />
+    <None Include="Resources\new frames-12.png" />
+    <None Include="Resources\new frames-11.png" />
+    <None Include="Resources\new frames-10.png" />
+    <None Include="Resources\new frames-06.png" />
+    <None Include="Resources\new frames-05.png" />
+    <None Include="Resources\BR-0016-01-3T.jpg" />
     <Content Include="Resources\MAVCmd.zh-Hans.txt" />
+    <None Include="Resources\MAVParam.txt" />
     <Content Include="Resources\MAVParam.zh-Hans.txt" />
     <None Include="Resources\MAVCmd.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Resources\MAVParam.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Resources\new frames-09.png" />
     <Content Include="dataflashlog.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <None Include="Resources\plane2.png" />
     <None Include="Resources\quad2.png" />

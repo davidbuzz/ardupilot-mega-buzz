@@ -62,8 +62,8 @@ AP_MavlinkCommand::AP_MavlinkCommand(const mavlink_waypoint_t & cmd) :
     setZ(cmd.z);
     save();
 
-    // reload home if sent
-    if (cmd.seq == 0) home.load();
+    // reload home if sent, home must be a global waypoint
+    if ( (cmd.seq == 0) && (cmd.frame == MAV_FRAME_GLOBAL)) home.load();
 
     Serial.println("============================================================");
     Serial.println("storing new command from mavlink_waypoint_t");
@@ -196,10 +196,13 @@ float AP_MavlinkCommand::crossTrack(const AP_MavlinkCommand & previous,
 // calculates along  track distance of a current location
 float AP_MavlinkCommand::alongTrack(const AP_MavlinkCommand & previous,
                                     int32_t lat_degInt, int32_t lon_degInt) const {
-    // ignores lat/lon since single prec.
-    float dXt = this->crossTrack(previous,lat_degInt, lon_degInt);
-    float d = previous.distanceTo(lat_degInt, lon_degInt);
-    return dXt / tan(asin(dXt / d));
+    float t1N = previous.getPN(lat_degInt, lon_degInt);
+    float t1E = previous.getPE(lat_degInt, lon_degInt);
+    float t2N = previous.getPN(getLat_degInt(), getLon_degInt());
+    float t2E = previous.getPE(getLat_degInt(), getLon_degInt());
+    float segmentLength = previous.distanceTo(*this);
+    if (segmentLength == 0) return 0;
+    return (t1N*t2N + t1E*t2E)/segmentLength;
 }
 
 

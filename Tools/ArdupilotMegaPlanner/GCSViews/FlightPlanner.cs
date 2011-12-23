@@ -18,6 +18,9 @@ using System.Resources;
 using System.Reflection;
 using System.ComponentModel;
 using System.Threading;
+using SharpKml.Base;
+using SharpKml.Dom;
+
 
 
 namespace ArdupilotMega.GCSViews
@@ -272,11 +275,6 @@ namespace ArdupilotMega.GCSViews
                 cell.Value = lng.ToString("0.0000000");
                 cell.DataGridView.EndEdit();
             }
-            if (Commands.Columns[Param1.Index].HeaderText.Equals(cmdParamNames["WAYPOINT"][0]/*"Delay"*/))
-            {
-                cell = Commands.Rows[selectedrow].Cells[Param1.Index] as DataGridViewTextBoxCell;
-                cell.Value = 0;
-            }
             if (alt != -1 && Commands.Columns[Alt.Index].HeaderText.Equals(cmdParamNames["WAYPOINT"][6]/*"Alt"*/))
             {
                 cell = Commands.Rows[selectedrow].Cells[Alt.Index] as DataGridViewTextBoxCell;
@@ -347,7 +345,7 @@ namespace ArdupilotMega.GCSViews
         {
             TXT_mouselat.Text = lat.ToString();
             TXT_mouselong.Text = lng.ToString();
-            TXT_mousealt.Text = srtm.getAltitude(lat, lng).ToString("0");
+            TXT_mousealt.Text = srtm.getAltitude(lat, lng, MainMap.Zoom).ToString("0");
 
             try
             {
@@ -445,6 +443,13 @@ namespace ArdupilotMega.GCSViews
             trackBar1.Minimum = MainMap.MinZoom;
             trackBar1.Maximum = MainMap.MaxZoom + 0.99;
 
+            // draw this layer first
+            kmlpolygons = new GMapOverlay(MainMap, "kmlpolygons");
+            MainMap.Overlays.Add(kmlpolygons);
+
+            geofence = new GMapOverlay(MainMap, "geofence");
+            MainMap.Overlays.Add(geofence);
+
             routes = new GMapOverlay(MainMap, "routes");
             MainMap.Overlays.Add(routes);
 
@@ -456,6 +461,8 @@ namespace ArdupilotMega.GCSViews
 
             drawnpolygons = new GMapOverlay(MainMap, "drawnpolygons");
             MainMap.Overlays.Add(drawnpolygons);
+
+
 
             top = new GMapOverlay(MainMap, "top");
             //MainMap.Overlays.Add(top);
@@ -626,7 +633,20 @@ namespace ArdupilotMega.GCSViews
 
             config(false);
 
+            if (MainV2.HomeLocation.Lat != 0 && MainV2.HomeLocation.Lng != 0)
+            {
+                TXT_homelat.Text = MainV2.HomeLocation.Lat.ToString();
+
+                TXT_homelng.Text = MainV2.HomeLocation.Lng.ToString();
+
+                TXT_homealt.Text = MainV2.HomeLocation.Alt.ToString();
+            }
+
+
             quickadd = false;
+
+            if (MainV2.config["WMSserver"] != null)
+                MainMap.Manager.CustomWMSURL = MainV2.config["WMSserver"].ToString();
 
             trackBar1.Value = (int)MainMap.Zoom;
 
@@ -640,14 +660,92 @@ namespace ArdupilotMega.GCSViews
                 isonline = false;
             }
 
+            // setup geofence
+            List<PointLatLng> polygonPoints = new List<PointLatLng>();
+            gf = new GMapPolygon(polygonPoints, "geofence");
+            gf.Stroke = new Pen(Color.Pink, 5);
+
+            //setup drawnpolgon
+            List<PointLatLng> polygonPoints2 = new List<PointLatLng>();
+            drawnpolygon = new GMapPolygon(polygonPoints2, "drawnpoly");
+            drawnpolygon.Stroke = new Pen(Color.Red, 2);
+
             updateCMDParams();
 
             // mono
             panelMap.Dock = DockStyle.None;
             panelMap.Dock = DockStyle.Fill;
-            panelMap_Resize(null,null);
+            panelMap_Resize(null, null);
 
             writeKML();
+        }
+
+        void parser_ElementAdded(object sender, SharpKml.Base.ElementEventArgs e)
+        {
+            processKML(e.Element);
+        }
+
+        private void processKML(SharpKml.Dom.Element Element)
+        {
+            try
+            {
+                Console.WriteLine(Element.ToString() + " " + Element.Parent);
+            }
+            catch { }
+
+            SharpKml.Dom.Document doc = Element as SharpKml.Dom.Document;
+            SharpKml.Dom.Placemark pm = Element as SharpKml.Dom.Placemark;
+            SharpKml.Dom.Folder folder = Element as SharpKml.Dom.Folder;
+            SharpKml.Dom.Polygon polygon = Element as SharpKml.Dom.Polygon;
+            SharpKml.Dom.LineString ls = Element as SharpKml.Dom.LineString;
+
+            if (doc != null)
+            {
+                foreach (var feat in doc.Features)
+                {
+                    //Console.WriteLine("feat " + feat.GetType());
+                    //processKML((Element)feat);
+                }
+            }
+            else
+                if (folder != null)
+                {
+                    foreach (Feature feat in folder.Features)
+                    {
+                        //Console.WriteLine("feat "+feat.GetType());
+                        //processKML(feat);
+                    }
+                }
+                else if (pm != null)
+                {
+
+                }
+                else if (polygon != null)
+                {
+                    GMapPolygon kmlpolygon = new GMapPolygon(new List<PointLatLng>(), "kmlpolygon");
+
+                    kmlpolygon.Stroke.Color = Color.Purple;
+
+                    foreach (var loc in polygon.OuterBoundary.LinearRing.Coordinates)
+                    {
+                        kmlpolygon.Points.Add(new PointLatLng(loc.Latitude, loc.Longitude));
+                    }
+
+                    kmlpolygons.Polygons.Add(kmlpolygon);
+                }
+                else if (ls != null)
+                {
+                    GMapRoute kmlroute = new GMapRoute(new List<PointLatLng>(), "kmlroute");
+
+                    kmlroute.Stroke.Color = Color.Purple;
+
+                    foreach (var loc in ls.Coordinates)
+                    {
+                        kmlroute.Points.Add(new PointLatLng(loc.Latitude, loc.Longitude));
+                    }
+
+                    kmlpolygons.Routes.Add(kmlroute);
+                }
         }
 
         private void ChangeColumnHeader(string command)
@@ -696,9 +794,10 @@ namespace ArdupilotMega.GCSViews
                 DataGridViewCell tcell = Commands.Rows[e.RowIndex].Cells[i];
                 if (tcell.GetType() == typeof(DataGridViewTextBoxCell))
                 {
-                    tcell.Value = "0";
+                    if (tcell.Value == null)
+                        tcell.Value = "0";
                 }
-            }                
+            }
 
             DataGridViewComboBoxCell cell = Commands.Rows[e.RowIndex].Cells[Command.Index] as DataGridViewComboBoxCell;
             if (cell.Value == null)
@@ -892,8 +991,8 @@ namespace ArdupilotMega.GCSViews
                         {
                             if (Commands.Rows[a].HeaderCell.Value == null)
                             {
-                                    Commands.Rows[a].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
-                                    Commands.Rows[a].HeaderCell.Value = (a + 1).ToString();
+                                Commands.Rows[a].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                                Commands.Rows[a].HeaderCell.Value = (a + 1).ToString();
                             }
                             // skip rows with the correct number
                             string rowno = Commands.Rows[a].HeaderCell.Value.ToString();
@@ -1339,10 +1438,8 @@ namespace ArdupilotMega.GCSViews
 
                 }
 
-                int alt = (int)temp.alt;
-
                 cell = Commands.Rows[i].Cells[Alt.Index] as DataGridViewTextBoxCell;
-                cell.Value = (int)((double)alt * MainV2.cs.multiplierdist);
+                cell.Value = Math.Round((temp.alt * MainV2.cs.multiplierdist), 0);
                 cell = Commands.Rows[i].Cells[Lat.Index] as DataGridViewTextBoxCell;
                 cell.Value = (double)temp.lat;
                 cell = Commands.Rows[i].Cells[Lon.Index] as DataGridViewTextBoxCell;
@@ -1445,15 +1542,6 @@ namespace ArdupilotMega.GCSViews
                 {
                     switch (key)
                     {
-                        case "TXT_homelat":
-                            TXT_homelat.Text = ArdupilotMega.MainV2.config[key].ToString();
-                            break;
-                        case "TXT_homelng":
-                            TXT_homelng.Text = ArdupilotMega.MainV2.config[key].ToString();
-                            break;
-                        case "TXT_homealt":
-                            TXT_homealt.Text = ArdupilotMega.MainV2.config[key].ToString();
-                            break;
                         case "TXT_WPRad":
                             TXT_WPRad.Text = ArdupilotMega.MainV2.config[key].ToString();
                             break;
@@ -1583,18 +1671,34 @@ namespace ArdupilotMega.GCSViews
         private void TXT_homelat_TextChanged(object sender, EventArgs e)
         {
             sethome = false;
+            try
+            {
+                MainV2.HomeLocation.Lat = double.Parse(TXT_homelat.Text);
+            }
+            catch { }
             writeKML();
+
         }
 
         private void TXT_homelng_TextChanged(object sender, EventArgs e)
         {
             sethome = false;
+            try
+            {
+                MainV2.HomeLocation.Lng = double.Parse(TXT_homelng.Text);
+            }
+            catch { }
             writeKML();
         }
 
         private void TXT_homealt_TextChanged(object sender, EventArgs e)
         {
             sethome = false;
+            try
+            {
+                MainV2.HomeLocation.Alt = double.Parse(TXT_homealt.Text);
+            }
+            catch { }
             writeKML();
         }
 
@@ -1724,7 +1828,11 @@ namespace ArdupilotMega.GCSViews
         // polygons
         GMapPolygon polygon;
         GMapPolygon drawnpolygon;
-        //static GMapRoute route;
+        GMapPolygon gf;
+
+        GMapOverlay kmlpolygons;
+        GMapOverlay geofence;
+
 
         // layers
         GMapOverlay top;
@@ -1784,6 +1892,15 @@ namespace ArdupilotMega.GCSViews
 
             MainMap.ZoomAndCenterMarkers("objects");
 
+            if (type == MapType.CustomWMS)
+            {
+                string url = "";
+                if (MainV2.config["WMSserver"] != null)
+                    url = MainV2.config["WMSserver"].ToString();
+                Common.InputBox("WMS Server", "Enter the WMS server URL", ref url);
+                MainV2.config["WMSserver"] = url;
+                MainMap.Manager.CustomWMSURL = url;
+            }
         }
 
         void MainMap_MouseUp(object sender, MouseEventArgs e)
@@ -2095,7 +2212,8 @@ namespace ArdupilotMega.GCSViews
                     DataGridViewCell tcell = Commands.Rows[selectedrow].Cells[i];
                     if (tcell.GetType() == typeof(DataGridViewTextBoxCell))
                     {
-                        tcell.Value = "0";
+                        if (tcell.Value.ToString() == "?")
+                            tcell.Value = "0";
                     }
                 }
             }
@@ -2509,7 +2627,7 @@ namespace ArdupilotMega.GCSViews
             }
             else
             {
-                MessageBox.Show("Please Connect/wait for lock, and click here to set your home to your current location");
+                MessageBox.Show("If you're at the field, connect to your APM and wait for GPS lock. Then click 'Home Location' link to set home to your location");
             }
         }
 
@@ -2589,7 +2707,7 @@ namespace ArdupilotMega.GCSViews
         {
             if (polygongridmode == false)
             {
-                MessageBox.Show("You will remain in polygon mode until you clear the polygon or create a grid");
+                MessageBox.Show("You will remain in polygon mode until you clear the polygon or create a grid/upload a fence");
             }
 
             polygongridmode = true;
@@ -2597,8 +2715,7 @@ namespace ArdupilotMega.GCSViews
             List<PointLatLng> polygonPoints = new List<PointLatLng>();
             if (drawnpolygons.Polygons.Count == 0)
             {
-                drawnpolygon = new GMapPolygon(polygonPoints, "drawnpoly");
-                drawnpolygon.Stroke = new Pen(Color.Red, 2);
+                drawnpolygon.Points.Clear();
                 drawnpolygons.Polygons.Add(drawnpolygon);
             }
             drawnpolygon.Points.Add(new PointLatLng(start.Lat, start.Lng));
@@ -2619,6 +2736,8 @@ namespace ArdupilotMega.GCSViews
             drawnpolygon.Points.Clear();
             drawnpolygons.Markers.Clear();
             MainMap.Invalidate();
+
+            writeKML();
         }
 
         private void clearMissionToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2632,9 +2751,13 @@ namespace ArdupilotMega.GCSViews
         {
             selectedrow = Commands.Rows.Add();
 
-            Commands.Rows[selectedrow].Cells[Command.Index].Value = MAVLink.MAV_CMD.LOITER_UNLIM;
+            Commands.Rows[selectedrow].Cells[Command.Index].Value = MAVLink.MAV_CMD.LOITER_UNLIM.ToString();
+
+            ChangeColumnHeader(MAVLink.MAV_CMD.LOITER_UNLIM.ToString());
 
             setfromGE(end.Lat, end.Lng, (int)float.Parse(TXT_DefaultAlt.Text));
+
+            writeKML();
         }
 
         private void jumpstartToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2644,11 +2767,13 @@ namespace ArdupilotMega.GCSViews
 
             int row = Commands.Rows.Add();
 
-            Commands.Rows[row].Cells[Command.Index].Value = MAVLink.MAV_CMD.DO_JUMP;
+            Commands.Rows[row].Cells[Command.Index].Value = MAVLink.MAV_CMD.DO_JUMP.ToString();
 
             Commands.Rows[row].Cells[Param1.Index].Value = 1;
 
             Commands.Rows[row].Cells[Param2.Index].Value = repeat;
+
+            writeKML();
         }
 
         private void jumpwPToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2660,11 +2785,13 @@ namespace ArdupilotMega.GCSViews
 
             int row = Commands.Rows.Add();
 
-            Commands.Rows[row].Cells[Command.Index].Value = MAVLink.MAV_CMD.DO_JUMP;
+            Commands.Rows[row].Cells[Command.Index].Value = MAVLink.MAV_CMD.DO_JUMP.ToString();
 
             Commands.Rows[row].Cells[Param1.Index].Value = wp;
 
             Commands.Rows[row].Cells[Param2.Index].Value = repeat;
+
+            writeKML();
         }
 
         private void deleteWPToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2707,11 +2834,15 @@ namespace ArdupilotMega.GCSViews
 
             selectedrow = Commands.Rows.Add();
 
-            Commands.Rows[selectedrow].Cells[Command.Index].Value = MAVLink.MAV_CMD.LOITER_TIME;
+            Commands.Rows[selectedrow].Cells[Command.Index].Value = MAVLink.MAV_CMD.LOITER_TIME.ToString();
 
             Commands.Rows[selectedrow].Cells[Param1.Index].Value = time;
 
+            ChangeColumnHeader(MAVLink.MAV_CMD.LOITER_TIME.ToString());
+
             setfromGE(end.Lat, end.Lng, (int)float.Parse(TXT_DefaultAlt.Text));
+
+            writeKML();
         }
 
         private void loitercirclesToolStripMenuItem_Click(object sender, EventArgs e)
@@ -2721,11 +2852,15 @@ namespace ArdupilotMega.GCSViews
 
             selectedrow = Commands.Rows.Add();
 
-            Commands.Rows[selectedrow].Cells[Command.Index].Value = MAVLink.MAV_CMD.LOITER_TURNS;
+            Commands.Rows[selectedrow].Cells[Command.Index].Value = MAVLink.MAV_CMD.LOITER_TURNS.ToString();
 
             Commands.Rows[selectedrow].Cells[Param1.Index].Value = turns;
 
+            ChangeColumnHeader(MAVLink.MAV_CMD.LOITER_TURNS.ToString());
+
             setfromGE(end.Lat, end.Lng, (int)float.Parse(TXT_DefaultAlt.Text));
+
+            writeKML();
         }
 
         private void BUT_Camera_Click(object sender, EventArgs e)
@@ -2738,26 +2873,404 @@ namespace ArdupilotMega.GCSViews
         private void panelMap_Resize(object sender, EventArgs e)
         {
             // this is a mono fix for the zoom bar
-            Console.WriteLine("panelmap "+panelMap.Size.ToString());
-            MainMap.Size = new Size(panelMap.Size.Width - 50,panelMap.Size.Height);
-            trackBar1.Location = new Point(panelMap.Size.Width - 50,trackBar1.Location.Y);
+            //Console.WriteLine("panelmap "+panelMap.Size.ToString());
+            MainMap.Size = new Size(panelMap.Size.Width - 50, panelMap.Size.Height);
+            trackBar1.Location = new System.Drawing.Point(panelMap.Size.Width - 50, trackBar1.Location.Y);
             trackBar1.Size = new System.Drawing.Size(trackBar1.Size.Width, panelMap.Size.Height - trackBar1.Location.Y);
-            label11.Location = new Point(panelMap.Size.Width - 50, label11.Location.Y);
+            label11.Location = new System.Drawing.Point(panelMap.Size.Width - 50, label11.Location.Y);
         }
 
         private void BUT_zoomto_Click(object sender, EventArgs e)
         {
-            string place = "Perth, Australia";
-            Common.InputBox("Location", "Enter your location", ref place);
+            string place = "Perth Airport, Australia";
+            if (DialogResult.OK == Common.InputBox("Location", "Enter your location", ref place))
+            {
 
-            GeoCoderStatusCode status = MainMap.SetCurrentPositionByKeywords(place);
-            if (status != GeoCoderStatusCode.G_GEO_SUCCESS)
-            {
-                MessageBox.Show("Google Maps Geocoder can't find: '" + place + "', reason: " + status.ToString(), "GMap.NET", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                GeoCoderStatusCode status = MainMap.SetCurrentPositionByKeywords(place);
+                if (status != GeoCoderStatusCode.G_GEO_SUCCESS)
+                {
+                    MessageBox.Show("Google Maps Geocoder can't find: '" + place + "', reason: " + status.ToString(), "GMap.NET", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
+                else
+                {
+                    MainMap.Zoom = 15;
+                }
             }
-            else
+        }
+
+        private void BUT_loadkml_Click(object sender, EventArgs e)
+        {
+
+            OpenFileDialog fd = new OpenFileDialog();
+            fd.Filter = "Google Earth KML (*.kml)|*.kml";
+            fd.DefaultExt = ".kml";
+            DialogResult result = fd.ShowDialog();
+            string file = fd.FileName;
+            if (file != "")
             {
-                MainMap.Zoom = 15;
+                try
+                {
+                    kmlpolygons.Polygons.Clear();
+                    kmlpolygons.Routes.Clear();
+
+                    FlightData.kmlpolygons.Routes.Clear();
+                    FlightData.kmlpolygons.Polygons.Clear();
+
+                    string kml = new StreamReader(File.OpenRead(file)).ReadToEnd();
+
+                    kml = kml.Replace("<Snippet/>", "");
+
+                    var parser = new SharpKml.Base.Parser();
+
+                    parser.ElementAdded += parser_ElementAdded;
+                    parser.ParseString(kml, true);
+
+                    if (DialogResult.Yes == MessageBox.Show("Do you want to load this into the flight data screen?", "Load data", MessageBoxButtons.YesNo))
+                    {
+                        foreach (var temp in kmlpolygons.Polygons)
+                        {
+                            FlightData.kmlpolygons.Polygons.Add(temp);
+                        }
+                        foreach (var temp in kmlpolygons.Routes)
+                        {
+                            FlightData.kmlpolygons.Routes.Add(temp);
+                        }
+                    }
+
+                }
+                catch (Exception ex) { MessageBox.Show("Bad KML File :" + ex.ToString()); }
+            }
+
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            try
+            {
+                routes.Markers.Clear();
+
+                if (MainV2.cs.lat == 0 || MainV2.cs.lng == 0)
+                    return;
+
+                PointLatLng currentloc = new PointLatLng(MainV2.cs.lat, MainV2.cs.lng);
+
+                if (MainV2.cs.firmware == MainV2.Firmwares.ArduPlane)
+                {
+                    routes.Markers.Add(new GMapMarkerPlane(currentloc, MainV2.cs.yaw, MainV2.cs.groundcourse, MainV2.cs.nav_bearing, MainV2.cs.target_bearing));
+                }
+                else
+                {
+                    routes.Markers.Add(new GMapMarkerQuad(currentloc, MainV2.cs.yaw, MainV2.cs.groundcourse, MainV2.cs.nav_bearing));
+                }
+            }
+            catch { }
+        }
+
+        private void GeoFenceuploadToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            polygongridmode = false;
+            //FENCE_TOTAL
+            if (MainV2.comPort.param["FENCE_ACTION"] == null)
+            {
+                MessageBox.Show("Not Supported");
+                return;
+            }
+
+            if (drawnpolygon == null)
+            {
+                MessageBox.Show("No polygon to upload");
+                return;
+            }
+
+            if (geofence.Markers.Count == 0)
+            {
+                MessageBox.Show("No return location set");
+                return;
+            }
+
+            if (drawnpolygon.Points.Count == 0)
+            {
+                MessageBox.Show("No polygon drawn");
+                return;
+            }
+
+            // check if return is inside polygon
+            List<PointLatLng> plll = new List<PointLatLng>(drawnpolygon.Points.ToArray());
+            // close it
+            plll.Add(plll[0]);
+            // check it
+            if (!pnpoly(plll.ToArray(), geofence.Markers[0].Position.Lat, geofence.Markers[0].Position.Lng))
+            {
+                MessageBox.Show("Your return location is outside the polygon");
+                return;
+            }
+
+            string minalts = (int.Parse(MainV2.comPort.param["FENCE_MINALT"].ToString()) * MainV2.cs.multiplierdist).ToString("0");
+            Common.InputBox("Min Alt", "Box Minimum Altitude?", ref minalts);
+
+            string maxalts = (int.Parse(MainV2.comPort.param["FENCE_MAXALT"].ToString()) * MainV2.cs.multiplierdist).ToString("0");
+            Common.InputBox("Max Alt", "Box Maximum Altitude?", ref maxalts);
+
+            int minalt = 0;
+            int maxalt = 0;
+
+            if (!int.TryParse(minalts, out minalt))
+            {
+                MessageBox.Show("Bad Min Alt");
+                return;
+            }
+
+            if (!int.TryParse(maxalts, out maxalt))
+            {
+                MessageBox.Show("Bad Max Alt");
+                return;
+            }
+
+            try
+            {
+                MainV2.comPort.setParam("FENCE_MINALT", minalt);
+                MainV2.comPort.setParam("FENCE_MAXALT", maxalt);
+            }
+            catch
+            {
+                MessageBox.Show("Failed to set min/max fence alt");
+                return;
+            }
+
+            try
+            {
+                if (MainV2.comPort.param["FENCE_ACTION"].ToString() != "0")
+                    MainV2.comPort.setParam("FENCE_ACTION", 0);
+            }
+            catch
+            {
+                MessageBox.Show("Failed to set FENCE_ACTION");
+                return;
+            }
+
+            // points + return + close
+            byte pointcount = (byte)(drawnpolygon.Points.Count + 2);
+
+            MainV2.comPort.setParam("FENCE_TOTAL", pointcount);
+
+            byte a = 0;
+
+            // add return loc
+            MainV2.comPort.setFencePoint(a, new PointLatLngAlt(geofence.Markers[0].Position), pointcount);
+            a++;
+
+            // add points
+            foreach (var pll in drawnpolygon.Points)
+            {
+                MainV2.comPort.setFencePoint(a, new PointLatLngAlt(pll), pointcount);
+                a++;
+            }
+            // add polygon close
+            MainV2.comPort.setFencePoint(a, new PointLatLngAlt(drawnpolygon.Points[0]), pointcount);
+
+            // clear everything
+            drawnpolygons.Polygons.Clear();
+            drawnpolygons.Markers.Clear();
+            geofence.Polygons.Clear();
+            gf.Points.Clear();
+
+            // add polygon
+            gf.Points.AddRange(drawnpolygon.Points.ToArray());
+
+            drawnpolygon.Points.Clear();
+
+            geofence.Polygons.Add(gf);
+
+            // update flightdata
+            FlightData.geofence.Markers.Clear();
+            FlightData.geofence.Polygons.Clear();
+            FlightData.geofence.Polygons.Add(gf);
+            FlightData.geofence.Markers.Add(geofence.Markers[0]);
+
+            MainMap.UpdatePolygonLocalPosition(gf);
+            MainMap.UpdateMarkerLocalPosition(geofence.Markers[0]);
+
+            MainMap.Invalidate();
+        }
+
+        private void GeoFencedownloadToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            polygongridmode = false;
+            int count = 1;
+
+            if (MainV2.comPort.param["FENCE_ACTION"] == null || MainV2.comPort.param["FENCE_TOTAL"] == null)
+            {
+                MessageBox.Show("Not Supported");
+                return;
+            }
+
+            if (int.Parse(MainV2.comPort.param["FENCE_TOTAL"].ToString()) <= 1)
+            {
+                MessageBox.Show("Nothing to download");
+                return;
+            }
+
+            geofence.Polygons.Clear();
+            geofence.Markers.Clear();
+            gf.Points.Clear();
+
+
+            for (int a = 0; a < count; a++)
+            {
+                PointLatLngAlt plla = MainV2.comPort.getFencePoint(a, ref count);
+                gf.Points.Add(new PointLatLng(plla.Lat, plla.Lng));
+            }
+
+            // do return location
+            geofence.Markers.Add(new GMapMarkerGoogleRed(new PointLatLng(gf.Points[0].Lat, gf.Points[0].Lng)) { ToolTipMode = MarkerTooltipMode.OnMouseOver, ToolTipText = "GeoFence Return" });
+            gf.Points.RemoveAt(0);
+
+            // add now - so local points are calced
+            geofence.Polygons.Add(gf);
+
+            // update flight data
+            FlightData.geofence.Markers.Clear();
+            FlightData.geofence.Polygons.Clear();
+            FlightData.geofence.Polygons.Add(gf);
+            FlightData.geofence.Markers.Add(geofence.Markers[0]);
+
+            MainMap.UpdatePolygonLocalPosition(gf);
+            MainMap.UpdateMarkerLocalPosition(geofence.Markers[0]);
+
+            MainMap.Invalidate();
+        }
+
+        private void setReturnLocationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            geofence.Markers.Clear();
+            geofence.Markers.Add(new GMapMarkerGoogleRed(new PointLatLng(start.Lat, start.Lng)) { ToolTipMode = MarkerTooltipMode.OnMouseOver, ToolTipText = "GeoFence Return" });
+
+            MainMap.Invalidate();
+        }
+
+        /// <summary>
+        /// from http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+        /// </summary>
+        /// <param name="array"> a closed polygon</param>
+        /// <param name="testx"></param>
+        /// <param name="testy"></param>
+        /// <returns> true = outside</returns>
+        bool pnpoly(PointLatLng[] array, double testx, double testy)
+        {
+            int nvert = array.Length;
+            int i, j = 0;
+            bool c = false;
+            for (i = 0, j = nvert - 1; i < nvert; j = i++)
+            {
+                if (((array[i].Lng > testy) != (array[j].Lng > testy)) &&
+                 (testx < (array[j].Lat - array[i].Lat) * (testy - array[i].Lng) / (array[j].Lng - array[i].Lng) + array[i].Lat))
+                    c = !c;
+            }
+            return c;
+        }
+
+        private void loadFromFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog fd = new OpenFileDialog();
+            fd.Filter = "Fence (*.fen)|*.fen";
+            fd.ShowDialog();
+            if (File.Exists(fd.FileName))
+            {
+                StreamReader sr = new StreamReader(fd.OpenFile());
+
+                drawnpolygons.Markers.Clear();
+                drawnpolygons.Polygons.Clear();
+                drawnpolygon.Points.Clear();
+
+                int a = 0;
+
+                while (!sr.EndOfStream)
+                {
+                    string line = sr.ReadLine();
+                    if (line.StartsWith("#"))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        string[] items = line.Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+
+                        if (a == 0)
+                        {
+                            geofence.Markers.Clear();
+                            geofence.Markers.Add(new GMapMarkerGoogleRed(new PointLatLng( double.Parse(items[0]),double.Parse(items[1]))) { ToolTipMode = MarkerTooltipMode.OnMouseOver, ToolTipText = "GeoFence Return" });
+                            MainMap.UpdateMarkerLocalPosition(geofence.Markers[0]);
+                        }
+                        else
+                        {
+                            drawnpolygon.Points.Add(new PointLatLng(double.Parse(items[0]), double.Parse(items[1])));
+                            addpolygonmarkergrid(drawnpolygon.Points.Count.ToString(), double.Parse(items[1]), double.Parse(items[0]), 0);
+                        }
+                        a++;
+                    }
+                }
+
+                // remove loop close
+                if (drawnpolygon.Points[0] == drawnpolygon.Points[drawnpolygon.Points.Count - 1])
+                {
+                    drawnpolygon.Points.RemoveAt(drawnpolygon.Points.Count - 1);
+                }
+
+                drawnpolygons.Polygons.Add(drawnpolygon);
+
+                MainMap.UpdatePolygonLocalPosition(drawnpolygon);
+
+                MainMap.Invalidate();
+            }
+        }
+
+        private void saveToFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (geofence.Markers.Count == 0)
+            {
+                MessageBox.Show("Please set a return location");
+                return;
+            }
+
+
+            SaveFileDialog sf = new SaveFileDialog();
+            sf.Filter = "Fence (*.fen)|*.fen";
+            sf.ShowDialog();
+            if (sf.FileName != "")
+            {
+                try
+                {
+                    StreamWriter sw = new StreamWriter(sf.OpenFile());
+
+                    sw.WriteLine("#saved by APM Planner " + Application.ProductVersion);
+
+                    sw.WriteLine(geofence.Markers[0].Position.Lat + " " + geofence.Markers[0].Position.Lng);
+                    if (drawnpolygon.Points.Count > 0)
+                    {
+                        foreach (var pll in drawnpolygon.Points)
+                        {
+                            sw.WriteLine(pll.Lat + " " + pll.Lng);
+                        }
+
+                        PointLatLng pll2 = drawnpolygon.Points[0];
+
+                        sw.WriteLine(pll2.Lat + " " + pll2.Lng);
+                    }
+                    else
+                    {
+                        foreach (var pll in gf.Points)
+                        {
+                            sw.WriteLine(pll.Lat + " " + pll.Lng);
+                        }
+
+                        PointLatLng pll2 = gf.Points[0];
+
+                        sw.WriteLine(pll2.Lat + " " + pll2.Lng);
+                    }
+
+                    sw.Close();
+                }
+                catch { MessageBox.Show("Failed to write fence file"); }
             }
         }
     }

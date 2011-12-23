@@ -1,3 +1,4 @@
+/// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 /*
 	AP_ADC_ADS7844.cpp - ADC ADS7844 Library for Ardupilot Mega
 	Code by Jordi Mu�oz and Jose Julio. DIYDrones.com
@@ -83,10 +84,9 @@ static inline unsigned char ADC_SPI_transfer(unsigned char data)
 }
 
 
-ISR (TIMER2_OVF_vect)
+void AP_ADC_ADS7844::read(uint32_t tnow)
 {
 	uint8_t ch;
-	static uint8_t timer_offset;
 
 	bit_clear(PORTC, 4);							// Enable Chip Select (PIN PC4)
 	ADC_SPI_transfer(adc_cmd[0]);						// Command to read the first channel
@@ -112,17 +112,13 @@ ISR (TIMER2_OVF_vect)
 			// reader below could get a division by zero
 			_sum[ch] = 0;
 			_count[ch] = 1;
-			last_ch6_micros = micros();
+			last_ch6_micros = tnow;
 		}
 		_sum[ch] += (v >> 3);
 	}
 
 	bit_set(PORTC, 4);					// Disable Chip Select (PIN PC4)
 
-	// this gives us a sample rate between 781Hz and 1302Hz. We
-	// randomise it to try to minimise aliasing effects
-        timer_offset = (timer_offset + 49) % 32;
-        TCNT2 = TCNT2_781_HZ + timer_offset;
 }
 
 
@@ -134,7 +130,7 @@ AP_ADC_ADS7844::AP_ADC_ADS7844() :
 }
 
 // Public Methods //////////////////////////////////////////////////////////////
-void AP_ADC_ADS7844::Init(void)
+void AP_ADC_ADS7844::Init( AP_PeriodicProcess * scheduler )
 {
 	pinMode(ADC_CHIP_SELECT, OUTPUT);
 
@@ -162,17 +158,12 @@ void AP_ADC_ADS7844::Init(void)
 
 	last_ch6_micros = micros();
 
-	// Enable Timer2 Overflow interrupt to capture ADC data
-	TIMSK2 = 0;			// Disable interrupts
-	TCCR2A = 0;			// normal counting mode
-	TCCR2B = _BV(CS21) | _BV(CS22);	// Set prescaler of clk/256
-	TCNT2	= 0;
-	TIFR2	= _BV(TOV2);	   // clear pending interrupts;
-	TIMSK2 = _BV(TOIE2);	   // enable the overflow interrupt
+    scheduler->register_process( AP_ADC_ADS7844::read );
+
 }
 
 // Read one channel value
-uint16_t AP_ADC_ADS7844::Ch(uint8_t ch_num)
+float AP_ADC_ADS7844::Ch(uint8_t ch_num)
 {
 	uint16_t count;
 	uint32_t sum;
@@ -188,7 +179,7 @@ uint16_t AP_ADC_ADS7844::Ch(uint8_t ch_num)
 	_sum[ch_num]   = 0;
 	sei();
 
-	return sum/count;
+	return ((float)sum)/count;
 }
 
 // Read 6 channel values
@@ -222,7 +213,7 @@ uint32_t AP_ADC_ADS7844::Ch6(const uint8_t *channel_numbers, uint16_t *result)
 	// division. That costs us 36 bytes of stack, but I think its
 	// worth it.
 	for (i = 0; i < 6; i++) {
-		result[i] = sum[i] / count[i];
+		result[i] = (sum[i] + (count[i]/2)) / count[i];
 	}
 
 

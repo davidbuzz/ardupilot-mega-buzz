@@ -14,11 +14,11 @@ static void read_control_switch()
 
 			set_mode(flight_modes[switchPosition]);
 
-			#if CH7_OPTION != CH7_SIMPLE_MODE
-				// setup Simple mode
-				// do we enable simple mode?
+			if(g.ch7_option != CH7_SIMPLE_MODE){
+				// set Simple mode using stored paramters from Mission planner
+				// rather than by the control switch
 	            do_simple = (g.simple_modes & (1 << switchPosition));
-			#endif
+			}
 		}else{
 			switch_debouncer 	= true;
 		}
@@ -51,25 +51,6 @@ static void read_trim_switch()
 			do_flip = true;
 		}
 
-	#elif CH7_OPTION == CH7_SIMPLE_MODE
-		do_simple = (g.rc_7.control_in > 800);
-		//Serial.println(g.rc_7.control_in, DEC);
-
-	#elif CH7_OPTION == CH7_RTL
-		static bool ch7_rtl_flag = false;
-
-		if (ch7_rtl_flag == false && g.rc_7.control_in > 800){
-			ch7_rtl_flag = true;
-			set_mode(RTL);
-		}
-
-		if (ch7_rtl_flag == true && g.rc_7.control_in < 800){
-			ch7_rtl_flag = false;
-			if (control_mode == RTL || control_mode == LOITER){
-				reset_control_switch();
-			}
-		}
-
 	#elif CH7_OPTION == CH7_SET_HOVER
 		// switch is engaged
 		if (g.rc_7.control_in > 800){
@@ -88,32 +69,6 @@ static void read_trim_switch()
 			}
 		}
 
-	#elif CH7_OPTION == CH7_SAVE_WP
-		if (g.rc_7.control_in > 800){
-			trim_flag = true;
-
-		}else{ // switch is disengaged
-
-			if(trim_flag){
-				trim_flag = false;
-				// increment index
-				CH7_wp_index++;
-
-				// set the next_WP, 0 is Home so we don't set that
-				// max out at 100 since I think we need to stay under the EEPROM limit
-				CH7_wp_index = constrain(CH7_wp_index, 1, 100);
-
-				// set our location ID to 16, MAV_CMD_NAV_WAYPOINT
-				current_loc.id = MAV_CMD_NAV_WAYPOINT;
-
-				// save command
-				set_cmd_with_index(current_loc, CH7_wp_index);
-
-				// save the index
-				g.command_total.set_and_save(CH7_wp_index + 1);
-			}
-		}
-
 	#elif CH7_OPTION == CH7_ADC_FILTER
 		if (g.rc_7.control_in > 800){
 			adc.filter_result = true;
@@ -125,6 +80,79 @@ static void read_trim_switch()
 		if (g.rc_7.control_in > 800){
 			auto_level_counter = 10;
 		}
+
+	#else
+
+	// this is the normal operation set by the mission planner
+
+	if(g.ch7_option == CH7_SIMPLE_MODE){
+		do_simple = (g.rc_7.control_in > 800);
+
+	}else if (g.ch7_option == CH7_RTL){
+		if (trim_flag == false && g.rc_7.control_in > 800){
+			trim_flag = true;
+			set_mode(RTL);
+		}
+
+		if (trim_flag == true && g.rc_7.control_in < 800){
+			trim_flag = false;
+			if (control_mode == RTL || control_mode == LOITER){
+				reset_control_switch();
+			}
+		}
+
+	}else if (g.ch7_option == CH7_SAVE_WP){
+		if (g.rc_7.control_in > 800){ // switch is engaged
+			trim_flag = true;
+
+		}else{ // switch is disengaged
+			if(trim_flag){
+				trim_flag = false;
+
+				if(control_mode == AUTO){
+					CH7_wp_index = 0;
+					g.command_total.set_and_save(1);
+					return;
+				}
+
+				if(CH7_wp_index == 0){
+					// this is our first WP, let's save WP 1 as a takeoff
+					// increment index
+					CH7_wp_index = 1;
+
+					// set our location ID to 16, MAV_CMD_NAV_WAYPOINT
+					current_loc.id = MAV_CMD_NAV_TAKEOFF;
+
+					// save command:
+					// we use the current altitude to be the target for takeoff.
+					// only altitude will matter to the AP mission script for takeoff.
+					// If we are above the altitude, we will skip the command.
+					set_cmd_with_index(current_loc, CH7_wp_index);
+				}
+
+				// increment index
+				CH7_wp_index++;
+
+				// set the next_WP, 0 is Home so we don't set that
+				// max out at 100 since I think we need to stay under the EEPROM limit
+				CH7_wp_index = constrain(CH7_wp_index, 1, 100);
+
+				if(g.rc_3.control_in > 0){
+					// set our location ID to 16, MAV_CMD_NAV_WAYPOINT
+					current_loc.id = MAV_CMD_NAV_WAYPOINT;
+				}else{
+					// set our location ID to 21, MAV_CMD_NAV_LAND
+					current_loc.id = MAV_CMD_NAV_LAND;
+				}
+
+				// save command
+				set_cmd_with_index(current_loc, CH7_wp_index);
+
+				// save the index
+				g.command_total.set_and_save(CH7_wp_index + 1);
+			}
+		}
+	}
 	#endif
 
 }
@@ -138,6 +166,7 @@ static void auto_trim()
 		auto_level_counter--;
 		trim_accel();
 		led_mode = AUTO_TRIM_LEDS;
+		do_simple = false;
 
 		if(auto_level_counter == 1){
 			//g.rc_1.dead_zone = 0;		// 60 = .6 degrees
@@ -145,6 +174,8 @@ static void auto_trim()
 			led_mode = NORMAL_LEDS;
 			clear_leds();
 			imu.save();
+
+			reset_control_switch();
 
 			//Serial.println("Done");
 			auto_level_counter = 0;
@@ -156,31 +187,53 @@ static void auto_trim()
 }
 
 
+/*
+How this works:
+Level Example:
+A_off: -14.00, -20.59, -30.80
+
+Right roll Example:
+A_off: -6.73, 89.05, -46.02
+
+Left Roll Example:
+A_off: -18.11, -160.31, -56.42
+
+Pitch Forward:
+A_off: -127.00, -22.16, -50.09
+
+Pitch Back:
+A_off: 201.95, -24.00, -88.56
+*/
 
 static void trim_accel()
 {
 	g.pi_stabilize_roll.reset_I();
 	g.pi_stabilize_pitch.reset_I();
 
-	if(g.rc_1.control_in > 0){ // Roll RIght
-		imu.ay(imu.ay() + 1);
-	}else if (g.rc_1.control_in < 0){
-		imu.ay(imu.ay() - 1);
+	float trim_roll  = (float)g.rc_1.control_in / 30000.0;
+	float trim_pitch = (float)g.rc_2.control_in / 30000.0;
+
+	trim_roll 	= constrain(trim_roll, -1.5, 1.5);
+	trim_pitch 	= constrain(trim_pitch, -1.5, 1.5);
+
+	if(g.rc_1.control_in > 200){ // Roll RIght
+		imu.ay(imu.ay() - trim_roll);
+	}else if (g.rc_1.control_in < -200){
+		imu.ay(imu.ay() - trim_roll);
 	}
 
-	if(g.rc_2.control_in > 0){ // Pitch Back
-		imu.ax(imu.ax() + 1);
-	}else if (g.rc_2.control_in < 0){
-		imu.ax(imu.ax() - 1);
+	if(g.rc_2.control_in > 200){ // Pitch Back
+		imu.ax(imu.ax() + trim_pitch);
+	}else if (g.rc_2.control_in < -200){
+		imu.ax(imu.ax() + trim_pitch);
 	}
 
 	/*
-	Serial.printf_P(PSTR("r:%ld p:%ld ax:%f, ay:%f, az:%f\n"),
-							dcm.roll_sensor,
-							dcm.pitch_sensor,
-							(float)imu.ax(),
+	Serial.printf_P(PSTR("r:%1.2f  %1.2f \t| p:%1.2f  %1.2f\n"),
+							trim_roll,
 							(float)imu.ay(),
-							(float)imu.az());
+							trim_pitch,
+							(float)imu.ax());
 	//*/
 }
 

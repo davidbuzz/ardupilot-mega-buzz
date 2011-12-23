@@ -43,6 +43,8 @@
             this.label3 = new System.Windows.Forms.Label();
             this.BUT_geinjection = new ArdupilotMega.MyButton();
             this.BUT_clearcustommaps = new ArdupilotMega.MyButton();
+            this.BUT_lang_edit = new ArdupilotMega.MyButton();
+            this.BUT_georefimage = new ArdupilotMega.MyButton();
             this.SuspendLayout();
             // 
             // button1
@@ -173,7 +175,7 @@
             // 
             // BUT_geinjection
             // 
-            this.BUT_geinjection.Location = new System.Drawing.Point(190, 199);
+            this.BUT_geinjection.Location = new System.Drawing.Point(150, 229);
             this.BUT_geinjection.Name = "BUT_geinjection";
             this.BUT_geinjection.Size = new System.Drawing.Size(209, 40);
             this.BUT_geinjection.TabIndex = 14;
@@ -183,7 +185,7 @@
             // 
             // BUT_clearcustommaps
             // 
-            this.BUT_clearcustommaps.Location = new System.Drawing.Point(405, 199);
+            this.BUT_clearcustommaps.Location = new System.Drawing.Point(365, 229);
             this.BUT_clearcustommaps.Name = "BUT_clearcustommaps";
             this.BUT_clearcustommaps.Size = new System.Drawing.Size(209, 40);
             this.BUT_clearcustommaps.TabIndex = 15;
@@ -191,11 +193,32 @@
             this.BUT_clearcustommaps.UseVisualStyleBackColor = true;
             this.BUT_clearcustommaps.Click += new System.EventHandler(this.BUT_clearcustommaps_Click);
             // 
+            // BUT_lang_edit
+            // 
+            this.BUT_lang_edit.Location = new System.Drawing.Point(365, 164);
+            this.BUT_lang_edit.Name = "BUT_lang_edit";
+            this.BUT_lang_edit.Size = new System.Drawing.Size(75, 23);
+            this.BUT_lang_edit.TabIndex = 16;
+            this.BUT_lang_edit.Text = "Lang Edit";
+            this.BUT_lang_edit.UseVisualStyleBackColor = true;
+            this.BUT_lang_edit.Click += new System.EventHandler(this.BUT_lang_edit_Click);
+            // 
+            // BUT_georefimage
+            // 
+            this.BUT_georefimage.Location = new System.Drawing.Point(263, 164);
+            this.BUT_georefimage.Name = "BUT_georefimage";
+            this.BUT_georefimage.Size = new System.Drawing.Size(96, 23);
+            this.BUT_georefimage.TabIndex = 0;
+            this.BUT_georefimage.Text = "Geo ref images";
+            this.BUT_georefimage.Click += new System.EventHandler(this.BUT_georefimage_Click);
+            // 
             // temp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(731, 281);
+            this.Controls.Add(this.BUT_georefimage);
+            this.Controls.Add(this.BUT_lang_edit);
             this.Controls.Add(this.BUT_clearcustommaps);
             this.Controls.Add(this.BUT_geinjection);
             this.Controls.Add(this.label3);
@@ -236,6 +259,8 @@
         private System.Windows.Forms.Label label3;
         private MyButton BUT_geinjection;
         private MyButton BUT_clearcustommaps;
+        private MyButton BUT_lang_edit;
+        private MyButton BUT_georefimage;
         //private SharpVectors.Renderers.Forms.SvgPictureBox svgPictureBox1;
 
     }

@@ -29,6 +29,9 @@
 #define SONAR 0
 #define BARO 1
 
+#define SONAR_SOURCE_ADC 1
+#define SONAR_SOURCE_ANALOG_PIN 2
+
 // CH 7 control
 #define CH7_DO_NOTHING 0
 #define CH7_SET_HOVER 1
@@ -87,16 +90,11 @@
 #define GPS_PROTOCOL_MTK16	6
 #define GPS_PROTOCOL_AUTO	7
 
-// SONAR types:
-#define MAX_SONAR_UNKNOWN	0
-#define MAX_SONAR_XL		1
-
 #define CH_ROLL CH_1
 #define CH_PITCH CH_2
 #define CH_THROTTLE CH_3
 #define CH_RUDDER CH_4
 #define CH_YAW CH_4
-
 
 #define RC_CHANNEL_ANGLE 0
 #define RC_CHANNEL_RANGE 1
@@ -118,7 +116,8 @@
 #define RTL 6				// AUTO control
 #define CIRCLE 7			// AUTO control
 #define POSITION 8			// AUTO control
-#define NUM_MODES 9
+#define LAND 9				// AUTO control
+#define NUM_MODES 10
 
 #define INITIALISING 9     // in startup routines
 
@@ -169,6 +168,7 @@
 #define LOITER_MODE 1
 #define WP_MODE 2
 #define CIRCLE_MODE 3
+#define NO_NAV_MODE 4
 
 // Waypoint options
 #define MASK_OPTIONS_RELATIVE_ALT 		1
@@ -330,16 +330,10 @@ enum gcs_severity {
 // sonar
 //#define SonarToCm(x) (x*1.26)   // Sonar raw value to centimeters
 
-// Hardware Parameters
-#define SLIDE_SWITCH_PIN 40
-#define PUSHBUTTON_PIN 41
-
-#define A_LED_PIN 37			//36 = B,	37 = A,	35 = C
-#define B_LED_PIN 36
-#define C_LED_PIN 35
-
 // RADIANS
-#define RADX100 0.000174533
+#define RADX100 0.000174532925
+#define DEGX100 5729.57795
+
 
 // EEPROM addresses
 #define EEPROM_MAX_ADDR		4096
@@ -352,5 +346,19 @@ enum gcs_severity {
 
 // mark a function as not to be inlined
 #define NOINLINE __attribute__((noinline))
+
+// IMU selection
+#define CONFIG_IMU_OILPAN 1
+#define CONFIG_IMU_MPU6000 2
+
+// APM Hardware selection
+#define APM_HARDWARE_APM1 1
+#define APM_HARDWARE_APM2 2
+
+#define AP_BARO_BMP085    1
+#define AP_BARO_MS5611    2
+
+#define LOGGING_SIMPLE    1
+#define LOGGING_VERBOSE   2
 
 #endif // _DEFINES_H

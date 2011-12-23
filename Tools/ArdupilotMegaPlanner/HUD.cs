@@ -243,19 +243,26 @@ namespace hud
 
             starttime = DateTime.Now;
 
-            if (opengl)
+            try
             {
-                MakeCurrent();
 
-                GL.Clear(ClearBufferMask.ColorBufferBit);
+                if (opengl)
+                {
+                    MakeCurrent();
+
+                    GL.Clear(ClearBufferMask.ColorBufferBit);
+
+                }
+
+                doPaint(e);
+
+                if (opengl)
+                {
+                    this.SwapBuffers();
+                }
 
             }
-
-            doPaint(e);
-
-            if (opengl) {
-                this.SwapBuffers();
-            }
+            catch (Exception ex) { Console.WriteLine(ex.ToString()); }
 
             count++;
 
@@ -264,7 +271,7 @@ namespace hud
             if (DateTime.Now.Second != countdate.Second)
             {
                 countdate = DateTime.Now;
-                Console.WriteLine("HUD " + count + " hz drawtime " + (huddrawtime / count) + " gl " + opengl);
+                //Console.WriteLine("HUD " + count + " hz drawtime " + (huddrawtime / count) + " gl " + opengl);
                 count = 0;
                 huddrawtime = 0;
             }

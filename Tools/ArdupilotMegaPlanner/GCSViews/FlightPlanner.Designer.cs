@@ -89,6 +89,8 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.panelWaypoints = new BSE.Windows.Forms.Panel();
             this.splitter1 = new BSE.Windows.Forms.Splitter();
+            this.BUT_loadkml = new ArdupilotMega.MyButton();
+            this.BUT_zoomto = new ArdupilotMega.MyButton();
             this.BUT_Camera = new ArdupilotMega.MyButton();
             this.BUT_grid = new ArdupilotMega.MyButton();
             this.BUT_Prefetch = new ArdupilotMega.MyButton();
@@ -112,15 +114,21 @@
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.ContextMeasure = new System.Windows.Forms.ToolStripMenuItem();
             this.rotateMapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.gridToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.polygonToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addPolygonPointToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearPolygonToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearMissionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.geoFenceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.GeoFenceuploadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.GeoFencedownloadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setReturnLocationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadFromFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.trackBar1 = new ArdupilotMega.MyTrackBar();
             this.label11 = new System.Windows.Forms.Label();
             this.panelBASE = new System.Windows.Forms.Panel();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.BUT_zoomto = new ArdupilotMega.MyButton();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.saveToFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.Commands)).BeginInit();
             this.panel5.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -509,6 +517,7 @@
             this.panelWaypoints.CaptionFont = new System.Drawing.Font("Segoe UI", 11.75F, System.Drawing.FontStyle.Bold);
             this.panelWaypoints.CaptionHeight = 21;
             this.panelWaypoints.ColorScheme = BSE.Windows.Forms.ColorScheme.Custom;
+            this.panelWaypoints.Controls.Add(this.BUT_loadkml);
             this.panelWaypoints.Controls.Add(this.BUT_zoomto);
             this.panelWaypoints.Controls.Add(this.BUT_Camera);
             this.panelWaypoints.Controls.Add(this.BUT_grid);
@@ -556,6 +565,22 @@
             resources.ApplyResources(this.splitter1, "splitter1");
             this.splitter1.Name = "splitter1";
             this.splitter1.TabStop = false;
+            // 
+            // BUT_loadkml
+            // 
+            resources.ApplyResources(this.BUT_loadkml, "BUT_loadkml");
+            this.BUT_loadkml.Name = "BUT_loadkml";
+            this.toolTip1.SetToolTip(this.BUT_loadkml, resources.GetString("BUT_loadkml.ToolTip"));
+            this.BUT_loadkml.UseVisualStyleBackColor = true;
+            this.BUT_loadkml.Click += new System.EventHandler(this.BUT_loadkml_Click);
+            // 
+            // BUT_zoomto
+            // 
+            resources.ApplyResources(this.BUT_zoomto, "BUT_zoomto");
+            this.BUT_zoomto.Name = "BUT_zoomto";
+            this.toolTip1.SetToolTip(this.BUT_zoomto, resources.GetString("BUT_zoomto.ToolTip"));
+            this.BUT_zoomto.UseVisualStyleBackColor = true;
+            this.BUT_zoomto.Click += new System.EventHandler(this.BUT_zoomto_Click);
             // 
             // BUT_Camera
             // 
@@ -703,8 +728,9 @@
             this.toolStripSeparator1,
             this.ContextMeasure,
             this.rotateMapToolStripMenuItem,
-            this.gridToolStripMenuItem,
-            this.clearMissionToolStripMenuItem});
+            this.polygonToolStripMenuItem,
+            this.clearMissionToolStripMenuItem,
+            this.geoFenceToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
             resources.ApplyResources(this.contextMenuStrip1, "contextMenuStrip1");
             // 
@@ -778,13 +804,13 @@
             resources.ApplyResources(this.rotateMapToolStripMenuItem, "rotateMapToolStripMenuItem");
             this.rotateMapToolStripMenuItem.Click += new System.EventHandler(this.rotateMapToolStripMenuItem_Click);
             // 
-            // gridToolStripMenuItem
+            // polygonToolStripMenuItem
             // 
-            this.gridToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.polygonToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.addPolygonPointToolStripMenuItem,
             this.clearPolygonToolStripMenuItem});
-            this.gridToolStripMenuItem.Name = "gridToolStripMenuItem";
-            resources.ApplyResources(this.gridToolStripMenuItem, "gridToolStripMenuItem");
+            this.polygonToolStripMenuItem.Name = "polygonToolStripMenuItem";
+            resources.ApplyResources(this.polygonToolStripMenuItem, "polygonToolStripMenuItem");
             // 
             // addPolygonPointToolStripMenuItem
             // 
@@ -803,6 +829,41 @@
             this.clearMissionToolStripMenuItem.Name = "clearMissionToolStripMenuItem";
             resources.ApplyResources(this.clearMissionToolStripMenuItem, "clearMissionToolStripMenuItem");
             this.clearMissionToolStripMenuItem.Click += new System.EventHandler(this.clearMissionToolStripMenuItem_Click);
+            // 
+            // geoFenceToolStripMenuItem
+            // 
+            this.geoFenceToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.GeoFenceuploadToolStripMenuItem,
+            this.GeoFencedownloadToolStripMenuItem,
+            this.setReturnLocationToolStripMenuItem,
+            this.loadFromFileToolStripMenuItem,
+            this.saveToFileToolStripMenuItem});
+            this.geoFenceToolStripMenuItem.Name = "geoFenceToolStripMenuItem";
+            resources.ApplyResources(this.geoFenceToolStripMenuItem, "geoFenceToolStripMenuItem");
+            // 
+            // GeoFenceuploadToolStripMenuItem
+            // 
+            this.GeoFenceuploadToolStripMenuItem.Name = "GeoFenceuploadToolStripMenuItem";
+            resources.ApplyResources(this.GeoFenceuploadToolStripMenuItem, "GeoFenceuploadToolStripMenuItem");
+            this.GeoFenceuploadToolStripMenuItem.Click += new System.EventHandler(this.GeoFenceuploadToolStripMenuItem_Click);
+            // 
+            // GeoFencedownloadToolStripMenuItem
+            // 
+            this.GeoFencedownloadToolStripMenuItem.Name = "GeoFencedownloadToolStripMenuItem";
+            resources.ApplyResources(this.GeoFencedownloadToolStripMenuItem, "GeoFencedownloadToolStripMenuItem");
+            this.GeoFencedownloadToolStripMenuItem.Click += new System.EventHandler(this.GeoFencedownloadToolStripMenuItem_Click);
+            // 
+            // setReturnLocationToolStripMenuItem
+            // 
+            this.setReturnLocationToolStripMenuItem.Name = "setReturnLocationToolStripMenuItem";
+            resources.ApplyResources(this.setReturnLocationToolStripMenuItem, "setReturnLocationToolStripMenuItem");
+            this.setReturnLocationToolStripMenuItem.Click += new System.EventHandler(this.setReturnLocationToolStripMenuItem_Click);
+            // 
+            // loadFromFileToolStripMenuItem
+            // 
+            this.loadFromFileToolStripMenuItem.Name = "loadFromFileToolStripMenuItem";
+            resources.ApplyResources(this.loadFromFileToolStripMenuItem, "loadFromFileToolStripMenuItem");
+            this.loadFromFileToolStripMenuItem.Click += new System.EventHandler(this.loadFromFileToolStripMenuItem_Click);
             // 
             // trackBar1
             // 
@@ -834,13 +895,17 @@
             resources.ApplyResources(this.panelBASE, "panelBASE");
             this.panelBASE.Name = "panelBASE";
             // 
-            // BUT_zoomto
+            // timer1
             // 
-            resources.ApplyResources(this.BUT_zoomto, "BUT_zoomto");
-            this.BUT_zoomto.Name = "BUT_zoomto";
-            this.toolTip1.SetToolTip(this.BUT_zoomto, resources.GetString("BUT_zoomto.ToolTip"));
-            this.BUT_zoomto.UseVisualStyleBackColor = true;
-            this.BUT_zoomto.Click += new System.EventHandler(this.BUT_zoomto_Click);
+            this.timer1.Enabled = true;
+            this.timer1.Interval = 1000;
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            // 
+            // saveToFileToolStripMenuItem
+            // 
+            this.saveToFileToolStripMenuItem.Name = "saveToFileToolStripMenuItem";
+            resources.ApplyResources(this.saveToFileToolStripMenuItem, "saveToFileToolStripMenuItem");
+            this.saveToFileToolStripMenuItem.Click += new System.EventHandler(this.saveToFileToolStripMenuItem_Click);
             // 
             // FlightPlanner
             // 
@@ -929,7 +994,7 @@
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.ToolStripMenuItem rotateMapToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem clearMissionToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem gridToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem polygonToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem addPolygonPointToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem clearPolygonToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem loiterToolStripMenuItem;
@@ -954,5 +1019,13 @@
         private System.Windows.Forms.DataGridViewImageColumn Up;
         private System.Windows.Forms.DataGridViewImageColumn Down;
         private MyButton BUT_zoomto;
+        private MyButton BUT_loadkml;
+        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.ToolStripMenuItem geoFenceToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem GeoFenceuploadToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem GeoFencedownloadToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setReturnLocationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem loadFromFileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveToFileToolStripMenuItem;
     }
 }

@@ -123,7 +123,13 @@ namespace System.IO.Ports
 
                 if (rbufferread == rbuffer.Length)
                 {
-                    rbuffer = client.Receive(ref RemoteIpEndPoint);
+                    MemoryStream r = new MemoryStream();
+                    while (client.Available > 0)
+                    {
+                        Byte[] b = client.Receive(ref RemoteIpEndPoint);
+                        r.Write(b, 0, b.Length);
+                    }
+                    rbuffer = r.ToArray();
                     rbufferread = 0;
                 }
 

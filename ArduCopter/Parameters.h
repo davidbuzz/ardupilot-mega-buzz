@@ -56,7 +56,7 @@ public:
 	// Misc
 	//
 	k_param_log_bitmask = 20,
-    k_param_log_last_filenumber,
+    k_param_log_last_filenumber,		// *** Deprecated - remove with next eeprom number change
 
 	#if FRAME_CONFIG ==	HELI_FRAME
 	//
@@ -104,6 +104,9 @@ public:
 	k_param_optflow_enabled,
 	k_param_input_voltage,
 	k_param_low_voltage,
+	k_param_ch7_option,
+	k_param_sonar_type,  // 153
+	k_param_super_simple,
 
 	//
 	// 160: Navigation parameters
@@ -191,12 +194,15 @@ public:
 
 	AP_Int16	RTL_altitude;
 	AP_Int8		sonar_enabled;
+	AP_Int8		sonar_type;   // 0 = XL, 1 = LV, 2 = XLL (XL with 10m range)
 	AP_Int8		battery_monitoring;	// 0=disabled, 1=3 cell lipo, 2=4 cell lipo, 3=total voltage only, 4=total voltage and current
 	AP_Int16	pack_capacity;		// Battery pack capacity less reserve
 	AP_Int8		compass_enabled;
     AP_Int8		optflow_enabled;
     AP_Float	input_voltage;
 	AP_Float	low_voltage;
+	AP_Int8		super_simple;
+
 
 	// Waypoints
 	//
@@ -231,12 +237,13 @@ public:
 	// Misc
 	//
 	AP_Int16	log_bitmask;
-    AP_Int16	log_last_filenumber;
+    AP_Int16	log_last_filenumber;		// *** Deprecated - remove with next eeprom number change
 
 	AP_Int8		esc_calibrate;
 	AP_Int8		radio_tuning;
 	AP_Int8		frame_orientation;
 	AP_Float	top_bottom_ratio;
+	AP_Int8		ch7_option;
 
 
 	#if FRAME_CONFIG ==	HELI_FRAME
@@ -304,12 +311,14 @@ public:
 
 	RTL_altitude			(ALT_HOLD_HOME * 100,		k_param_RTL_altitude,					PSTR("ALT_HOLD_RTL")),
 	sonar_enabled			(DISABLED,					k_param_sonar,							PSTR("SONAR_ENABLE")),
+	sonar_type				(AP_RANGEFINDER_MAXSONARXL,	k_param_sonar_type,						PSTR("SONAR_TYPE")),
 	battery_monitoring 		(DISABLED,					k_param_battery_monitoring,				PSTR("BATT_MONITOR")),
 	pack_capacity			(HIGH_DISCHARGE,			k_param_pack_capacity,					PSTR("BATT_CAPACITY")),
 	compass_enabled			(MAGNETOMETER,				k_param_compass_enabled,				PSTR("MAG_ENABLE")),
 	optflow_enabled			(OPTFLOW,					k_param_optflow_enabled,				PSTR("FLOW_ENABLE")),
 	input_voltage			(INPUT_VOLTAGE,				k_param_input_voltage,					PSTR("IN_VOLT")),
 	low_voltage				(LOW_VOLTAGE,				k_param_low_voltage,					PSTR("LOW_VOLT")),
+	super_simple			(SUPER_SIMPLE,				k_param_super_simple,					PSTR("SUPER_SIMPLE")),
 
 	waypoint_mode			(0,							k_param_waypoint_mode,					PSTR("WP_MODE")),
 	command_total			(0,							k_param_command_total,					PSTR("WP_TOTAL")),
@@ -341,6 +350,7 @@ public:
 	radio_tuning 			(0, 						k_param_radio_tuning, 					PSTR("TUNE")),
 	frame_orientation 		(FRAME_ORIENTATION, 		k_param_frame_orientation, 				PSTR("FRAME")),
 	top_bottom_ratio 		(TOP_BOTTOM_RATIO, 			k_param_top_bottom_ratio, 				PSTR("TB_RATIO")),
+	ch7_option 				(CH7_SAVE_WP, 				k_param_ch7_option, 					PSTR("CH7_OPT")),
 
 	#if FRAME_CONFIG ==	HELI_FRAME
 	heli_servo_1			(k_param_heli_servo_1,		PSTR("HS1_")),

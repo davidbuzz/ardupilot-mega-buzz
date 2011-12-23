@@ -14,6 +14,7 @@ namespace ArdupilotMega
 {
     public partial class MAVLink
     {
+
         public ICommsSerial BaseStream = new SerialPort();
 
         /// <summary>
@@ -33,6 +34,7 @@ namespace ArdupilotMega
         bool oldlogformat = false;
 
         byte mavlinkversion = 0;
+        public byte aptype = 0;
         byte[] readingpacket = new byte[256];
 
         public PointLatLngAlt[] wps = new PointLatLngAlt[200];
@@ -189,6 +191,7 @@ namespace ArdupilotMega
                         hb = (MAVLink.__mavlink_heartbeat_t)(temp);
 
                         mavlinkversion = hb.mavlink_version;
+                        aptype = hb.type;
 
                         sysid = buffer[3];
                         compid = buffer[4];
@@ -624,8 +627,9 @@ namespace ArdupilotMega
                 }
                 if (!(restart.AddMilliseconds(1000) > DateTime.Now))
                 {
+                    rereq.param_id = new byte[] {0x0,0x0};
                     rereq.param_index = (short)nextid;
-                    generatePacket(MAVLINK_MSG_ID_PARAM_REQUEST_READ, rereq);
+                    sendPacket(rereq);
                     restart = DateTime.Now;
                 }
 
@@ -736,10 +740,7 @@ namespace ArdupilotMega
             // reset all
             if (forget)
             {
-                lock (objlock)
-                {
                     streams = new byte[streams.Length];
-                }
             }
 
             // no error on bad
@@ -1010,10 +1011,7 @@ namespace ArdupilotMega
 
         public void requestDatastream(byte id, byte hzrate)
         {
-            lock (objlock)
-            {
                 streams[id] = hzrate;
-            }
 
             double pps = 0;
 
@@ -2075,7 +2073,7 @@ namespace ArdupilotMega
 
             if (bpstime.Second != DateTime.Now.Second && !logreadmode)
             {
-                Console.WriteLine("bps {0} loss {1} left {2} mem {3}", bps1, synclost, BaseStream.BytesToRead, System.GC.GetTotalMemory(false));
+//                Console.Write("bps {0} loss {1} left {2} mem {3}      \n", bps1, synclost, BaseStream.BytesToRead, System.GC.GetTotalMemory(false));
                 bps2 = bps1; // prev sec
                 bps1 = 0; // current sec
                 bpstime = DateTime.Now;
@@ -2087,6 +2085,7 @@ namespace ArdupilotMega
 
             if (temp.Length >= 5 && temp[3] == 255 && logreadmode) // gcs packet
             {
+                getWPsfromstream(ref temp);
                 return temp;// new byte[0];
             }
 
@@ -2163,53 +2162,20 @@ namespace ArdupilotMega
 
                     if (temp[5] == MAVLink.MAVLINK_MSG_ID_STATUSTEXT) // status text
                     {
-                        string logdata = DateTime.Now + " " + Encoding.ASCII.GetString(temp, 6, temp.Length - 6);
+                        string logdata = Encoding.ASCII.GetString(temp, 7, temp.Length - 7);
                         int ind = logdata.IndexOf('\0');
                         if (ind != -1)
                             logdata = logdata.Substring(0, ind);
-                        Console.WriteLine(logdata);
-                    }
-#if MAVLINK10
-                    if (temp[5] == MAVLINK_MSG_ID_MISSION_COUNT)
-                    {
-                        // clear old
-                        wps = new PointLatLngAlt[wps.Length];
-                    }
+                        Console.WriteLine(DateTime.Now + " " + logdata);
 
-                    if (temp[5] == MAVLink.MAVLINK_MSG_ID_MISSION_ITEM)
-                    {
-                        __mavlink_mission_item_t wp = new __mavlink_mission_item_t();
+                        if (MainV2.talk != null && MainV2.config["speechenable"] != null && MainV2.config["speechenable"].ToString() == "True")
+                        {
+                            //MainV2.talk.SpeakAsync(logdata);
+                        }
 
-                        object structtemp = (object)wp;
-
-                        //Array.Copy(buffer, 6, buffer, 0, buffer.Length - 6);
-
-                        ByteArrayToStructure(temp, ref structtemp, 6);
-
-                        wp = (__mavlink_mission_item_t)(structtemp);
-#else
-
-                    if (temp[5] == MAVLINK_MSG_ID_WAYPOINT_COUNT)
-                    {
-                        // clear old
-                        wps = new PointLatLngAlt[wps.Length];
                     }
 
-                    if (temp[5] == MAVLink.MAVLINK_MSG_ID_WAYPOINT)
-                    {
-                        __mavlink_waypoint_t wp = new __mavlink_waypoint_t();
-
-                        object structtemp = (object)wp;
-
-                        //Array.Copy(buffer, 6, buffer, 0, buffer.Length - 6);
-
-                        ByteArrayToStructure(temp, ref structtemp, 6);
-
-                        wp = (__mavlink_waypoint_t)(structtemp);
-
-#endif
-                        wps[wp.seq] = new PointLatLngAlt(wp.x, wp.y, wp.z, wp.seq.ToString());
-                    }
+                    getWPsfromstream(ref temp);
 
                     try
                     {
@@ -2235,6 +2201,144 @@ namespace ArdupilotMega
             //            Console.Write((DateTime.Now - start).TotalMilliseconds.ToString("00.000") + "\t" + temp.Length + "     \r");
 
             return temp;
+        }
+
+        /// <summary>
+        /// Used to extract mission from log file
+        /// </summary>
+        /// <param name="temp">packet</param>
+        void getWPsfromstream(ref byte[] temp )
+        {
+#if MAVLINK10
+                    if (temp[5] == MAVLINK_MSG_ID_MISSION_COUNT)
+                    {
+                        // clear old
+                        wps = new PointLatLngAlt[wps.Length];
+                    }
+
+                    if (temp[5] == MAVLink.MAVLINK_MSG_ID_MISSION_ITEM)
+                    {
+                        __mavlink_mission_item_t wp = new __mavlink_mission_item_t();
+
+                        object structtemp = (object)wp;
+
+                        //Array.Copy(buffer, 6, buffer, 0, buffer.Length - 6);
+
+                        ByteArrayToStructure(temp, ref structtemp, 6);
+
+                        wp = (__mavlink_mission_item_t)(structtemp);
+#else
+
+            if (temp[5] == MAVLINK_MSG_ID_WAYPOINT_COUNT)
+            {
+                // clear old
+                wps = new PointLatLngAlt[wps.Length];
+            }
+
+            if (temp[5] == MAVLink.MAVLINK_MSG_ID_WAYPOINT)
+            {
+                __mavlink_waypoint_t wp = new __mavlink_waypoint_t();
+
+                object structtemp = (object)wp;
+
+                //Array.Copy(buffer, 6, buffer, 0, buffer.Length - 6);
+
+                ByteArrayToStructure(temp, ref structtemp, 6);
+
+                wp = (__mavlink_waypoint_t)(structtemp);
+
+#endif
+                wps[wp.seq] = new PointLatLngAlt(wp.x, wp.y, wp.z, wp.seq.ToString());
+            }
+        }
+
+        public PointLatLngAlt getFencePoint(int no, ref int total)
+        {
+            byte[] buffer;
+
+            MainV2.givecomport = true;
+
+            PointLatLngAlt plla = new PointLatLngAlt();
+            __mavlink_fence_fetch_point_t req = new __mavlink_fence_fetch_point_t();
+
+            req.idx = (byte)no;
+            req.target_component = compid;
+            req.target_system = sysid;
+
+            // request point
+            generatePacket(MAVLINK_MSG_ID_FENCE_FETCH_POINT, req);
+
+            DateTime start = DateTime.Now;
+            int retrys = 3;
+
+            while (true)
+            {
+                if (!(start.AddMilliseconds(500) > DateTime.Now))
+                {
+                    if (retrys > 0)
+                    {
+                        Console.WriteLine("getFencePoint Retry " + retrys + " - giv com " + MainV2.givecomport);
+                        generatePacket(MAVLINK_MSG_ID_FENCE_FETCH_POINT, req);
+                        start = DateTime.Now;
+                        retrys--;
+                        continue;
+                    }
+                    MainV2.givecomport = false;
+                    throw new Exception("Timeout on read - getFencePoint");
+                }
+
+                buffer = readPacket();
+                if (buffer.Length > 5)
+                {
+                    if (buffer[5] == MAVLINK_MSG_ID_FENCE_POINT)
+                    {
+                        MainV2.givecomport = false;
+
+                        __mavlink_fence_point_t fp = new __mavlink_fence_point_t();
+
+                        object structtemp = (object)fp;
+
+                        ByteArrayToStructure(buffer, ref structtemp, 6);
+
+                        fp = (__mavlink_fence_point_t)(structtemp);
+
+                        plla.Lat = fp.lat;
+                        plla.Lng = fp.lng;
+                        plla.Tag = fp.idx.ToString();
+
+                        total = fp.count;
+
+                        return plla;
+                    }
+                }
+            }
+        }
+
+        public bool setFencePoint(byte index, PointLatLngAlt plla,byte fencepointcount)
+        {
+            __mavlink_fence_point_t fp = new __mavlink_fence_point_t();
+
+            fp.idx = index;
+            fp.count = fencepointcount;
+            fp.lat = (float)plla.Lat;
+            fp.lng = (float)plla.Lng;
+            fp.target_component = compid;
+            fp.target_system = sysid;
+
+            int retry = 3;
+
+            while (retry > 0)
+            {
+                generatePacket(MAVLINK_MSG_ID_FENCE_POINT, fp);
+                int counttemp = 0;
+                PointLatLngAlt newfp = getFencePoint(fp.idx, ref counttemp);
+
+                if (newfp.Lat == plla.Lat && newfp.Lng == fp.lng)
+                    return true;
+                retry--;
+            }
+
+            return false;
         }
 
         byte[] readlogPacket()
@@ -2304,7 +2408,7 @@ namespace ArdupilotMega
 
             date1 = date1.AddMilliseconds(dateint / 1000);
 
-            lastlogread = date1;
+            lastlogread = date1.ToLocalTime();
 
             MainV2.cs.datetime = lastlogread;
 

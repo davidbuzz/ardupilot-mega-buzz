@@ -116,9 +116,14 @@ endif
 #
 # Tool options
 #
+<<<<<<< HEAD
 DEFINES			=	$(EXTRAFLAGS)
 OPTFLAGSC		=	-g -Wformat -Wall -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wformat=2 -Wno-reorder
 OPTFLAGSCXX		=	-g -Wformat -Wall -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wformat=2 
+=======
+DEFINES			=	$(EXTRAFLAGS) -DSKETCH=\"$(SKETCH)\"
+OPTFLAGS		=	-g -Wformat -Wall -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wformat=2 -Wno-reorder
+>>>>>>> origin/master
 DEPFLAGS		=	-MD -MT $@
 
 # XXX warning options TBD
@@ -186,7 +191,7 @@ else
 endif
 
 # these are library objects we don't want in the desktop build (maybe we'll add them later)
-NODESKTOP		:= DataFlash/DataFlash.cpp FastSerial/FastSerial.cpp AP_Compass/AP_Compass_HMC5843.cpp APM_BMP085/APM_BMP085.cpp AP_IMU/AP_IMU_Oilpan.cpp AP_OpticalFlow/AP_OpticalFlow_ADNS3080.cpp
+NODESKTOP		:= DataFlash/DataFlash_APM1.cpp FastSerial/FastSerial.cpp AP_Compass/AP_Compass_HMC5843.cpp AP_Baro/AP_Baro_BMP085.cpp
 
 #
 # Find sketchbook libraries referenced by the sketch.
@@ -269,6 +274,7 @@ showsources:
 $(SKETCHELF):	$(SKETCHOBJS) $(LIBOBJS) $(CORELIB)
 	$(RULEHDR)
 	$(v)$(LD) $(LDFLAGS) -o $@ $^ $(LIBS)
+	@echo Built $@
 
 #
 # Build sketch objects

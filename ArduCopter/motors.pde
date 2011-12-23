@@ -22,7 +22,7 @@ static void arm_motors()
 		if (arming_counter == LEVEL_DELAY){
 			//Serial.printf("\nAL\n");
 			// begin auto leveling
-			auto_level_counter = 200;
+			auto_level_counter = 250;
 			arming_counter = 0;
 
 		}else if (arming_counter == ARM_DELAY){
@@ -42,7 +42,7 @@ static void arm_motors()
 			//Serial.printf("\nLEV\n");
 
 			// begin manual leveling
-			imu.init_accel(mavlink_delay);
+			imu.init_accel(mavlink_delay, flash_leds);
 			arming_counter = 0;
 
 		}else if (arming_counter == DISARM_DELAY){
@@ -66,7 +66,7 @@ static void arm_motors()
 static void init_arm_motors()
 {
 	//Serial.printf("\nARM\n");
-	#if HIL_MODE != HIL_MODE_DISABLED
+    #if HIL_MODE != HIL_MODE_DISABLED || defined(DESKTOP_BUILD)
 	gcs_send_text_P(SEVERITY_HIGH, PSTR("ARMING MOTORS"));
 	#endif
 
@@ -82,7 +82,7 @@ static void init_arm_motors()
 	init_simple_bearing();
 
 	// Reset home position
-	// ----------------------
+	// -------------------
 	if(home_is_set)
 		init_home();
 
@@ -107,7 +107,7 @@ static void init_arm_motors()
 static void init_disarm_motors()
 {
 	//Serial.printf("\nDISARM\n");
-	#if HIL_MODE != HIL_MODE_DISABLED
+    #if HIL_MODE != HIL_MODE_DISABLED || defined(DESKTOP_BUILD)
 	gcs_send_text_P(SEVERITY_HIGH, PSTR("DISARMING MOTORS"));
 	#endif
 

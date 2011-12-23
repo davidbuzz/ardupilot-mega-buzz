@@ -39,12 +39,12 @@ AP_ADC_HIL::AP_ADC_HIL()
 	last_hil_time = millis();
 }
 
-void AP_ADC_HIL::Init(void)
+void AP_ADC_HIL::Init( AP_PeriodicProcess * scheduler )
 {
 }
 
 // Read one channel value
-uint16_t AP_ADC_HIL::Ch(unsigned char ch_num)
+float AP_ADC_HIL::Ch(unsigned char ch_num)
 {
 	return adcValue[ch_num];
 }

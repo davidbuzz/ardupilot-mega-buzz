@@ -5,9 +5,8 @@
 static void init_motors_out()
 {
 	#if INSTANT_PWM == 0
-	ICR5 = 5000;	// 400 hz output 	CH 1, 2, 9
-	ICR1 = 5000;	// 400 hz output	CH 3, 4, 10
-	ICR3 = 5000;	// 400 hz output	CH 7, 8, 11
+    APM_RC.SetFastOutputChannels( MSK_CH_1 | MSK_CH_2 | MSK_CH_3 | MSK_CH_4
+                                | MSK_CH_7 | MSK_CH_8 );
 	#endif
 }
 
@@ -70,7 +69,7 @@ static void output_motors_armed()
 	// Tridge's stability patch
     for (int i = CH_1; i<=CH_8; i++) {
     	if(i == CH_5 || i == CH_6)
-    		break;
+    		continue;
         if (motor_out[i] > out_max) {
             // note that i^1 is the opposite motor
             motor_out[i^1] -= motor_out[i] - out_max;

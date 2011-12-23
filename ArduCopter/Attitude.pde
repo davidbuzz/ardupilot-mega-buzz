@@ -1,28 +1,42 @@
 /// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
+
 static int
 get_stabilize_roll(int32_t target_angle)
 {
 	int32_t error;
 	int32_t rate;
 
+	// angle error
 	error 		= wrap_180(target_angle - dcm.roll_sensor);
 
+#if FRAME_CONFIG == HELI_FRAME
+	// limit the error we're feeding to the PID
+	error 		= constrain(error, -4500, 4500);
+
+	// convert to desired Rate:
+	rate 		= g.pi_stabilize_roll.get_pi(error, G_Dt);
+
+	// output control:
+	rate = constrain(rate, -4500, 4500);
+	return (int)rate;
+#else
 	// limit the error we're feeding to the PID
 	error 		= constrain(error, -2500, 2500);
 
-	// desired Rate:
-	rate 		= g.pi_stabilize_roll.get_pi(error, G_Dt);
-	//Serial.printf("%d\t%d\t%d ", (int)target_angle, (int)error, (int)rate);
+	// conver to desired Rate:
+	rate 		= g.pi_stabilize_roll.get_p(error);
 
-#if FRAME_CONFIG != HELI_FRAME  // cannot use rate control for helicopters
-	// Rate P:
-	error 		= rate - (degrees(omega.x) * 100.0);
+	// experiment to pipe iterm directly into the output
+	int16_t iterm = g.pi_stabilize_roll.get_i(error, G_Dt);
+
+	// rate control
+	error 		= rate - (omega.x * DEGX100);
 	rate 		= g.pi_rate_roll.get_pi(error, G_Dt);
-	//Serial.printf("%d\t%d\n", (int)error, (int)rate);
-#endif
 
 	// output control:
-	return (int)constrain(rate, -2500, 2500);
+	rate = constrain(rate, -2500, 2500);
+	return (int)rate + iterm;
+#endif
 }
 
 static int
@@ -31,24 +45,36 @@ get_stabilize_pitch(int32_t target_angle)
 	int32_t error;
 	int32_t rate;
 
+	// angle error
 	error 		= wrap_180(target_angle - dcm.pitch_sensor);
 
+#if FRAME_CONFIG == HELI_FRAME
 	// limit the error we're feeding to the PID
-	error 		= constrain(error, -2500, 2500);
+	error 		= constrain(error, -4500, 4500);
 
-	// desired Rate:
+	// convert to desired Rate:
 	rate 		= g.pi_stabilize_pitch.get_pi(error, G_Dt);
-	//Serial.printf("%d\t%d\t%d ", (int)target_angle, (int)error, (int)rate);
-
-#if FRAME_CONFIG != HELI_FRAME  // cannot use rate control for helicopters
-	// Rate P:
-	error 		= rate - (degrees(omega.y) * 100.0);
-	rate 		= g.pi_rate_pitch.get_pi(error, G_Dt);
-	//Serial.printf("%d\t%d\n", (int)error, (int)rate);
-#endif
 
 	// output control:
-	return (int)constrain(rate, -2500, 2500);
+	rate = constrain(rate, -4500, 4500);
+	return (int)rate;
+#else
+	// angle error
+	error 		= constrain(error, -2500, 2500);
+
+	// conver to desired Rate:
+	rate 		= g.pi_stabilize_pitch.get_p(error);
+
+	// experiment to pipe iterm directly into the output
+	int16_t iterm = g.pi_stabilize_pitch.get_i(error, G_Dt);
+
+	error 		= rate - (omega.y * DEGX100);
+	rate 		= g.pi_rate_pitch.get_pi(error, G_Dt);
+
+	// output control:
+	rate = constrain(rate, -2500, 2500);
+	return (int)rate + iterm;
+#endif
 }
 
 
@@ -59,67 +85,83 @@ get_stabilize_yaw(int32_t target_angle)
 	int32_t error;
 	int32_t rate;
 
-	yaw_error 		= wrap_180(target_angle - dcm.yaw_sensor);
+	// angle error
+	error 		= wrap_180(target_angle - dcm.yaw_sensor);
 
 	// limit the error we're feeding to the PID
-	yaw_error 		= constrain(yaw_error, -YAW_ERROR_MAX, YAW_ERROR_MAX);
-	rate 			= g.pi_stabilize_yaw.get_pi(yaw_error, G_Dt);
-	//Serial.printf("%u\t%d\t%d\t", (int)target_angle, (int)error, (int)rate);
+	error 		= constrain(error, -YAW_ERROR_MAX, YAW_ERROR_MAX);
+
+	// convert to desired Rate:
+	rate 		= g.pi_stabilize_yaw.get_p(error);
+
+	// experiment to pipe iterm directly into the output
+	int16_t iterm = g.pi_stabilize_yaw.get_i(error, G_Dt);
 
 #if FRAME_CONFIG == HELI_FRAME  // cannot use rate control for helicopters
-	if( ! g.heli_ext_gyro_enabled ) {
-		// Rate P:
-		error 		= rate - (degrees(omega.z) * 100.0);
-		rate 		= g.pi_rate_yaw.get_pi(error, G_Dt);
+	if( !g.heli_ext_gyro_enabled ) {
+		error 	= rate - (omega.z * DEGX100);
+		rate 	= g.pi_rate_yaw.get_pi(error, G_Dt);
 	}
-
 	// output control:
-	return (int)constrain(rate, -4500, 4500);
+	rate = constrain(rate, -4500, 4500);
 #else
-	// Rate P:
-	error 			= rate - (degrees(omega.z) * 100.0);
-	rate 			= g.pi_rate_yaw.get_pi(error, G_Dt);
-	//Serial.printf("%d\t%d\n", (int)error, (int)rate);
+	error 		= rate - (omega.z * DEGX100);
+	rate 		= g.pi_rate_yaw.get_pi(error, G_Dt);
 
 	// output control:
-	return (int)constrain(rate, -2500, 2500);
+	rate = constrain(rate, -2500, 2500);
 #endif
 
+	return (int)rate + iterm;
 }
 
-#define ALT_ERROR_MAX 300
-static int
+#define ALT_ERROR_MAX 400
+static int16_t
 get_nav_throttle(int32_t z_error)
 {
-	bool calc_i = (abs(z_error) < ALT_ERROR_MAX);
+	int16_t rate_error;
+
+	// XXX HACK, need a better way not to ramp this i term in large altitude changes.
+	float dt = (abs(z_error) < 400) ? .1 : 0.0;
+
 	// limit error to prevent I term run up
 	z_error 		= constrain(z_error, -ALT_ERROR_MAX, ALT_ERROR_MAX);
-	int rate_error 	= g.pi_alt_hold.get_pi(z_error, .1, calc_i); //_p = .85
+
+	// convert to desired Rate:
+	rate_error 	= g.pi_alt_hold.get_p(z_error); //_p = .85
+
+	// experiment to pipe iterm directly into the output
+	int16_t iterm = g.pi_alt_hold.get_i(z_error, dt);
+
+	// calculate rate error
 	rate_error 		= rate_error - climb_rate;
 
 	// limit the rate
-	return constrain((int)g.pi_throttle.get_pi(rate_error, .1), -120, 180);
+	rate_error =  constrain((int)g.pi_throttle.get_pi(rate_error, .1), -160, 180);
+
+	// output control:
+	return rate_error + iterm;
 }
 
 static int
 get_rate_roll(int32_t target_rate)
 {
-	int32_t error	= (target_rate * 3.5) - (degrees(omega.x) * 100.0);
+	int32_t error	= (target_rate * 3.5) - (omega.x * DEGX100);
 	return g.pi_acro_roll.get_pi(error, G_Dt);
 }
 
 static int
 get_rate_pitch(int32_t target_rate)
 {
-	int32_t error	= (target_rate * 3.5) - (degrees(omega.y) * 100.0);
+	int32_t error	= (target_rate * 3.5) - (omega.y * DEGX100);
 	return  g.pi_acro_pitch.get_pi(error, G_Dt);
 }
 
 static int
 get_rate_yaw(int32_t target_rate)
 {
-	int32_t error;
-	error		= (target_rate * 4.5) - (degrees(omega.z) * 100.0);
+
+	int32_t error	= (target_rate * 4.5) - (omega.z * DEGX100);
 	target_rate = g.pi_rate_yaw.get_pi(error, G_Dt);
 
 	// output control:
@@ -144,6 +186,9 @@ static void reset_nav(void)
 
 	g.pi_nav_lat.reset_I();
 	g.pi_nav_lon.reset_I();
+
+	g.pi_loiter_lat.reset_I();
+	g.pi_loiter_lon.reset_I();
 
 	circle_angle			= 0;
 	crosstrack_error 		= 0;
@@ -289,7 +334,3 @@ static int get_z_damping()
 }
 
 #endif
-
-
-
-

@@ -103,8 +103,8 @@ static void process_now_command()
 	}
 }
 
-static void handle_no_commands()
-{
+//static void handle_no_commands()
+//{
 	/*
 	switch (control_mode){
 		default:
@@ -113,7 +113,7 @@ static void handle_no_commands()
 	}*/
 	//return;
 	//Serial.println("Handle No CMDs");
-}
+//}
 
 /********************************************************************************/
 // Verify command Handlers
@@ -301,10 +301,15 @@ static void do_loiter_turns()
 {
 	wp_control = CIRCLE_MODE;
 
-	if(command_nav_queue.lat == 0)
+	if(command_nav_queue.lat == 0){
+		// allow user to specify just the altitude
+		if(command_nav_queue.alt > 0){
+			current_loc.alt = command_nav_queue.alt;
+		}
 		set_next_WP(&current_loc);
-	else
+	}else{
 		set_next_WP(&command_nav_queue);
+	}
 
 	loiter_total = command_nav_queue.p1 * 360;
 	loiter_sum	 = 0;
@@ -351,32 +356,33 @@ static bool verify_takeoff()
 
 static bool verify_land()
 {
-	// land at 1 meter per second
-	next_WP.alt  = original_alt - ((millis() - land_start) / 20);			// condition_value = our initial
+	// land at .62 meter per second
+	next_WP.alt  = original_alt - ((millis() - land_start) / 16);			// condition_value = our initial
 
 	velocity_land  = ((old_alt - current_loc.alt) *.2) + (velocity_land * .8);
 	old_alt = current_loc.alt;
 
+	if (current_loc.alt < 250){
+		wp_control = NO_NAV_MODE;
+		next_WP.alt = -200; // force us down
+	}
+
 	if(g.sonar_enabled){
 		// decide which sensor we're using
-		if(sonar_alt < 300){
-			next_WP = current_loc; // don't pitch or roll
-			next_WP.alt = -200; // force us down
-		}
 		if(sonar_alt < 40){
 			land_complete = true;
 			//Serial.println("Y");
-			//return true;
+			return true;
 		}
 	}
 
 	if(velocity_land <= 0){
 		land_complete = true;
+		// commented out to prevent tragedy
 		//return true;
 	}
 	//Serial.printf("N, %d\n", velocity_land);
 	//Serial.printf("N_alt, %ld\n", next_WP.alt);
-
 	return false;
 }
 
@@ -430,10 +436,10 @@ static bool verify_nav_wp()
 	}
 }
 
-static bool verify_loiter_unlim()
-{
-	return false;
-}
+//static bool verify_loiter_unlim()
+//{
+//	return false;
+//}
 
 static bool verify_loiter_time()
 {
@@ -470,8 +476,8 @@ static bool verify_RTL()
 {
 	// loiter at the WP
 	wp_control 	= WP_MODE;
-	// Did we pass the WP?	// Distance checking
 
+	// Did we pass the WP?	// Distance checking
 	if((wp_distance <= g.waypoint_radius) || check_missed_wp()){
 		wp_control 	= LOITER_MODE;
 

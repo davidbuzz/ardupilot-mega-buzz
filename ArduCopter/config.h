@@ -34,6 +34,31 @@
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////////////////////
+// APM HARDWARE
+//
+
+#ifndef CONFIG_APM_HARDWARE
+# define CONFIG_APM_HARDWARE APM_HARDWARE_APM1
+#endif
+
+//////////////////////////////////////////////////////////////////////////////
+// APM2 HARDWARE DEFAULTS
+//
+
+#if CONFIG_APM_HARDWARE == APM_HARDWARE_APM2
+# define CONFIG_IMU_TYPE   CONFIG_IMU_MPU6000
+# define CONFIG_PUSHBUTTON DISABLED
+# define CONFIG_RELAY      DISABLED
+# define MAG_ORIENTATION   AP_COMPASS_APM2_SHIELD
+# define CONFIG_SONAR_SOURCE SONAR_SOURCE_ANALOG_PIN
+# ifdef APM2_BETA_HARDWARE
+#  define CONFIG_BARO     AP_BARO_BMP085
+# else // APM2 Production Hardware (default)
+#  define CONFIG_BARO     AP_BARO_MS5611
+# endif
+#endif
+
 
 //////////////////////////////////////////////////////////////////////////////
 // FRAME_CONFIG
@@ -45,6 +70,30 @@
 # define FRAME_ORIENTATION		PLUS_FRAME
 #endif
 
+//////////////////////////////////////////////////////////////////////////////
+// IMU Selection
+//
+#ifndef CONFIG_IMU_TYPE
+# define CONFIG_IMU_TYPE CONFIG_IMU_OILPAN
+#endif
+
+#if CONFIG_IMU_TYPE == CONFIG_IMU_MPU6000
+# ifndef CONFIG_MPU6000_CHIP_SELECT_PIN
+#  define CONFIG_MPU6000_CHIP_SELECT_PIN 53
+# endif
+#endif
+
+
+//////////////////////////////////////////////////////////////////////////////
+// ADC Enable - used to eliminate for systems which don't have ADC.
+//
+#ifndef CONFIG_ADC
+# if CONFIG_IMU_TYPE == CONFIG_IMU_OILPAN
+#   define CONFIG_ADC ENABLED
+# else
+#   define CONFIG_ADC DISABLED
+# endif
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 // PWM control
@@ -53,18 +102,83 @@
 # define INSTANT_PWM	DISABLED
 #endif
 
+// LED and IO Pins
+//
+#if CONFIG_APM_HARDWARE == APM_HARDWARE_APM1
+# define A_LED_PIN        37
+# define B_LED_PIN        36
+# define C_LED_PIN        35
+# define LED_ON           HIGH
+# define LED_OFF          LOW
+# define SLIDE_SWITCH_PIN 40
+# define PUSHBUTTON_PIN   41
+# define USB_MUX_PIN      -1
+# define CLI_SLIDER_ENABLED DISABLED
+#elif CONFIG_APM_HARDWARE == APM_HARDWARE_APM2
+# define A_LED_PIN        27
+# define B_LED_PIN        26
+# define C_LED_PIN        25
+# define LED_ON           LOW
+# define LED_OFF          HIGH
+# define SLIDE_SWITCH_PIN (-1)
+# define PUSHBUTTON_PIN   (-1)
+# define CLI_SLIDER_ENABLED DISABLED
+# define USB_MUX_PIN 23
+#endif
+
+//////////////////////////////////////////////////////////////////////////////
+// Pushbutton & Relay
+//
+
+#ifndef CONFIG_PUSHBUTTON
+# define CONFIG_PUSHBUTTON ENABLED
+#endif
+
+#ifndef CONFIG_RELAY
+# define CONFIG_RELAY ENABLED
+#endif
+
+//////////////////////////////////////////////////////////////////////////////
+// Barometer
+//
+
+#ifndef CONFIG_BARO
+# define CONFIG_BARO AP_BARO_BMP085
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 // Sonar
 //
 
-#ifndef SONAR_PORT
-# define SONAR_PORT		AP_RANGEFINDER_PITOT_TUBE
+#ifndef CONFIG_SONAR_SOURCE
+# define CONFIG_SONAR_SOURCE SONAR_SOURCE_ADC
 #endif
 
-#ifndef SONAR_TYPE
-# define SONAR_TYPE		MAX_SONAR_XL
+#if CONFIG_SONAR_SOURCE == SONAR_SOURCE_ADC && CONFIG_ADC == DISABLED
+# warning Cannot use ADC for CONFIG_SONAR_SOURCE, becaude CONFIG_ADC is DISABLED
+# warning Defaulting CONFIG_SONAR_SOURCE to ANALOG_PIN
+# undef CONFIG_SONAR_SOURCE
+# define CONFIG_SONAR_SOURCE SONAR_SOURCE_ANALOG_PIN
 #endif
+
+#if CONFIG_SONAR_SOURCE == SONAR_SOURCE_ADC
+# ifndef CONFIG_SONAR_SOURCE_ADC_CHANNEL
+#  define CONFIG_SONAR_SOURCE_ADC_CHANNEL 7
+# endif
+#elif CONFIG_SONAR_SOURCE == SONAR_SOURCE_ANALOG_PIN
+# ifndef CONFIG_SONAR_SOURCE_ANALOG_PIN
+#  define CONFIG_SONAR_SOURCE_ANALOG_PIN AN4
+# endif
+#else
+# warning Invalid value for CONFIG_SONAR_SOURCE, disabling sonar
+# undef SONAR_ENABLED
+# define SONAR_ENABLED DISABLED
+#endif
+
+#ifndef CONFIG_SONAR
+# define CONFIG_SONAR ENABLED
+#endif
+
 
 //////////////////////////////////////////////////////////////////////////////
 // Acrobatics
@@ -99,6 +213,8 @@
  # undef GPS_PROTOCOL
  # define GPS_PROTOCOL GPS_PROTOCOL_NONE
 
+ #undef CONFIG_SONAR
+ #define CONFIG_SONAR DISABLED
 #endif
 
 
@@ -192,7 +308,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //  OPTICAL_FLOW
 #if defined( __AVR_ATmega2560__ )  // determines if optical flow code is included
-  //#define OPTFLOW_ENABLED
+  #define OPTFLOW_ENABLED
 #endif
 
 #ifndef OPTFLOW					// sets global enabled/disabled flag for optflow (as seen in CLI)
@@ -249,8 +365,6 @@
 #ifndef THROTTLE_FAILSAFE_ACTION
 # define THROTTLE_FAILSAFE_ACTION	2
 #endif
-
-
 #ifndef MINIMUM_THROTTLE
 # define MINIMUM_THROTTLE	130
 #endif
@@ -354,6 +468,10 @@
 # define RTL_THR			THROTTLE_HOLD
 #endif
 
+#ifndef SUPER_SIMPLE
+# define SUPER_SIMPLE		DISABLED
+#endif
+
 
 
 
@@ -365,32 +483,42 @@
 // and charachteristics changes.
 #ifdef MOTORS_JD880
 # define STABILIZE_ROLL_P 		3.6
-# define STABILIZE_ROLL_I 		0.06
-# define STABILIZE_ROLL_IMAX 	        2.0		// degrees
+# define STABILIZE_ROLL_I 		0.0
+# define STABILIZE_ROLL_IMAX 	        40.0		// degrees
 # define STABILIZE_PITCH_P		3.6
-# define STABILIZE_PITCH_I		0.06
-# define STABILIZE_PITCH_IMAX	        2.0		// degrees
+# define STABILIZE_PITCH_I		0.0
+# define STABILIZE_PITCH_IMAX	        40.0		// degrees
 #endif
+
+#ifdef MOTORS_JD850
+# define STABILIZE_ROLL_P 		4.0
+# define STABILIZE_ROLL_I 		0.0
+# define STABILIZE_ROLL_IMAX 	        40.0		// degrees
+# define STABILIZE_PITCH_P		4.0
+# define STABILIZE_PITCH_I		0.0
+# define STABILIZE_PITCH_IMAX	        40.0		// degrees
+#endif
+
 
 // Jasons default values that are good for smaller payload motors.
 #ifndef STABILIZE_ROLL_P
 # define STABILIZE_ROLL_P 		4.6
 #endif
 #ifndef STABILIZE_ROLL_I
-# define STABILIZE_ROLL_I 		0.0
+# define STABILIZE_ROLL_I 		0.02
 #endif
 #ifndef STABILIZE_ROLL_IMAX
-# define STABILIZE_ROLL_IMAX 	1.5		// degrees
+# define STABILIZE_ROLL_IMAX 	40		// degrees
 #endif
 
 #ifndef STABILIZE_PITCH_P
 # define STABILIZE_PITCH_P		4.6
 #endif
 #ifndef STABILIZE_PITCH_I
-# define STABILIZE_PITCH_I		0.0
+# define STABILIZE_PITCH_I		0.02
 #endif
 #ifndef STABILIZE_PITCH_IMAX
-# define STABILIZE_PITCH_IMAX	1.5		// degrees
+# define STABILIZE_PITCH_IMAX	40		// degrees
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -464,39 +592,30 @@
 
 
 //////////////////////////////////////////////////////////////////////////////
-// Autopilot control limits
-//
-// how much to we pitch towards the target
-#ifndef PITCH_MAX
-# define PITCH_MAX				22			// degrees
-#endif
-
-
-//////////////////////////////////////////////////////////////////////////////
 // Navigation control gains
 //
 #ifndef LOITER_P
 # define LOITER_P			.3		//
 #endif
 #ifndef LOITER_I
-# define LOITER_I			0.0	//
+# define LOITER_I			0.05	//
 #endif
 #ifndef LOITER_IMAX
-# define LOITER_IMAX		12		// degrees°
+# define LOITER_IMAX		30		// degrees°
 #endif
 
 #ifndef NAV_P
 # define NAV_P				3.0			//
 #endif
 #ifndef NAV_I
-# define NAV_I				0.05		// Lowerd from .25 - saw lots of overshoot.
+# define NAV_I				0.14		// Lowerd from .25 - saw lots of overshoot.
 #endif
 #ifndef NAV_IMAX
-# define NAV_IMAX			20			// degrees
+# define NAV_IMAX			30			// degrees
 #endif
 
 #ifndef WAYPOINT_SPEED_MAX
-# define WAYPOINT_SPEED_MAX			400			// for 6m/s error = 13mph
+# define WAYPOINT_SPEED_MAX			600			// for 6m/s error = 13mph
 #endif
 
 
@@ -519,13 +638,13 @@
 
 // RATE control
 #ifndef THROTTLE_P
-# define THROTTLE_P		0.5			//
+# define THROTTLE_P		0.4			//
 #endif
 #ifndef THROTTLE_I
 # define THROTTLE_I		0.0			//
 #endif
 #ifndef THROTTLE_IMAX
-# define THROTTLE_IMAX	50
+# define THROTTLE_IMAX	300
 #endif
 
 
@@ -550,13 +669,24 @@
 # define DEBUG_LEVEL SEVERITY_LOW
 #endif
 
-
 //////////////////////////////////////////////////////////////////////////////
 // Dataflash logging control
 //
 
+#if defined( __AVR_ATmega1280__ )
+# ifndef CONFIG_LOGGING
+#  define CONFIG_LOGGING LOGGING_SIMPLE
+# elif CONFIG_LOGGING != LOGGING_SIMPLE
+#  warning "Simple Logging is the only officially supported mode on mega 1280"
+# endif
+#endif
+
+#ifndef CONFIG_LOGGING
+# define CONFIG_LOGGING LOGGING_VERBOSE
+#endif
+
 #ifndef LOGGING_ENABLED
-# define LOGGING_ENABLED               ENABLED
+# define LOGGING_ENABLED ENABLED
 #endif
 
 #ifndef LOG_ATTITUDE_FAST
@@ -603,17 +733,17 @@
 #define LOGBIT(_s)     (LOG_##_s ? MASK_LOG_##_s : 0)
 
 #define DEFAULT_LOG_BITMASK \
-               LOGBIT(ATTITUDE_FAST)   | \
-               LOGBIT(ATTITUDE_MED)    | \
-               LOGBIT(GPS)                             | \
-               LOGBIT(PM)                              | \
-               LOGBIT(CTUN)                    | \
-               LOGBIT(NTUN)                    | \
-               LOGBIT(MODE)                    | \
-               LOGBIT(RAW)                             | \
-               LOGBIT(CMD)                             | \
-               LOGBIT(CUR)						| \
-               LOGBIT(MOTORS)					| \
+               LOGBIT(ATTITUDE_FAST)	| \
+               LOGBIT(ATTITUDE_MED)		| \
+               LOGBIT(GPS)				| \
+               LOGBIT(PM)               | \
+               LOGBIT(CTUN)				| \
+               LOGBIT(NTUN)				| \
+               LOGBIT(MODE)             | \
+               LOGBIT(RAW)              | \
+               LOGBIT(CMD)              | \
+               LOGBIT(CUR)				| \
+               LOGBIT(MOTORS)			| \
                LOGBIT(OPTFLOW)
 
 // if we are using fast, Disable Medium
@@ -673,10 +803,6 @@
 #endif
 #ifndef CUT_MOTORS
 # define CUT_MOTORS		1		// do we cut the motors with no throttle?
-#endif
-
-#ifndef BROKEN_SLIDER
-# define BROKEN_SLIDER		0		// 1 = yes (use Yaw to enter CLI mode)
 #endif
 
 #ifndef MOTOR_LEDS

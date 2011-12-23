@@ -22,21 +22,22 @@
 #include "constants.h"
 #include <inttypes.h>
 
-class RangeFinder;
-class IMU;
-class AP_DCM;
-
 namespace apo {
 
-class AP_HardwareAbstractionLayer;
+class AP_Board;
 
 /// Navigator class
 class AP_Navigator {
 public:
-    AP_Navigator(AP_HardwareAbstractionLayer * hal);
-    virtual void calibrate();
-    virtual void updateFast(float dt) = 0;
-    virtual void updateSlow(float dt) = 0;
+    AP_Navigator(AP_Board * board);
+
+    // note, override these with derived navigator functionality
+    virtual void calibrate() {};
+    virtual void updateFast(float dt) {};
+    virtual void updateSlow(float dt) {};
+
+
+    // accessors
     float getPD() const;
     float getPE() const;
     float getPN() const;
@@ -45,7 +46,18 @@ public:
     void setPN(float _pN);
 
     float getAirSpeed() const {
-        return _airSpeed;
+        // neglects vertical wind
+        float vWN = getVN() + getWindSpeed()*cos(getWindDirection());
+        float vWE = getVE() + getWindSpeed()*sin(getWindDirection());
+        return sqrt(vWN*vWN+vWE+vWE+getVD()*getVD());
+    }
+
+    float getGroundSpeed() const {
+        return sqrt(getVN()*getVN()+getVE()*getVE());
+    } 
+
+    float getWindSpeed() const {
+        return _windSpeed;
     }
 
     int32_t getAlt_intM() const {
@@ -74,22 +86,23 @@ public:
 
     float getLon() const {
         return _lon_degInt * degInt2Rad;
+
     }
 
     void setLon(float _lon) {
         this->_lon_degInt = _lon * rad2DegInt;
     }
 
-    float getVD() const {
-        return _vD;
+    float getVN() const {
+        return _vN;
     }
 
     float getVE() const {
-        return sin(getYaw()) * getGroundSpeed();
+        return _vE;
     }
 
-    float getGroundSpeed() const {
-        return _groundSpeed;
+    float getVD() const {
+        return _vD;
     }
 
     int32_t getLat_degInt() const {
@@ -101,10 +114,6 @@ public:
 
     int32_t getLon_degInt() const {
         return _lon_degInt;
-    }
-
-    float getVN() const {
-        return cos(getYaw()) * getGroundSpeed();
     }
 
     float getPitch() const {
@@ -131,20 +140,81 @@ public:
         return _yawRate;
     }
 
+    float getWindDirection() const {
+        return _windDirection;
+    }
+
+    float getCourseOverGround() const {
+        return atan2(getVE(),getVN());
+    }
+
+    float getRelativeCourseOverGround() const {
+        float y = getCourseOverGround() - getYaw();
+        if (y > 180 * deg2Rad)
+            y -= 360 * deg2Rad;
+        if (y < -180 * deg2Rad)
+            y += 360 * deg2Rad;
+        return y;
+    }
+
+
+    float getSpeedOverGround() const {
+        return sqrt(getVN()*getVN()+getVE()*getVE());
+    }
+
+    float getXAccel() const {
+        return _xAccel;
+    }
+
+    float getYAccel() const {
+        return _yAccel;
+    }
+
+    float getZAccel() const {
+        return _zAccel;
+    }
+
     void setAirSpeed(float airSpeed) {
-        _airSpeed = airSpeed;
+        // assumes wind constant and rescale navigation speed
+        float vScale = (1 + airSpeed/getAirSpeed());
+        float vNorm = sqrt(getVN()*getVN()+getVE()*getVE()+getVD()*getVD());
+        _vN *= vScale/vNorm;
+        _vE *= vScale/vNorm;
+        _vD *= vScale/vNorm;
     }
 
     void setAlt_intM(int32_t alt_intM) {
         _alt_intM = alt_intM;
     }
 
+    void setVN(float vN) {
+        _vN = vN;
+    }
+
+    void setVE(float vE) {
+        _vE = vE;
+    }
+
     void setVD(float vD) {
         _vD = vD;
     }
 
+    void setXAccel(float xAccel) {
+        _xAccel = xAccel;
+    }
+
+    void setYAccel(float yAccel) {
+        _yAccel = yAccel;
+    }
+
+    void setZAccel(float zAccel) {
+        _zAccel = zAccel;
+    }
+
     void setGroundSpeed(float groundSpeed) {
-        _groundSpeed = groundSpeed;
+        float cog = getCourseOverGround();
+        _vN = cos(cog)*groundSpeed;
+        _vE = sin(cog)*groundSpeed;
     }
 
     void setLat_degInt(int32_t lat_degInt) {
@@ -180,48 +250,45 @@ public:
     void setYawRate(float yawRate) {
         _yawRate = yawRate;
     }
+
     void setTimeStamp(int32_t timeStamp) {
         _timeStamp = timeStamp;
     }
+
     int32_t getTimeStamp() const {
         return _timeStamp;
     }
 
+    void setWindDirection(float windDirection) {
+        _windDirection = windDirection;
+    }
+
+    void setWindSpeed(float windSpeed) {
+        _windSpeed = windSpeed;
+    }
+
 protected:
-    AP_HardwareAbstractionLayer * _hal;
+    AP_Board * _board;
 private:
-    int32_t _timeStamp; // micros clock
-    float _roll; // rad
-    float _rollRate; //rad/s
-    float _pitch; // rad
-    float _pitchRate; // rad/s
-    float _yaw; // rad
-    float _yawRate; // rad/s
-    float _airSpeed; // m/s
-    float _groundSpeed; // m/s
+    int32_t _timeStamp;     /// time stamp for navigation data, micros clock
+    float _roll;            /// roll angle, radians
+    float _rollRate;        /// roll rate, radians/s
+    float _pitch;           /// pitch angle, radians
+    float _pitchRate;       /// pitch rate, radians/s
+    float _yaw;             /// yaw angle, radians
+    float _yawRate;         /// yaw rate, radians/s
+    // vertical 
+    float _windSpeed;       /// wind speed, m/s
+    float _windDirection;   /// wind directioin, radians
+    float _vN;              /// 
+    float _vE;
     float _vD; // m/s
+    float _xAccel;
+    float _yAccel;
+    float _zAccel;
     int32_t _lat_degInt; // deg / 1e7
     int32_t _lon_degInt; // deg / 1e7
     int32_t _alt_intM; // meters / 1e3
-};
-
-class DcmNavigator: public AP_Navigator {
-private:
-    /**
-     * Sensors
-     */
-
-    RangeFinder * _rangeFinderDown;
-    AP_DCM * _dcm;
-    IMU * _imu;
-    uint16_t _imuOffsetAddress;
-
-public:
-    DcmNavigator(AP_HardwareAbstractionLayer * hal);
-    virtual void calibrate();
-    virtual void updateFast(float dt);
-    virtual void updateSlow(float dt);
-    void updateGpsLight(void);
 };
 
 } // namespace apo

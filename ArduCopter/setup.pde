@@ -245,7 +245,8 @@ setup_motors(uint8_t argc, const Menu::arg *argv)
 static int8_t
 setup_accel(uint8_t argc, const Menu::arg *argv)
 {
-	imu.init_accel();
+    imu.init(IMU::COLD_START, delay, flash_leds, &timer_scheduler);
+	imu.init_accel(delay, flash_leds);
 	print_accel_offsets();
 	report_imu();
 	return(0);
@@ -416,9 +417,13 @@ setup_sonar(uint8_t argc, const Menu::arg *argv)
 
 	} else if (!strcmp_P(argv[1].str, PSTR("off"))) {
 		g.sonar_enabled.set_and_save(false);
-
+		
+	} else if (argc > 1 && (argv[1].i >= 0 && argv[1].i <= 2)) {
+	    g.sonar_enabled.set_and_save(true);  // if you set the sonar type, surely you want it on
+		g.sonar_type.set_and_save(argv[1].i);
+		
 	}else{
-		Serial.printf_P(PSTR("\nOp:[on, off]\n"));
+		Serial.printf_P(PSTR("\nOp:[on, off, 0-2]\n"));
 		report_sonar();
 		return 0;
 	}
@@ -802,9 +807,11 @@ static void report_wp(byte index = 255)
 static void report_sonar()
 {
 	g.sonar_enabled.load();
+	g.sonar_type.load();
 	Serial.printf_P(PSTR("Sonar\n"));
 	print_divider();
 	print_enabled(g.sonar_enabled.get());
+	Serial.printf_P(PSTR("Type: %d (0=XL, 1=LV, 2=XLL)"), (int)g.sonar_type);
 	print_blanks(2);
 }
 
@@ -1014,9 +1021,9 @@ static void
 print_accel_offsets(void)
 {
 	Serial.printf_P(PSTR("A_off: %4.2f, %4.2f, %4.2f\n"),
-						(float)imu.ax(),
-						(float)imu.ay(),
-						(float)imu.az());
+						(float)imu.ax(),	// Pitch
+						(float)imu.ay(),	// Roll
+						(float)imu.az());	// YAW
 }
 
 static void

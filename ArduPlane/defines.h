@@ -30,6 +30,9 @@
 #define SONAR 0
 #define BARO 1
 
+#define PITOT_SOURCE_ADC 1
+#define PITOT_SOURCE_ANALOG_PIN 2
+
 #define T6 1000000
 #define T7 10000000
 
@@ -119,6 +122,7 @@ enum ap_message {
     MSG_NEXT_WAYPOINT,
     MSG_NEXT_PARAM,
     MSG_STATUSTEXT,
+    MSG_FENCE_STATUS,
     MSG_RETRY_DEFERRED // this must be last
 };
 
@@ -201,14 +205,6 @@ enum gcs_severity {
 #define AN4			4
 #define AN5			5
 
-// Hardware Parameters
-#define SLIDE_SWITCH_PIN 40
-#define PUSHBUTTON_PIN 41
-
-#define A_LED_PIN 37			//36 = B,	37 = A,	35 = C
-#define B_LED_PIN 36
-#define C_LED_PIN 35
-
 #define SPEEDFILT 400			// centimeters/second; the speed below which a groundstart will be triggered
 
 
@@ -218,13 +214,28 @@ enum gcs_severity {
 #define WP_START_BYTE 0x400 // where in memory home WP is stored + all other WP
 #define WP_SIZE 15
 
+// fence points are stored at the end of the EEPROM
+#define MAX_FENCEPOINTS 20
+#define FENCE_WP_SIZE sizeof(Vector2l)
+#define FENCE_START_BYTE (EEPROM_MAX_ADDR-(MAX_FENCEPOINTS*FENCE_WP_SIZE))
+
+#define MAX_WAYPOINTS  ((FENCE_START_BYTE - WP_START_BYTE) / WP_SIZE) - 1 // - 1 to be safe
+
 #define ONBOARD_PARAM_NAME_LENGTH 15
-#define MAX_WAYPOINTS  ((EEPROM_MAX_ADDR - WP_START_BYTE) / WP_SIZE) - 1 // - 1 to be safe
 
 // convert a boolean (0 or 1) to a sign for multiplying (0 maps to 1, 1 maps to -1)
 #define BOOL_TO_SIGN(bvalue) ((bvalue)?-1:1)
 
 // mark a function as not to be inlined
 #define NOINLINE __attribute__((noinline))
+
+#define CONFIG_IMU_OILPAN 1
+#define CONFIG_IMU_MPU6000 2
+
+#define APM_HARDWARE_APM1  1
+#define APM_HARDWARE_APM2 2
+
+#define AP_BARO_BMP085   1
+#define AP_BARO_MS5611   2
 
 #endif // _DEFINES_H

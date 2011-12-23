@@ -18,7 +18,15 @@ build
 /Tools/ArdupilotMegaPlanner/resedit/bin
 /Tools/ArdupilotMegaPlanner/resedit/obj
 tags
+*.o
 .*.swp
+<<<<<<< HEAD
 *.log
 *.raw
 *.pyc
+=======
+.*.swo
+mav.log
+mav.log.raw
+status.txt
+>>>>>>> origin/master

@@ -3,7 +3,16 @@
 static void read_control_switch()
 {
 	byte switchPosition = readSwitch();
-	if (oldSwitchPosition != switchPosition){
+
+    // we look for changes in the switch position. If the
+    // RST_SWITCH_CH parameter is set, then it is a switch that can be
+    // used to force re-reading of the control switch. This is useful
+    // when returning to the previous mode after a failsafe or fence
+    // breach. This channel is best used on a momentary switch (such
+    // as a spring loaded trainer switch).
+	if (oldSwitchPosition != switchPosition ||
+        (g.reset_switch_chan != 0 && 
+         APM_RC.InputCh(g.reset_switch_chan-1) > RESET_SWITCH_CHAN_PWM)) {
 
 		set_mode(flight_modes[switchPosition]);
 
@@ -40,6 +49,7 @@ static void reset_control_switch()
 
 static void update_servo_switches()
 {
+#if CONFIG_APM_HARDWARE != APM_HARDWARE_APM2
 	if (!g.switch_enable) {
         // switches are disabled in EEPROM (see SWITCH_ENABLE option)
         // this means the EEPROM control of all channel reversal is enabled
@@ -57,4 +67,5 @@ static void update_servo_switches()
 		g.reverse_ch1_elevon = (PINE & 64) ? true : false;
 		g.reverse_ch2_elevon = (PINL & 64) ? true : false;
 	}
+#endif
 }

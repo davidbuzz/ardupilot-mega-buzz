@@ -205,7 +205,7 @@
     <value>THR_FS_VALUE</value>
   </data>
   <data name="&gt;&gt;THR_FS_VALUE.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;THR_FS_VALUE.Parent" xml:space="preserve">
     <value>groupBox3</value>
@@ -253,7 +253,7 @@
     <value>THR_MAX</value>
   </data>
   <data name="&gt;&gt;THR_MAX.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;THR_MAX.Parent" xml:space="preserve">
     <value>groupBox3</value>
@@ -301,7 +301,7 @@
     <value>THR_MIN</value>
   </data>
   <data name="&gt;&gt;THR_MIN.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;THR_MIN.Parent" xml:space="preserve">
     <value>groupBox3</value>
@@ -349,7 +349,7 @@
     <value>TRIM_THROTTLE</value>
   </data>
   <data name="&gt;&gt;TRIM_THROTTLE.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;TRIM_THROTTLE.Parent" xml:space="preserve">
     <value>groupBox3</value>
@@ -421,7 +421,7 @@
     <value>ARSPD_RATIO</value>
   </data>
   <data name="&gt;&gt;ARSPD_RATIO.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;ARSPD_RATIO.Parent" xml:space="preserve">
     <value>groupBox1</value>
@@ -469,7 +469,7 @@
     <value>ARSPD_FBW_MAX</value>
   </data>
   <data name="&gt;&gt;ARSPD_FBW_MAX.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;ARSPD_FBW_MAX.Parent" xml:space="preserve">
     <value>groupBox1</value>
@@ -517,7 +517,7 @@
     <value>ARSPD_FBW_MIN</value>
   </data>
   <data name="&gt;&gt;ARSPD_FBW_MIN.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;ARSPD_FBW_MIN.Parent" xml:space="preserve">
     <value>groupBox1</value>
@@ -565,7 +565,7 @@
     <value>TRIM_ARSPD_CM</value>
   </data>
   <data name="&gt;&gt;TRIM_ARSPD_CM.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;TRIM_ARSPD_CM.Parent" xml:space="preserve">
     <value>groupBox1</value>
@@ -637,7 +637,7 @@
     <value>LIM_PITCH_MIN</value>
   </data>
   <data name="&gt;&gt;LIM_PITCH_MIN.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;LIM_PITCH_MIN.Parent" xml:space="preserve">
     <value>groupBox2</value>
@@ -685,7 +685,7 @@
     <value>LIM_PITCH_MAX</value>
   </data>
   <data name="&gt;&gt;LIM_PITCH_MAX.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;LIM_PITCH_MAX.Parent" xml:space="preserve">
     <value>groupBox2</value>
@@ -733,7 +733,7 @@
     <value>LIM_ROLL_CD</value>
   </data>
   <data name="&gt;&gt;LIM_ROLL_CD.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;LIM_ROLL_CD.Parent" xml:space="preserve">
     <value>groupBox2</value>
@@ -805,7 +805,7 @@
     <value>XTRK_ANGLE_CD</value>
   </data>
   <data name="&gt;&gt;XTRK_ANGLE_CD.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;XTRK_ANGLE_CD.Parent" xml:space="preserve">
     <value>groupBox15</value>
@@ -853,7 +853,7 @@
     <value>XTRK_GAIN_SC</value>
   </data>
   <data name="&gt;&gt;XTRK_GAIN_SC.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;XTRK_GAIN_SC.Parent" xml:space="preserve">
     <value>groupBox15</value>
@@ -925,7 +925,7 @@
     <value>KFF_PTCH2THR</value>
   </data>
   <data name="&gt;&gt;KFF_PTCH2THR.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;KFF_PTCH2THR.Parent" xml:space="preserve">
     <value>groupBox16</value>
@@ -973,7 +973,7 @@
     <value>KFF_RDDRMIX</value>
   </data>
   <data name="&gt;&gt;KFF_RDDRMIX.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;KFF_RDDRMIX.Parent" xml:space="preserve">
     <value>groupBox16</value>
@@ -1021,7 +1021,7 @@
     <value>KFF_PTCHCOMP</value>
   </data>
   <data name="&gt;&gt;KFF_PTCHCOMP.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;KFF_PTCHCOMP.Parent" xml:space="preserve">
     <value>groupBox16</value>
@@ -1093,7 +1093,7 @@
     <value>ENRGY2THR_IMAX</value>
   </data>
   <data name="&gt;&gt;ENRGY2THR_IMAX.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;ENRGY2THR_IMAX.Parent" xml:space="preserve">
     <value>groupBox14</value>
@@ -1141,7 +1141,7 @@
     <value>ENRGY2THR_D</value>
   </data>
   <data name="&gt;&gt;ENRGY2THR_D.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;ENRGY2THR_D.Parent" xml:space="preserve">
     <value>groupBox14</value>
@@ -1189,7 +1189,7 @@
     <value>ENRGY2THR_I</value>
   </data>
   <data name="&gt;&gt;ENRGY2THR_I.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;ENRGY2THR_I.Parent" xml:space="preserve">
     <value>groupBox14</value>
@@ -1237,7 +1237,7 @@
     <value>ENRGY2THR_P</value>
   </data>
   <data name="&gt;&gt;ENRGY2THR_P.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;ENRGY2THR_P.Parent" xml:space="preserve">
     <value>groupBox14</value>
@@ -1309,7 +1309,7 @@
     <value>ALT2PTCH_IMAX</value>
   </data>
   <data name="&gt;&gt;ALT2PTCH_IMAX.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;ALT2PTCH_IMAX.Parent" xml:space="preserve">
     <value>groupBox13</value>
@@ -1357,7 +1357,7 @@
     <value>ALT2PTCH_D</value>
   </data>
   <data name="&gt;&gt;ALT2PTCH_D.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;ALT2PTCH_D.Parent" xml:space="preserve">
     <value>groupBox13</value>
@@ -1405,7 +1405,7 @@
     <value>ALT2PTCH_I</value>
   </data>
   <data name="&gt;&gt;ALT2PTCH_I.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;ALT2PTCH_I.Parent" xml:space="preserve">
     <value>groupBox13</value>
@@ -1453,7 +1453,7 @@
     <value>ALT2PTCH_P</value>
   </data>
   <data name="&gt;&gt;ALT2PTCH_P.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;ALT2PTCH_P.Parent" xml:space="preserve">
     <value>groupBox13</value>
@@ -1525,7 +1525,7 @@
     <value>ARSP2PTCH_IMAX</value>
   </data>
   <data name="&gt;&gt;ARSP2PTCH_IMAX.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;ARSP2PTCH_IMAX.Parent" xml:space="preserve">
     <value>groupBox12</value>
@@ -1573,7 +1573,7 @@
     <value>ARSP2PTCH_D</value>
   </data>
   <data name="&gt;&gt;ARSP2PTCH_D.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;ARSP2PTCH_D.Parent" xml:space="preserve">
     <value>groupBox12</value>
@@ -1621,7 +1621,7 @@
     <value>ARSP2PTCH_I</value>
   </data>
   <data name="&gt;&gt;ARSP2PTCH_I.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;ARSP2PTCH_I.Parent" xml:space="preserve">
     <value>groupBox12</value>
@@ -1669,7 +1669,7 @@
     <value>ARSP2PTCH_P</value>
   </data>
   <data name="&gt;&gt;ARSP2PTCH_P.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;ARSP2PTCH_P.Parent" xml:space="preserve">
     <value>groupBox12</value>
@@ -1741,7 +1741,7 @@
     <value>HDNG2RLL_IMAX</value>
   </data>
   <data name="&gt;&gt;HDNG2RLL_IMAX.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;HDNG2RLL_IMAX.Parent" xml:space="preserve">
     <value>groupBox11</value>
@@ -1789,7 +1789,7 @@
     <value>HDNG2RLL_D</value>
   </data>
   <data name="&gt;&gt;HDNG2RLL_D.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;HDNG2RLL_D.Parent" xml:space="preserve">
     <value>groupBox11</value>
@@ -1837,7 +1837,7 @@
     <value>HDNG2RLL_I</value>
   </data>
   <data name="&gt;&gt;HDNG2RLL_I.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;HDNG2RLL_I.Parent" xml:space="preserve">
     <value>groupBox11</value>
@@ -1885,7 +1885,7 @@
     <value>HDNG2RLL_P</value>
   </data>
   <data name="&gt;&gt;HDNG2RLL_P.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;HDNG2RLL_P.Parent" xml:space="preserve">
     <value>groupBox11</value>
@@ -1957,7 +1957,7 @@
     <value>YW2SRV_IMAX</value>
   </data>
   <data name="&gt;&gt;YW2SRV_IMAX.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;YW2SRV_IMAX.Parent" xml:space="preserve">
     <value>groupBox10</value>
@@ -2005,7 +2005,7 @@
     <value>YW2SRV_D</value>
   </data>
   <data name="&gt;&gt;YW2SRV_D.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;YW2SRV_D.Parent" xml:space="preserve">
     <value>groupBox10</value>
@@ -2053,7 +2053,7 @@
     <value>YW2SRV_I</value>
   </data>
   <data name="&gt;&gt;YW2SRV_I.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;YW2SRV_I.Parent" xml:space="preserve">
     <value>groupBox10</value>
@@ -2101,7 +2101,7 @@
     <value>YW2SRV_P</value>
   </data>
   <data name="&gt;&gt;YW2SRV_P.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;YW2SRV_P.Parent" xml:space="preserve">
     <value>groupBox10</value>
@@ -2173,7 +2173,7 @@
     <value>PTCH2SRV_IMAX</value>
   </data>
   <data name="&gt;&gt;PTCH2SRV_IMAX.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;PTCH2SRV_IMAX.Parent" xml:space="preserve">
     <value>groupBox9</value>
@@ -2221,7 +2221,7 @@
     <value>PTCH2SRV_D</value>
   </data>
   <data name="&gt;&gt;PTCH2SRV_D.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;PTCH2SRV_D.Parent" xml:space="preserve">
     <value>groupBox9</value>
@@ -2269,7 +2269,7 @@
     <value>PTCH2SRV_I</value>
   </data>
   <data name="&gt;&gt;PTCH2SRV_I.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;PTCH2SRV_I.Parent" xml:space="preserve">
     <value>groupBox9</value>
@@ -2317,7 +2317,7 @@
     <value>PTCH2SRV_P</value>
   </data>
   <data name="&gt;&gt;PTCH2SRV_P.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;PTCH2SRV_P.Parent" xml:space="preserve">
     <value>groupBox9</value>
@@ -2389,7 +2389,7 @@
     <value>RLL2SRV_IMAX</value>
   </data>
   <data name="&gt;&gt;RLL2SRV_IMAX.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;RLL2SRV_IMAX.Parent" xml:space="preserve">
     <value>groupBox8</value>
@@ -2437,7 +2437,7 @@
     <value>RLL2SRV_D</value>
   </data>
   <data name="&gt;&gt;RLL2SRV_D.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;RLL2SRV_D.Parent" xml:space="preserve">
     <value>groupBox8</value>
@@ -2485,7 +2485,7 @@
     <value>RLL2SRV_I</value>
   </data>
   <data name="&gt;&gt;RLL2SRV_I.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;RLL2SRV_I.Parent" xml:space="preserve">
     <value>groupBox8</value>
@@ -2533,7 +2533,7 @@
     <value>RLL2SRV_P</value>
   </data>
   <data name="&gt;&gt;RLL2SRV_P.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;RLL2SRV_P.Parent" xml:space="preserve">
     <value>groupBox8</value>
@@ -2619,6 +2619,75 @@
   <data name="&gt;&gt;TabAPM2.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
+  <data name="myLabel1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>358, 270</value>
+  </data>
+  <data name="myLabel1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>53, 23</value>
+  </data>
+  <data name="myLabel1.TabIndex" type="System.Int32, mscorlib">
+    <value>18</value>
+  </data>
+  <data name="myLabel1.Text" xml:space="preserve">
+    <value>Ch7 Opt</value>
+  </data>
+  <data name="&gt;&gt;myLabel1.Name" xml:space="preserve">
+    <value>myLabel1</value>
+  </data>
+  <data name="&gt;&gt;myLabel1.Type" xml:space="preserve">
+    <value>ArdupilotMega.MyLabel, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=38326cb7e06851fc</value>
+  </data>
+  <data name="&gt;&gt;myLabel1.Parent" xml:space="preserve">
+    <value>TabAC2</value>
+  </data>
+  <data name="&gt;&gt;myLabel1.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="CH7_OPT.Items" xml:space="preserve">
+    <value>Do Nothing</value>
+  </data>
+  <data name="CH7_OPT.Items1" xml:space="preserve">
+    <value />
+  </data>
+  <data name="CH7_OPT.Items2" xml:space="preserve">
+    <value />
+  </data>
+  <data name="CH7_OPT.Items3" xml:space="preserve">
+    <value>Simple Mode</value>
+  </data>
+  <data name="CH7_OPT.Items4" xml:space="preserve">
+    <value>RTL</value>
+  </data>
+  <data name="CH7_OPT.Items5" xml:space="preserve">
+    <value />
+  </data>
+  <data name="CH7_OPT.Items6" xml:space="preserve">
+    <value />
+  </data>
+  <data name="CH7_OPT.Items7" xml:space="preserve">
+    <value>Save WP</value>
+  </data>
+  <data name="CH7_OPT.Location" type="System.Drawing.Point, System.Drawing">
+    <value>417, 270</value>
+  </data>
+  <data name="CH7_OPT.Size" type="System.Drawing.Size, System.Drawing">
+    <value>112, 21</value>
+  </data>
+  <data name="CH7_OPT.TabIndex" type="System.Int32, mscorlib">
+    <value>17</value>
+  </data>
+  <data name="&gt;&gt;CH7_OPT.Name" xml:space="preserve">
+    <value>CH7_OPT</value>
+  </data>
+  <data name="&gt;&gt;CH7_OPT.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;CH7_OPT.Parent" xml:space="preserve">
+    <value>TabAC2</value>
+  </data>
+  <data name="&gt;&gt;CH7_OPT.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
   <data name="ACRO_PIT_IMAX.Location" type="System.Drawing.Point, System.Drawing">
     <value>80, 63</value>
   </data>
@@ -2632,7 +2701,7 @@
     <value>ACRO_PIT_IMAX</value>
   </data>
   <data name="&gt;&gt;ACRO_PIT_IMAX.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;ACRO_PIT_IMAX.Parent" xml:space="preserve">
     <value>groupBox17</value>
@@ -2680,7 +2749,7 @@
     <value>ACRO_PIT_I</value>
   </data>
   <data name="&gt;&gt;ACRO_PIT_I.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;ACRO_PIT_I.Parent" xml:space="preserve">
     <value>groupBox17</value>
@@ -2728,7 +2797,7 @@
     <value>ACRO_PIT_P</value>
   </data>
   <data name="&gt;&gt;ACRO_PIT_P.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;ACRO_PIT_P.Parent" xml:space="preserve">
     <value>groupBox17</value>
@@ -2785,7 +2854,7 @@
     <value>TabAC2</value>
   </data>
   <data name="&gt;&gt;groupBox17.ZOrder" xml:space="preserve">
-    <value>0</value>
+    <value>2</value>
   </data>
   <data name="label14.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
@@ -2827,7 +2896,7 @@
     <value>THR_RATE_IMAX</value>
   </data>
   <data name="&gt;&gt;THR_RATE_IMAX.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;THR_RATE_IMAX.Parent" xml:space="preserve">
     <value>groupBox5</value>
@@ -2848,7 +2917,7 @@
     <value>THR_RATE_I</value>
   </data>
   <data name="&gt;&gt;THR_RATE_I.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;THR_RATE_I.Parent" xml:space="preserve">
     <value>groupBox5</value>
@@ -2896,7 +2965,7 @@
     <value>THR_RATE_P</value>
   </data>
   <data name="&gt;&gt;THR_RATE_P.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;THR_RATE_P.Parent" xml:space="preserve">
     <value>groupBox5</value>
@@ -2953,7 +3022,7 @@
     <value>TabAC2</value>
   </data>
   <data name="&gt;&gt;groupBox5.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>3</value>
   </data>
   <data name="ACRO_RLL_IMAX.Location" type="System.Drawing.Point, System.Drawing">
     <value>80, 63</value>
@@ -2968,7 +3037,7 @@
     <value>ACRO_RLL_IMAX</value>
   </data>
   <data name="&gt;&gt;ACRO_RLL_IMAX.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;ACRO_RLL_IMAX.Parent" xml:space="preserve">
     <value>groupBox18</value>
@@ -3016,7 +3085,7 @@
     <value>ACRO_RLL_I</value>
   </data>
   <data name="&gt;&gt;ACRO_RLL_I.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;ACRO_RLL_I.Parent" xml:space="preserve">
     <value>groupBox18</value>
@@ -3064,7 +3133,7 @@
     <value>ACRO_RLL_P</value>
   </data>
   <data name="&gt;&gt;ACRO_RLL_P.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;ACRO_RLL_P.Parent" xml:space="preserve">
     <value>groupBox18</value>
@@ -3121,7 +3190,7 @@
     <value>TabAC2</value>
   </data>
   <data name="&gt;&gt;groupBox18.ZOrder" xml:space="preserve">
-    <value>2</value>
+    <value>4</value>
   </data>
   <data name="CHK_lockrollpitch.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -3148,7 +3217,7 @@
     <value>TabAC2</value>
   </data>
   <data name="&gt;&gt;CHK_lockrollpitch.ZOrder" xml:space="preserve">
-    <value>3</value>
+    <value>5</value>
   </data>
   <data name="WP_SPEED_MAX.Location" type="System.Drawing.Point, System.Drawing">
     <value>80, 86</value>
@@ -3163,7 +3232,7 @@
     <value>WP_SPEED_MAX</value>
   </data>
   <data name="&gt;&gt;WP_SPEED_MAX.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;WP_SPEED_MAX.Parent" xml:space="preserve">
     <value>groupBox4</value>
@@ -3211,7 +3280,7 @@
     <value>NAV_LAT_IMAX</value>
   </data>
   <data name="&gt;&gt;NAV_LAT_IMAX.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;NAV_LAT_IMAX.Parent" xml:space="preserve">
     <value>groupBox4</value>
@@ -3259,7 +3328,7 @@
     <value>NAV_LAT_I</value>
   </data>
   <data name="&gt;&gt;NAV_LAT_I.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;NAV_LAT_I.Parent" xml:space="preserve">
     <value>groupBox4</value>
@@ -3307,7 +3376,7 @@
     <value>NAV_LAT_P</value>
   </data>
   <data name="&gt;&gt;NAV_LAT_P.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;NAV_LAT_P.Parent" xml:space="preserve">
     <value>groupBox4</value>
@@ -3364,172 +3433,28 @@
     <value>TabAC2</value>
   </data>
   <data name="&gt;&gt;groupBox4.ZOrder" xml:space="preserve">
-    <value>4</value>
+    <value>6</value>
   </data>
-  <data name="XTRK_ANGLE_CD1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>80, 86</value>
-  </data>
-  <data name="XTRK_ANGLE_CD1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>78, 20</value>
-  </data>
-  <data name="XTRK_ANGLE_CD1.TabIndex" type="System.Int32, mscorlib">
-    <value>18</value>
-  </data>
-  <data name="&gt;&gt;XTRK_ANGLE_CD1.Name" xml:space="preserve">
-    <value>XTRK_ANGLE_CD1</value>
-  </data>
-  <data name="&gt;&gt;XTRK_ANGLE_CD1.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;XTRK_ANGLE_CD1.Parent" xml:space="preserve">
-    <value>groupBox6</value>
-  </data>
-  <data name="&gt;&gt;XTRK_ANGLE_CD1.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="label10.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="label10.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 89</value>
-  </data>
-  <data name="label10.Size" type="System.Drawing.Size, System.Drawing">
-    <value>82, 13</value>
-  </data>
-  <data name="label10.TabIndex" type="System.Int32, mscorlib">
-    <value>19</value>
-  </data>
-  <data name="label10.Text" xml:space="preserve">
-    <value>Error Max</value>
-  </data>
-  <data name="&gt;&gt;label10.Name" xml:space="preserve">
-    <value>label10</value>
-  </data>
-  <data name="&gt;&gt;label10.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label10.Parent" xml:space="preserve">
-    <value>groupBox6</value>
-  </data>
-  <data name="&gt;&gt;label10.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="XTRACK_IMAX.Location" type="System.Drawing.Point, System.Drawing">
-    <value>80, 63</value>
-  </data>
-  <data name="XTRACK_IMAX.Size" type="System.Drawing.Size, System.Drawing">
-    <value>78, 20</value>
-  </data>
-  <data name="XTRACK_IMAX.TabIndex" type="System.Int32, mscorlib">
-    <value>11</value>
-  </data>
-  <data name="&gt;&gt;XTRACK_IMAX.Name" xml:space="preserve">
-    <value>XTRACK_IMAX</value>
-  </data>
-  <data name="&gt;&gt;XTRACK_IMAX.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;XTRACK_IMAX.Parent" xml:space="preserve">
-    <value>groupBox6</value>
-  </data>
-  <data name="&gt;&gt;XTRACK_IMAX.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="label11.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="label11.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 66</value>
-  </data>
-  <data name="label11.Size" type="System.Drawing.Size, System.Drawing">
-    <value>65, 13</value>
-  </data>
-  <data name="label11.TabIndex" type="System.Int32, mscorlib">
-    <value>12</value>
-  </data>
-  <data name="label11.Text" xml:space="preserve">
-    <value>IMAX</value>
-  </data>
-  <data name="&gt;&gt;label11.Name" xml:space="preserve">
-    <value>label11</value>
-  </data>
-  <data name="&gt;&gt;label11.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label11.Parent" xml:space="preserve">
-    <value>groupBox6</value>
-  </data>
-  <data name="&gt;&gt;label11.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
-  <data name="XTRACK_I.Location" type="System.Drawing.Point, System.Drawing">
-    <value>80, 37</value>
-  </data>
-  <data name="XTRACK_I.Size" type="System.Drawing.Size, System.Drawing">
-    <value>78, 20</value>
-  </data>
-  <data name="XTRACK_I.TabIndex" type="System.Int32, mscorlib">
-    <value>7</value>
-  </data>
-  <data name="&gt;&gt;XTRACK_I.Name" xml:space="preserve">
-    <value>XTRACK_I</value>
-  </data>
-  <data name="&gt;&gt;XTRACK_I.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;XTRACK_I.Parent" xml:space="preserve">
-    <value>groupBox6</value>
-  </data>
-  <data name="&gt;&gt;XTRACK_I.ZOrder" xml:space="preserve">
-    <value>4</value>
-  </data>
-  <data name="label17.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="label17.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 40</value>
-  </data>
-  <data name="label17.Size" type="System.Drawing.Size, System.Drawing">
-    <value>10, 13</value>
-  </data>
-  <data name="label17.TabIndex" type="System.Int32, mscorlib">
-    <value>14</value>
-  </data>
-  <data name="label17.Text" xml:space="preserve">
-    <value>I</value>
-  </data>
-  <data name="&gt;&gt;label17.Name" xml:space="preserve">
-    <value>label17</value>
-  </data>
-  <data name="&gt;&gt;label17.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label17.Parent" xml:space="preserve">
-    <value>groupBox6</value>
-  </data>
-  <data name="&gt;&gt;label17.ZOrder" xml:space="preserve">
-    <value>5</value>
-  </data>
-  <data name="XTRACK_P.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="XTRK_GAIN_SC1.Location" type="System.Drawing.Point, System.Drawing">
     <value>80, 13</value>
   </data>
-  <data name="XTRACK_P.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="XTRK_GAIN_SC1.Size" type="System.Drawing.Size, System.Drawing">
     <value>78, 20</value>
   </data>
-  <data name="XTRACK_P.TabIndex" type="System.Int32, mscorlib">
+  <data name="XTRK_GAIN_SC1.TabIndex" type="System.Int32, mscorlib">
     <value>5</value>
   </data>
-  <data name="&gt;&gt;XTRACK_P.Name" xml:space="preserve">
-    <value>XTRACK_P</value>
+  <data name="&gt;&gt;XTRK_GAIN_SC1.Name" xml:space="preserve">
+    <value>XTRK_GAIN_SC1</value>
   </data>
-  <data name="&gt;&gt;XTRACK_P.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="&gt;&gt;XTRK_GAIN_SC1.Type" xml:space="preserve">
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;XTRACK_P.Parent" xml:space="preserve">
+  <data name="&gt;&gt;XTRK_GAIN_SC1.Parent" xml:space="preserve">
     <value>groupBox6</value>
   </data>
-  <data name="&gt;&gt;XTRACK_P.ZOrder" xml:space="preserve">
-    <value>6</value>
+  <data name="&gt;&gt;XTRK_GAIN_SC1.ZOrder" xml:space="preserve">
+    <value>0</value>
   </data>
   <data name="label18.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
@@ -3538,13 +3463,13 @@
     <value>6, 16</value>
   </data>
   <data name="label18.Size" type="System.Drawing.Size, System.Drawing">
-    <value>14, 13</value>
+    <value>38, 13</value>
   </data>
   <data name="label18.TabIndex" type="System.Int32, mscorlib">
     <value>15</value>
   </data>
   <data name="label18.Text" xml:space="preserve">
-    <value>P</value>
+    <value>Gain</value>
   </data>
   <data name="&gt;&gt;label18.Name" xml:space="preserve">
     <value>label18</value>
@@ -3556,13 +3481,13 @@
     <value>groupBox6</value>
   </data>
   <data name="&gt;&gt;label18.ZOrder" xml:space="preserve">
-    <value>7</value>
+    <value>1</value>
   </data>
   <data name="groupBox6.Location" type="System.Drawing.Point, System.Drawing">
     <value>358, 221</value>
   </data>
   <data name="groupBox6.Size" type="System.Drawing.Size, System.Drawing">
-    <value>170, 110</value>
+    <value>170, 43</value>
   </data>
   <data name="groupBox6.TabIndex" type="System.Int32, mscorlib">
     <value>2</value>
@@ -3580,7 +3505,7 @@
     <value>TabAC2</value>
   </data>
   <data name="&gt;&gt;groupBox6.ZOrder" xml:space="preserve">
-    <value>5</value>
+    <value>7</value>
   </data>
   <data name="THR_ALT_IMAX.Location" type="System.Drawing.Point, System.Drawing">
     <value>80, 63</value>
@@ -3595,7 +3520,7 @@
     <value>THR_ALT_IMAX</value>
   </data>
   <data name="&gt;&gt;THR_ALT_IMAX.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;THR_ALT_IMAX.Parent" xml:space="preserve">
     <value>groupBox7</value>
@@ -3643,7 +3568,7 @@
     <value>THR_ALT_I</value>
   </data>
   <data name="&gt;&gt;THR_ALT_I.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;THR_ALT_I.Parent" xml:space="preserve">
     <value>groupBox7</value>
@@ -3691,7 +3616,7 @@
     <value>THR_ALT_P</value>
   </data>
   <data name="&gt;&gt;THR_ALT_P.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;THR_ALT_P.Parent" xml:space="preserve">
     <value>groupBox7</value>
@@ -3748,7 +3673,7 @@
     <value>TabAC2</value>
   </data>
   <data name="&gt;&gt;groupBox7.ZOrder" xml:space="preserve">
-    <value>6</value>
+    <value>8</value>
   </data>
   <data name="HLD_LAT_IMAX.Location" type="System.Drawing.Point, System.Drawing">
     <value>80, 61</value>
@@ -3763,7 +3688,7 @@
     <value>HLD_LAT_IMAX</value>
   </data>
   <data name="&gt;&gt;HLD_LAT_IMAX.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;HLD_LAT_IMAX.Parent" xml:space="preserve">
     <value>groupBox19</value>
@@ -3811,7 +3736,7 @@
     <value>HLD_LAT_I</value>
   </data>
   <data name="&gt;&gt;HLD_LAT_I.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;HLD_LAT_I.Parent" xml:space="preserve">
     <value>groupBox19</value>
@@ -3859,7 +3784,7 @@
     <value>HLD_LAT_P</value>
   </data>
   <data name="&gt;&gt;HLD_LAT_P.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;HLD_LAT_P.Parent" xml:space="preserve">
     <value>groupBox19</value>
@@ -3916,7 +3841,7 @@
     <value>TabAC2</value>
   </data>
   <data name="&gt;&gt;groupBox19.ZOrder" xml:space="preserve">
-    <value>7</value>
+    <value>9</value>
   </data>
   <data name="STB_YAW_IMAX.Location" type="System.Drawing.Point, System.Drawing">
     <value>80, 63</value>
@@ -3931,7 +3856,7 @@
     <value>STB_YAW_IMAX</value>
   </data>
   <data name="&gt;&gt;STB_YAW_IMAX.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;STB_YAW_IMAX.Parent" xml:space="preserve">
     <value>groupBox20</value>
@@ -3979,7 +3904,7 @@
     <value>STB_YAW_I</value>
   </data>
   <data name="&gt;&gt;STB_YAW_I.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;STB_YAW_I.Parent" xml:space="preserve">
     <value>groupBox20</value>
@@ -4027,7 +3952,7 @@
     <value>STB_YAW_P</value>
   </data>
   <data name="&gt;&gt;STB_YAW_P.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;STB_YAW_P.Parent" xml:space="preserve">
     <value>groupBox20</value>
@@ -4084,7 +4009,7 @@
     <value>TabAC2</value>
   </data>
   <data name="&gt;&gt;groupBox20.ZOrder" xml:space="preserve">
-    <value>8</value>
+    <value>10</value>
   </data>
   <data name="STB_PIT_IMAX.Location" type="System.Drawing.Point, System.Drawing">
     <value>80, 63</value>
@@ -4099,7 +4024,7 @@
     <value>STB_PIT_IMAX</value>
   </data>
   <data name="&gt;&gt;STB_PIT_IMAX.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;STB_PIT_IMAX.Parent" xml:space="preserve">
     <value>groupBox21</value>
@@ -4147,7 +4072,7 @@
     <value>STB_PIT_I</value>
   </data>
   <data name="&gt;&gt;STB_PIT_I.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;STB_PIT_I.Parent" xml:space="preserve">
     <value>groupBox21</value>
@@ -4195,7 +4120,7 @@
     <value>STB_PIT_P</value>
   </data>
   <data name="&gt;&gt;STB_PIT_P.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;STB_PIT_P.Parent" xml:space="preserve">
     <value>groupBox21</value>
@@ -4252,7 +4177,7 @@
     <value>TabAC2</value>
   </data>
   <data name="&gt;&gt;groupBox21.ZOrder" xml:space="preserve">
-    <value>9</value>
+    <value>11</value>
   </data>
   <data name="STB_RLL_IMAX.Location" type="System.Drawing.Point, System.Drawing">
     <value>80, 63</value>
@@ -4267,7 +4192,7 @@
     <value>STB_RLL_IMAX</value>
   </data>
   <data name="&gt;&gt;STB_RLL_IMAX.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;STB_RLL_IMAX.Parent" xml:space="preserve">
     <value>groupBox22</value>
@@ -4315,7 +4240,7 @@
     <value>STB_RLL_I</value>
   </data>
   <data name="&gt;&gt;STB_RLL_I.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;STB_RLL_I.Parent" xml:space="preserve">
     <value>groupBox22</value>
@@ -4363,7 +4288,7 @@
     <value>STB_RLL_P</value>
   </data>
   <data name="&gt;&gt;STB_RLL_P.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;STB_RLL_P.Parent" xml:space="preserve">
     <value>groupBox22</value>
@@ -4420,7 +4345,7 @@
     <value>TabAC2</value>
   </data>
   <data name="&gt;&gt;groupBox22.ZOrder" xml:space="preserve">
-    <value>10</value>
+    <value>12</value>
   </data>
   <data name="RATE_YAW_IMAX.Location" type="System.Drawing.Point, System.Drawing">
     <value>80, 63</value>
@@ -4435,7 +4360,7 @@
     <value>RATE_YAW_IMAX</value>
   </data>
   <data name="&gt;&gt;RATE_YAW_IMAX.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;RATE_YAW_IMAX.Parent" xml:space="preserve">
     <value>groupBox23</value>
@@ -4483,7 +4408,7 @@
     <value>RATE_YAW_I</value>
   </data>
   <data name="&gt;&gt;RATE_YAW_I.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;RATE_YAW_I.Parent" xml:space="preserve">
     <value>groupBox23</value>
@@ -4531,7 +4456,7 @@
     <value>RATE_YAW_P</value>
   </data>
   <data name="&gt;&gt;RATE_YAW_P.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;RATE_YAW_P.Parent" xml:space="preserve">
     <value>groupBox23</value>
@@ -4588,7 +4513,7 @@
     <value>TabAC2</value>
   </data>
   <data name="&gt;&gt;groupBox23.ZOrder" xml:space="preserve">
-    <value>11</value>
+    <value>13</value>
   </data>
   <data name="RATE_PIT_IMAX.Location" type="System.Drawing.Point, System.Drawing">
     <value>80, 63</value>
@@ -4603,7 +4528,7 @@
     <value>RATE_PIT_IMAX</value>
   </data>
   <data name="&gt;&gt;RATE_PIT_IMAX.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;RATE_PIT_IMAX.Parent" xml:space="preserve">
     <value>groupBox24</value>
@@ -4651,7 +4576,7 @@
     <value>RATE_PIT_I</value>
   </data>
   <data name="&gt;&gt;RATE_PIT_I.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;RATE_PIT_I.Parent" xml:space="preserve">
     <value>groupBox24</value>
@@ -4699,7 +4624,7 @@
     <value>RATE_PIT_P</value>
   </data>
   <data name="&gt;&gt;RATE_PIT_P.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;RATE_PIT_P.Parent" xml:space="preserve">
     <value>groupBox24</value>
@@ -4756,7 +4681,7 @@
     <value>TabAC2</value>
   </data>
   <data name="&gt;&gt;groupBox24.ZOrder" xml:space="preserve">
-    <value>12</value>
+    <value>14</value>
   </data>
   <data name="RATE_RLL_IMAX.Location" type="System.Drawing.Point, System.Drawing">
     <value>80, 63</value>
@@ -4771,7 +4696,7 @@
     <value>RATE_RLL_IMAX</value>
   </data>
   <data name="&gt;&gt;RATE_RLL_IMAX.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;RATE_RLL_IMAX.Parent" xml:space="preserve">
     <value>groupBox25</value>
@@ -4819,7 +4744,7 @@
     <value>RATE_RLL_I</value>
   </data>
   <data name="&gt;&gt;RATE_RLL_I.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;RATE_RLL_I.Parent" xml:space="preserve">
     <value>groupBox25</value>
@@ -4867,7 +4792,7 @@
     <value>RATE_RLL_P</value>
   </data>
   <data name="&gt;&gt;RATE_RLL_P.Type" xml:space="preserve">
-    <value>System.Windows.Forms.DomainUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;RATE_RLL_P.Parent" xml:space="preserve">
     <value>groupBox25</value>
@@ -4924,7 +4849,7 @@
     <value>TabAC2</value>
   </data>
   <data name="&gt;&gt;groupBox25.ZOrder" xml:space="preserve">
-    <value>13</value>
+    <value>15</value>
   </data>
   <data name="TabAC2.Location" type="System.Drawing.Point, System.Drawing">
     <value>4, 22</value>
@@ -6048,7 +5973,7 @@ GDI+ = Enabled</value>
     <value>BUT_Joystick</value>
   </data>
   <data name="&gt;&gt;BUT_Joystick.Type" xml:space="preserve">
-    <value>ArdupilotMega.MyButton, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=ff91852278f5092c</value>
+    <value>ArdupilotMega.MyButton, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=38326cb7e06851fc</value>
   </data>
   <data name="&gt;&gt;BUT_Joystick.Parent" xml:space="preserve">
     <value>TabPlanner</value>
@@ -6075,7 +6000,7 @@ GDI+ = Enabled</value>
     <value>BUT_videostop</value>
   </data>
   <data name="&gt;&gt;BUT_videostop.Type" xml:space="preserve">
-    <value>ArdupilotMega.MyButton, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=ff91852278f5092c</value>
+    <value>ArdupilotMega.MyButton, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=38326cb7e06851fc</value>
   </data>
   <data name="&gt;&gt;BUT_videostop.Parent" xml:space="preserve">
     <value>TabPlanner</value>
@@ -6102,7 +6027,7 @@ GDI+ = Enabled</value>
     <value>BUT_videostart</value>
   </data>
   <data name="&gt;&gt;BUT_videostart.Type" xml:space="preserve">
-    <value>ArdupilotMega.MyButton, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=ff91852278f5092c</value>
+    <value>ArdupilotMega.MyButton, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=38326cb7e06851fc</value>
   </data>
   <data name="&gt;&gt;BUT_videostart.Parent" xml:space="preserve">
     <value>TabPlanner</value>
@@ -6231,7 +6156,7 @@ GDI+ = Enabled</value>
     <value>BUT_rerequestparams</value>
   </data>
   <data name="&gt;&gt;BUT_rerequestparams.Type" xml:space="preserve">
-    <value>ArdupilotMega.MyButton, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=ff91852278f5092c</value>
+    <value>ArdupilotMega.MyButton, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=38326cb7e06851fc</value>
   </data>
   <data name="&gt;&gt;BUT_rerequestparams.Parent" xml:space="preserve">
     <value>$this</value>
@@ -6264,7 +6189,7 @@ GDI+ = Enabled</value>
     <value>BUT_writePIDS</value>
   </data>
   <data name="&gt;&gt;BUT_writePIDS.Type" xml:space="preserve">
-    <value>ArdupilotMega.MyButton, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=ff91852278f5092c</value>
+    <value>ArdupilotMega.MyButton, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=38326cb7e06851fc</value>
   </data>
   <data name="&gt;&gt;BUT_writePIDS.Parent" xml:space="preserve">
     <value>$this</value>
@@ -6300,7 +6225,7 @@ GDI+ = Enabled</value>
     <value>BUT_save</value>
   </data>
   <data name="&gt;&gt;BUT_save.Type" xml:space="preserve">
-    <value>ArdupilotMega.MyButton, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=ff91852278f5092c</value>
+    <value>ArdupilotMega.MyButton, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=38326cb7e06851fc</value>
   </data>
   <data name="&gt;&gt;BUT_save.Parent" xml:space="preserve">
     <value>$this</value>
@@ -6336,7 +6261,7 @@ GDI+ = Enabled</value>
     <value>BUT_load</value>
   </data>
   <data name="&gt;&gt;BUT_load.Type" xml:space="preserve">
-    <value>ArdupilotMega.MyButton, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=ff91852278f5092c</value>
+    <value>ArdupilotMega.MyButton, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=38326cb7e06851fc</value>
   </data>
   <data name="&gt;&gt;BUT_load.Parent" xml:space="preserve">
     <value>$this</value>
@@ -6366,7 +6291,7 @@ GDI+ = Enabled</value>
     <value>BUT_compare</value>
   </data>
   <data name="&gt;&gt;BUT_compare.Type" xml:space="preserve">
-    <value>ArdupilotMega.MyButton, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=ff91852278f5092c</value>
+    <value>ArdupilotMega.MyButton, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=38326cb7e06851fc</value>
   </data>
   <data name="&gt;&gt;BUT_compare.Parent" xml:space="preserve">
     <value>$this</value>
@@ -6423,7 +6348,7 @@ GDI+ = Enabled</value>
     <value>Configuration</value>
   </data>
   <data name="&gt;&gt;$this.Type" xml:space="preserve">
-    <value>System.Windows.Forms.MyUserControl, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=ff91852278f5092c</value>
+    <value>System.Windows.Forms.MyUserControl, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=38326cb7e06851fc</value>
   </data>
   <data name="MAVParam" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\MAVParam.txt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>

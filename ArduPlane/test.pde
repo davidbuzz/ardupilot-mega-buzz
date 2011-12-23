@@ -6,11 +6,13 @@
 // are defined below. Order matters to the compiler.
 static int8_t	test_radio_pwm(uint8_t argc, 	const Menu::arg *argv);
 static int8_t	test_radio(uint8_t argc, 		const Menu::arg *argv);
+static int8_t	test_passthru(uint8_t argc, 	const Menu::arg *argv);
 static int8_t	test_failsafe(uint8_t argc, 	const Menu::arg *argv);
 static int8_t	test_gps(uint8_t argc, 			const Menu::arg *argv);
+#if CONFIG_ADC == ENABLED
 static int8_t	test_adc(uint8_t argc, 			const Menu::arg *argv);
+#endif
 static int8_t	test_imu(uint8_t argc, 			const Menu::arg *argv);
-static int8_t	test_gyro(uint8_t argc, 		const Menu::arg *argv);
 static int8_t	test_battery(uint8_t argc, 		const Menu::arg *argv);
 static int8_t	test_current(uint8_t argc, 		const Menu::arg *argv);
 static int8_t	test_relay(uint8_t argc,	 	const Menu::arg *argv);
@@ -22,7 +24,9 @@ static int8_t	test_xbee(uint8_t argc, 		const Menu::arg *argv);
 static int8_t	test_eedump(uint8_t argc, 		const Menu::arg *argv);
 static int8_t	test_rawgps(uint8_t argc, 			const Menu::arg *argv);
 static int8_t	test_modeswitch(uint8_t argc, 		const Menu::arg *argv);
+#if CONFIG_APM_HARDWARE != APM_HARDWARE_APM2
 static int8_t	test_dipswitches(uint8_t argc, 		const Menu::arg *argv);
+#endif
 
 // Creates a constant array of structs representing menu options
 // and stores them in Flash memory, not RAM.
@@ -31,6 +35,7 @@ static int8_t	test_dipswitches(uint8_t argc, 		const Menu::arg *argv);
 static const struct Menu::command test_menu_commands[] PROGMEM = {
 	{"pwm",			test_radio_pwm},
 	{"radio",		test_radio},
+	{"passthru",	test_passthru},
 	{"failsafe",	test_failsafe},
 	{"battery",		test_battery},
 	{"relay",		test_relay},
@@ -38,16 +43,19 @@ static const struct Menu::command test_menu_commands[] PROGMEM = {
 	{"xbee",		test_xbee},
 	{"eedump",		test_eedump},
 	{"modeswitch",	test_modeswitch},
+#if CONFIG_APM_HARDWARE != APM_HARDWARE_APM2
 	{"dipswitches",	test_dipswitches},
+#endif
 
 	// Tests below here are for hardware sensors only present
 	// when real sensors are attached or they are emulated
 #if HIL_MODE == HIL_MODE_DISABLED
+#if CONFIG_ADC == ENABLED
 	{"adc", 		test_adc},
+#endif
 	{"gps",			test_gps},
 	{"rawgps",		test_rawgps},
 	{"imu",			test_imu},
-	{"gyro",		test_gyro},
 	{"airspeed",	test_airspeed},
 	{"airpressure",	test_pressure},
 	{"compass",		test_mag},
@@ -56,7 +64,6 @@ static const struct Menu::command test_menu_commands[] PROGMEM = {
 	{"adc", 		test_adc},
 	{"gps",			test_gps},
 	{"imu",			test_imu},
-	{"gyro",		test_gyro},
 	{"compass",		test_mag},
 #elif HIL_MODE == HIL_MODE_ATTITUDE
 #endif
@@ -121,6 +128,33 @@ test_radio_pwm(uint8_t argc, const Menu::arg *argv)
 			return (0);
 		}
 	}
+}
+
+
+static int8_t
+test_passthru(uint8_t argc, const Menu::arg *argv)
+{
+	print_hit_enter();
+	delay(1000);
+
+	while(1){
+		delay(20);
+
+        // New radio frame? (we could use also if((millis()- timer) > 20)
+        if (APM_RC.GetState() == 1){
+            Serial.print("CH:");
+            for(int i = 0; i < 8; i++){
+                Serial.print(APM_RC.InputCh(i));	// Print channel values
+                Serial.print(",");
+                APM_RC.OutputCh(i, APM_RC.InputCh(i)); // Copy input to Servos
+            }
+            Serial.println();
+        }
+        if (Serial.available() > 0){
+            return (0);
+        }
+    }
+    return 0;
 }
 
 static int8_t
@@ -373,6 +407,7 @@ test_modeswitch(uint8_t argc, const Menu::arg *argv)
 	}
 }
 
+#if CONFIG_APM_HARDWARE != APM_HARDWARE_APM2
 static int8_t
 test_dipswitches(uint8_t argc, const Menu::arg *argv)
 {
@@ -403,22 +438,26 @@ test_dipswitches(uint8_t argc, const Menu::arg *argv)
 		}
 	}
 }
+#endif // CONFIG_APM_HARDWARE != APM_HARDWARE_APM2
+
 
 //-------------------------------------------------------------------------------------------
 // tests in this section are for real sensors or sensors that have been simulated
 
 #if HIL_MODE == HIL_MODE_DISABLED || HIL_MODE == HIL_MODE_SENSORS
+
+#if CONFIG_ADC == ENABLED
 static int8_t
 test_adc(uint8_t argc, const Menu::arg *argv)
 {
 	print_hit_enter();
-	adc.Init();
+	adc.Init(&timer_scheduler);
 	delay(1000);
 	Serial.printf_P(PSTR("ADC\n"));
 	delay(1000);
 
 	while(1){
-		for (int i=0;i<9;i++) Serial.printf_P(PSTR("%u\t"),adc.Ch(i));
+		for (int i=0;i<9;i++) Serial.printf_P(PSTR("%.1f\t"),adc.Ch(i));
 		Serial.println();
 		delay(100);
 		if(Serial.available() > 0){
@@ -426,6 +465,7 @@ test_adc(uint8_t argc, const Menu::arg *argv)
 		}
 	}
 }
+#endif // CONFIG_ADC
 
 static int8_t
 test_gps(uint8_t argc, const Menu::arg *argv)
@@ -461,8 +501,8 @@ static int8_t
 test_imu(uint8_t argc, const Menu::arg *argv)
 {
 	//Serial.printf_P(PSTR("Calibrating."));
-
-	imu.init(IMU::COLD_START);
+	imu.init(IMU::COLD_START, delay, flash_leds, &timer_scheduler);
+    dcm.matrix_reset();
 
 	print_hit_enter();
 	delay(1000);
@@ -489,10 +529,14 @@ test_imu(uint8_t argc, const Menu::arg *argv)
 
 			// We are using the IMU
 			// ---------------------
-			Serial.printf_P(PSTR("r: %d\tp: %d\t y: %d\n"),
-								(int)dcm.roll_sensor / 100,
-								(int)dcm.pitch_sensor / 100,
-								(uint16_t)dcm.yaw_sensor / 100);
+            Vector3f gyros 	= imu.get_gyro();
+            Vector3f accels = imu.get_accel();
+			Serial.printf_P(PSTR("r:%4d  p:%4d  y:%3d  g=(%5.1f %5.1f %5.1f)  a=(%5.1f %5.1f %5.1f)\n"),
+                            (int)dcm.roll_sensor / 100,
+                            (int)dcm.pitch_sensor / 100,
+                            (uint16_t)dcm.yaw_sensor / 100,
+                            gyros.x, gyros.y, gyros.z,
+                            accels.x, accels.y, accels.z);
 		}
 		if(Serial.available() > 0){
 			return (0);
@@ -500,34 +544,6 @@ test_imu(uint8_t argc, const Menu::arg *argv)
 	}
 }
 
-
-static int8_t
-test_gyro(uint8_t argc, const Menu::arg *argv)
-{
-	print_hit_enter();
-	adc.Init();
-	delay(1000);
-	Serial.printf_P(PSTR("Gyro | Accel\n"));
-	delay(1000);
-
-	while(1){
-		imu.update();	// need this because we are not calling the DCM
-		Vector3f gyros 	= imu.get_gyro();
-		Vector3f accels = imu.get_accel();
-		Serial.printf_P(PSTR("%d\t%d\t%d\t|\t%d\t%d\t%d\n"),
-						(int)gyros.x,
-						(int)gyros.y,
-						(int)gyros.z,
-						(int)accels.x,
-						(int)accels.y,
-						(int)accels.z);
-		delay(100);
-
-		if(Serial.available() > 0){
-			return (0);
-		}
-	}
-}
 
 static int8_t
 test_mag(uint8_t argc, const Menu::arg *argv)
@@ -547,7 +563,8 @@ test_mag(uint8_t argc, const Menu::arg *argv)
     report_compass();
 
     // we need the DCM initialised for this test
-	imu.init(IMU::COLD_START);
+	imu.init(IMU::COLD_START, delay, flash_leds, &timer_scheduler);
+    dcm.matrix_reset();
 
 	int counter = 0;
 		//Serial.printf_P(PSTR("MAG_ORIENTATION: %d\n"), MAG_ORIENTATION);
@@ -609,9 +626,9 @@ test_mag(uint8_t argc, const Menu::arg *argv)
 static int8_t
 test_airspeed(uint8_t argc, const Menu::arg *argv)
 {
-    unsigned airspeed_ch = adc.Ch(AIRSPEED_CH);
-	// Serial.println(adc.Ch(AIRSPEED_CH));
-    Serial.printf_P(PSTR("airspeed_ch: %u\n"), airspeed_ch);
+    float airspeed_ch = pitot_analog_source.read();
+	// Serial.println(pitot_analog_source.read());
+    Serial.printf_P(PSTR("airspeed_ch: %.1f\n"), airspeed_ch);
 
 	if (g.airspeed_enabled == false){
 		Serial.printf_P(PSTR("airspeed: "));
@@ -627,7 +644,7 @@ test_airspeed(uint8_t argc, const Menu::arg *argv)
 		while(1){
 			delay(20);
 			read_airspeed();
-			Serial.printf_P(PSTR("%fm/s\n"), airspeed / 100.0);
+			Serial.printf_P(PSTR("%.1f m/s\n"), airspeed / 100.0);
 
 			if(Serial.available() > 0){
 				return (0);
@@ -651,9 +668,9 @@ test_pressure(uint8_t argc, const Menu::arg *argv)
 		delay(100);
 		current_loc.alt = read_barometer() + home.alt;
 
-		Serial.printf_P(PSTR("Alt: %0.2fm, Raw: %ld\n"),
+		Serial.printf_P(PSTR("Alt: %0.2fm, Raw: %ld Temperature: %.1f\n"),
 						current_loc.alt / 100.0,
-						abs_pressure);
+						abs_pressure, 0.1*barometer.get_temperature());
 
 		if(Serial.available() > 0){
 			return (0);
@@ -669,14 +686,14 @@ test_rawgps(uint8_t argc, const Menu::arg *argv)
 
 	while(1){
 		if (Serial3.available()){
-			digitalWrite(B_LED_PIN, HIGH); 		// Blink Yellow LED if we are sending data to GPS
+			digitalWrite(B_LED_PIN, LED_ON); 		// Blink Yellow LED if we are sending data to GPS
 			Serial1.write(Serial3.read());
-			digitalWrite(B_LED_PIN, LOW);
+			digitalWrite(B_LED_PIN, LED_OFF);
 		}
 		if (Serial1.available()){
-			digitalWrite(C_LED_PIN, HIGH);		// Blink Red LED if we are receiving data from GPS
+			digitalWrite(C_LED_PIN, LED_ON);		// Blink Red LED if we are receiving data from GPS
 			Serial3.write(Serial1.read());
-			digitalWrite(C_LED_PIN, LOW);
+			digitalWrite(C_LED_PIN, LED_OFF);
 		}
 		if(Serial.available() > 0){
 			return (0);

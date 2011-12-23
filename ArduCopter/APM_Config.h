@@ -7,8 +7,6 @@
 //#define MAG_ORIENTATION		AP_COMPASS_COMPONENTS_DOWN_PINS_FORWARD
 //#define HIL_MODE				HIL_MODE_ATTITUDE
 
-//#define BROKEN_SLIDER		0		// 1 = yes (use Yaw to enter CLI mode)
-
 #define FRAME_CONFIG QUAD_FRAME
 	/*
 	options:
@@ -48,6 +46,7 @@
 //#define RATE_ROLL_I 	0.18
 //#define RATE_PITCH_I	0.18
 //#define MOTORS_JD880
+//#define MOTORS_JD850
 
 
 // agmatthews USERHOOKS
@@ -65,3 +64,9 @@
 #define USERHOOK_VARIABLES "UserVariables.h"
 
 
+// enable this for the new 'APM2' hardware
+// #define CONFIG_APM_HARDWARE APM_HARDWARE_APM2
+// #define APM2_BETA_HARDWARE  // for developers who received an early beta board with the older BMP085
+
+#define LOITER_METHOD 0
+// set to 1 to try an alternative Loiter control method

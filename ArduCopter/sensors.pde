@@ -5,13 +5,24 @@
 
 static void ReadSCP1000(void) {}
 
+#if CONFIG_SONAR == ENABLED
+static void init_sonar(void)
+{
+    #if CONFIG_SONAR_SOURCE == SONAR_SOURCE_ADC
+	    sonar.calculate_scaler(g.sonar_type, 3.3);
+	#else
+        sonar.calculate_scaler(g.sonar_type, 5.0);
+	#endif
+}
+#endif
+
 static void init_barometer(void)
 {
 	#if HIL_MODE == HIL_MODE_SENSORS
 		gcs_update();					// look for inbound hil packets for initialization
 	#endif
 
-	ground_temperature = barometer.Temp;
+	ground_temperature = barometer.get_temperature();
 	int i;
 
 	// We take some readings...
@@ -19,7 +30,7 @@ static void init_barometer(void)
 		delay(20);
 
 		// get new data from absolute pressure sensor
-		barometer.Read();
+		barometer.read();
 
 		//Serial.printf("init %ld, %d, -, %ld, %ld\n", barometer.RawTemp, barometer.Temp, barometer.RawPress,  barometer.Press);
 	}
@@ -32,9 +43,9 @@ static void init_barometer(void)
 		#endif
 
 		// Get initial data from absolute pressure sensor
-		barometer.Read();
-		ground_pressure = barometer.Press;
-		ground_temperature	= (ground_temperature * 9 + barometer.Temp) / 10;
+		barometer.read();
+		ground_pressure = barometer.get_pressure();
+		ground_temperature	= (ground_temperature * 9 + barometer.get_temperature()) / 10;
 		//Serial.printf("init %ld, %d, -, %ld, %ld, -, %d, %ld\n", barometer.RawTemp, barometer.Temp, barometer.RawPress,  barometer.Press, ground_temperature, ground_pressure);
 	}
 
@@ -79,8 +90,8 @@ static int32_t read_barometer(void)
 {
  	float x, scaling, temp;
 
-	barometer.Read();
-	abs_pressure = barometer.Press;
+	barometer.read();
+	abs_pressure = barometer.get_pressure();
 
 
 	//Serial.printf("%ld, %ld, %ld, %ld\n", barometer.RawTemp, barometer.RawPress, barometer.Press, abs_pressure);

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.5)
 
-set(CMAKE_MODULE_PATH    ${CMAKE_SOURCE_DIR}/cmake/modules)
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 set(CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/toolchains/Arduino.cmake)
 
 # modify flags from default toolchain flags
@@ -31,6 +31,7 @@ set(APPLICATION_VERSION "${APPLICATION_VERSION_MAJOR}.${APPLICATION_VERSION_MINO
 
 # macros
 include(MacroEnsureOutOfSourceBuild)
+#include(UseDoxygen)
 
 # disallow in-source build
 macro_ensure_out_of_source_build("${PROJECT_NAME} requires an out of source build.
@@ -38,8 +39,8 @@ Please create a separate build directory and run 'cmake /path/to/${PROJECT_NAME}
 
 # options
 if (NOT DEFINED BOARD)
-	message(STATUS "please define the board type (for example: cmake -DBOARD=mega, assuming mega")
-	set(BOARD "mega")
+	message(STATUS "please define the board type (for example: cmake -DBOARD=mega, assuming mega2560")
+	set(BOARD "mega2560")
 endif()
 
 if (NOT DEFINED PORT)
@@ -86,8 +87,8 @@ macro(add_sketch SKETCH_NAME BOARD PORT)
 	# files
 	set(SKETCH_CPP ${CMAKE_CURRENT_BINARY_DIR}/${SKETCH_NAME}/${SKETCH_NAME}.cpp)
 	set(SKETCH_PDE ${CMAKE_CURRENT_SOURCE_DIR}/${SKETCH_NAME}/${SKETCH_NAME}.pde)
-	message(STATUS "SKETCH_PDE:\n${SKETCH_PDE}")
-	message(STATUS "SKETCH_CPP:\n${SKETCH_CPP}")
+    #message(STATUS "SKETCH_PDE:\n${SKETCH_PDE}")
+    #message(STATUS "SKETCH_CPP:\n${SKETCH_CPP}")
 
 	# settings
 	set(${SKETCH_NAME}_BOARD ${BOARD})
@@ -109,12 +110,12 @@ macro(add_sketch SKETCH_NAME BOARD PORT)
 	string(FIND "${STR1}" "\n" POS2)
 	math(EXPR POS3 "${POS1}+${POS2}")
 	string(SUBSTRING "${FILE}" 0 ${POS3} FILE_HEAD)
-	message(STATUS "FILE_HEAD:\n${FILE_HEAD}")
+    #message(STATUS "FILE_HEAD:\n${FILE_HEAD}")
 
 	# find the body of the main pde
 	math(EXPR BODY_LENGTH "${FILE_LENGTH}-${POS3}-1")
 	string(SUBSTRING "${FILE}" "${POS3}+1" "${BODY_LENGTH}" FILE_BODY)
-	message(STATUS "BODY:\n${FILE_BODY}")
+    #message(STATUS "BODY:\n${FILE_BODY}")
 
 	# write the file head
 	file(APPEND ${SKETCH_CPP} "${FILE_HEAD}")
@@ -122,11 +123,11 @@ macro(add_sketch SKETCH_NAME BOARD PORT)
 
 	# write prototypes
 	foreach(PDE ${PDE_SOURCES})
-		message(STATUS "pde: ${PDE}")
+        #message(STATUS "pde: ${PDE}")
 		file(READ ${PDE} FILE)
 		string(REGEX MATCHALL "[\n]([a-zA-Z]+[ ])*[_a-zA-Z0-9]+([ ]*[\n][\t]*|[ ])[_a-zA-Z0-9]+[ ]?[\n]?[\t]*[ ]*[(]([\t]*[ ]*[*]?[ ]?[a-zA-Z0-9_][,]?[ ]*[\n]?)*[)]" PROTOTYPES ${FILE})
 		foreach(PROTOTYPE ${PROTOTYPES})	
-			message(STATUS "\tprototype: ${PROTOTYPE};")
+            #message(STATUS "\tprototype: ${PROTOTYPE};")
 			file(APPEND ${SKETCH_CPP} "${PROTOTYPE};")
 		endforeach()
 	endforeach()
@@ -157,5 +158,5 @@ endmacro()
 add_sketch(apo ${BOARD} ${PORT})
 add_sketch(ArduRover ${BOARD} ${PORT})
 add_sketch(ArduBoat ${BOARD} ${PORT})
-add_sketch(ArduPlane ${BOARD} ${PORT})
+#add_sketch(ArduPlane ${BOARD} ${PORT})
 #add_sketch(ArduCopter ${BOARD} ${PORT})

@@ -59,6 +59,9 @@ namespace ArdupilotMega.GCSViews
         CurveItem list9curve;
         CurveItem list10curve;
 
+        internal static GMapOverlay kmlpolygons;
+        internal static GMapOverlay geofence;
+
         bool huddropout = false;
         bool huddropoutresize = false;
 
@@ -77,6 +80,7 @@ namespace ArdupilotMega.GCSViews
 
         protected override void Dispose(bool disposing)
         {
+            threadrun = 0;
             MainV2.config["FlightSplitter"] = MainH.SplitterDistance.ToString();
             base.Dispose(disposing);
         }
@@ -88,8 +92,6 @@ namespace ArdupilotMega.GCSViews
             mymap = gMapControl1;
             myhud = hud1;
             MainHcopy = MainH;
-
-            Control.CheckForIllegalCrossThreadCalls = false; // so can update display from another thread
 
             // setup default tuning graph
             if (MainV2.config["Tuning_Graph_Selected"] != null)
@@ -153,6 +155,15 @@ namespace ArdupilotMega.GCSViews
             gMapControl1.OnMapZoomChanged += new MapZoomChanged(gMapControl1_OnMapZoomChanged);
 
             gMapControl1.Zoom = 3;
+
+            gMapControl1.RoutesEnabled = true;
+            gMapControl1.PolygonsEnabled = true;
+
+            kmlpolygons = new GMapOverlay(gMapControl1, "kmlpolygons");
+            gMapControl1.Overlays.Add(kmlpolygons);
+
+            geofence = new GMapOverlay(gMapControl1, "geofence");
+            gMapControl1.Overlays.Add(geofence);
 
             polygons = new GMapOverlay(gMapControl1, "polygons");
             gMapControl1.Overlays.Add(polygons);
@@ -245,7 +256,7 @@ namespace ArdupilotMega.GCSViews
                 // re-request servo data
                 if (!(lastdata.AddSeconds(8) > DateTime.Now) && comPort.BaseStream.IsOpen)
                 {
-                    Console.WriteLine("REQ streams - flightdata");
+                    //Console.WriteLine("REQ streams - flightdata");
                     try
                     {
                         //System.Threading.Thread.Sleep(1000);
@@ -284,7 +295,10 @@ namespace ArdupilotMega.GCSViews
 
                 if (MainV2.comPort.logreadmode && MainV2.comPort.logplaybackfile != null)
                 {
-                    BUT_playlog.Text = "Pause";
+                    this.Invoke((System.Windows.Forms.MethodInvoker)delegate()
+{
+    BUT_playlog.Text = "Pause";
+});
 
                     if (comPort.BaseStream.IsOpen)
                         MainV2.comPort.logreadmode = false;
@@ -303,12 +317,12 @@ namespace ArdupilotMega.GCSViews
                     if (act > 9999 || act < 0)
                         act = 1;
 
-                    int ts = 1;
+                    int ts = 0;
                     try
                     {
                         ts = (int)(act / (double)NUM_playbackspeed.Value);
                     }
-                    catch { } // cross thread
+                    catch { }
                     if (ts > 0)
                         System.Threading.Thread.Sleep(ts);
 
@@ -328,7 +342,15 @@ namespace ArdupilotMega.GCSViews
                 }
                 else
                 {
-                    BUT_playlog.Text = "Play";
+                    if (threadrun == 0) { return; }
+                    try
+                    {
+                        this.Invoke((System.Windows.Forms.MethodInvoker)delegate()
+    {
+        BUT_playlog.Text = "Play";
+    });
+                    }
+                    catch { }
                 }
 
                 try
@@ -656,7 +678,11 @@ namespace ArdupilotMega.GCSViews
             }
             catch { }
             // Force a redraw
-            zg1.Invalidate();
+            try
+            {
+                zg1.Invalidate();
+            }
+            catch { }
 
         }
 
@@ -1066,6 +1092,11 @@ namespace ArdupilotMega.GCSViews
 
         private void BUT_log2kml_Click(object sender, EventArgs e)
         {
+            if (DialogResult.Cancel == Common.MessageShowAgain("Tlog to KML Firmware Version", "When converting logs, ensure your Firmware version is set correctly.\n(Near your com port selection.)"))
+            {
+                return;
+            }
+
             Form frm = new MavlinkLog();
             MainV2.fixtheme(frm);
             frm.ShowDialog();
@@ -1538,6 +1569,102 @@ namespace ArdupilotMega.GCSViews
             MainV2.comPort.setMountConfigure(MAVLink.MAV_MOUNT_MODE.MAV_MOUNT_MODE_GPS_POINT, true, true, true);
             MainV2.comPort.setMountControl(gotolocation.Lat, gotolocation.Lng, (int)(intalt / MainV2.cs.multiplierdist), true);
 
+        }
+
+        private void BUT_script_Click(object sender, EventArgs e)
+        {
+
+            System.Threading.Thread t11 = new System.Threading.Thread(new System.Threading.ThreadStart(ScriptStart))
+            {
+                IsBackground = true,
+                Name = "Script Thread"
+            };
+            t11.Start();
+        }
+
+        void ScriptStart()
+        {
+            string myscript = @"
+print 'Start Script'
+for chan in range(1,9):
+    Script.SendRC(chan,1500,False)
+Script.SendRC(3,Script.GetParam('RC3_MIN'),True)
+
+Script.Sleep(5000)
+while cs.lat == 0:
+    print 'Waiting for GPS'
+    Script.Sleep(1000)
+print 'Got GPS'
+jo = 10 * 13
+print jo
+Script.SendRC(3,1000,False)
+Script.SendRC(4,2000,True)
+cs.messages.Clear()
+Script.WaitFor('ARMING MOTORS',30000)
+Script.SendRC(4,1500,True)
+print 'Motors Armed!'
+
+Script.SendRC(3,1700,True)
+while cs.alt < 50:
+    Script.Sleep(50)
+
+Script.SendRC(5,2000,True) # acro
+
+Script.SendRC(1,2000,False) # roll
+Script.SendRC(3,1370,True) # throttle
+while cs.roll > -45: # top hald 0 - 180
+    Script.Sleep(5)
+while cs.roll < -45: # -180 - -45
+    Script.Sleep(5)
+
+Script.SendRC(5,1500,False) # stabalise
+Script.SendRC(1,1500,True) # level roll
+Script.Sleep(2000) # 2 sec to stabalise
+Script.SendRC(3,1300,True) # throttle back to land
+
+thro = 1350 # will decend
+
+while cs.alt > 0.1:
+    Script.Sleep(300)
+
+Script.SendRC(3,1000,False)
+Script.SendRC(4,1000,True)
+Script.WaitFor('DISARMING MOTORS',30000)
+Script.SendRC(4,1500,True)
+
+print 'Roll complete'
+
+";
+
+            MessageBox.Show("This is Very ALPHA");
+
+            Form scriptedit = new Form();
+
+            scriptedit.Size = new System.Drawing.Size(500,500);
+
+            TextBox tb = new TextBox();
+
+            tb.Dock = DockStyle.Fill;
+
+            tb.ScrollBars = ScrollBars.Both;
+            tb.Multiline = true;
+
+            tb.Location = new Point(0,0);
+            tb.Size = new System.Drawing.Size(scriptedit.Size.Width-30,scriptedit.Size.Height-30);
+
+            scriptedit.Controls.Add(tb);
+
+            tb.Text = myscript;
+
+            scriptedit.ShowDialog();
+
+            if (DialogResult.Yes == MessageBox.Show("Run Script", "Run this script?", MessageBoxButtons.YesNo))
+            {
+
+                Script scr = new Script();
+
+                scr.runScript(tb.Text);
+            }
         }
     }
 }

@@ -31,7 +31,7 @@ namespace apo {
 class AP_Controller;
 class AP_Navigator;
 class AP_Guide;
-class AP_HardwareAbstractionLayer;
+class AP_Board;
 
 enum {
     SEVERITY_LOW, SEVERITY_MED, SEVERITY_HIGH
@@ -46,7 +46,7 @@ class AP_CommLink {
 public:
 
     AP_CommLink(FastSerial * link, AP_Navigator * navigator, AP_Guide * guide,
-                AP_Controller * controller, AP_HardwareAbstractionLayer * hal);
+                AP_Controller * controller, AP_Board * board, const uint16_t heartBeatTimeout);
     virtual void send() = 0;
     virtual void receive() = 0;
     virtual void sendMessage(uint8_t id, uint32_t param = 0) = 0;
@@ -56,18 +56,28 @@ public:
     virtual void sendParameters() = 0;
     virtual void requestCmds() = 0;
 
+    /// check if heartbeat is lost
+    bool heartBeatLost() {
+        if (_heartBeatTimeout == 0)
+            return false;
+        else
+            return ((micros() - _lastHeartBeat) / 1e6) > _heartBeatTimeout;
+    }
+
 protected:
     FastSerial * _link;
     AP_Navigator * _navigator;
     AP_Guide * _guide;
     AP_Controller * _controller;
-    AP_HardwareAbstractionLayer * _hal;
+    AP_Board * _board;
+    uint16_t _heartBeatTimeout;              /// vehicle heartbeat timeout, s
+    uint32_t _lastHeartBeat;                 /// time of last heartbeat, s
 };
 
 class MavlinkComm: public AP_CommLink {
 public:
     MavlinkComm(FastSerial * link, AP_Navigator * nav, AP_Guide * guide,
-                AP_Controller * controller, AP_HardwareAbstractionLayer * hal);
+                AP_Controller * controller, AP_Board * board, uint16_t heartBeatTimeout);
 
     virtual void send();
     void sendMessage(uint8_t id, uint32_t param = 0);

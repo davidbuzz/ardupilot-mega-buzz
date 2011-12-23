@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Management;
+using System.Windows.Forms;
+using System.Threading;
 
 namespace ArdupilotMega
 {
     class ArduinoDetect
     {
         /// <summary>
-        /// detects a 1280 or a 2560 board
+        /// detects STK version 1 or 2
         /// </summary>
         /// <param name="port">comportname</param>
         /// <returns>string either (1280/2560) or "" for none</returns>
@@ -55,25 +57,84 @@ namespace ArdupilotMega
 
             System.Threading.Thread.Sleep(500);
 
-            //HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\USB\VID_2341&PID_0010\640333439373519060F0\Device Parameters
-            if (!MainV2.MONO)
-            {
-                ObjectQuery query = new ObjectQuery("SELECT * FROM Win32_USBControllerDevice");
-                ManagementObjectSearcher searcher = new ManagementObjectSearcher(query);
-                foreach (ManagementObject obj2 in searcher.Get())
-                {
-                    Console.WriteLine("Dependant : " + obj2["Dependent"]);
+            serialPort.DtrEnable = true;
+            serialPort.BaudRate = 115200;
+            serialPort.Open();
 
-                    if (obj2["Dependent"].ToString().Contains(@"USB\\VID_2341&PID_0010"))
+            System.Threading.Thread.Sleep(100);
+
+            a = 0;
+            while (a < 4)
+            {
+                byte[] temp = new byte[] { 0x6, 0, 0, 0, 0 };
+                temp = ArduinoDetect.genstkv2packet(serialPort, temp);
+                a++;
+                System.Threading.Thread.Sleep(50);
+
+                try
+                {
+                    if (temp[0] == 6 && temp[1] == 0 && temp.Length == 2)
                     {
-                        //return "2560-2";
+                        serialPort.Close();
+
+                        return "2560";
+
+                    }
+                }
+                catch { }
+            }
+
+            serialPort.Close();
+            Console.WriteLine("Not a 2560");
+            return "";
+        }
+
+        /// <summary>
+        /// Detects APM board version
+        /// </summary>
+        /// <param name="port"></param>
+        /// <returns> (1280/2560/2560-2)</returns>
+        public static string DetectBoard(string port)
+        {
+            SerialPort serialPort = new SerialPort();
+            serialPort.PortName = port;
+
+            if (serialPort.IsOpen)
+                serialPort.Close();
+
+            serialPort.DtrEnable = true;
+            serialPort.BaudRate = 57600;
+            serialPort.Open();
+
+            System.Threading.Thread.Sleep(100);
+
+            int a = 0;
+            while (a < 20) // 20 * 50 = 1 sec
+            {
+                //Console.WriteLine("write " + DateTime.Now.Millisecond);
+                serialPort.DiscardInBuffer();
+                serialPort.Write(new byte[] { (byte)'0', (byte)' ' }, 0, 2);
+                a++;
+                System.Threading.Thread.Sleep(50);
+
+                //Console.WriteLine("btr {0}", serialPort.BytesToRead);
+                if (serialPort.BytesToRead >= 2)
+                {
+                    byte b1 = (byte)serialPort.ReadByte();
+                    byte b2 = (byte)serialPort.ReadByte();
+                    if (b1 == 0x14 && b2 == 0x10)
+                    {
+                        serialPort.Close();
+                        return "1280";
                     }
                 }
             }
-            else
-            {
-                int fixme;
-            }
+
+            serialPort.Close();
+
+            Console.WriteLine("Not a 1280");
+
+            System.Threading.Thread.Sleep(500);
 
             serialPort.DtrEnable = true;
             serialPort.BaudRate = 115200;
@@ -94,7 +155,37 @@ namespace ArdupilotMega
                     if (temp[0] == 6 && temp[1] == 0 && temp.Length == 2)
                     {
                         serialPort.Close();
-                        return "2560";
+                        //HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Enum\USB\VID_2341&PID_0010\640333439373519060F0\Device Parameters
+                        if (!MainV2.MONO || Thread.CurrentThread.CurrentUICulture.Name != "zh-Hans")
+                        {
+                            ObjectQuery query = new ObjectQuery("SELECT * FROM Win32_USBControllerDevice");
+                            ManagementObjectSearcher searcher = new ManagementObjectSearcher(query);
+                            foreach (ManagementObject obj2 in searcher.Get())
+                            {
+                                //Console.WriteLine("Dependant : " + obj2["Dependent"]);
+
+                                // all apm 1-1.4 use a ftdi on the imu board.
+
+                                if (obj2["Dependent"].ToString().Contains(@"USB\\VID_2341&PID_0010"))
+                                {
+                                        return "2560-2";
+                                }
+                            }
+
+                            return "2560";
+                        }
+                        else
+                        {
+                            if (DialogResult.Yes == MessageBox.Show("Is this a APM 2?", "APM 2", MessageBoxButtons.YesNo))
+                            {
+                                return "2560-2";
+                            }
+                            else
+                            {
+                                return "2560";
+                            }
+                        }
+
                     }
                 }
                 catch { }
@@ -104,6 +195,7 @@ namespace ArdupilotMega
             Console.WriteLine("Not a 2560");
             return "";
         }
+
 
         public static int decodeApVar(string comport, string version)
         {
@@ -154,10 +246,10 @@ namespace ArdupilotMega
                         if (key == 0)
                         {
                             //Array.Reverse(buffer, pos, 2);
-                            return BitConverter.ToUInt16(buffer,pos);
+                            return BitConverter.ToUInt16(buffer, pos);
                         }
 
-                        
+
                         for (int i = 0; i <= size; i++)
                         {
                             Console.Write(" {0:X2}", buffer[pos]);

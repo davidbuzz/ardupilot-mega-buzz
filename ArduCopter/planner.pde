@@ -36,6 +36,8 @@ planner_gcs(uint8_t argc, const Menu::arg *argv)
 
 			gcs_update();
 
+            read_radio();
+
             gcs_data_stream_send(45, 1000);
 
             if ((loopcount % 5) == 0) // 10 hz

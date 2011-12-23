@@ -38,7 +38,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <errno.h>
 #include <sys/ioctl.h>
 #include <sys/types.h> 
@@ -46,6 +45,7 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include "desktop.h"
+#include "util.h"
 
 #define LISTEN_BASE_PORT 5760
 #define BUFFER_SIZE 128
@@ -87,13 +87,6 @@ static void tcp_start_connection(unsigned int serial_port, bool wait_for_connect
 
 	s->serial_port = serial_port;
 
-	/*  Create the listening socket  */
-	s->listen_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (s->listen_fd == -1) {
-        fprintf(stderr, "ECHOSERV: Error creating listening socket - %s\n", strerror(errno));
-        exit(1);
-	}
-
 	memset(&sockaddr,0,sizeof(sockaddr));
 
 #ifdef HAVE_SOCK_SIN_LEN
@@ -114,7 +107,7 @@ static void tcp_start_connection(unsigned int serial_port, bool wait_for_connect
 	ret = bind(s->listen_fd, (struct sockaddr *)&sockaddr, sizeof(sockaddr));
 	if (ret == -1) {
 		fprintf(stderr, "bind failed on port %u - %s\n",
-				LISTEN_BASE_PORT+serial_port,
+				(unsigned)ntohs(sockaddr.sin_port),
 				strerror(errno));
 		exit(1);
 	}
@@ -135,8 +128,12 @@ static void tcp_start_connection(unsigned int serial_port, bool wait_for_connect
             fprintf(stderr, "accept() error - %s", strerror(errno));
             exit(1);
         }
+		setsockopt(s->fd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
 		setsockopt(s->fd, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
 		s->connected = true;
+		if (!desktop_state.slider) {
+			set_nonblocking(s->fd);
+		}
     }
 }
 
@@ -178,7 +175,11 @@ static void check_connection(struct tcp_state *s)
 			int one = 1;
 			s->connected = true;
 			setsockopt(s->fd, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
+			setsockopt(s->fd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
 			printf("New connection on serial port %u\n", s->serial_port);
+			if (!desktop_state.slider) {
+				set_nonblocking(s->fd);
+			}
 		}
 	}
 }
@@ -208,7 +209,22 @@ FastSerial::FastSerial(const uint8_t portNumber, volatile uint8_t *ubrrh, volati
 
 void FastSerial::begin(long baud)
 {
-	tcp_start_connection(_u2x, _u2x == 0?true:false);
+	switch (_u2x) {
+	case 0:
+		tcp_start_connection(_u2x, true);
+		break;
+
+	case 1:
+		/* gps */
+		tcp_state[1].connected = true;
+		tcp_state[1].fd = sitl_gps_pipe();
+		tcp_state[1].serial_port = 1;
+		break;
+
+	default:
+		tcp_start_connection(_u2x, false);
+		break;
+	}
 }
 
 void FastSerial::begin(long baud, unsigned int rxSpace, unsigned int txSpace)
@@ -268,6 +284,13 @@ int FastSerial::read(void)
 		return -1;
 	}
 
+	if (s->serial_port == 1) {
+		if (sitl_gps_read(s->fd, &c, 1) == 1) {
+			return (uint8_t)c;
+		}
+		return -1;
+	}
+
     int n = recv(s->fd, &c, 1, MSG_DONTWAIT | MSG_NOSIGNAL);
 	if (n <= 0) {
 		// the socket has reached EOF
@@ -278,7 +301,7 @@ int FastSerial::read(void)
 		return -1;
 	}
     if (n == 1) {
-		return (int)c;
+		return (uint8_t)c;
 	}
 	return -1;
 }

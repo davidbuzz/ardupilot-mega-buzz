@@ -5,9 +5,7 @@
 static void init_motors_out()
 {
 	#if INSTANT_PWM == 0
-	ICR5 = 5000;	// 400 hz output 	CH 1, 2, 9
-	ICR1 = 5000;	// 400 hz output	CH 3, 4, 10
-	ICR3 = 40000;	// 50 hz output		CH 7, 8, 11
+    APM_RC.SetFastOutputChannels( MSK_CH_1 | MSK_CH_2 | MSK_CH_3 | MSK_CH_4 );
 	#endif
 }
 
@@ -45,13 +43,13 @@ static void output_motors_armed()
 		roll_out 	 	= g.rc_1.pwm_out;
 		pitch_out 	 	= g.rc_2.pwm_out;
 
-		// left
+		// right motor
 		motor_out[CH_1]		= g.rc_3.radio_out - roll_out;
-		// right
+		// left motor
 		motor_out[CH_2]		= g.rc_3.radio_out + roll_out;
-		// front
+		// front motor
 		motor_out[CH_3]		= g.rc_3.radio_out + pitch_out;
-		// back
+		// back motor
 		motor_out[CH_4] 	= g.rc_3.radio_out - pitch_out;
 	}
 
@@ -101,6 +99,8 @@ static void output_motors_armed()
 	APM_RC.Force_Out0_Out1();
 	APM_RC.Force_Out2_Out3();
 	#endif
+
+	//debug_motors();
 }
 
 static void output_motors_disarmed()
@@ -121,14 +121,10 @@ static void output_motors_disarmed()
 	APM_RC.OutputCh(CH_2, g.rc_3.radio_min);
 	APM_RC.OutputCh(CH_3, g.rc_3.radio_min);
 	APM_RC.OutputCh(CH_4, g.rc_3.radio_min);
-
-	// InstantPWM
-	APM_RC.Force_Out0_Out1();
-	APM_RC.Force_Out2_Out3();
 }
 
 /*
-static void debug_motors()
+//static void debug_motors()
 {
 	Serial.printf("1:%d\t2:%d\t3:%d\t4:%d\n",
 				motor_out[CH_1],
@@ -136,7 +132,7 @@ static void debug_motors()
 				motor_out[CH_3],
 				motor_out[CH_4]);
 }
-*/
+//*/
 
 static void output_motor_test()
 {
