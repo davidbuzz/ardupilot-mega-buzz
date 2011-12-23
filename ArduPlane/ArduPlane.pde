@@ -94,7 +94,7 @@ static void update_events(void);
 //
 
 // All GPS access should be through this pointer.
-static GPS         *g_gps;
+static GPS         *g_gps;  // main GPS unit. 
 
 // flight modes convenience array
 static AP_Int8		*flight_modes = &g.flight_mode1;

@@ -19,3 +19,6 @@ build
 /Tools/ArdupilotMegaPlanner/resedit/obj
 tags
 .*.swp
+*.log
+*.raw
+*.pyc
