@@ -81,6 +81,8 @@ static void init_arm_motors()
 	// --------------------
 	init_simple_bearing();
 
+	init_z_damper();
+
 	// Reset home position
 	// -------------------
 	if(home_is_set)
@@ -100,7 +102,7 @@ static void init_arm_motors()
 
 	// temp hack
 	motor_light = true;
-	digitalWrite(A_LED_PIN, HIGH);
+	digitalWrite(A_LED_PIN, LED_ON);
 }
 
 

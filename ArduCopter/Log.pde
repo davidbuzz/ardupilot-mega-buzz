@@ -1,6 +1,6 @@
 // -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
-#if LOGGING_ENABLED == ENABLED && CONFIG_LOGGING == LOGGING_VERBOSE
+#if LOGGING_ENABLED == ENABLED
 
 // Code to Write and Read packets from DataFlash log memory
 // Code to interact with the user to dump or erase logs
@@ -111,7 +111,7 @@ dump_log(uint8_t argc, const Menu::arg *argv)
 	last_log_num = find_last_log();
 
 	if (dump_log == -2) {
-		for(int count=1; count<=DF_LAST_PAGE; count++) {
+		for(int count=1; count<=DataFlash.df_NumPages; count++) {
 			DataFlash.StartRead(count);
 			Serial.printf_P(PSTR("DF page, log file #, log page: %d,\t"), count);
 			Serial.printf_P(PSTR("%d,\t"), DataFlash.GetFileNumber());
@@ -120,7 +120,7 @@ dump_log(uint8_t argc, const Menu::arg *argv)
 		return(-1);
 	} else if (dump_log <= 0) {
 		Serial.printf_P(PSTR("dumping all\n"));
-		Log_Read(1, DF_LAST_PAGE);
+		Log_Read(1, DataFlash.df_NumPages);
 		return(-1);
 	} else if ((argc != 2) || (dump_log <= (last_log_num - get_num_logs())) || (dump_log > last_log_num)) {
 		Serial.printf_P(PSTR("bad log number\n"));
@@ -143,7 +143,7 @@ do_erase_logs(void (*delay_cb)(unsigned long))
 {
 	Serial.printf_P(PSTR("\nErasing log...\n"));
 	DataFlash.SetFileNumber(0xFFFF);
-	for(int j = 1; j <= DF_LAST_PAGE; j++) {
+	for(int j = 1; j <= DataFlash.df_NumPages; j++) {
 		DataFlash.PageErase(j);
 		DataFlash.StartWrite(j);		// We need this step to clean FileNumbers
 		if(j%128 == 0) Serial.printf_P(PSTR("+"));
@@ -285,7 +285,7 @@ static void get_log_boundaries(byte log_num, int & start_page, int & end_page)
 	int look;
 	if(num == 1)
 	{
-		DataFlash.StartRead(DF_LAST_PAGE);
+		DataFlash.StartRead(DataFlash.df_NumPages);
 		if(DataFlash.GetFileNumber() == 0xFFFF)
 		{
 			start_page = 1;
@@ -297,7 +297,7 @@ static void get_log_boundaries(byte log_num, int & start_page, int & end_page)
 
 	} else {
 		if(log_num==1) {
-			DataFlash.StartRead(DF_LAST_PAGE);
+			DataFlash.StartRead(DataFlash.df_NumPages);
 			if(DataFlash.GetFileNumber() == 0xFFFF) {
 				start_page = 1;
 			} else {
@@ -315,14 +315,14 @@ static void get_log_boundaries(byte log_num, int & start_page, int & end_page)
 			}
 		}
 	}
-	if(start_page == DF_LAST_PAGE+1 || start_page == 0) start_page=1;
+	if(start_page == DataFlash.df_NumPages+1 || start_page == 0) start_page=1;
 	end_page = find_last_page_of_log((uint16_t)log_num);
 	if(end_page <= 0) end_page = start_page;
 }
 
 static bool check_wrapped(void)
 {
-	DataFlash.StartRead(DF_LAST_PAGE);
+	DataFlash.StartRead(DataFlash.df_NumPages);
 	if(DataFlash.GetFileNumber() == 0xFFFF)
 		return 0;
 	else
@@ -342,7 +342,7 @@ static int find_last_page(void)
 {
 uint16_t look;
 uint16_t bottom = 1;
-uint16_t top = DF_LAST_PAGE;
+uint16_t top = DataFlash.df_NumPages;
 uint32_t look_hash;
 uint32_t bottom_hash;
 uint32_t top_hash;
@@ -395,7 +395,7 @@ uint32_t check_hash;
 		if (bottom > log_number)
 		{
 			bottom = find_last_page();
-			top = DF_LAST_PAGE;
+			top = DataFlash.df_NumPages;
 		} else {
 			bottom = 1;
 			top = find_last_page();
@@ -431,7 +431,14 @@ uint32_t check_hash;
 	return -1;
 }
 
-
+// print_latlon - prints an latitude or longitude value held in an int32_t 
+// probably this should be moved to AP_Common
+void print_latlon(BetterStream *s, int32_t lat_or_lon)
+{
+    int32_t dec_portion = lat_or_lon / T7;
+    int32_t frac_portion = labs(lat_or_lon - dec_portion*T7);
+    s->printf("%ld.%07ld",dec_portion,frac_portion);
+}
 
 // Write an GPS packet. Total length : 30 bytes
 static void Log_Write_GPS()
@@ -459,19 +466,21 @@ static void Log_Read_GPS()
 {
 	int32_t temp1 	= DataFlash.ReadLong();			// 1 time
 	int8_t temp2 	= DataFlash.ReadByte();			// 2 sats
-	float temp3 	= DataFlash.ReadLong() / t7;	// 3 lat
-	float temp4 	= DataFlash.ReadLong() / t7;	// 4 lon
+	int32_t temp3 	= DataFlash.ReadLong();			// 3 lat
+	int32_t temp4 	= DataFlash.ReadLong();			// 4 lon
 	float temp5 	= DataFlash.ReadLong() / 100.0;	// 5 gps alt
 	float temp6 	= DataFlash.ReadLong() / 100.0;	// 6 sensor alt
 	int16_t temp7 	= DataFlash.ReadInt();			// 7 ground speed
 	int32_t temp8 	= DataFlash.ReadLong();// 8 ground course
 
 							//  1   2    3      4     5      6      7    8
-	Serial.printf_P(PSTR("GPS, %ld, %d, %4.7f, %4.7f, %4.4f, %4.4f, %d, %ld\n"),
+	Serial.printf_P(PSTR("GPS, %ld, %d, "),
 							temp1,		// 1 time
-							temp2,		// 2 sats
-							temp3,		// 3 lat
-							temp4,		// 4 lon
+							temp2);		// 2 sats
+	print_latlon(&Serial, temp3);
+	Serial.print_P(PSTR(", "));
+	print_latlon(&Serial, temp4);
+	Serial.printf_P(PSTR(", %4.4f, %4.4f, %d, %ld\n"),
 							temp5,		// 5 gps alt
 							temp6,		// 6 sensor alt
 							temp7,		// 7 ground speed
@@ -479,7 +488,6 @@ static void Log_Read_GPS()
 }
 
 // Write an raw accel/gyro data packet. Total length : 28 bytes
-#if HIL_MODE != HIL_MODE_ATTITUDE
 static void Log_Write_Raw()
 {
 	Vector3f gyro = imu.get_gyro();
@@ -509,7 +517,6 @@ static void Log_Write_Raw()
 
 	DataFlash.WriteByte(END_BYTE);
 }
-#endif
 
 // Read a raw accel/gyro packet
 static void Log_Read_Raw()
@@ -683,10 +690,10 @@ static void Log_Read_Motors()
 	#endif
 }
 
-#ifdef OPTFLOW_ENABLED
 // Write an optical flow packet. Total length : 18 bytes
 static void Log_Write_Optflow()
 {
+	#ifdef OPTFLOW_ENABLED
 	DataFlash.WriteByte(HEAD_BYTE1);
 	DataFlash.WriteByte(HEAD_BYTE2);
 	DataFlash.WriteByte(LOG_OPTFLOW_MSG);
@@ -696,12 +703,14 @@ static void Log_Write_Optflow()
 	DataFlash.WriteLong(optflow.vlat);//optflow_offset.lat + optflow.lat);
 	DataFlash.WriteLong(optflow.vlon);//optflow_offset.lng + optflow.lng);
 	DataFlash.WriteByte(END_BYTE);
+	#endif
 }
-#endif
+
 
 
 static void Log_Read_Optflow()
 {
+	#ifdef OPTFLOW_ENABLED
 	int16_t temp1 	= DataFlash.ReadInt();			// 1
 	int16_t temp2 	= DataFlash.ReadInt();			// 2
 	int16_t temp3 	= DataFlash.ReadInt();			// 3
@@ -714,6 +723,7 @@ static void Log_Read_Optflow()
 			temp3,
 			temp4,
 			temp5);
+	#endif
 }
 
 static void Log_Write_Nav_Tuning()
@@ -1009,7 +1019,7 @@ static void Log_Read(int start_page, int end_page)
 
     if(start_page > end_page)
     {
-    	packet_count = Log_Read_Process(start_page, DF_LAST_PAGE);
+	packet_count = Log_Read_Process(start_page, DataFlash.df_NumPages);
     	packet_count += Log_Read_Process(1, end_page);
     } else {
     	packet_count = Log_Read_Process(start_page, end_page);
@@ -1118,9 +1128,8 @@ static int Log_Read_Process(int start_page, int end_page)
 	return packet_count;
 }
 
-#endif // LOGGING_ENABLED
 
-#if LOGGING_ENABLED == DISABLED
+#else // LOGGING_ENABLED
 
 static void Log_Write_Startup() {}
 static void Log_Read_Startup() {}
@@ -1134,14 +1143,11 @@ static void Log_Write_Current() {}
 static void Log_Write_Attitude() {}
 static void Log_Write_Data(int8_t _type, float _data){}
 static void Log_Write_Data(int8_t _type, int32_t _data){}
-#ifdef OPTFLOW_ENABLED
 static void Log_Write_Optflow() {}
-#endif
 static void Log_Write_Nav_Tuning() {}
 static void Log_Write_Control_Tuning() {}
 static void Log_Write_Motors() {}
 static void Log_Write_Performance() {}
 static int8_t process_logs(uint8_t argc, const Menu::arg *argv) { return 0; }
-static void do_erase_logs(void (*delay_cb)(unsigned long)) {}
 
-#endif
+#endif // LOGGING_DISABLED
