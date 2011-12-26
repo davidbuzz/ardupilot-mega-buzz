@@ -15,7 +15,7 @@
 // the GPS to switch to binary mode at the same time that this code
 // detects it as being in NMEA mode.
 //
-//#define WITH_NMEA_MODE	1
+#define WITH_NMEA_MODE	1
 
 static unsigned int	baudrates[] = {38400U, 57600U, 9600U, 4800U};
 
@@ -77,6 +77,8 @@ AP_GPS_Auto::read(void)
                 gps->update();
                 if (gps->new_data) {
                     Serial.println_P(PSTR("OK"));
+                    Serial.print_P(PSTR("GPS BAUD:"));
+                    Serial.println(baudrates[i]);
                     *_gps = gps;
                     return true;
                 }
@@ -208,6 +210,7 @@ AP_GPS_Auto::_detect(void)
         //
         if (('$' == fingerprint[0]) &&
                 (('G' == fingerprint[1]) || ('P' == fingerprint[1]))) {
+		Serial.println_P(PSTR("GPS IS NMEA!"));
 
             // XXX this may be a bit presumptive, might want to give the GPS a couple of
             //     iterations around the loop to react to init strings?
