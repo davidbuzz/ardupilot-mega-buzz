@@ -177,12 +177,12 @@ static void init_ardupilot()
 
 // wack serial zero into the baud rate that we are supposed to use in Serial3
 #if TELEMETRY_ON_SERIAL0 == 1 
-     Serial.begin(57600, 128, 128); //TODO DONT HARDCODE THIS, BUT DONT MAKE IT SERIAL0_BAUD OR SERIAL3_BAUD it may clash! 
+         Serial.begin(57600, 128, 128); //TODO DONT HARDCODE THIS, BUT DONT MAKE IT SERIAL0_BAUD OR SERIAL3_BAUD it may clash! 
 #endif 
 
 #if SERIAL3_INIT == 1 
     // we have a 2nd serial port, possibly for telemetry, or maybe for other stuff 
-    Serial3.begin(map_baudrate(g.serial3_baud, SERIAL3_BAUD), 128, 128);
+        Serial3.begin(map_baudrate(g.serial3_baud, SERIAL3_BAUD), 128, 128);
 #endif
 #if TELEMETRY_ON_SERIAL0 != 1  && SERIAL3_INIT == 1 
      // ok, so we're doing hte classic APM1 thing for telemetry.. 
@@ -223,11 +223,37 @@ static void init_ardupilot()
 	DataFlash.Init(); 	// DataFlash log initialization
 #endif
 
+
+	pinMode(C_LED_PIN, OUTPUT);			// GPS status LED
+	pinMode(A_LED_PIN, OUTPUT);			// GPS status LED
+	pinMode(B_LED_PIN, OUTPUT);			// GPS status LED
+
+
+  digitalWrite(A_LED_PIN, 1 );
+  delay(1000);        
+  
 	// Do GPS init
 	g_gps = &g_gps_driver;
 	g_gps->init();			// GPS Initialization
-    g_gps->callback = mavlink_delay;
+         g_gps->callback = mavlink_delay;
+  g_gps->update();	
+ digitalWrite(A_LED_PIN, 0 );
 
+ delay(500);        
+ 
+ #if EXTRA_GPS == ENABLED
+ digitalWrite(B_LED_PIN, 1 );
+ delay(1000);        
+  	// Do GPS init
+	g_gps2 = &g_gps_driver2;
+	g_gps2->init();			// EXTRA GPS Initialization
+        g_gps2->callback = mavlink_delay;
+ g_gps2->update();	
+  digitalWrite(B_LED_PIN, 0 );
+ 
+ #endif
+
+ 
 	//mavlink_system.sysid = MAV_SYSTEM_ID;				// Using g.sysid_this_mav
 	mavlink_system.compid = 1;	//MAV_COMP_ID_IMU;   // We do not check for comp id
 	mavlink_system.type = MAV_FIXED_WING;
@@ -238,9 +264,6 @@ static void init_ardupilot()
 	init_rc_in();		// sets up rc channels from radio
 	init_rc_out();		// sets up the timer libs
 
-	pinMode(C_LED_PIN, OUTPUT);			// GPS status LED
-	pinMode(A_LED_PIN, OUTPUT);			// GPS status LED
-	pinMode(B_LED_PIN, OUTPUT);			// GPS status LED
 #if SLIDE_SWITCH_PIN > 0
 	pinMode(SLIDE_SWITCH_PIN, INPUT);	// To enter interactive mode
 #endif
@@ -332,6 +355,22 @@ static void init_ardupilot()
 	// set the correct flight mode
 	// ---------------------------
 	reset_control_switch();
+}
+
+ void use_best_gps(void){
+  
+   int a = 0; 
+    // quick, decide which GPS is better? 
+        if ( g_gps2->num_sats > g_gps->num_sats ) { 
+           // switch the pointers for g_gps, and g_gps2, so we go to the other GPS! 
+           g_gpscurrent = g_gps; 
+           g_gps = g_gps2;
+           g_gps2 = g_gpscurrent;
+          //TODO indicate a GPS toggle with an extra LED flash?  
+          digitalWrite(A_LED_PIN, !digitalRead(A_LED_PIN) );
+        }
+
+    a++;    
 }
 
 //********************************************************************************

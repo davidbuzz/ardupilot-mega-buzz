@@ -38,3 +38,4 @@
 */
 
 
+#define EXTRA_GPS  ENABLED

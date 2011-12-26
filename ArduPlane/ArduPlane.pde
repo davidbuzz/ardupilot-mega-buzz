@@ -66,9 +66,9 @@ version 2.1 of the License, or (at your option) any later version.
 // so there is not much of a penalty to defining ports that we don't
 // use.
 //
-FastSerialPort0(Serial);        // FTDI/console
+FastSerialPort0(Serial);        // FTDI/console  ( and optioonally telemetry ) 
 FastSerialPort1(Serial1);       // GPS port
-FastSerialPort3(Serial3);       // Telemetry port
+FastSerialPort3(Serial3);       // Telemetry port ( and optionally extra GPS ) 
 
 ////////////////////////////////////////////////////////////////////////////////
 // ISR Registry
@@ -124,6 +124,10 @@ static void update_events(void);
 
 // All GPS access should be through this pointer.
 static GPS         *g_gps;
+#if EXTRA_GPS == ENABLED
+static GPS         *g_gps2; // an optional second GPS unit! 
+static GPS        *g_gpscurrent; 
+#endif
 
 // flight modes convenience array
 static AP_Int8		*flight_modes = &g.flight_mode1;
@@ -156,6 +160,9 @@ static AP_Compass_HMC5843      compass(Parameters::k_param_compass);
 // real GPS selection
 #if   GPS_PROTOCOL == GPS_PROTOCOL_AUTO
 AP_GPS_Auto     g_gps_driver(&Serial1, &g_gps);
+#if EXTRA_GPS == ENABLED
+AP_GPS_Auto     g_gps_driver2(&Serial3, &g_gps2); //Serial3 , not Serial1 ! 
+#endif
 
 #elif GPS_PROTOCOL == GPS_PROTOCOL_NMEA
 AP_GPS_NMEA     g_gps_driver(&Serial1);
@@ -185,7 +192,7 @@ AP_GPS_None     g_gps_driver(NULL);
   AP_InertialSensor_Oilpan ins( &adc );
 #endif // CONFIG_IMU_TYPE
 AP_IMU_INS imu( &ins, Parameters::k_param_IMU_calibration );
-AP_DCM  dcm(&imu, g_gps);
+AP_DCM  dcm(&imu, g_gps);  // init it with the primary GPS, but we will swap-in hte secondary later if it's better quality 
 
 #elif HIL_MODE == HIL_MODE_SENSORS
 // sensor emulators
@@ -778,12 +785,24 @@ static void one_second_loop()
 	// send a heartbeat
 	gcs_send_message(MSG_HEARTBEAT);
     gcs_data_stream_send(1,3);
+    
+    #if EXTRA_GPS == ENABLED
+    
+        // only try if we know there's already definitely a GPS there! 
+        if ( g_gps2->status() != 0 ) { 
+	  g_gps2->update();
+          use_best_gps(); 
+        }
+    #endif
 }
 
 static void update_GPS(void)
 {
+       
 	g_gps->update();
 	update_GPS_light();
+
+
 
 	if (g_gps->new_data && g_gps->fix) {
 		// for performance

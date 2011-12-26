@@ -235,6 +235,8 @@ void init_home()
 {
 	gcs_send_text_P(SEVERITY_LOW, PSTR("init home"));
 
+        use_best_gps(); 
+
 	// block until we get a good fix
 	// -----------------------------
 	while (!g_gps->new_data || !g_gps->fix) {
