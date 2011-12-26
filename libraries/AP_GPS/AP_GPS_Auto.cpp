@@ -77,7 +77,7 @@ AP_GPS_Auto::read(void)
                 gps->update();
                 if (gps->new_data) {
                     Serial.println_P(PSTR("OK"));
-                    Serial.print_P(PSTR("GPS BAUD:"));
+                    Serial.print("GPS:");
                     Serial.println(baudrates[i]);
                     *_gps = gps;
                     return true;
