@@ -69,7 +69,8 @@ size_t strlcat_P(char *d, PGM_P s, size_t bufsize)
 
 size_t strnlen_P(PGM_P str, size_t size)
 {
-	return strnlen(str, size);
+	//return strnlen(str, size);
+	return strlen (str) < size ? strlen (str) : size;
 }
 
 size_t strlen_P(PGM_P str)
