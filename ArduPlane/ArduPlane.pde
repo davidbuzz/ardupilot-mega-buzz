@@ -126,7 +126,7 @@ static void update_events(void);
 static GPS         *g_gps;
 #if EXTRA_GPS == ENABLED
 static GPS         *g_gps2; // an optional second GPS unit! 
-static GPS        *g_gpscurrent; 
+static GPS        *g_gpscurrent; // temp pointer which is used only when switching from one GPS unit ot the other.   can probably optimise this away to a void pointer. ? 
 #endif
 
 // flight modes convenience array
@@ -161,7 +161,7 @@ static AP_Compass_HMC5843      compass(Parameters::k_param_compass);
 #if   GPS_PROTOCOL == GPS_PROTOCOL_AUTO
 AP_GPS_Auto     g_gps_driver(&Serial1, &g_gps);
 #if EXTRA_GPS == ENABLED
-AP_GPS_Auto     g_gps_driver2(&Serial3, &g_gps2); //Serial3 , not Serial1 ! 
+AP_GPS_Auto     g_gps_driver2(&Serial3, &g_gps2); //Serial3 is the most likely place for a second GPS unit to be attached.  
 #endif
 
 #elif GPS_PROTOCOL == GPS_PROTOCOL_NMEA
@@ -192,7 +192,7 @@ AP_GPS_None     g_gps_driver(NULL);
   AP_InertialSensor_Oilpan ins( &adc );
 #endif // CONFIG_IMU_TYPE
 AP_IMU_INS imu( &ins, Parameters::k_param_IMU_calibration );
-AP_DCM  dcm(&imu, g_gps);  // init it with the primary GPS, but we will swap-in hte secondary later if it's better quality 
+AP_DCM  dcm(&imu, g_gps);  // init it with the primary GPS, but we will swap-in the secondary later if it's better quality 
 
 #elif HIL_MODE == HIL_MODE_SENSORS
 // sensor emulators
@@ -784,25 +784,24 @@ static void one_second_loop()
 
 	// send a heartbeat
 	gcs_send_message(MSG_HEARTBEAT);
-    gcs_data_stream_send(1,3);
+        gcs_data_stream_send(1,3);
     
-    #if EXTRA_GPS == ENABLED
-    //    // only try if we know there's already definitely a GPS there! 
-    //    if ( g_gps2->status() != 0 ) { 
-	//  g_gps2->update();
-          use_best_gps(); 
-    //    }
-    #endif
+        #if EXTRA_GPS == ENABLED
+        use_best_gps();   //  check if the other GPS has better data.
+        #endif
 }
 
 static void update_GPS(void)
 {
        
 	g_gps->update();
-	update_GPS_light();
 
-        // if we have a second GPS, update it too! 
+        #if EXTRA_GPS == ENABLED
+        // if we have a second GPS, keep it updated it too! 
         if ( g_gps2->status() != 0 ) { g_gps2->update(); } 
+        #endif
+        
+        update_GPS_light();
 
 
 	if (g_gps->new_data && g_gps->fix) {
