@@ -1,6 +1,6 @@
 /// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
-#define THISFIRMWARE "ArduTerminator V2.251"
+#define THISFIRMWARE "ArduTerminator Code@V2.251/Libraries@2.27"
 /*
   ArduTerminator, based apon the excellent work of the authors of ArduPlane and ArduPilot, see below for their details
   Author: Buzz aka DavidBuzz email: davidbuzz@gmail.com
@@ -44,17 +44,21 @@ version 2.1 of the License, or (at your option) any later version.
 // Libraries
 #include <FastSerial.h>
 #include <AP_Common.h>
+#include <Arduino_Mega_ISR_Registry.h>
 #include <APM_RC.h>         // ArduPilot Mega RC Library
 #include <AP_GPS.h>         // ArduPilot GPS library
 #include <Wire.h>			// Arduino I2C lib
 #include <SPI.h>			// Arduino SPI lib
 #include <DataFlash.h>      // ArduPilot Mega Flash Memory Library
 #include <AP_ADC.h>         // ArduPilot Mega Analog to Digital Converter Library
-#include <APM_BMP085.h>     // ArduPilot Mega BMP085 Library
+//#include <APM_BMP085.h>     // ArduPilot Mega BMP085 Library
+#include <AP_Baro.h>        // ArduPilot barometer library
 #include <AP_Compass.h>     // ArduPilot Mega Magnetometer Library
 #include <AP_Math.h>        // ArduPilot Mega Vector/Matrix math Library
 #include <AP_IMU.h>         // ArduPilot Mega IMU Library
 #include <AP_DCM.h>         // ArduPilot Mega DCM Library
+#include <AP_Baro.h>        // ArduPilot barometer library
+
 #include <PID.h>            // PID library
 #include <RC_Channel.h>     // RC Channel Library
 #include <AP_RangeFinder.h>	// Range finder library
@@ -84,12 +88,23 @@ FastSerialPort0(Serial);        // FTDI/console
 FastSerialPort1(Serial1);       // GPS port
 FastSerialPort3(Serial3);       // Telemetry port
 
+
+
+// which RC library R we using? 
+APM_RC_APM1 APM_RC;
+
+// which dataflash library r we using? 
+ DataFlash_APM1   DataFlash;
+
 ////////////////////////////////////////////////////////////////////////////////
 // Parameters
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Global parameters are all contained within the 'g' class.
 //
+Arduino_Mega_ISR_Registry isr_registry;
+
+
 static Parameters      g;
 
 
@@ -121,26 +136,10 @@ static AP_Int8		*flight_modes = &g.flight_mode1;
 
 // real sensors
 static AP_ADC_ADS7844          adc;
-static APM_BMP085_Class        barometer;
+static AP_Baro_BMP085          barometer(false);
+//static APM_BMP085_Class        barometer;
 static AP_Compass_HMC5843      compass(Parameters::k_param_compass);
 
-// real GPS selection
-//#if   GPS_PROTOCOL == GPS_PROTOCOL_AUTO
-//AP_GPS_Auto     g_gps_driver(&Serial1, &g_gps);
-//
-//#elif GPS_PROTOCOL == GPS_PROTOCOL_NMEA
-//AP_GPS_NMEA     g_gps_driver(&Serial1);
-//
-//#elif GPS_PROTOCOL == GPS_PROTOCOL_SIRF
-//AP_GPS_SIRF     g_gps_driver(&Serial1);
-//
-//#elif GPS_PROTOCOL == GPS_PROTOCOL_UBLOX
-//AP_GPS_UBLOX    g_gps_driver(&Serial1);
-//
-//#elif GPS_PROTOCOL == GPS_PROTOCOL_MTK
-//AP_GPS_MTK      g_gps_driver(&Serial1);
-//
-//#el
 #if GPS_PROTOCOL == GPS_PROTOCOL_MTK16
 AP_GPS_MTK16    g_gps_driver(&Serial1);
 
@@ -152,36 +151,14 @@ AP_GPS_MTK16    g_gps_driver(&Serial1);
 
 #elif HIL_MODE == HIL_MODE_SENSORS 
 
-/* 
-// sensor emulators
-AP_ADC_HIL              adc;
-APM_BMP085_HIL_Class    barometer;
-AP_Compass_HIL          compass;
-AP_GPS_HIL              g_gps_driver(NULL);
-
-*/
 #elif HIL_MODE == HIL_MODE_ATTITUDE     /*    BUZZ:  THIS IS THE ONLY MODE WE USE FOR TESTING THIS IN HIL */
-//AP_ADC_HIL              adc;
 AP_DCM_HIL              dcm;
 AP_GPS_HIL              g_gps_driver(NULL);
-//AP_Compass_HIL          compass; // never used
-//AP_IMU_Shim             imu; // never used
+
 
 #else
  #error Unrecognised HIL_MODE setting.
 #endif // HIL MODE
-
-//#if HIL_MODE != HIL_MODE_ATTITUDE
-//	#if HIL_MODE != HIL_MODE_SENSORS
-		// Normal
-//		AP_IMU_Oilpan imu(&adc, Parameters::k_param_IMU_calibration);
-//	#else
-		// hil imu
-//		AP_IMU_Shim imu;
-//	#endif
-	// normal dcm
-//	AP_DCM  dcm(&imu, g_gps);
-//#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // GCS selection
@@ -233,19 +210,6 @@ static const char* flight_mode_strings[] = {
         "Terminate"};
 
 
-/* Radio values
-		Channel assignments
-			1   Ailerons (rudder if no ailerons)
-			2   Elevator
-			3   Throttle
-			4   Rudder (if we have ailerons)
-			5   Aux5
-			6   Aux6
-			7   Aux7
-			8   Aux8/Mode
-		Each Aux channel can be configured to have any of the available auxiliary functions assigned to it.
-		See libraries/RC_Channel/RC_Channel_aux.h for more information
-*/
 
 // Failsafe
 // --------
@@ -337,31 +301,9 @@ static unsigned long 	abs_pressure;
 // ----------------------
 static int		sonar_alt;
 
-// flight mode specific
-// --------------------
-//static bool takeoff_complete    = true;         // Flag for using gps ground course instead of IMU yaw.  Set false when takeoff command processes.
-//static bool	land_complete;
+
 static long	takeoff_altitude;
-// static int			landing_distance;					// meters;
-//static int			landing_pitch;						// pitch for landing set by commands
-//static int			takeoff_pitch;
 
-// Loiter management
-// -----------------
-/* static long 	old_target_bearing;					// deg * 100
-static int		loiter_total; 						// deg : how many times to loiter * 360
-static int 	loiter_delta;						// deg : how far we just turned
-static int		loiter_sum;							// deg : how far we have turned around a waypoint
-static long 	loiter_time;						// millis : when we started LOITER mode
-static int 	loiter_time_max;					// millis : how long to stay in LOITER mode
-*/
-
-// these are the values for navigation control functions
-// ----------------------------------------------------
-/* static long	nav_roll;							// deg * 100 : target roll angle
-static long	nav_pitch;							// deg * 100 : target pitch angle
-static int     throttle_nudge = 0;                 // 0-(throttle_max - throttle_cruise) : throttle nudge in Auto mode using top 1/2 of throttle stick travel
-*/
 // Waypoints
 // ---------
 static long	wp_distance;						// meters - distance between plane and next waypoint
@@ -438,13 +380,6 @@ static float 			load;						// % MCU cycles used
 
 AP_Relay relay;
 
-// Camera/Antenna mount tracking and stabilisation stuff
-// --------------------------------------
-//#if MOUNT == ENABLED
-//AP_Mount camera_mount(g_gps, &dcm);
-//#endif
-
-
 ////////////////////////////////////////////////////////////////////////////////
 // Top-level logic
 ////////////////////////////////////////////////////////////////////////////////
@@ -513,36 +448,12 @@ static void fast_loop()
 	// ------------------------------------
 	check_short_failsafe();
 	
-		// Read Airspeed
-		// -------------
-/* 
-	 if (g.airspeed_enabled == true) {
-#if HIL_MODE != HIL_MODE_ATTITUDE
-		read_airspeed();
-#endif
-	} else if (g.airspeed_enabled == true && HIL_MODE == HIL_MODE_ATTITUDE) {
-		calc_airspeed_errors();
-	}
- */
 
-	//#if HIL_MODE == HIL_MODE_SENSORS
-		// update hil before dcm update
 		gcs_update();
-//	#endif
 
-//	dcm.update_DCM();
 
 	// uses the yaw from the DCM to give more accurate turns
 	calc_bearing_error();
-
-	/* # if HIL_MODE == HIL_MODE_DISABLED
-		if (g.log_bitmask & MASK_LOG_ATTITUDE_FAST)
-			Log_Write_Attitude((int)dcm.roll_sensor, (int)dcm.pitch_sensor, (uint16_t)dcm.yaw_sensor);
-
-		if (g.log_bitmask & MASK_LOG_RAW)
-			Log_Write_Raw();
-	#endif
-*/
 
 	// inertial navigation
 	// ------------------
@@ -555,17 +466,10 @@ static void fast_loop()
 	// ---------------------------------------
 	update_current_flight_mode();
 
-	// apply desired roll, pitch and yaw to the plane
-	// ----------------------------------------------
-	//if (control_mode > MANUAL)
-//		stabilize();
 
 	// write out the servo PWM values
 	// ------------------------------
 	set_servos();
-
-
-	// XXX is it appropriate to be doing the comms below on the fast loop?
 
     gcs_update();
     gcs_data_stream_send(45,1000);
@@ -587,31 +491,12 @@ static void medium_loop()
 			medium_loopCounter++;
 			if(GPS_enabled)		update_GPS();
 
-			/* #if HIL_MODE != HIL_MODE_ATTITUDE
-				if(g.compass_enabled){
-					compass.read();     // Read magnetometer
-					compass.calculate(dcm.get_dcm_matrix());  // Calculate heading
-					compass.null_offsets(dcm.get_dcm_matrix());
-				}
-			#endif
-*/
-/*{
-Serial.print(dcm.roll_sensor, DEC);	Serial.printf_P(PSTR("\t"));
-Serial.print(dcm.pitch_sensor, DEC);	Serial.printf_P(PSTR("\t"));
-Serial.print(dcm.yaw_sensor, DEC);	Serial.printf_P(PSTR("\t"));
-Vector3f tempaccel = imu.get_accel();
-Serial.print(tempaccel.x, DEC);	Serial.printf_P(PSTR("\t"));
-Serial.print(tempaccel.y, DEC);	Serial.printf_P(PSTR("\t"));
-Serial.println(tempaccel.z, DEC);
-}*/
-
 			break;
 
 		// This case performs some navigation computations
 		//------------------------------------------------
 		case 1:
 			medium_loopCounter++;
-
 
                         //BUZZ TODO re-instate the test for GPS lock first ! 
 			//if(g_gps->new_data){
@@ -634,7 +519,6 @@ Serial.println(tempaccel.z, DEC);
 			// Read altitude from sensors
 			// ------------------
 			update_alt();
-			//if(g.sonar_enabled) sonar_alt = sonar.read();
 
 			// altitude smoothing
 			// ------------------
@@ -650,15 +534,6 @@ Serial.println(tempaccel.z, DEC);
 		//-------------------------------------------------
 		case 3:
 			medium_loopCounter++;
-
-			/* #if HIL_MODE != HIL_MODE_ATTITUDE
-				if ((g.log_bitmask & MASK_LOG_ATTITUDE_MED) && !(g.log_bitmask & MASK_LOG_ATTITUDE_FAST))
-					Log_Write_Attitude((int)dcm.roll_sensor, (int)dcm.pitch_sensor, (uint16_t)dcm.yaw_sensor);
-
-				if (g.log_bitmask & MASK_LOG_CTUN)
-					Log_Write_Control_Tuning();
-			#endif
-*/
 
 			if (g.log_bitmask & MASK_LOG_NTUN)
 				Log_Write_Nav_Tuning();
@@ -720,9 +595,6 @@ static void slow_loop()
 
 			update_aux_servo_function(&g.rc_5, &g.rc_6, &g.rc_7, &g.rc_8);
 
-//#if MOUNT == ENABLED
-			//camera_mount.update_mount_type();
-//#endif
 			break;
 
 		case 2:
@@ -796,50 +668,13 @@ static void update_current_flight_mode(void)
 
 		switch(nav_command_ID){
 			case MAV_CMD_NAV_TAKEOFF:
-	/* 			if (hold_course > -1) {
-					calc_nav_roll();
-				} else {
-					nav_roll = 0;
-				}
-
-				if (g.airspeed_enabled == true)
-                                {
-					calc_nav_pitch();
-					if (nav_pitch < (long)takeoff_pitch) nav_pitch = (long)takeoff_pitch;
-				} else {
-					nav_pitch = (long)((float)g_gps->ground_speed / (float)g.airspeed_cruise * (float)takeoff_pitch * 0.5);
-					nav_pitch = constrain(nav_pitch, 500l, (long)takeoff_pitch);
-				}
-
-				g.channel_throttle.servo_out = g.throttle_max; //TODO: Replace with THROTTLE_TAKEOFF or other method of controlling throttle
-														//  What is the case for doing something else?  Why wouldn't you want max throttle for TO?
-				// ******************************
-*/
 				break;
 
 			case MAV_CMD_NAV_LAND:
-	/* 			calc_nav_roll();
-
-				if (g.airspeed_enabled == true){
-					calc_nav_pitch();
-					calc_throttle();
-				}else{
-					calc_nav_pitch();               // calculate nav_pitch just to use for calc_throttle
-					calc_throttle();                // throttle based on altitude error
-					nav_pitch = landing_pitch;      // pitch held constant
-				}
-
-				if (land_complete){
-					g.channel_throttle.servo_out = 0;
-				}
-*/
 				break;
 
 			default:
 				hold_course = -1;
-			//	calc_nav_roll();
-			//	calc_nav_pitch();
-			//	calc_throttle();
 				break;
 		}
 	}else{
@@ -848,114 +683,28 @@ static void update_current_flight_mode(void)
 			case LOITER:
 			case GUIDED:
 				hold_course = -1;
-			//	crash_checker();
-			//	calc_nav_roll();
-			//	calc_nav_pitch();
-			//	calc_throttle();
 				break;
 
 			case FLY_BY_WIRE_A:
-				// set nav_roll and nav_pitch using sticks
-                                /* 
-				nav_roll = g.channel_roll.norm_input() * g.roll_limit;
-				nav_pitch = g.channel_pitch.norm_input() * (-1) * g.pitch_limit_min;
-				// We use pitch_min above because it is usually greater magnitude then pitch_max.  -1 is to compensate for its sign.
-				nav_pitch = constrain(nav_pitch, -3000, 3000);	// trying to give more pitch authority
-				if (inverted_flight) nav_pitch = -nav_pitch;
-*/
 				break;
 
 			case FLY_BY_WIRE_B:
-				// Substitute stick inputs for Navigation control output
-				// We use g.pitch_limit_min because its magnitude is
-				// normally greater than g.pitch_limit_max
-				/* nav_roll = g.channel_roll.norm_input() * g.roll_limit; */
-			/* 	altitude_error = g.channel_pitch.norm_input() * g.pitch_limit_min;
-
-				if ((current_loc.alt>=home.alt+g.FBWB_min_altitude) || (g.FBWB_min_altitude == -1)) {
-	 				altitude_error = g.channel_pitch.norm_input() * g.pitch_limit_min;
-				} else {
-					if (g.channel_pitch.norm_input()<0) 
-						altitude_error =( (home.alt + g.FBWB_min_altitude) - current_loc.alt) + g.channel_pitch.norm_input() * g.pitch_limit_min ; 
-					else altitude_error =( (home.alt + g.FBWB_min_altitude) - current_loc.alt) ;                                    
-				}
- 
-				if (g.airspeed_enabled == true)
-									{
-					airspeed_fbwB = ((int)(g.flybywire_airspeed_max -
-							g.flybywire_airspeed_min) *
-							g.channel_throttle.servo_out) +
-							((int)g.flybywire_airspeed_min * 100);
-					airspeed_energy_error = (long)(((long)airspeed_fbwB *
-								(long)airspeed_fbwB) -
-							((long)airspeed * (long)airspeed))/20000;
-					airspeed_error = (airspeed_error - airspeed);
-									}
-
-				calc_throttle();
-				calc_nav_pitch();
-                            */
 				break;
 
 			case STABILIZE:
-				/* nav_roll        = 0;
-				nav_pitch       = 0;
-*/
-				// throttle is passthrough
 				break;
 
 			case CIRCLE:
-				// we have no GPS installed and have lost radio contact
-				// or we just want to fly around in a gentle circle w/o GPS
-				// ----------------------------------------------------
-				/* nav_roll = g.roll_limit / 3;
-				nav_pitch 		= 0;
-*/
-
-				/* if (failsafe != FAILSAFE_NONE){
-					g.channel_throttle.servo_out = g.throttle_cruise;
-				}
-                                  */
 				break;
 
 			case MANUAL:
-				// servo_out is for Sim control only
-				// ---------------------------------
-                                 /* 
-				g.channel_roll.servo_out = g.channel_roll.pwm_to_angle();
-				g.channel_pitch.servo_out = g.channel_pitch.pwm_to_angle();
-				g.channel_rudder.servo_out = g.channel_rudder.pwm_to_angle();
-                                  */
-				break;
-				//roll: -13788.000,  pitch: -13698.000,   thr: 0.000, rud: -13742.000
 
-		}
-	}
-}
-
-/* 
-static void update_navigation()
-{
-	// wp_distance is in ACTUAL meters, not the *100 meters we get from the GPS
-	// ------------------------------------------------------------------------
-
-	// distance and bearing calcs only
-	if(control_mode == AUTO){
-		// verify_commands();
-	}else{
-
-		switch(control_mode){
-			case LOITER:
-			case RTL:
-			case GUIDED:
-				//update_loiter();
-			//	calc_bearing_error();
 				break;
 
 		}
 	}
 }
-*/
+
 
 
 static void update_alt()
@@ -963,14 +712,9 @@ static void update_alt()
 	#if HIL_MODE == HIL_MODE_ATTITUDE
 		current_loc.alt = g_gps->altitude;
 	#else
-		// this function is in place to potentially add a sonar sensor in the future
-		//altitude_sensor = BARO;
 
 		current_loc.alt = (1 - g.altitude_mix) * g_gps->altitude;			// alt_MSL centimeters (meters * 100)
 		current_loc.alt += g.altitude_mix * (read_barometer() + home.alt);
 	#endif
 
-		// Calculate new climb rate
-		//if(medium_loopCounter == 0 && slow_loopCounter == 0)
-		//	add_altitude_data(millis() / 100, g_gps->altitude / 10);
 }

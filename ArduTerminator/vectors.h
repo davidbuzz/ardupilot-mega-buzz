@@ -46,8 +46,6 @@ unsigned long dot(LongPoint A, LongPoint B, LongPoint C){
       
         LongPoint AB;
         LongPoint AC;
-       // AB = new int[2];
-       // AC = new int[2];
         AB.x = B.x-A.x;
         AB.y = B.y-A.y;
         AC.x = C.x-A.x;

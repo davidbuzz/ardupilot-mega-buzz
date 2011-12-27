@@ -8,50 +8,6 @@ The init_ardupilot function processes everything we need for an in - air restart
 
 #if CLI_ENABLED == ENABLED
 
-/* 
-// Functions called from the top-level menu
-static int8_t	process_logs(uint8_t argc, const Menu::arg *argv);	// in Log.pde
-static int8_t	setup_mode(uint8_t argc, const Menu::arg *argv);	// in setup.pde
-static int8_t	test_mode(uint8_t argc, const Menu::arg *argv);		// in test.cpp
-static int8_t	planner_mode(uint8_t argc, const Menu::arg *argv);	// in planner.pde
-
-// This is the help function
-// PSTR is an AVR macro to read strings from flash memory
-// printf_P is a version of print_f that reads from flash memory
-static int8_t	main_menu_help(uint8_t argc, const Menu::arg *argv)
-{
-	Serial.printf_P(PSTR("Commands:\n"
-						 "  logs        log readback/setup mode\n"
-						 "  setup       setup mode\n"
-						 "  test        test mode\n"
-						 "\n"
-						 "Move the slide switch and reset to FLY.\n"
-						 "\n"));
-	return(0);
-}
-
-// Command/function table for the top-level menu.
-static const struct Menu::command main_menu_commands[] PROGMEM = {
-//   command		function called
-//   =======        ===============
-	{"logs",		process_logs},
-	{"setup",		setup_mode},
-	{"test",		test_mode},
-	{"help",		main_menu_help},
-	{"planner",		planner_mode}
-};
-
-// Create the top-level menu object.
-MENU(main_menu, THISFIRMWARE, main_menu_commands);
-
-// the user wants the CLI. It never exits
-static void run_cli(void)
-{
-    while (1) {
-        main_menu.run();
-    }
-}
-*/
 #endif // CLI_ENABLED
 
 static void init_ardupilot()
@@ -137,33 +93,7 @@ static void init_ardupilot()
 	mavlink_system.sysid = g.sysid_this_mav;
 
 
-//#if HIL_MODE != HIL_MODE_ATTITUDE
-/* 
-	adc.Init();	 		// APM ADC library initialization
-	barometer.Init();	// APM Abs Pressure sensor initialization
-*/
-	/* if (g.compass_enabled==true) {
-        compass.set_orientation(MAG_ORIENTATION);							// set compass's orientation on aircraft
-		if (!compass.init()) {
-            Serial.println_P(PSTR("Compass initialisation failed!"));
-            g.compass_enabled = false;
-        } else {
-           // dcm.set_compass(&compass);
-            compass.get_offsets();						// load offsets to account for airframe magnetic interference
-        }
-	}
-*/
-	/*
-	Init is depricated - Jason
-	if(g.sonar_enabled){
-		sonar.init(SONAR_PIN, &adc);
-		Serial.print("Sonar init: ");	Serial.println(SONAR_PIN, DEC);
-	}
-	*/
-//#endif
-
 #if LOGGING_ENABLED == ENABLED
-//	DataFlash.Init(); 	// DataFlash log initialization
 #endif
 
 	// Do GPS init
@@ -191,28 +121,6 @@ static void init_ardupilot()
 	pinMode(PUSHBUTTON_PIN, INPUT);		// unused
 	DDRL |= B00000100;					// Set Port L, pin 2 to output for the relay
 
-	// If the switch is in 'menu' mode, run the main menu.
-	//
-	// Since we can't be sure that the setup or test mode won't leave
-	// the system in an odd state, we don't let the user exit the top
-	// menu; they must reset in order to fly.
-	//
-/* #if CLI_ENABLED == ENABLED && CLI_SLIDER_ENABLED == ENABLED
-	if (digitalRead(SLIDE_SWITCH_PIN) == 0) {
-		digitalWrite(A_LED_PIN,HIGH);		// turn on setup-mode LED
-		Serial.printf_P(PSTR("\n"
-							 "Entering interactive setup mode...\n"
-							 "\n"
-							 "If using the Arduino Serial Monitor, ensure Line Ending is set to Carriage Return.\n"
-							 "Type 'help' to list commands, 'exit' to leave a submenu.\n"
-							 "Visit the 'setup' menu for first-time configuration.\n"));
-        Serial.println_P(PSTR("\nMove the slide switch and reset to FLY.\n"));
-        run_cli();
-	}
-#else
-*/
- //   Serial.printf_P(PSTR("\nPress ENTER 3 times to start interactive setup\n\n"));
-//#endif // CLI_ENABLED
 
 	if(g.log_bitmask != 0){
 		//	TODO - Here we will check  on the length of the last log
@@ -224,19 +132,9 @@ static void init_ardupilot()
 	// read in the flight switches
 	update_servo_switches();
 
-	//if (ENABLE_AIR_START == 1) {
 		// Perform an air start and get back to flying
 		gcs_send_text_P(SEVERITY_LOW,PSTR("<init_ardupilot> AIR START"));
 
-		// Get necessary data from EEPROM
-		//----------------
-		//read_EEPROM_airstart_critical();
-/* 
-#if HIL_MODE != HIL_MODE_ATTITUDE
-		imu.init(IMU::WARM_START);
-		dcm.set_centripetal(1);
-#endif
-*/
 
 		// This delay is important for the APM_RC library to work.
 		// We need some time for the comm between the 328 and 1280 to be established.
@@ -264,11 +162,6 @@ static void init_ardupilot()
         demo_servos(1);
 
 
-	//}else {
-		//startup_ground();
-	//	if (g.log_bitmask & MASK_LOG_CMD)
-	//		Log_Write_Startup(TYPE_GROUNDSTART_MSG);
-	//}
 
     // BUZZ DEFAULT TO AUTO 
     set_mode(AUTO);
@@ -283,73 +176,7 @@ static void init_ardupilot()
 //********************************************************************************
 static void startup_ground(void)
 {
-  /* 
-    set_mode(INITIALISING);
-
-	gcs_send_text_P(SEVERITY_LOW,PSTR("<startup_ground> GROUND START"));
-
-	#if(GROUND_START_DELAY > 0)
-		gcs_send_text_P(SEVERITY_LOW,PSTR("<startup_ground> With Delay"));
-		delay(GROUND_START_DELAY * 1000);
-	#endif
-
-	// Makes the servos wiggle
-	// step 1 = 1 wiggle
-	// -----------------------
-	demo_servos(1);
-
-	//IMU ground start
-	//------------------------
-    //
-	startup_IMU_ground();
-
-	// read the radio to set trims
-	// ---------------------------
-	trim_radio();		// This was commented out as a HACK.  Why?  I don't find a problem.
-
-#if HIL_MODE != HIL_MODE_ATTITUDE
-if (g.airspeed_enabled == true)
-   {
-	// initialize airspeed sensor
-	// --------------------------
-	zero_airspeed();
-	gcs_send_text_P(SEVERITY_LOW,PSTR("<startup_ground> zero airspeed calibrated"));
-   }
-else
-  {
-	gcs_send_text_P(SEVERITY_LOW,PSTR("<startup_ground> NO airspeed"));
-  }
-#endif
-
-	// Save the settings for in-air restart
-	// ------------------------------------
-	//save_EEPROM_groundstart();
-
-	// initialize commands
-	// -------------------
-	init_commands();
-
-    // Read in the GPS - see if one is connected
-    GPS_enabled = false;
-	for (byte counter = 0; ; counter++) {
-		g_gps->update();
-		if (g_gps->status() != 0 || HIL_MODE != HIL_MODE_DISABLED){
-			GPS_enabled = true;
-			break;
-		}
-
-		if (counter >= 2) {
-			GPS_enabled = false;
-			break;
-	    }
-	}
-
-	// Makes the servos wiggle - 3 times signals ready to fly
-	// -----------------------
-	demo_servos(3);
-
-	gcs_send_text_P(SEVERITY_LOW,PSTR("\n\n Ready to FLY."));
-*/
+  
 }
 
 static void set_mode(byte mode)
@@ -358,123 +185,19 @@ static void set_mode(byte mode)
 		// don't switch modes if we are already in the correct mode.
 		return;
 	}
-	/* if(g.auto_trim > 0 && control_mode == MANUAL)
-		trim_control_surfaces();
-*/
 	control_mode = mode;
 	crash_timer = 0;
 
-/* 
-	switch(control_mode)
-	{
-		case INITIALISING:
-		case MANUAL:
-		case CIRCLE:
-		case STABILIZE:
-		case FLY_BY_WIRE_A:
-		case FLY_BY_WIRE_B:
-		case LOITER:
-		case GUIDED:
-			break;
-
-		case AUTO:
-			//update_auto();
-			break;
-
-		case RTL:
-			//do_RTL();
-			break;
-
-		default:
-			//do_RTL();
-			break;
-	}
-
-	if (g.log_bitmask & MASK_LOG_MODE)
-		Log_Write_Mode(control_mode);
-*/
-}
-
-/*
-static void check_long_failsafe()
-{
- 	// only act on changes
-	// -------------------
-	if(failsafe != FAILSAFE_LONG  && failsafe != FAILSAFE_GCS){
-		if(rc_override_active && millis() - rc_override_fs_timer > FAILSAFE_LONG_TIME) {
-			failsafe = FAILSAFE_LONG;
-			failsafe_long_on_event();
-		}
-		if(! rc_override_active && failsafe == FAILSAFE_SHORT && millis() - ch3_failsafe_timer > FAILSAFE_LONG_TIME) {
-			failsafe = FAILSAFE_LONG;
-			failsafe_long_on_event();
-		}
-		if(g.gcs_heartbeat_fs_enabled && millis() - rc_override_fs_timer > FAILSAFE_LONG_TIME) {
-			failsafe = FAILSAFE_GCS;
-			failsafe_long_on_event();
-		}
-	} else {
-		// We do not change state but allow for user to change mode
-		if(failsafe == FAILSAFE_GCS && millis() - rc_override_fs_timer < FAILSAFE_SHORT_TIME) failsafe = FAILSAFE_NONE;
-		if(failsafe == FAILSAFE_LONG && rc_override_active && millis() - rc_override_fs_timer < FAILSAFE_SHORT_TIME) failsafe = FAILSAFE_NONE;
-		if(failsafe == FAILSAFE_LONG && !rc_override_active && !ch3_failsafe) failsafe = FAILSAFE_NONE;
-	}
 
 }
-*/
+
 
 static void check_short_failsafe()
 {
-  /* 
-	// only act on changes
-	// -------------------
-	if(failsafe == FAILSAFE_NONE){
-		if(ch3_failsafe) {					// The condition is checked and the flag ch3_failsafe is set in radio.pde
-			failsafe_short_on_event();
-		}
-	}
-
-	if(failsafe == FAILSAFE_SHORT){
-		if(!ch3_failsafe) {
-			failsafe_short_off_event();
-		}
-	}
-*/
-}
-
-/* 
-static void startup_IMU_ground(void)
-{
-  
-  
-#if HIL_MODE != HIL_MODE_ATTITUDE
-  
-    gcs_send_text_P(SEVERITY_MEDIUM, PSTR("Warming up ADC..."));
- 	mavlink_delay(500);
-
-	// Makes the servos wiggle twice - about to begin IMU calibration - HOLD LEVEL AND STILL!!
-	// -----------------------
-	demo_servos(2);
-    gcs_send_text_P(SEVERITY_MEDIUM, PSTR("Beginning IMU calibration; do not move plane"));
-	mavlink_delay(1000);
-
-	imu.init(IMU::COLD_START, mavlink_delay);
-	dcm.set_centripetal(1);
  
-	// read Baro pressure at ground
-	//-----------------------------
-	//init_barometer();
-
-#endif // HIL_MODE_ATTITUDE
-
-	digitalWrite(B_LED_PIN, HIGH);		// Set LED B high to indicate IMU ready
-	digitalWrite(A_LED_PIN, LOW);
-	digitalWrite(C_LED_PIN, LOW);
-
-//demo_servos(1);
-
 }
-*/
+
+
 
 static void update_GPS_light(void)
 {
@@ -507,10 +230,7 @@ static void update_GPS_light(void)
 static void resetPerfData(void) {
 	mainLoop_count 			= 0;
 	G_Dt_max 				= 0;
-	//dcm.gyro_sat_count 		= 0;
-	//imu.adc_constraints 	= 0;
-	//dcm.renorm_sqrt_count 	= 0;
-	//dcm.renorm_blowup_count = 0;
+
 	gps_fix_count 			= 0;
 	pmTest1					= 0;
 	perf_mon_timer 			= millis();

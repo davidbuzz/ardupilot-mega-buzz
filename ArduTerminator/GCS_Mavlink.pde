@@ -28,78 +28,7 @@ static bool mavlink_active;
 static NOINLINE void send_heartbeat(mavlink_channel_t chan)
 {
 #ifdef MAVLINK10
-/* 
-    uint8_t base_mode = MAV_MODE_FLAG_CUSTOM_MODE_ENABLED;
-    uint8_t system_status = MAV_STATE_ACTIVE;
-    uint32_t custom_mode = control_mode;
 
-    // work out the base_mode. This value is not very useful
-    // for APM, but we calculate it as best we can so a generic
-    // MAVLink enabled ground station can work out something about
-    // what the MAV is up to. The actual bit values are highly
-    // ambiguous for most of the APM flight modes. In practice, you
-    // only get useful information from the custom_mode, which maps to
-    // the APM flight mode and has a well defined meaning in the
-    // ArduPlane documentation
-    switch (control_mode) {
-    case MANUAL:
-        base_mode = MAV_MODE_FLAG_MANUAL_INPUT_ENABLED;
-        break;
-    case STABILIZE:
-    case FLY_BY_WIRE_A:
-    case FLY_BY_WIRE_B:
-    case FLY_BY_WIRE_C:
-        base_mode = MAV_MODE_FLAG_STABILIZE_ENABLED;
-        break;
-    case AUTO:
-    case RTL:
-    case LOITER:
-    case GUIDED:
-    case CIRCLE:
-        base_mode = MAV_MODE_FLAG_GUIDED_ENABLED |
-                    MAV_MODE_FLAG_STABILIZE_ENABLED;
-        // note that MAV_MODE_FLAG_AUTO_ENABLED does not match what
-        // APM does in any mode, as that is defined as "system finds its own goal
-        // positions", which APM does not currently do
-        break;
-    case INITIALISING:
-        system_status = MAV_STATE_CALIBRATING;
-        break;
-    }
-
-    if (control_mode != MANUAL && control_mode != INITIALISING) {
-        // stabiliser of some form is enabled
-        base_mode |= MAV_MODE_FLAG_STABILIZE_ENABLED;
-    }
-
-#if ENABLE_STICK_MIXING==ENABLED
-    if (control_mode != INITIALISING) {
-        // all modes except INITIALISING have some form of manual
-        // override if stick mixing is enabled
-        base_mode |= MAV_MODE_FLAG_MANUAL_INPUT_ENABLED;
-    }
-#endif
-
-#if HIL_MODE != HIL_MODE_DISABLED
-    base_mode |= MAV_MODE_FLAG_HIL_ENABLED;
-#endif
-
-    // we are armed if we are not initialising
-    if (control_mode != INITIALISING) {
-        base_mode |= MAV_MODE_FLAG_SAFETY_ARMED;
-    }
-
-    // indicate we have set a custom mode
-    base_mode |= MAV_MODE_FLAG_CUSTOM_MODE_ENABLED;
-
-    mavlink_msg_heartbeat_send(
-        chan,
-        MAV_TYPE_FIXED_WING,
-        MAV_AUTOPILOT_ARDUPILOTMEGA,
-        base_mode,
-        custom_mode,
-        system_status);
-*/
 #else // MAVLINK10
 
               //BUZZ: 
@@ -433,46 +362,16 @@ static void NOINLINE send_raw_imu1(mavlink_channel_t chan)
     Vector3f accel;// = imu.get_accel();
     Vector3f gyro;// = imu.get_gyro();
 
-   /*  mavlink_msg_raw_imu_send(
-        chan,
-        micros(),
-        accel.x * 1000.0 / gravity,
-        accel.y * 1000.0 / gravity,
-        accel.z * 1000.0 / gravity,
-        gyro.x * 1000.0,
-        gyro.y * 1000.0,
-        gyro.z * 1000.0,
-        compass.mag_x,
-        compass.mag_y,
-        compass.mag_z);
-        */
 }
 
 static void NOINLINE send_raw_imu2(mavlink_channel_t chan)
 {
-    /* mavlink_msg_scaled_pressure_send(
-        chan,
-        micros(),
-        (float)barometer.Press/100.0,
-        (float)(barometer.Press-g.ground_pressure)/100.0,
-        (int)(barometer.Temp*10));
-        */
+ 
 }
 
 static void NOINLINE send_raw_imu3(mavlink_channel_t chan)
 {
-    /* Vector3f mag_offsets = compass.get_offsets();
-
-    mavlink_msg_sensor_offsets_send(chan,
-                                    mag_offsets.x,
-                                    mag_offsets.y,
-                                    mag_offsets.z,
-                                    0,//compass.get_declination(),
-                                    barometer.RawPress,
-                                    barometer.RawTemp,
-                                    0,0,0,//imu.gx(), imu.gy(), imu.gz(),
-                                    0,0,0); //imu.ax(), imu.ay(), imu.az());
-      */
+ 
 }
 #endif // HIL_MODE != HIL_MODE_ATTITUDE
 
@@ -986,66 +885,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
         }
 
 #ifdef MAVLINK10
- /*    case MAVLINK_MSG_ID_COMMAND_LONG:
-        {
-            // decode
-            mavlink_command_long_t packet;
-            mavlink_msg_command_long_decode(msg, &packet);
-            if (mavlink_check_target(packet.target_system, packet.target_component)) break;
-
-            uint8_t result;
-
-            // do command
-            send_text(SEVERITY_LOW,PSTR("command received: "));
-
-            switch(packet.command) {
-
-            case MAV_CMD_NAV_LOITER_UNLIM:
-                set_mode(LOITER);
-                result = MAV_RESULT_ACCEPTED;
-                break;
-
-            case MAV_CMD_NAV_RETURN_TO_LAUNCH:
-                set_mode(RTL);
-                result = MAV_RESULT_ACCEPTED;
-                break;
-
-#if 0
-                // not implemented yet, but could implement some of them
-            case MAV_CMD_NAV_LAND:
-            case MAV_CMD_NAV_TAKEOFF:
-            case MAV_CMD_NAV_ROI:
-            case MAV_CMD_NAV_PATHPLANNING:
-                break;
-#endif
-
-
-            case MAV_CMD_PREFLIGHT_CALIBRATION:
-                if (packet.param1 == 1 ||
-                    packet.param2 == 1 ||
-                    packet.param3 == 1) {
-                    startup_IMU_ground();
-                }
-                if (packet.param4 == 1) {
-                    trim_radio();
-                }
-                result = MAV_RESULT_ACCEPTED;
-                break;
-
-
-            default:
-                result = MAV_RESULT_UNSUPPORTED;
-                break;
-            }
-
-            mavlink_msg_command_ack_send(
-                chan,
-                packet.command,
-                result);
-
-            break;
-        }
-*/
+ 
 #else // MAVLINK10
     case MAVLINK_MSG_ID_ACTION:
         {
@@ -1183,27 +1023,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
             mavlink_msg_set_mode_decode(msg, &packet);
 
 #ifdef MAVLINK10
-/* 
-            if (!(packet.base_mode & MAV_MODE_FLAG_CUSTOM_MODE_ENABLED)) {
-                // we ignore base_mode as there is no sane way to map
-                // from that bitmap to a APM flight mode. We rely on
-                // custom_mode instead.
-                break;
-            }
-            switch (packet.custom_mode) {
-            case MANUAL:
-            case CIRCLE:
-            case STABILIZE:
-            case FLY_BY_WIRE_A:
-            case FLY_BY_WIRE_B:
-            case FLY_BY_WIRE_C:
-            case AUTO:
-            case RTL:
-            case LOITER:
-                set_mode(packet.custom_mode);
-                break;
-            }
-*/
+
 #else // MAVLINK10
 
             switch(packet.mode){
@@ -1754,8 +1574,8 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
         {
           
           //BUZZ
-                //BUZZ: 
-                             #ifdef HIL_MODE ==  HIL_MODE_ATTITUDE
+          //BUZZ: 
+           #ifdef HIL_MODE ==  HIL_MODE_ATTITUDE
 
            //     fprintf(stdout, "RC_CHANNELS_OVERRIDE\n");
            //     fflush(stdout);
@@ -1764,36 +1584,15 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
             // allow override of RC channel values for HIL
             // or for complete GCS control of switch position
             // and RC PWM values.
-			if(msg->sysid != g.sysid_my_gcs) break;		// Only accept control from our gcs
+	  if(msg->sysid != g.sysid_my_gcs) break;		// Only accept control from our gcs
 
-          /* 
-            mavlink_rc_channels_override_t packet;
-            int16_t v[8];
-            mavlink_msg_rc_channels_override_decode(msg, &packet);
-
-			if (mavlink_check_target(packet.target_system,packet.target_component))
-				break;
-
-            v[0] = packet.chan1_raw;
-            v[1] = packet.chan2_raw;
-            v[2] = packet.chan3_raw;
-            v[3] = packet.chan4_raw;
-            v[4] = packet.chan5_raw;
-            v[5] = packet.chan6_raw;
-            v[6] = packet.chan7_raw;
-            v[7] = packet.chan8_raw;
-            rc_override_active = APM_RC.setHIL(v);
-			rc_override_fs_timer = millis();
-            */
+   
             break;
         }
 
     case MAVLINK_MSG_ID_HEARTBEAT:
         {
-            // We keep track of the last time we received a heartbeat from our GCS for failsafe purposes
-		//	if(msg->sysid != g.sysid_my_gcs) break;
-		//	rc_override_fs_timer = millis();
-		//	pmTest1++;
+
             break;
         }
 
@@ -1801,19 +1600,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
         // This is used both as a sensor and to pass the location
         // in HIL_ATTITUDE mode.
 #ifdef MAVLINK10
-/*	case MAVLINK_MSG_ID_GPS_RAW_INT:
-        {
-            // decode
-            mavlink_gps_raw_int_t packet;
-            mavlink_msg_gps_raw_int_decode(msg, &packet);
 
-            // set gps hil sensor
-            g_gps->setHIL(packet.time_usec/1000.0,
-                          packet.lat*1.0e-7, packet.lon*1.0e-7, packet.alt*1.0e-3,
-                          packet.vel*1.0e-2, packet.cog*1.0e-2, 0, 0);
-            break;
-        }
- */
 #else // MAVLINK10
 	case MAVLINK_MSG_ID_GPS_RAW:
         {
@@ -1840,47 +1627,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
             break;
         }
 #ifdef MAVLINK10
-/* 	case MAVLINK_MSG_ID_HIL_STATE:
-		{
-			mavlink_hil_state_t packet;
-			mavlink_msg_hil_state_decode(msg, &packet);
-			
-			float vel = sqrt((packet.vx * packet.vx) + (packet.vy * packet.vy));
-			float cog = wrap_360(ToDeg(atan2(packet.vx, packet.vy)) * 100);
-			
-            // set gps hil sensor
-            g_gps->setHIL(packet.time_usec/1000.0,
-                          packet.lat*1.0e-7, packet.lon*1.0e-7, packet.alt*1.0e-3,
-                          vel*1.0e-2, cog*1.0e-2, 0, 0);
-			
-			#if HIL_MODE == HIL_MODE_SENSORS
-			
-			// rad/sec
-            Vector3f gyros;
-            gyros.x = (float)packet.xgyro / 1000.0;
-            gyros.y = (float)packet.ygyro / 1000.0;
-            gyros.z = (float)packet.zgyro / 1000.0;
-            // m/s/s
-            Vector3f accels;
-            accels.x = (float)packet.xacc / 1000.0;
-            accels.y = (float)packet.yacc / 1000.0;
-            accels.z = (float)packet.zacc / 1000.0;
 
-            imu.set_gyro(gyros);
-
-            imu.set_accel(accels);
-			
-			#else
-
-			// set dcm hil sensor
-            dcm.setHil(packet.roll,packet.pitch,packet.yaw,packet.rollspeed,
-            packet.pitchspeed,packet.yawspeed);
-
-			#endif
-
-			break;
-		}
-*/
 #endif // MAVLINK10
 #endif
 #if HIL_MODE == HIL_MODE_ATTITUDE
@@ -1898,73 +1645,11 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
         }
 #endif
 #if HIL_MODE == HIL_MODE_SENSORS
-/* 
-    case MAVLINK_MSG_ID_RAW_IMU:
-        {
-            // decode
-            mavlink_raw_imu_t packet;
-            mavlink_msg_raw_imu_decode(msg, &packet);
 
-            // set imu hil sensors
-            // TODO: check scaling for temp/absPress
-            float temp = 70;
-            float absPress = 1;
-                  //Serial.printf_P(PSTR("accel: %d %d %d\n"), packet.xacc, packet.yacc, packet.zacc);
-                  //Serial.printf_P(PSTR("gyro: %d %d %d\n"), packet.xgyro, packet.ygyro, packet.zgyro);
-
-            // rad/sec
-            Vector3f gyros;
-            gyros.x = (float)packet.xgyro / 1000.0;
-            gyros.y = (float)packet.ygyro / 1000.0;
-            gyros.z = (float)packet.zgyro / 1000.0;
-            // m/s/s
-            Vector3f accels;
-            accels.x = (float)packet.xacc / 1000.0;
-            accels.y = (float)packet.yacc / 1000.0;
-            accels.z = (float)packet.zacc / 1000.0;
-
-            imu.set_gyro(gyros);
-
-            imu.set_accel(accels);
-
-              compass.setHIL(packet.xmag,packet.ymag,packet.zmag);  
-            break;
-        }
-
-    case MAVLINK_MSG_ID_RAW_PRESSURE:
-        {
-            // decode
-            mavlink_raw_pressure_t packet;
-            mavlink_msg_raw_pressure_decode(msg, &packet);
-
-            // set pressure hil sensor
-            // TODO: check scaling
-            float temp = 70;
-            barometer.setHIL(temp,packet.press_diff1 + 101325);
-            break;
-        }
-*/
 #endif // HIL_MODE
 
 #if MOUNT == ENABLED
-/*     case MAVLINK_MSG_ID_MOUNT_CONFIGURE:
-		{
-			camera_mount.configure_msg(msg);
-			break;
-		}
 
-    case MAVLINK_MSG_ID_MOUNT_CONTROL:
-		{
-			camera_mount.control_msg(msg);
-			break;
-		}
-
-    case MAVLINK_MSG_ID_MOUNT_STATUS:
-		{
-			camera_mount.status_msg(msg);
-			break;
-		}
-*/
 #endif // MOUNT == ENABLED
     } // end switch
 } // end handle mavlink

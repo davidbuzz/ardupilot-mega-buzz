@@ -44,15 +44,4 @@
 #define LOG_CUR		    DISABLED
 
 
-// You may also put an include statement here to point at another configuration file.  This is convenient if you maintain
-// different configuration files for different aircraft or HIL simulation.  See the examples below
-//#include "APM_Config_mavlink_hil.h"
-//#include "Skywalker.h"
-
-// The following are the recommended settings for Xplane simulation. Remove the leading "/* and trailing "*/" to enable:
-
-//NORMAL: 
-//#define HIL_MODE            HIL_MODE_NONE
-//HIL & SIL 
-//#define HIL_MODE            HIL_MODE_ATTITUDE
 
