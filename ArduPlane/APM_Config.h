@@ -39,3 +39,4 @@
 
 
 #define EXTRA_GPS  ENABLED
+#define EXTRA_GPS_DEBUG 1

@@ -237,21 +237,20 @@ static void init_ardupilot()
 	g_gps->init();			// GPS Initialization
          g_gps->callback = mavlink_delay;
   g_gps->update();	
- digitalWrite(A_LED_PIN, 0 );
+  digitalWrite(A_LED_PIN, 0 );
 
- delay(500);        
+  delay(500);        
  
- #if EXTRA_GPS == ENABLED
- digitalWrite(B_LED_PIN, 1 );
- delay(1000);        
-  	// Do GPS init
+  #if EXTRA_GPS == ENABLED
+  digitalWrite(B_LED_PIN, 1 );
+  delay(1000);        
+  	// Do other GPS init
 	g_gps2 = &g_gps_driver2;
 	g_gps2->init();			// EXTRA GPS Initialization
         g_gps2->callback = mavlink_delay;
- g_gps2->update();	
+  g_gps2->update();	
   digitalWrite(B_LED_PIN, 0 );
- 
- #endif
+  #endif
 
  
 	//mavlink_system.sysid = MAV_SYSTEM_ID;				// Using g.sysid_this_mav
@@ -359,18 +358,51 @@ static void init_ardupilot()
 
  void use_best_gps(void){
   
-   int a = 0; 
+   static int a = 1;   // default to primary GPS on Serial1 first  
+   
+   #define G_SER_1 1
+   #define G_SER_3 3
+   #define MTK G_SER_1
+   #define NMEA G_SER_3
+   
+   int G1 = g_gps->num_sats;
+   int G3 = g_gps2->num_sats;
+   
+   
     // quick, decide which GPS is better? 
-        if ( g_gps2->num_sats > g_gps->num_sats ) { 
+    // for now, we use the number of sattelites, but we *coul* also use GDOP value 
+    // or similar, if the appropriate module/s supply this info
+    if ( G3 > G1 ) { 
+      
+    #ifdef  EXTRA_GPS_DEBUG  
+            if ( a == 1 ) { 
+              a = 3 ; 
+            } else {
+              a = 1 ;               
+            }
+            Serial.print("GPS FLIP! Now using Serial");
+            Serial.print(a);
+            Serial.print(" ( Sats: ");
+            Serial.print((int)G3);
+            Serial.println(" )");
+   #endif         
+           
            // switch the pointers for g_gps, and g_gps2, so we go to the other GPS! 
            g_gpscurrent = g_gps; 
            g_gps = g_gps2;
            g_gps2 = g_gpscurrent;
           //TODO indicate a GPS toggle with an extra LED flash?  
           digitalWrite(A_LED_PIN, !digitalRead(A_LED_PIN) );
+          
+        } else {
+    #ifdef  EXTRA_GPS_DEBUG  
+            Serial.print("GPS Sats? active: ");
+            Serial.print( (int)G1);
+            Serial.print(" inactive: ");
+            Serial.println( (int)G3);
+    #endif
         }
-
-    a++;    
+//    a++;    
 }
 
 //********************************************************************************

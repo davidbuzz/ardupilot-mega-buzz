@@ -210,7 +210,7 @@ AP_GPS_Auto::_detect(void)
         //
         if (('$' == fingerprint[0]) &&
                 (('G' == fingerprint[1]) || ('P' == fingerprint[1]))) {
-		Serial.println_P(PSTR("GPS IS NMEA!"));
+				Serial.println_P(PSTR("GPS IS NMEA!"));
 
             // XXX this may be a bit presumptive, might want to give the GPS a couple of
             //     iterations around the loop to react to init strings?

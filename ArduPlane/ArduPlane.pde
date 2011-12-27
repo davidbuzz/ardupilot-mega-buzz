@@ -787,12 +787,11 @@ static void one_second_loop()
     gcs_data_stream_send(1,3);
     
     #if EXTRA_GPS == ENABLED
-    
-        // only try if we know there's already definitely a GPS there! 
-        if ( g_gps2->status() != 0 ) { 
-	  g_gps2->update();
+    //    // only try if we know there's already definitely a GPS there! 
+    //    if ( g_gps2->status() != 0 ) { 
+	//  g_gps2->update();
           use_best_gps(); 
-        }
+    //    }
     #endif
 }
 
@@ -802,6 +801,8 @@ static void update_GPS(void)
 	g_gps->update();
 	update_GPS_light();
 
+        // if we have a second GPS, update it too! 
+        if ( g_gps2->status() != 0 ) { g_gps2->update(); } 
 
 
 	if (g_gps->new_data && g_gps->fix) {
