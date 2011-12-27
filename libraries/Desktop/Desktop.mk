@@ -116,14 +116,9 @@ endif
 #
 # Tool options
 #
-<<<<<<< HEAD
 DEFINES			=	$(EXTRAFLAGS)
 OPTFLAGSC		=	-g -Wformat -Wall -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wformat=2 -Wno-reorder
 OPTFLAGSCXX		=	-g -Wformat -Wall -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wformat=2 
-=======
-DEFINES			=	$(EXTRAFLAGS) -DSKETCH=\"$(SKETCH)\"
-OPTFLAGS		=	-g -Wformat -Wall -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wformat=2 -Wno-reorder
->>>>>>> origin/master
 DEPFLAGS		=	-MD -MT $@
 
 # XXX warning options TBD
