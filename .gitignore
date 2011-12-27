@@ -20,13 +20,10 @@ build
 tags
 *.o
 .*.swp
-<<<<<<< HEAD
 *.log
 *.raw
 *.pyc
-=======
 .*.swo
 mav.log
 mav.log.raw
 status.txt
->>>>>>> origin/master
