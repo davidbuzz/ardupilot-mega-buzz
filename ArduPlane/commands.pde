@@ -235,6 +235,10 @@ void init_home()
 {
 	gcs_send_text_P(SEVERITY_LOW, PSTR("init home"));
 
+#if EXTRA_GPS == ENABLED
+        use_best_gps(); 
+#endif 
+
 	// block until we get a good fix
 	// -----------------------------
 	while (!g_gps->new_data || !g_gps->fix) {

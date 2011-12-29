@@ -58,7 +58,10 @@ static void run_cli(void)
 
 static void init_ardupilot()
 {
-#if USB_MUX_PIN > 0
+    bool need_log_erase = false;
+
+#if USB_MUX_PIN > 0 
+
     // on the APM2 board we have a mux thet switches UART0 between
     // USB and the board header. If the right ArduPPM firmware is
     // installed we can detect if USB is connected using the
@@ -75,6 +78,10 @@ static void init_ardupilot()
         delay(1000);
     }
 #endif
+
+#if TELEMETRY_ON_SERIAL0 == 1   // we might put telemetry to Serial0 instead of Serial3, even without the MUX, 
+        delay( 1000 ) ; 
+#endif 
 
 	// Console serial port
 	//
@@ -162,11 +169,22 @@ static void init_ardupilot()
         // baud rate
         Serial.begin(map_baudrate(g.serial3_baud, SERIAL3_BAUD), 128, 128);
     }
-#else
-    // we have a 2nd serial port for telemetry
-    Serial3.begin(map_baudrate(g.serial3_baud, SERIAL3_BAUD), 128, 128);
+#endif
+
+// wack serial zero into the baud rate that we are supposed to use in Serial3
+#if TELEMETRY_ON_SERIAL0 == 1 
+         Serial.begin(38400, 128, 128); //TODO DONT HARDCODE THIS, BUT DONT MAKE IT SERIAL0_BAUD OR SERIAL3_BAUD it may clash! 
+#endif 
+
+#if SERIAL3_INIT == 1 
+    // we have a 2nd serial port, possibly for telemetry, or maybe for other stuff 
+        Serial3.begin(map_baudrate(g.serial3_baud, SERIAL3_BAUD), 128, 128);
+#endif
+#if TELEMETRY_ON_SERIAL0 != 1  && SERIAL3_INIT == 1 
+     // ok, so we're doing hte classic APM1 thing for telemetry.. 
 	gcs3.init(&Serial3);
 #endif
+
 
 	mavlink_system.sysid = g.sysid_this_mav;
 
@@ -204,11 +222,45 @@ static void init_ardupilot()
 	}
 #endif
 
+#if LOGGING_ENABLED == ENABLED
+	DataFlash.Init(); 	// DataFlash log initialization
+#endif
+
+	pinMode(C_LED_PIN, OUTPUT);			// GPS status LED
+	pinMode(A_LED_PIN, OUTPUT);			// GPS status LED
+	pinMode(B_LED_PIN, OUTPUT);			// GPS status LED
+
+          #if EXTRA_GPS_DEBUG == 1
+          digitalWrite(A_LED_PIN, 1 );
+          delay(1000);        
+          #endif  
+          
 	// Do GPS init
 	g_gps = &g_gps_driver;
 	g_gps->init();			// GPS Initialization
-    g_gps->callback = mavlink_delay;
+        g_gps->callback = mavlink_delay;
+        g_gps->update();
+        	
+          #if EXTRA_GPS_DEBUG == 1
+          digitalWrite(A_LED_PIN, 0 );
+          delay(500);        
+          digitalWrite(B_LED_PIN, 1 );
+          delay(1000);        
+          #endif 
+          
+        #if EXTRA_GPS == ENABLED
+  	// Do other GPS init
+	g_gps2 = &g_gps_driver2;
+	g_gps2->init();			// EXTRA GPS Initialization
+        g_gps2->callback = mavlink_delay;
+        g_gps2->update();	
+        #endif
+        
+          #if EXTRA_GPS_DEBUG == 1
+          digitalWrite(B_LED_PIN, 0 );
+          #endif
 
+ 
 	//mavlink_system.sysid = MAV_SYSTEM_ID;				// Using g.sysid_this_mav
 	mavlink_system.compid = 1;	//MAV_COMP_ID_IMU;   // We do not check for comp id
 	mavlink_system.type = MAV_FIXED_WING;
@@ -219,9 +271,6 @@ static void init_ardupilot()
 	init_rc_in();		// sets up rc channels from radio
 	init_rc_out();		// sets up the timer libs
 
-	pinMode(C_LED_PIN, OUTPUT);			// GPS status LED
-	pinMode(A_LED_PIN, OUTPUT);			// GPS status LED
-	pinMode(B_LED_PIN, OUTPUT);			// GPS status LED
 #if SLIDE_SWITCH_PIN > 0
 	pinMode(SLIDE_SWITCH_PIN, INPUT);	// To enter interactive mode
 #endif
@@ -310,6 +359,51 @@ static void init_ardupilot()
 	// ---------------------------
 	reset_control_switch();
 }
+
+#if EXTRA_GPS == ENABLED
+ void use_best_gps(void){
+  
+   static int _active = 1;   // default to primary GPS on Serial1 first  
+   #ifdef  EXTRA_GPS_DEBUG  
+   static int _which = 0; // primary GPS defaults to A LED being OFF. alternate GPS turns this LED on.! 
+   #endif
+   
+   int G1 = g_gps->num_sats; // currently active
+   int G3 = g_gps2->num_sats;  // currently inactive/backup
+     
+    // quick, decide which GPS is better? 
+    // for now, we use the number of sattelites, but we *could* also use GDOP values 
+    // or similar, if the appropriate module/s supply this info
+    if ( G3 > G1 ) { 
+      
+    #ifdef  EXTRA_GPS_DEBUG  
+      if ( _which == 0 ) {  _which=1; _active=3 ; } else { _which=0;_active = 1 ; } // which serial are we switching to... Serial1 or Serial3? 
+      Serial.print("GPS FLIP! Now using Serial");
+      Serial.print(_active);
+      Serial.print(" ( Sats: ");
+      Serial.print((int)G3);
+      Serial.println(" )");
+   #endif         
+           
+      //switch the pointers for g_gps, and g_gps2, so we go to the other GPS! 
+      g_gpscurrent = g_gps; 
+      g_gps = g_gps2;
+      g_gps2 = g_gpscurrent;
+           
+    #ifdef EXTRA_GPS_DEBUG  
+      //indicate the GPS toggle state with an extra LED 
+      digitalWrite(A_LED_PIN, _which );
+    #endif  
+        } else {
+    #ifdef  EXTRA_GPS_DEBUG  
+      Serial.print("GPS Sats? active: ");
+      Serial.print( (int)G1);
+      Serial.print(" inactive: ");
+      Serial.println( (int)G3);
+    #endif
+        }  
+}
+#endif
 
 //********************************************************************************
 //This function does all the calibrations, etc. that we need during a ground start
@@ -488,12 +582,13 @@ static void startup_IMU_ground(void)
 
 #endif // HIL_MODE_ATTITUDE
 
-	digitalWrite(B_LED_PIN, LED_ON);		// Set LED B high to indicate IMU ready
 	digitalWrite(A_LED_PIN, LED_OFF);
+	digitalWrite(B_LED_PIN, LED_ON);		// Set LED B high to indicate IMU ready
 	digitalWrite(C_LED_PIN, LED_OFF);
 }
 
 
+// LED C for primary GPS, LED A for "alternate" GPS
 static void update_GPS_light(void)
 {
 	// GPS LED on if we have a fix or Blink GPS LED if we are receiving data
@@ -519,6 +614,7 @@ static void update_GPS_light(void)
 			digitalWrite(C_LED_PIN, LED_OFF);
 			break;
 	}
+
 }
 
 

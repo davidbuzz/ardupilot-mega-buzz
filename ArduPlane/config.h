@@ -85,7 +85,10 @@
 # define LED_OFF          LOW
 # define SLIDE_SWITCH_PIN 40
 # define PUSHBUTTON_PIN   41
+#define TELEMETRY_ON_SERIAL0 0  // put telemetry to Serial0 instead of Serial3?
 # define USB_MUX_PIN      -1
+#define SERIAL3_INIT      1    // for telemetry!
+#define CLI_ENABLED 0   
 #elif CONFIG_APM_HARDWARE == APM_HARDWARE_APM2
 # define A_LED_PIN        27
 # define B_LED_PIN        26
@@ -95,8 +98,17 @@
 # define SLIDE_SWITCH_PIN (-1)
 # define PUSHBUTTON_PIN   (-1)
 # define CLI_SLIDER_ENABLED DISABLED
+#define TELEMETRY_ON_SERIAL0 1  //always, because of MUX
 # define USB_MUX_PIN 23
+#define SERIAL3_INIT 0   // not needed at present. 
 #endif
+
+
+//
+#ifndef EXTRA_GPS
+# define EXTRA_GPS		DISABLED
+#endif
+
 
 //////////////////////////////////////////////////////////////////////////////
 // AIRSPEED_SENSOR

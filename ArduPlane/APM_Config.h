@@ -36,3 +36,8 @@
 #define AIRSPEED_CRUISE     25
 #define THROTTLE_FAILSAFE   ENABLED
 */
+
+// for dual GPS support, do this:
+#define EXTRA_GPS  ENABLED
+#define TELEMETRY_ON_SERIAL0 1
+#define SERIAL3_INIT 1
