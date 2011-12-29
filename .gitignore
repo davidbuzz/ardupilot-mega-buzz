@@ -27,3 +27,4 @@ tags
 mav.log
 mav.log.raw
 status.txt
+*.parm
