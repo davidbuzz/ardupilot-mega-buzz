@@ -73,11 +73,11 @@ static NOINLINE void send_extended_status1(mavlink_channel_t chan, uint16_t pack
     }
 
     uint8_t status 		= MAV_STATE_ACTIVE;
-    
+
     if (!motor_armed) {
         status 		= MAV_STATE_STANDBY;
     }
-    
+
     uint16_t battery_remaining = 1000.0 * (float)(g.pack_capacity - current_total)/(float)g.pack_capacity;	//Mavlink scaling 100% = 1000
 
     mavlink_msg_sys_status_send(
@@ -116,12 +116,12 @@ static void NOINLINE send_nav_controller_output(mavlink_channel_t chan)
         chan,
         nav_roll / 1.0e2,
         nav_pitch / 1.0e2,
+        nav_bearing / 1.0e2,
         target_bearing / 1.0e2,
-        dcm.yaw_sensor / 1.0e2, // was target_bearing
         wp_distance,
         altitude_error / 1.0e2,
-        nav_lon,	// was 0
-        nav_lat);	// was 0
+        0,
+        crosstrack_error);	// was 0
 }
 
 static void NOINLINE send_gps_raw(mavlink_channel_t chan)
@@ -158,21 +158,48 @@ static void NOINLINE send_servo_out(mavlink_channel_t chan)
         0,
         0,
         rssi);
-
     #else
+		#if X_PLANE == ENABLED
+			 /* update by JLN for X-Plane HIL */
+			if(motor_armed  == true && motor_auto_armed == true){
+				mavlink_msg_rc_channels_scaled_send(
+					chan,
+					g.rc_1.servo_out,
+					g.rc_2.servo_out,
+					10000 * g.rc_3.norm_output(),
+					g.rc_4.servo_out,
+					10000 * g.rc_1.norm_output(),
+					10000 * g.rc_2.norm_output(),
+					10000 * g.rc_3.norm_output(),
+					10000 * g.rc_4.norm_output(),
+					rssi);
+		   }else{
+				mavlink_msg_rc_channels_scaled_send(
+					chan,
+					0,
+					0,
+					-10000,
+					0,
+					10000 * g.rc_1.norm_output(),
+					10000 * g.rc_2.norm_output(),
+					10000 * g.rc_3.norm_output(),
+					10000 * g.rc_4.norm_output(),
+					rssi);
+		  }
 
-    mavlink_msg_rc_channels_scaled_send(
-        chan,
-        g.rc_1.servo_out,
-        g.rc_2.servo_out,
-        g.rc_3.radio_out,
-        g.rc_4.servo_out,
-		10000 * g.rc_1.norm_output(),
-        10000 * g.rc_2.norm_output(),
-        10000 * g.rc_3.norm_output(),
-        10000 * g.rc_4.norm_output(),
-        rssi);
-
+		#else
+			mavlink_msg_rc_channels_scaled_send(
+				chan,
+				g.rc_1.servo_out,
+				g.rc_2.servo_out,
+				g.rc_3.radio_out,
+				g.rc_4.servo_out,
+				10000 * g.rc_1.norm_output(),
+				10000 * g.rc_2.norm_output(),
+				10000 * g.rc_3.norm_output(),
+				10000 * g.rc_4.norm_output(),
+				rssi);
+		 #endif
      #endif
 }
 
@@ -210,7 +237,7 @@ static void NOINLINE send_vfr_hud(mavlink_channel_t chan)
 {
     mavlink_msg_vfr_hud_send(
         chan,
-        (float)airspeed / 100.0,
+        (float)g_gps->ground_speed / 100.0,
         (float)g_gps->ground_speed / 100.0,
         (dcm.yaw_sensor / 100) % 360,
         g.rc_3.servo_out/10,
@@ -279,7 +306,7 @@ static void NOINLINE send_current_waypoint(mavlink_channel_t chan)
 {
     mavlink_msg_waypoint_current_send(
         chan,
-        g.command_index);
+        (uint16_t)g.command_index);
 }
 
 static void NOINLINE send_statustext(mavlink_channel_t chan)
@@ -1503,7 +1530,6 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 			// We keep track of the last time we received a heartbeat from our GCS for failsafe purposes
 			if(msg->sysid != g.sysid_my_gcs) break;
 			rc_override_fs_timer = millis();
-			//pmTest1++;
 			break;
 		}
 

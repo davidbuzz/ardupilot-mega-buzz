@@ -5,6 +5,21 @@ get_stabilize_roll(int32_t target_angle)
 {
 	int32_t error;
 	int32_t rate;
+	int32_t current_rate;
+
+	int16_t rate_d1 = 0;
+	static int16_t rate_d2 = 0;
+	static int16_t rate_d3 = 0;
+	static int32_t last_rate = 0;
+
+	current_rate 	= (omega.x * DEGX100);
+
+	// playing with double derivatives.
+	// History of last 3 dir
+	rate_d3			= rate_d2;
+	rate_d2			= rate_d1;
+	rate_d1 		= current_rate - last_rate;
+	last_rate 		= current_rate;
 
 	// angle error
 	error 		= wrap_180(target_angle - dcm.roll_sensor);
@@ -30,8 +45,16 @@ get_stabilize_roll(int32_t target_angle)
 	int16_t iterm = g.pi_stabilize_roll.get_i(error, G_Dt);
 
 	// rate control
-	error 		= rate - (omega.x * DEGX100);
+	error 		= rate - current_rate;
 	rate 		= g.pi_rate_roll.get_pi(error, G_Dt);
+
+	// D term
+	// I had tried this before with little result. Recently, someone mentioned to me that
+	// MultiWii uses a filter of the last three to get around noise and get a stronger signal.
+	// Works well! Thanks!
+	int16_t d_temp =  (rate_d1 + rate_d2 + rate_d3) * g.stablize_d;
+
+	rate -= d_temp;
 
 	// output control:
 	rate = constrain(rate, -2500, 2500);
@@ -44,6 +67,21 @@ get_stabilize_pitch(int32_t target_angle)
 {
 	int32_t error;
 	int32_t rate;
+	int32_t current_rate;
+
+	int16_t rate_d1 = 0;
+	static int16_t rate_d2 = 0;
+	static int16_t rate_d3 = 0;
+	static int32_t last_rate = 0;
+
+	current_rate 	= (omega.y * DEGX100);
+
+	// playing with double derivatives.
+	// History of last 3 dir
+	rate_d3			= rate_d2;
+	rate_d2			= rate_d1;
+	rate_d1 		= current_rate - last_rate;
+	last_rate 		= current_rate;
 
 	// angle error
 	error 		= wrap_180(target_angle - dcm.pitch_sensor);
@@ -68,8 +106,14 @@ get_stabilize_pitch(int32_t target_angle)
 	// experiment to pipe iterm directly into the output
 	int16_t iterm = g.pi_stabilize_pitch.get_i(error, G_Dt);
 
+	// rate control
 	error 		= rate - (omega.y * DEGX100);
 	rate 		= g.pi_rate_pitch.get_pi(error, G_Dt);
+
+	// D term testing
+	int16_t d_temp =  (rate_d1 + rate_d2 + rate_d3) * g.stablize_d;
+
+	rate -= d_temp;
 
 	// output control:
 	rate = constrain(rate, -2500, 2500);
@@ -109,7 +153,9 @@ get_stabilize_yaw(int32_t target_angle)
 	rate 		= g.pi_rate_yaw.get_pi(error, G_Dt);
 
 	// output control:
-	rate = constrain(rate, -2500, 2500);
+	int16_t yaw_input = 1400 + abs(g.rc_4.control_in);
+	// smoother Yaw control:
+	rate = constrain(rate, -yaw_input, yaw_input);
 #endif
 
 	return (int)rate + iterm;
@@ -139,8 +185,8 @@ get_nav_throttle(int32_t z_error)
 	// calculate rate error
 	rate_error 		= rate_error - climb_rate;
 
-	// limit the rate
-	output =  constrain((int)g.pi_throttle.get_pi(rate_error, .1), -160, 180);
+	// limit the rate - iterm is not used
+	output =  constrain((int)g.pi_throttle.get_p(rate_error), -160, 180);
 
 	// light filter of output
 	output = (old_output * 3 + output) / 4;
@@ -156,6 +202,7 @@ static int
 get_rate_roll(int32_t target_rate)
 {
 	int32_t error	= (target_rate * 3.5) - (omega.x * DEGX100);
+	error = constrain(error, -20000, 20000);
 	return g.pi_acro_roll.get_pi(error, G_Dt);
 }
 
@@ -163,6 +210,7 @@ static int
 get_rate_pitch(int32_t target_rate)
 {
 	int32_t error	= (target_rate * 3.5) - (omega.y * DEGX100);
+	error = constrain(error, -20000, 20000);
 	return  g.pi_acro_pitch.get_pi(error, G_Dt);
 }
 
@@ -186,30 +234,32 @@ static void reset_hold_I(void)
 	g.pi_loiter_lon.reset_I();
 }
 
-// Zeros out navigation Integrators if we are changing mode, have passed a waypoint, etc.
-// Keeps outdated data out of our calculations
+// Keeps old data out of our calculation / logs
 static void reset_nav(void)
 {
-	nav_throttle 			= 0;
 	invalid_throttle 		= true;
-
-	g.pi_nav_lat.reset_I();
-	g.pi_nav_lon.reset_I();
-
-	g.pi_loiter_lat.reset_I();
-	g.pi_loiter_lon.reset_I();
-
+	nav_throttle 			= 0;
 	circle_angle			= 0;
 	crosstrack_error 		= 0;
-	nav_lat 				= 0;
-	nav_lon 				= 0;
-	nav_roll 				= 0;
-	nav_pitch 				= 0;
 	target_bearing 			= 0;
 	wp_distance 			= 0;
-	wp_totalDistance 		= 0;
 	long_error 				= 0;
 	lat_error  				= 0;
+}
+
+static void reset_rate_I()
+{
+	// balances the quad
+	g.pi_stabilize_roll.reset_I();
+	g.pi_stabilize_pitch.reset_I();
+
+	// compensates rate error
+	g.pi_rate_roll.reset_I();
+	g.pi_rate_pitch.reset_I();
+	g.pi_acro_roll.reset_I();
+	g.pi_acro_pitch.reset_I();
+	g.pi_optflow_roll.reset_I();
+	g.pi_optflow_pitch.reset_I();
 }
 
 
@@ -382,3 +432,69 @@ static void init_z_damper()
 {
 }
 #endif
+
+// calculate modified roll/pitch depending upon optical flow values
+static int32_t
+get_of_roll(int32_t control_roll)
+{
+#ifdef OPTFLOW_ENABLED
+	//static int32_t of_roll = 0;  // we use global variable to make logging easier
+    static unsigned long last_of_roll_update = 0;
+	static float prev_value = 0;
+	float x_cm;
+
+	// check if new optflow data available
+	if( optflow.last_update != last_of_roll_update) {
+	    last_of_roll_update = optflow.last_update;
+
+		// filter movement
+		x_cm = (optflow.x_cm + prev_value) / 2.0 * 50.0;
+
+		// only stop roll if caller isn't modifying roll
+		if( control_roll == 0 && current_loc.alt < 1500) {
+			of_roll = g.pi_optflow_roll.get_pi(-x_cm, 1.0);  // we could use the last update time to calculate the time change
+		}else{
+		    g.pi_optflow_roll.reset_I();
+			prev_value = 0;
+		}
+	}
+	// limit maximum angle
+	of_roll	= constrain(of_roll, -1000, 1000);
+
+    return control_roll+of_roll;
+#else
+    return control_roll;
+#endif
+}
+
+static int32_t
+get_of_pitch(int32_t control_pitch)
+{
+#ifdef OPTFLOW_ENABLED
+    //static int32_t of_pitch = 0;  // we use global variable to make logging easier
+    static unsigned long last_of_pitch_update = 0;
+	static float prev_value = 0;
+	float y_cm;
+
+	// check if new optflow data available
+	if( optflow.last_update != last_of_pitch_update ) {
+	    last_of_pitch_update = optflow.last_update;
+
+		// filter movement
+		y_cm = (optflow.y_cm + prev_value) / 2.0 * 50.0;
+
+		// only stop roll if caller isn't modifying roll
+		if( control_pitch == 0 && current_loc.alt < 1500 ) {
+			of_pitch = g.pi_optflow_pitch.get_pi(y_cm, 1.0);  // we could use the last update time to calculate the time change
+		}else{
+		    g.pi_optflow_pitch.reset_I();
+			prev_value = 0;
+		}
+	}
+	// limit maximum angle
+	of_pitch = constrain(of_pitch, -1000, 1000);
+    return control_pitch+of_pitch;
+#else
+    return control_pitch;
+#endif
+}

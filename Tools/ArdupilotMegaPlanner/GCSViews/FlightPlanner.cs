@@ -295,8 +295,8 @@ namespace ArdupilotMega.GCSViews
                     ans = (int)ans;
                     if (alt != 0)
                         cell.Value = alt.ToString();
-                    // is  absolute             online          verify height
-                    if (CHK_altmode.Checked && isonline && CHK_geheight.Checked)
+                    //   online          verify height
+                    if (isonline && CHK_geheight.Checked)
                     {
                         cell.Value = ((int)getGEAlt(lat, lng) + int.Parse(TXT_DefaultAlt.Text)).ToString();
                     }
@@ -884,7 +884,7 @@ namespace ArdupilotMega.GCSViews
         /// <param name="lng"></param>
         /// <param name="lat"></param>
         /// <param name="alt"></param>
-        private void addpolygonmarker(string tag, double lng, double lat, int alt)
+        private void addpolygonmarker(string tag, double lng, double lat, int alt, Color? color)
         {
             try
             {
@@ -900,6 +900,10 @@ namespace ArdupilotMega.GCSViews
                     mBorders.InnerMarker = m;
                     mBorders.wprad = (int)float.Parse(TXT_WPRad.Text);
                     mBorders.MainMap = MainMap;
+                    if (color.HasValue)
+                    {
+                        mBorders.Color = color.Value;
+                    }
                 }
 
                 objects.Markers.Add(m);
@@ -955,7 +959,7 @@ namespace ArdupilotMega.GCSViews
                     if (objects != null) // during startup
                     {
                         pointlist.Add(new PointLatLngAlt(double.Parse(TXT_homelat.Text), double.Parse(TXT_homelng.Text), (int)double.Parse(TXT_homealt.Text), "Home"));
-                        addpolygonmarker("Home", double.Parse(TXT_homelng.Text), double.Parse(TXT_homelat.Text), 0);
+                        addpolygonmarker("Home", double.Parse(TXT_homelng.Text), double.Parse(TXT_homelat.Text), 0, null);
                     }
                 }
                 else
@@ -1029,8 +1033,14 @@ namespace ArdupilotMega.GCSViews
                             if (cell4 == "?" || cell3 == "?")
                                 continue;
 
-                            pointlist.Add(new PointLatLngAlt(double.Parse(cell3), double.Parse(cell4), (int)double.Parse(cell2) + homealt, (a + 1).ToString()));
-                            addpolygonmarker((a + 1).ToString(), double.Parse(cell4), double.Parse(cell3), (int)double.Parse(cell2));
+                            
+                            if (command == (byte)MAVLink.MAV_CMD.LOITER_TIME || command == (byte)MAVLink.MAV_CMD.LOITER_TURNS || command == (byte)MAVLink.MAV_CMD.LOITER_UNLIM) {
+                                pointlist.Add(new PointLatLngAlt(double.Parse(cell3), double.Parse(cell4), (int)double.Parse(cell2) + homealt, (a + 1).ToString()){ color  = Color.LightBlue });
+                                addpolygonmarker((a + 1).ToString(), double.Parse(cell4), double.Parse(cell3), (int)double.Parse(cell2) , Color.LightBlue);
+                            } else {
+                                pointlist.Add(new PointLatLngAlt(double.Parse(cell3), double.Parse(cell4), (int)double.Parse(cell2) + homealt, (a + 1).ToString()));
+                                addpolygonmarker((a + 1).ToString(), double.Parse(cell4), double.Parse(cell3), (int)double.Parse(cell2) ,null);
+                            }
 
                             avglong += double.Parse(Commands.Rows[a].Cells[Lon.Index].Value.ToString());
                             avglat += double.Parse(Commands.Rows[a].Cells[Lat.Index].Value.ToString());
@@ -1405,8 +1415,8 @@ namespace ArdupilotMega.GCSViews
                 {
                     Commands.Rows.Add();
                 }
-                if (i == 0 && temp.alt == 0) // skip 0 home
-                    continue;
+                //if (i == 0 && temp.alt == 0) // skip 0 home
+                  //  continue;
                 DataGridViewTextBoxCell cell;
                 DataGridViewComboBoxCell cellcmd;
                 cellcmd = Commands.Rows[i].Cells[Command.Index] as DataGridViewComboBoxCell;
@@ -1458,7 +1468,7 @@ namespace ArdupilotMega.GCSViews
                 cellhome = Commands.Rows[0].Cells[Lat.Index] as DataGridViewTextBoxCell;
                 if (cellhome.Value != null)
                 {
-                    if (cellhome.Value.ToString() != TXT_homelat.Text)
+                    if (cellhome.Value.ToString() != TXT_homelat.Text && cellhome.Value.ToString() != "0")
                     {
                         DialogResult dr = MessageBox.Show("Reset Home to loaded coords", "Reset Home Coords", MessageBoxButtons.YesNo);
 

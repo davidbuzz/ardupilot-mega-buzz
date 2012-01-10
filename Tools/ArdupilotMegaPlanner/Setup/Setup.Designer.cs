@@ -82,6 +82,7 @@
             this.CMB_fmode1 = new System.Windows.Forms.ComboBox();
             this.BUT_SaveModes = new ArdupilotMega.MyButton();
             this.tabHardware = new System.Windows.Forms.TabPage();
+            this.label27 = new System.Windows.Forms.Label();
             this.CMB_sonartype = new System.Windows.Forms.ComboBox();
             this.CHK_enableoptflow = new System.Windows.Forms.CheckBox();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
@@ -119,6 +120,8 @@
             this.pictureBoxQuadX = new System.Windows.Forms.PictureBox();
             this.pictureBoxQuad = new System.Windows.Forms.PictureBox();
             this.tabHeli = new System.Windows.Forms.TabPage();
+            this.BUT_HS4save = new ArdupilotMega.MyButton();
+            this.BUT_swash_manual = new ArdupilotMega.MyButton();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.label46 = new System.Windows.Forms.Label();
             this.label45 = new System.Windows.Forms.Label();
@@ -164,15 +167,12 @@
             this.HS2_REV = new System.Windows.Forms.CheckBox();
             this.HS1_REV = new System.Windows.Forms.CheckBox();
             this.label17 = new System.Windows.Forms.Label();
-            this.BUT_HS4save = new ArdupilotMega.MyButton();
-            this.BUT_swash_manual = new ArdupilotMega.MyButton();
             this.HS4 = new ArdupilotMega.HorizontalProgressBar2();
             this.HS3 = new ArdupilotMega.VerticalProgressBar2();
             this.Gservoloc = new AGaugeApp.AGauge();
             this.tabReset = new System.Windows.Forms.TabPage();
             this.BUT_reset = new ArdupilotMega.MyButton();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.label27 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabRadioIn.SuspendLayout();
             this.groupBoxElevons.SuspendLayout();
@@ -665,6 +665,11 @@
             resources.ApplyResources(this.tabHardware, "tabHardware");
             this.tabHardware.Name = "tabHardware";
             // 
+            // label27
+            // 
+            resources.ApplyResources(this.label27, "label27");
+            this.label27.Name = "label27";
+            // 
             // CMB_sonartype
             // 
             this.CMB_sonartype.FormattingEnabled = true;
@@ -939,6 +944,8 @@
             // 
             // tabHeli
             // 
+            this.tabHeli.Controls.Add(this.BUT_HS4save);
+            this.tabHeli.Controls.Add(this.BUT_swash_manual);
             this.tabHeli.Controls.Add(this.groupBox3);
             this.tabHeli.Controls.Add(this.label44);
             this.tabHeli.Controls.Add(this.label43);
@@ -970,8 +977,6 @@
             this.tabHeli.Controls.Add(this.HS2_REV);
             this.tabHeli.Controls.Add(this.HS1_REV);
             this.tabHeli.Controls.Add(this.label17);
-            this.tabHeli.Controls.Add(this.BUT_HS4save);
-            this.tabHeli.Controls.Add(this.BUT_swash_manual);
             this.tabHeli.Controls.Add(this.HS4);
             this.tabHeli.Controls.Add(this.HS3);
             this.tabHeli.Controls.Add(this.Gservoloc);
@@ -979,6 +984,20 @@
             this.tabHeli.Name = "tabHeli";
             this.tabHeli.UseVisualStyleBackColor = true;
             this.tabHeli.Click += new System.EventHandler(this.tabHeli_Click);
+            // 
+            // BUT_HS4save
+            // 
+            resources.ApplyResources(this.BUT_HS4save, "BUT_HS4save");
+            this.BUT_HS4save.Name = "BUT_HS4save";
+            this.BUT_HS4save.UseVisualStyleBackColor = true;
+            this.BUT_HS4save.Click += new System.EventHandler(this.BUT_HS4save_Click);
+            // 
+            // BUT_swash_manual
+            // 
+            resources.ApplyResources(this.BUT_swash_manual, "BUT_swash_manual");
+            this.BUT_swash_manual.Name = "BUT_swash_manual";
+            this.BUT_swash_manual.UseVisualStyleBackColor = true;
+            this.BUT_swash_manual.Click += new System.EventHandler(this.BUT_swash_manual_Click);
             // 
             // groupBox3
             // 
@@ -1317,20 +1336,6 @@
             resources.ApplyResources(this.label17, "label17");
             this.label17.Name = "label17";
             // 
-            // BUT_HS4save
-            // 
-            resources.ApplyResources(this.BUT_HS4save, "BUT_HS4save");
-            this.BUT_HS4save.Name = "BUT_HS4save";
-            this.BUT_HS4save.UseVisualStyleBackColor = true;
-            this.BUT_HS4save.Click += new System.EventHandler(this.BUT_HS4save_Click);
-            // 
-            // BUT_swash_manual
-            // 
-            resources.ApplyResources(this.BUT_swash_manual, "BUT_swash_manual");
-            this.BUT_swash_manual.Name = "BUT_swash_manual";
-            this.BUT_swash_manual.UseVisualStyleBackColor = true;
-            this.BUT_swash_manual.Click += new System.EventHandler(this.BUT_swash_manual_Click);
-            // 
             // HS4
             // 
             this.HS4.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(67)))), ((int)(((byte)(68)))), ((int)(((byte)(69)))));
@@ -1520,11 +1525,6 @@
             this.BUT_reset.Tag = "";
             this.BUT_reset.UseVisualStyleBackColor = true;
             this.BUT_reset.Click += new System.EventHandler(this.BUT_reset_Click);
-            // 
-            // label27
-            // 
-            resources.ApplyResources(this.label27, "label27");
-            this.label27.Name = "label27";
             // 
             // Setup
             // 

@@ -161,8 +161,9 @@ public:
 	k_param_waypoint_speed_max,
 
 	//
-	// 240: PI/D Controllers
+	// 235: PI/D Controllers
 	//
+	k_param_stablize_d = 234,
 	k_param_pi_rate_roll = 235,
 	k_param_pi_rate_pitch,
 	k_param_pi_rate_yaw,
@@ -177,6 +178,8 @@ public:
 	k_param_pi_throttle,
 	k_param_pi_acro_roll,
 	k_param_pi_acro_pitch,
+	k_param_pi_optflow_roll,
+	k_param_pi_optflow_pitch,  // 250
 
 
     // 254,255: reserved
@@ -274,6 +277,7 @@ public:
 
 	AP_Float	camera_pitch_gain;
 	AP_Float	camera_roll_gain;
+	AP_Float	stablize_d;
 
 	// PI/D controllers
 	APM_PI		pi_rate_roll;
@@ -295,6 +299,9 @@ public:
 
 	APM_PI		pi_acro_roll;
 	APM_PI		pi_acro_pitch;
+
+	APM_PI		pi_optflow_roll;
+	APM_PI		pi_optflow_pitch;
 
 	uint8_t		junk;
 
@@ -327,7 +334,7 @@ public:
 	waypoint_radius			(WP_RADIUS_DEFAULT,			k_param_waypoint_radius,				PSTR("WP_RADIUS")),
 	loiter_radius			(LOITER_RADIUS,	    		k_param_loiter_radius,					PSTR("WP_LOITER_RAD")),
 	waypoint_speed_max		(WAYPOINT_SPEED_MAX,		k_param_waypoint_speed_max,				PSTR("WP_SPEED_MAX")),
-	crosstrack_gain			(CROSSTRACK_GAIN,			k_param_crosstrack_gain,				PSTR("XTRK_GAIN_SC")),
+	crosstrack_gain			(CROSSTRACK_GAIN * 100,		k_param_crosstrack_gain,				PSTR("XTRK_GAIN_SC")),
 
 	throttle_min			(0,							k_param_throttle_min,					PSTR("THR_MIN")),
 	throttle_max			(1000, 						k_param_throttle_max,					PSTR("THR_MAX")),
@@ -391,6 +398,8 @@ public:
 	camera_pitch_gain 		(CAM_PITCH_GAIN, 			k_param_camera_pitch_gain, 				PSTR("CAM_P_G")),
 	camera_roll_gain 		(CAM_ROLL_GAIN, 			k_param_camera_roll_gain,	 			PSTR("CAM_R_G")),
 
+	stablize_d 				(STABILIZE_D, 				k_param_stablize_d,	 					PSTR("STAB_D")),
+
 	// PI controller	group key						name				initial P			initial I			initial imax
 	//--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	pi_rate_roll		(k_param_pi_rate_roll,			PSTR("RATE_RLL_"),	RATE_ROLL_P,		RATE_ROLL_I,		RATE_ROLL_IMAX * 100),
@@ -412,6 +421,9 @@ public:
 
 	pi_acro_roll		(k_param_pi_acro_roll,			PSTR("ACRO_RLL_"),	ACRO_ROLL_P,		ACRO_ROLL_I,		ACRO_ROLL_IMAX * 100),
 	pi_acro_pitch		(k_param_pi_acro_pitch,			PSTR("ACRO_PIT_"),	ACRO_PITCH_P,		ACRO_PITCH_I,		ACRO_PITCH_IMAX * 100),
+
+	pi_optflow_roll		(k_param_pi_optflow_roll,		PSTR("OF_RLL_"),	OPTFLOW_ROLL_P,		OPTFLOW_ROLL_I,		OPTFLOW_IMAX * 100),
+	pi_optflow_pitch	(k_param_pi_optflow_pitch,		PSTR("OF_PIT_"),	OPTFLOW_PITCH_P,	OPTFLOW_PITCH_I,	OPTFLOW_IMAX * 100),
 
 	junk(0)		// XXX just so that we can add things without worrying about the trailing comma
 	{

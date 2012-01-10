@@ -109,7 +109,7 @@ dump_log(uint8_t argc, const Menu::arg *argv)
 	last_log_num = DataFlash.find_last_log();
 
 	if (dump_log == -2) {
-		for(int count=1; count<=DataFlash.df_NumPages; count++) {
+		for(uint16_t count=1; count<=DataFlash.df_NumPages; count++) {
 			DataFlash.StartRead(count);
 			Serial.printf_P(PSTR("DF page, log file #, log page: %d,\t"), count);
 			Serial.printf_P(PSTR("%d,\t"), DataFlash.GetFileNumber());
@@ -213,9 +213,7 @@ process_logs(uint8_t argc, const Menu::arg *argv)
 }
 
 
-
-
-// print_latlon - prints an latitude or longitude value held in an int32_t 
+// print_latlon - prints an latitude or longitude value held in an int32_t
 // probably this should be moved to AP_Common
 void print_latlon(BetterStream *s, int32_t lat_or_lon)
 {
@@ -484,12 +482,15 @@ static void Log_Write_Optflow()
 	DataFlash.WriteInt((int)optflow.dx);
 	DataFlash.WriteInt((int)optflow.dy);
 	DataFlash.WriteInt((int)optflow.surface_quality);
+	DataFlash.WriteInt((int)optflow.x_cm);
+	DataFlash.WriteInt((int)optflow.y_cm);
 	DataFlash.WriteLong(optflow.vlat);//optflow_offset.lat + optflow.lat);
 	DataFlash.WriteLong(optflow.vlon);//optflow_offset.lng + optflow.lng);
+	DataFlash.WriteLong(of_roll);
+	DataFlash.WriteLong(of_pitch);
 	DataFlash.WriteByte(END_BYTE);
 	#endif
 }
-
 
 
 static void Log_Read_Optflow()
@@ -498,15 +499,23 @@ static void Log_Read_Optflow()
 	int16_t temp1 	= DataFlash.ReadInt();			// 1
 	int16_t temp2 	= DataFlash.ReadInt();			// 2
 	int16_t temp3 	= DataFlash.ReadInt();			// 3
-	float temp4 	= DataFlash.ReadLong();			// 4
-	float temp5 	= DataFlash.ReadLong();			// 5
+	int16_t temp4 	= DataFlash.ReadInt();			// 4
+	int16_t temp5 	= DataFlash.ReadInt();			// 5
+	float temp6 	= DataFlash.ReadLong();			// 6
+	float temp7 	= DataFlash.ReadLong();			// 7
+	int32_t temp8 	= DataFlash.ReadLong();			// 8
+	int32_t temp9 	= DataFlash.ReadLong();			// 9
 
-	Serial.printf_P(PSTR("OF, %d, %d, %d, %4.7f, %4.7f\n"),
+	Serial.printf_P(PSTR("OF, %d, %d, %d, %d, %d, %4.7f, %4.7f, %d, %d\n"),
 			temp1,
 			temp2,
 			temp3,
 			temp4,
-			temp5);
+			temp5,
+			temp6,
+			temp7,
+			temp8,
+			temp9);
 	#endif
 }
 
@@ -526,8 +535,6 @@ static void Log_Write_Nav_Tuning()
 	DataFlash.WriteInt(nav_lat);							// 6
 	DataFlash.WriteInt(g.pi_nav_lon.get_integrator());		// 7
 	DataFlash.WriteInt(g.pi_nav_lat.get_integrator());	    // 8
-	//crosstrack_error
-	//DataFlash.WriteInt(crosstrack_error);	// 9
 	DataFlash.WriteInt(g.pi_loiter_lon.get_integrator());	// 9
 	DataFlash.WriteInt(g.pi_loiter_lat.get_integrator());	// 10
 
@@ -599,55 +606,30 @@ static void Log_Write_Performance()
 	DataFlash.WriteByte(HEAD_BYTE2);
 	DataFlash.WriteByte(LOG_PERFORMANCE_MSG);
 
-	//DataFlash.WriteByte(	delta_ms_fast_loop);
-	//DataFlash.WriteByte(	loop_step);
-
-
-
-	DataFlash.WriteLong(	millis()- perf_mon_timer);			//1
 	DataFlash.WriteByte(	dcm.gyro_sat_count);				//2
 	DataFlash.WriteByte(	imu.adc_constraints);				//3
 	DataFlash.WriteByte(	dcm.renorm_sqrt_count);				//4
 	DataFlash.WriteByte(	dcm.renorm_blowup_count);			//5
 	DataFlash.WriteByte(	gps_fix_count);						//6
 	DataFlash.WriteByte(END_BYTE);
-
-
-	//DataFlash.WriteInt (	(int)(dcm.get_health() * 1000));	//7
-
-
-
-	// control_mode
-	/*
-	DataFlash.WriteByte(control_mode);					//1
-	DataFlash.WriteByte(yaw_mode);						//2
-	DataFlash.WriteByte(roll_pitch_mode);				//3
-	DataFlash.WriteByte(throttle_mode);					//4
-	DataFlash.WriteInt(g.throttle_cruise.get());		//5
-	DataFlash.WriteLong(throttle_integrator);			//6
-	DataFlash.WriteByte(END_BYTE);
-	*/
-
 }
 
 // Read a performance packet
 static void Log_Read_Performance()
 {
-	int32_t temp1 	= DataFlash.ReadLong();
-	int8_t  temp2 	= DataFlash.ReadByte();
-	int8_t  temp3 	= DataFlash.ReadByte();
-	int8_t  temp4 	= DataFlash.ReadByte();
-	int8_t 	temp5 	= DataFlash.ReadByte();
-	int8_t	temp6 	= DataFlash.ReadByte();
+	int8_t temp1 	= DataFlash.ReadByte();
+	int8_t temp2 	= DataFlash.ReadByte();
+	int8_t temp3 	= DataFlash.ReadByte();
+	int8_t temp4 	= DataFlash.ReadByte();
+	int8_t temp5 	= DataFlash.ReadByte();
 
-							 //1   2   3   4   5   6
-	Serial.printf_P(PSTR("PM, %ld, %d, %d, %d, %d, %d\n"),
+							 //1   2   3   4   5
+	Serial.printf_P(PSTR("PM, %d, %d, %d, %d, %d\n"),
 		temp1,
 		temp2,
 		temp3,
 		temp4,
-		temp5,
-		temp6);
+		temp5);
 }
 
 // Write a command processing packet.

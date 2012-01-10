@@ -685,7 +685,7 @@ namespace ArdupilotMega
                 comPort.BaseStream.DtrEnable = false;
 
                 if (config["CHK_resetapmonconnect"] == null || bool.Parse(config["CHK_resetapmonconnect"].ToString()) == true)
-                    comPort.BaseStream.DtrEnable = true;
+                    comPort.BaseStream.toggleDTR();
 
                 try
                 {
@@ -794,13 +794,11 @@ namespace ArdupilotMega
             {
                 comPort.BaseStream.PortName = CMB_serialport.Text;
 
+                MainV2.comPort.BaseStream.BaudRate = int.Parse(CMB_baudrate.Text);
+
                 if (config[CMB_serialport.Text + "_BAUD"] != null)
                 {
                     CMB_baudrate.Text = config[CMB_serialport.Text + "_BAUD"].ToString();
-                }
-                else
-                {
-                    MainV2.comPort.BaseStream.BaudRate = int.Parse(CMB_baudrate.Text);
                 }
             }
             catch { }
@@ -1047,6 +1045,8 @@ namespace ArdupilotMega
                                 {
                                     this.MenuConnect.BackgroundImage = global::ArdupilotMega.Properties.Resources.disconnect;
                                     this.MenuConnect.BackgroundImage.Tag = "Disconnect";
+                                    CMB_baudrate.Enabled = false;
+                                    CMB_serialport.Enabled = false;
                                 });
                             }
                         }
@@ -1058,6 +1058,8 @@ namespace ArdupilotMega
                                 {
                                     this.MenuConnect.BackgroundImage = global::ArdupilotMega.Properties.Resources.connect;
                                     this.MenuConnect.BackgroundImage.Tag = "Connect";
+                                    CMB_baudrate.Enabled = true;
+                                    CMB_serialport.Enabled = true;
                                 });
                             }
                         }
@@ -1597,7 +1599,7 @@ namespace ArdupilotMega
                     }
                 }
                 if (loadinglabel != null)
-                    loadinglabel.Text = "Starting Updater";
+                    updatelabel(loadinglabel,"Starting Updater");
                 Console.WriteLine("Start " + P.StartInfo.FileName + " with " + P.StartInfo.Arguments);
                 P.Start();
                 try
@@ -1744,6 +1746,9 @@ namespace ArdupilotMega
                     if (loadinglabel != null)
                         updatelabel(loadinglabel, "Getting " + file);
 
+                    // from head
+                    long bytes = response.ContentLength;
+
                     // Create a request using a URL that can receive a post. 
                     request = WebRequest.Create(baseurl + file);
                     // Set the Method property of the request to POST.
@@ -1754,8 +1759,7 @@ namespace ArdupilotMega
                     Console.WriteLine(((HttpWebResponse)response).StatusDescription);
                     // Get the stream containing content returned by the server.
                     dataStream = response.GetResponseStream();
-
-                    long bytes = response.ContentLength;
+                    
                     long contlen = bytes;
 
                     byte[] buf1 = new byte[1024];
@@ -1774,7 +1778,7 @@ namespace ArdupilotMega
                             if (dt.Second != DateTime.Now.Second)
                             {
                                 if (loadinglabel != null)
-                                    updatelabel(loadinglabel, "Getting " + file + ": " + Math.Abs(bytes) + " bytes");//(((double)(contlen - bytes) / (double)contlen) * 100).ToString("0.0") + "%";
+                                    updatelabel(loadinglabel, "Getting " + file + ": " + (((double)(contlen - bytes) / (double)contlen) * 100).ToString("0.0") + "%"); //+ Math.Abs(bytes) + " bytes");
                                 dt = DateTime.Now;
                             }
                         }

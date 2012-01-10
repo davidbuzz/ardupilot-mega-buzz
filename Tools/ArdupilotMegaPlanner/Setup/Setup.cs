@@ -37,6 +37,8 @@ namespace ArdupilotMega.Setup
                 rctrim[a] = 1500;
             }
 
+            MainV2.comPort.requestDatastream((byte)ArdupilotMega.MAVLink.MAV_DATA_STREAM.MAV_DATA_STREAM_RC_CHANNELS, MainV2.cs.raterc);
+
             timer.Tick += new EventHandler(timer_Tick);
 
             timer.Enabled = true;
@@ -811,11 +813,11 @@ namespace ArdupilotMega.Setup
             }
             catch (Exception ex) { MainV2.givecomport = false; MessageBox.Show("Invalid Comport Settings : " + ex.Message); return; }
 
-            BUT_reset.Text = "Rebooting (75 sec)";
+            BUT_reset.Text = "Rebooting (17 sec)";
             BUT_reset.Refresh();
             Application.DoEvents();
 
-            Sleep(75000, comPortT); // wait for boot/reset
+            Sleep(17000, comPortT); // wait for boot/reset
 
             comPortT.DtrEnable = false;
 
