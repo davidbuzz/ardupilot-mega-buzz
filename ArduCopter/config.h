@@ -1,5 +1,7 @@
 // -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 //
+#ifndef __ARDUCOPTER_CONFIG_H__
+#define __ARDUCOPTER_CONFIG_H__
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -65,10 +67,10 @@
 // FRAME_CONFIG
 //
 #ifndef FRAME_CONFIG
-# define FRAME_CONFIG		QUAD_FRAME
+# define FRAME_CONFIG	QUAD_FRAME
 #endif
 #ifndef FRAME_ORIENTATION
-# define FRAME_ORIENTATION		PLUS_FRAME
+# define FRAME_ORIENTATION	X_FRAME
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -115,6 +117,9 @@
 # define PUSHBUTTON_PIN   41
 # define USB_MUX_PIN      -1
 # define CLI_SLIDER_ENABLED DISABLED
+# define OPTFLOW_CS_PIN   34
+# define BATTERY_PIN_1      0
+# define CURRENT_PIN_1      1
 #elif CONFIG_APM_HARDWARE == APM_HARDWARE_APM2
 # define A_LED_PIN        27
 # define B_LED_PIN        26
@@ -124,7 +129,10 @@
 # define SLIDE_SWITCH_PIN (-1)
 # define PUSHBUTTON_PIN   (-1)
 # define CLI_SLIDER_ENABLED DISABLED
-# define USB_MUX_PIN 23
+# define USB_MUX_PIN      23
+# define OPTFLOW_CS_PIN   A6
+# define BATTERY_PIN_1      1
+# define CURRENT_PIN_1      2
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -168,7 +176,7 @@
 # endif
 #elif CONFIG_SONAR_SOURCE == SONAR_SOURCE_ANALOG_PIN
 # ifndef CONFIG_SONAR_SOURCE_ANALOG_PIN
-#  define CONFIG_SONAR_SOURCE_ANALOG_PIN AN4
+#  define CONFIG_SONAR_SOURCE_ANALOG_PIN A0
 # endif
 #else
 # warning Invalid value for CONFIG_SONAR_SOURCE, disabling sonar
@@ -187,18 +195,6 @@
 
 #ifndef CH7_OPTION
 # define CH7_OPTION		CH7_SAVE_WP
-#endif
-
-
-//////////////////////////////////////////////////////////////////////////////
-// AIRSPEED_SENSOR
-// AIRSPEED_RATIO
-//
-#ifndef AIRSPEED_SENSOR
-# define AIRSPEED_SENSOR		DISABLED
-#endif
-#ifndef AIRSPEED_RATIO
-# define AIRSPEED_RATIO			1.9936		// Note - this varies from the value in ArduPilot due to the difference in ADC resolution
 #endif
 
 
@@ -289,7 +285,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //  MAGNETOMETER
 #ifndef MAGNETOMETER
-# define MAGNETOMETER			DISABLED
+# define MAGNETOMETER			ENABLED
 #endif
 #ifndef MAG_ORIENTATION
 # define MAG_ORIENTATION		AP_COMPASS_COMPONENTS_DOWN_PINS_FORWARD
@@ -311,16 +307,41 @@
 #if defined( __AVR_ATmega2560__ )  // determines if optical flow code is included
   #define OPTFLOW_ENABLED
 #endif
-
 #ifndef OPTFLOW					// sets global enabled/disabled flag for optflow (as seen in CLI)
 # define OPTFLOW				DISABLED
 #endif
 #ifndef OPTFLOW_ORIENTATION
 # define OPTFLOW_ORIENTATION 	AP_OPTICALFLOW_ADNS3080_PINS_FORWARD
 #endif
+#ifndef OPTFLOW_RESOLUTION
+# define OPTFLOW_RESOLUTION 	ADNS3080_RESOLUTION_1600
+#endif
 #ifndef OPTFLOW_FOV
 # define OPTFLOW_FOV 			AP_OPTICALFLOW_ADNS3080_08_FOV
 #endif
+// optical flow based loiter PI values
+#ifndef OPTFLOW_ROLL_P
+  #define OPTFLOW_ROLL_P 2.5
+#endif
+#ifndef OPTFLOW_ROLL_I
+  #define OPTFLOW_ROLL_I 6.2
+#endif
+#ifndef OPTFLOW_ROLL_D
+  #define OPTFLOW_ROLL_D 0.12
+#endif
+#ifndef OPTFLOW_PITCH_P
+  #define OPTFLOW_PITCH_P 2.5
+#endif
+#ifndef OPTFLOW_PITCH_I
+  #define OPTFLOW_PITCH_I 6.2
+#endif
+#ifndef OPTFLOW_PITCH_D
+  #define OPTFLOW_PITCH_D 0.12
+#endif
+#ifndef OPTFLOW_IMAX
+  #define OPTFLOW_IMAX 4
+#endif
+
 
 //////////////////////////////////////////////////////////////////////////////
 // RADIO CONFIGURATION
@@ -369,6 +390,15 @@
 #ifndef MINIMUM_THROTTLE
 # define MINIMUM_THROTTLE	130
 #endif
+#ifndef MAXIMUM_THROTTLE
+# define MAXIMUM_THROTTLE	1000
+#endif
+
+#ifndef AUTO_LAND_TIME
+# define AUTO_LAND_TIME	20
+#endif
+
+
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -473,8 +503,18 @@
 # define SUPER_SIMPLE		DISABLED
 #endif
 
+// LOITER Mode
+#ifndef OF_LOITER_YAW
+# define OF_LOITER_YAW 		YAW_HOLD
+#endif
 
+#ifndef OF_LOITER_RP
+# define OF_LOITER_RP 			ROLL_PITCH_STABLE_OF
+#endif
 
+#ifndef OF_LOITER_THR
+# define OF_LOITER_THR			THROTTLE_HOLD
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 // Attitude Control
@@ -483,140 +523,138 @@
 // Extra motor values that are changed from time to time by jani @ jDrones as software
 // and charachteristics changes.
 #ifdef MOTORS_JD880
-# define STABILIZE_ROLL_P 		3.6
+# define STABILIZE_ROLL_P 		3.7
 # define STABILIZE_ROLL_I 		0.0
 # define STABILIZE_ROLL_IMAX 	        40.0		// degrees
-# define STABILIZE_PITCH_P		3.6
+# define STABILIZE_PITCH_P		3.7
 # define STABILIZE_PITCH_I		0.0
 # define STABILIZE_PITCH_IMAX	        40.0		// degrees
 #endif
 
 #ifdef MOTORS_JD850
-# define STABILIZE_ROLL_P 		4.0
+# define STABILIZE_ROLL_P 		4.2
 # define STABILIZE_ROLL_I 		0.0
 # define STABILIZE_ROLL_IMAX 	        40.0		// degrees
-# define STABILIZE_PITCH_P		4.0
+# define STABILIZE_PITCH_P		4.2
 # define STABILIZE_PITCH_I		0.0
 # define STABILIZE_PITCH_IMAX	        40.0		// degrees
 #endif
 
 
+#ifndef STABILIZE_D
+# define STABILIZE_D 		.12
+#endif
+
 // Jasons default values that are good for smaller payload motors.
 #ifndef STABILIZE_ROLL_P
-# define STABILIZE_ROLL_P 		4.6
+# define STABILIZE_ROLL_P 		4.5
 #endif
 #ifndef STABILIZE_ROLL_I
-# define STABILIZE_ROLL_I 		0.02
+# define STABILIZE_ROLL_I 		0.0
 #endif
 #ifndef STABILIZE_ROLL_IMAX
 # define STABILIZE_ROLL_IMAX 	40		// degrees
 #endif
 
 #ifndef STABILIZE_PITCH_P
-# define STABILIZE_PITCH_P		4.6
+# define STABILIZE_PITCH_P		4.5
 #endif
 #ifndef STABILIZE_PITCH_I
-# define STABILIZE_PITCH_I		0.02
+# define STABILIZE_PITCH_I		0.0
 #endif
 #ifndef STABILIZE_PITCH_IMAX
 # define STABILIZE_PITCH_IMAX	40		// degrees
 #endif
 
-//////////////////////////////////////////////////////////////////////////////
-// Acro Rate Control
-//
-#ifndef ACRO_ROLL_P
-# define ACRO_ROLL_P         0.145
+#ifndef  STABILIZE_YAW_P
+# define STABILIZE_YAW_P		7.5		// increase for more aggressive Yaw Hold, decrease if it's bouncy
 #endif
-#ifndef ACRO_ROLL_I
-# define ACRO_ROLL_I         0.0
+#ifndef  STABILIZE_YAW_I
+# define STABILIZE_YAW_I		0.01
 #endif
-#ifndef ACRO_ROLL_IMAX
-# define ACRO_ROLL_IMAX	 	15			// degrees
+#ifndef  STABILIZE_YAW_IMAX
+# define STABILIZE_YAW_IMAX		8		// degrees * 100
 #endif
 
-#ifndef ACRO_PITCH_P
-# define ACRO_PITCH_P       0.145
-#endif
-#ifndef ACRO_PITCH_I
-# define ACRO_PITCH_I		0 //0.18
-#endif
-#ifndef ACRO_PITCH_IMAX
-# define ACRO_PITCH_IMAX   	15			// degrees
-#endif
 
 //////////////////////////////////////////////////////////////////////////////
 // Stabilize Rate Control
 //
 #ifndef RATE_ROLL_P
-# define RATE_ROLL_P         0.145
+# define RATE_ROLL_P        0.14
 #endif
 #ifndef RATE_ROLL_I
-# define RATE_ROLL_I         0.0
+# define RATE_ROLL_I        0.0
+#endif
+#ifndef RATE_ROLL_D
+# define RATE_ROLL_D        0.0
 #endif
 #ifndef RATE_ROLL_IMAX
 # define RATE_ROLL_IMAX	 	15			// degrees
 #endif
 
 #ifndef RATE_PITCH_P
-# define RATE_PITCH_P       0.145
+# define RATE_PITCH_P       0.14
 #endif
 #ifndef RATE_PITCH_I
-# define RATE_PITCH_I		0 //0.18
+# define RATE_PITCH_I		0.0 // 0.18
+#endif
+#ifndef RATE_PITCH_D
+# define RATE_PITCH_D       0.0 // 0.002
 #endif
 #ifndef RATE_PITCH_IMAX
 # define RATE_PITCH_IMAX   	15			// degrees
 #endif
 
-//////////////////////////////////////////////////////////////////////////////
-// YAW Control
-//
-#ifndef  STABILIZE_YAW_P
-# define STABILIZE_YAW_P		7			// increase for more aggressive Yaw Hold, decrease if it's bouncy
-#endif
-#ifndef  STABILIZE_YAW_I
-# define STABILIZE_YAW_I		0.01		// set to .0001 to try and get over user's steady state error caused by poor balance
-#endif
-#ifndef  STABILIZE_YAW_IMAX
-# define STABILIZE_YAW_IMAX		8			// degrees * 100
-#endif
-
 #ifndef RATE_YAW_P
-# define RATE_YAW_P     .13			// used to control response in turning
+# define RATE_YAW_P    		 .13
 #endif
 #ifndef RATE_YAW_I
-# define RATE_YAW_I     0.0
+# define RATE_YAW_I    		 0.0
+#endif
+#ifndef RATE_YAW_D
+# define RATE_YAW_D    		 .002
 #endif
 #ifndef RATE_YAW_IMAX
-# define RATE_YAW_IMAX   50
+# define RATE_YAW_IMAX 		  50		// degrees
 #endif
 
 
 //////////////////////////////////////////////////////////////////////////////
-// Navigation control gains
+// Loiter control gains
 //
 #ifndef LOITER_P
-# define LOITER_P			.3		//
+# define LOITER_P			.4		// was .25 in previous
 #endif
 #ifndef LOITER_I
-# define LOITER_I			0.01	//
+# define LOITER_I			0.2	// Wind control
 #endif
 #ifndef LOITER_IMAX
-# define LOITER_IMAX		30		// degrees°
+# define LOITER_IMAX		30		// degrees
 #endif
 
+//////////////////////////////////////////////////////////////////////////////
+// WP Navigation control gains
+//
 #ifndef NAV_P
-# define NAV_P				3.0			//
+# define NAV_P				2.3			// 3 was causing rapid oscillations in Loiter
 #endif
 #ifndef NAV_I
-# define NAV_I				0.14		// Lowerd from .25 - saw lots of overshoot.
+# define NAV_I				0			//
+#endif
+#ifndef NAV_D
+# define NAV_D				0.015		//
 #endif
 #ifndef NAV_IMAX
 # define NAV_IMAX			30			// degrees
 #endif
 
 #ifndef WAYPOINT_SPEED_MAX
-# define WAYPOINT_SPEED_MAX			600			// for 6m/s error = 13mph
+# define WAYPOINT_SPEED_MAX		600			// 6m/s error = 13mph
+#endif
+
+#ifndef WAYPOINT_SPEED_MIN
+# define WAYPOINT_SPEED_MIN		100			// 1m/s
 #endif
 
 
@@ -624,28 +662,31 @@
 // Throttle control gains
 //
 #ifndef THROTTLE_CRUISE
-# define THROTTLE_CRUISE	350			//
+# define THROTTLE_CRUISE	350		//
 #endif
 
-#ifndef THR_HOLD_P
-# define THR_HOLD_P		0.4			//
+#ifndef ALT_HOLD_P
+# define ALT_HOLD_P			0.4		//
 #endif
-#ifndef THR_HOLD_I
-# define THR_HOLD_I		0.01		// with 4m error, 12.5s windup
+#ifndef ALT_HOLD_I
+# define ALT_HOLD_I			0.02
 #endif
-#ifndef THR_HOLD_IMAX
-# define THR_HOLD_IMAX	300
+#ifndef ALT_HOLD_IMAX
+# define ALT_HOLD_IMAX		300
 #endif
 
 // RATE control
 #ifndef THROTTLE_P
-# define THROTTLE_P		0.4			//
+# define THROTTLE_P			0.35	//
 #endif
 #ifndef THROTTLE_I
-# define THROTTLE_I		0.0			//
+# define THROTTLE_I			0.0		//
+#endif
+#ifndef THROTTLE_D
+# define THROTTLE_D			0.02	//
 #endif
 #ifndef THROTTLE_IMAX
-# define THROTTLE_IMAX	300
+# define THROTTLE_IMAX		300
 #endif
 
 
@@ -653,7 +694,7 @@
 // Crosstrack compensation
 //
 #ifndef CROSSTRACK_GAIN
-# define CROSSTRACK_GAIN		40
+# define CROSSTRACK_GAIN		1
 #endif
 
 
@@ -835,3 +876,7 @@
 #ifndef MAVLINK_TELEMETRY_PORT_DELAY
 # define MAVLINK_TELEMETRY_PORT_DELAY 2000
 #endif
+
+
+
+#endif // __ARDUCOPTER_CONFIG_H__

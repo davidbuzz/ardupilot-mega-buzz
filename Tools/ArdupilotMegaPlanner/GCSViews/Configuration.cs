@@ -77,14 +77,14 @@ namespace ArdupilotMega.GCSViews
             if (MainV2.APMFirmware == MainV2.Firmwares.ArduPlane)
             {
                 ConfigTabs.SelectedIndex = 0;
-                TabAPM2.Enabled = true;
-                TabAC2.Enabled = false;
+                TabAP.Enabled = true;
+                TabAC.Enabled = false;
             }
             else
             {
                 ConfigTabs.SelectedIndex = 1;
-                TabAPM2.Enabled = false;
-                TabAC2.Enabled = true;
+                TabAP.Enabled = false;
+                TabAC.Enabled = true;
             }
 
             // read tooltips
@@ -167,7 +167,7 @@ namespace ArdupilotMega.GCSViews
 
             // setup language selection
             CultureInfo ci = null;
-            foreach (string name in new string[] { "en-US", "zh-Hans", "ru-RU" })
+            foreach (string name in new string[] { "en-US", "zh-Hans", "zh-TW", "ru-RU", "Fr", "Pl", "it-IT" })
             {
                 ci = MainV2.getcultureinfo(name);
                 if (ci != null)
@@ -314,8 +314,8 @@ namespace ArdupilotMega.GCSViews
             toolTip1.RemoveAll();
             Params.Rows.Clear();
 
-            disableNumericUpDownControls(TabAC2);
-            disableNumericUpDownControls(TabAPM2);
+            disableNumericUpDownControls(TabAC);
+            disableNumericUpDownControls(TabAP);
 
             // process hashdefines and update display
             foreach (string value in param.Keys)
@@ -550,13 +550,13 @@ namespace ArdupilotMega.GCSViews
             {
                 if (text.Length > 0)
                 {
-                        if (sender.GetType() == typeof(NumericUpDown))
+                    if (text[0].GetType() == typeof(NumericUpDown))
                         {
                             decimal option = (decimal)(float.Parse(Params[e.ColumnIndex, e.RowIndex].Value.ToString()));
                             ((NumericUpDown)text[0]).Value = option;
                             ((NumericUpDown)text[0]).BackColor = Color.Green;
                         }
-                        else if (sender.GetType() == typeof(ComboBox))
+                    else if (text[0].GetType() == typeof(ComboBox))
                         {
                             int option = (int)(float.Parse(Params[e.ColumnIndex, e.RowIndex].Value.ToString()));
                             ((ComboBox)text[0]).SelectedIndex = option;
@@ -685,7 +685,7 @@ namespace ArdupilotMega.GCSViews
                         Control[] text = this.Controls.Find(value, true);
                         if (text.Length > 0)
                         {
-                            ((NumericUpDown)text[0]).BackColor = Color.FromArgb(0x43, 0x44, 0x45);
+                            ((Control)text[0]).BackColor = Color.FromArgb(0x43, 0x44, 0x45);
                         }
                     }
                     catch { }

@@ -108,7 +108,9 @@ static void init_ardupilot()
 	//
 #ifndef DESKTOP_BUILD
     I2c.begin();
-    I2c.timeOut(20);
+    I2c.timeOut(5);
+    // initially set a fast I2c speed, and drop it on first failures
+    I2c.setSpeed(true);
 #endif
     SPI.begin();
     SPI.setClockDivider(SPI_CLOCK_DIV16); // 1MHZ SPI rate
@@ -319,7 +321,7 @@ static void init_ardupilot()
 	#endif
 
 	// initialise sonar
-	#if HIL_MODE != HIL_MODE_ATTITUDE && CONFIG_SONAR == ENABLED
+	#if CONFIG_SONAR == ENABLED
 	init_sonar();
 	#endif
 
@@ -352,12 +354,13 @@ static void init_ardupilot()
 	Log_Write_Startup();
 	Log_Write_Data(10, g.pi_stabilize_roll.kP());
 	Log_Write_Data(11, g.pi_stabilize_pitch.kP());
-	Log_Write_Data(12, g.pi_rate_roll.kP());
-	Log_Write_Data(13, g.pi_rate_pitch.kP());
+	Log_Write_Data(12, g.pid_rate_roll.kP());
+	Log_Write_Data(13, g.pid_rate_pitch.kP());
 #endif
 
 	SendDebug("\nReady to FLY ");
 }
+
 
 //********************************************************************************
 //This function does all the calibrations, etc. that we need during a ground start
@@ -378,6 +381,10 @@ static void startup_ground(void)
 	// reset the leds
 	// ---------------------------
 	clear_leds();
+
+    // when we re-calibrate the gyros,
+    // all previous I values are invalid
+    reset_I_all();
 }
 
 /*
@@ -398,21 +405,16 @@ static void startup_ground(void)
 
 static void set_mode(byte mode)
 {
-	if(control_mode == mode){
-		// don't switch modes if we are already in the correct mode.
-		return;
-	}
-
 	// if we don't have GPS lock
 	if(home_is_set == false){
 		// our max mode should be
-		if (mode > ALT_HOLD)
+		if (mode > ALT_HOLD && mode != OF_LOITER)
 			mode = STABILIZE;
 	}
 
-	// nothing but Loiter for OptFlow only
+	// nothing but OF_LOITER for OptFlow only
 	if (g.optflow_enabled && GPS_enabled == false){
-		if (mode > ALT_HOLD && mode != LOITER)
+		if (mode > ALT_HOLD && mode != OF_LOITER)
 			mode = STABILIZE;
 	}
 
@@ -422,11 +424,21 @@ static void set_mode(byte mode)
 	control_mode = constrain(control_mode, 0, NUM_MODES - 1);
 
 	// used to stop fly_aways
-	motor_auto_armed = (g.rc_3.control_in > 0) || failsafe;
+	motor_auto_armed = (g.rc_3.control_in > 0);
 
 	// clearing value used in interactive alt hold
 	manual_boost = 0;
 
+	// clearing value used to force the copter down in landing mode
+	landing_boost = 0;
+
+	// do not auto_land if we are leaving RTL
+	auto_land_timer = 0;
+
+	// if we change modes, we must clear landed flag
+	land_complete 	= false;
+
+	// debug to Serial terminal
 	Serial.println(flight_mode_strings[control_mode]);
 
 	// report the GPS and Motor arming status
@@ -451,7 +463,7 @@ static void set_mode(byte mode)
 			roll_pitch_mode = ALT_HOLD_RP;
 			throttle_mode 	= ALT_HOLD_THR;
 
-			next_WP = current_loc;
+			set_next_WP(&current_loc);
 			break;
 
 		case AUTO:
@@ -467,41 +479,37 @@ static void set_mode(byte mode)
 			yaw_mode 		= CIRCLE_YAW;
 			roll_pitch_mode = CIRCLE_RP;
 			throttle_mode 	= CIRCLE_THR;
-
-			next_WP 		= current_loc;
+			set_next_WP(&current_loc);
+			circle_angle 	= 0;
 			break;
 
 		case LOITER:
 			yaw_mode 		= LOITER_YAW;
 			roll_pitch_mode = LOITER_RP;
 			throttle_mode 	= LOITER_THR;
-
-			next_WP 		= current_loc;
+			set_next_WP(&current_loc);
 			break;
 
 		case POSITION:
 			yaw_mode 		= YAW_HOLD;
 			roll_pitch_mode = ROLL_PITCH_AUTO;
 			throttle_mode 	= THROTTLE_MANUAL;
-
-			next_WP 		= current_loc;
+			set_next_WP(&current_loc);
 			break;
 
 		case GUIDED:
 			yaw_mode 		= YAW_AUTO;
 			roll_pitch_mode = ROLL_PITCH_AUTO;
 			throttle_mode 	= THROTTLE_AUTO;
-
-			next_WP = current_loc;
+			next_WP 		= current_loc;
 			set_next_WP(&guided_WP);
 			break;
 
 		case LAND:
-			yaw_mode 		= YAW_HOLD;
-			roll_pitch_mode = ROLL_PITCH_AUTO;
+			yaw_mode 		= LOITER_YAW;
+			roll_pitch_mode = LOITER_RP;
 			throttle_mode 	= THROTTLE_AUTO;
-			next_WP 		= current_loc;
-			next_WP.alt 	= 0;
+			do_land();
 			break;
 
 		case RTL:
@@ -512,24 +520,43 @@ static void set_mode(byte mode)
 			do_RTL();
 			break;
 
+		case OF_LOITER:
+			yaw_mode 		= OF_LOITER_YAW;
+			roll_pitch_mode = OF_LOITER_RP;
+			throttle_mode 	= OF_LOITER_THR;
+			set_next_WP(&current_loc);
+			break;
+
 		default:
 			break;
 	}
 
+	if(failsafe){
+		// this is to allow us to fly home without interactive throttle control
+		throttle_mode = THROTTLE_AUTO;
+		// does not wait for us to be in high throttle, since the
+		// Receiver will be outputting low throttle
+		motor_auto_armed = true;
+	}
+
 	if(throttle_mode == THROTTLE_MANUAL){
 		// reset all of the throttle iterms
-		g.pi_alt_hold.reset_I();
-		g.pi_throttle.reset_I();
-	}else { // an automatic throttle
-
-		// todo: replace with a throttle cruise estimator
+		update_throttle_cruise();
+	}else {
+		// an automatic throttle
 		init_throttle_cruise();
 	}
 
 	if(roll_pitch_mode <= ROLL_PITCH_ACRO){
 		// We are under manual attitude control
-		// reset out nav parameters
-		reset_nav();
+		// remove the navigation from roll and pitch command
+		reset_nav_params();
+		// remove the wind compenstaion
+		reset_wind_I();
+		// Clears the WP navigation speed compensation
+		reset_nav_I();
+		// Clears the alt hold compensation
+		reset_throttle_I();
 	}
 
 	Log_Write_Mode(control_mode);
@@ -554,32 +581,8 @@ static void set_failsafe(boolean mode)
 			// We've lost radio contact
 			// ------------------------
 			failsafe_on_event();
-
 		}
 	}
-}
-
-
-static void
-init_compass()
-{
-	compass.set_orientation(MAG_ORIENTATION);						// set compass's orientation on aircraft
-	dcm.set_compass(&compass);
-	compass.init();
-	compass.get_offsets();					// load offsets to account for airframe magnetic interference
-}
-
-static void
-init_optflow()
-{
-	#ifdef OPTFLOW_ENABLED
-	if( optflow.init() == false ) {
-	    g.optflow_enabled = false;
-	    //SendDebug("\nFailed to Init OptFlow ");
-	}
-	optflow.set_orientation(OPTFLOW_ORIENTATION);			// set optical flow sensor's orientation on aircraft
-	optflow.set_field_of_view(OPTFLOW_FOV);					// set optical flow sensor's field of view
-	#endif
 }
 
 static void
@@ -588,15 +591,25 @@ init_simple_bearing()
 	initial_simple_bearing = dcm.yaw_sensor;
 }
 
+static void update_throttle_cruise()
+{
+	int16_t tmp = g.pi_alt_hold.get_integrator();
+	if(tmp != 0){
+		g.throttle_cruise += tmp;
+		reset_throttle_I();
+	}
+}
+
 static void
 init_throttle_cruise()
 {
+#if AUTO_THROTTLE_HOLD == 0
 	// are we moving from manual throttle to auto_throttle?
 	if((old_control_mode <= STABILIZE) && (g.rc_3.control_in > MINIMUM_THROTTLE)){
-		g.pi_throttle.reset_I();
-		g.pi_alt_hold.reset_I();
+		reset_throttle_I();
 		g.throttle_cruise.set_and_save(g.rc_3.control_in);
 	}
+#endif
 }
 
 #if CLI_SLIDER_ENABLED == ENABLED && CLI_ENABLED == ENABLED

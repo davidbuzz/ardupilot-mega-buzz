@@ -33,7 +33,7 @@ namespace ArdupilotMega.GCSViews
         bool sethome = false;
         bool polygongridmode = false;
         Hashtable param = new Hashtable();
-        public static Hashtable hashdefines = new Hashtable();
+
         public static List<PointLatLngAlt> pointlist = new List<PointLatLngAlt>(); // used to calc distance
         static public Object thisLock = new Object();
         private TextBox textBox1;
@@ -85,7 +85,7 @@ namespace ArdupilotMega.GCSViews
                             System.Diagnostics.Debug.WriteLine(matchs[i].Groups[1].Value.ToString() + " = " + matchs[i].Groups[2].Value.ToString() + " = " + num.ToString());
                             try
                             {
-                                hashdefines.Add(matchs[i].Groups[1].Value.ToString(), num);
+                             //   hashdefines.Add(matchs[i].Groups[1].Value.ToString(), num);
                             }
                             catch (Exception) { }
                         }
@@ -95,10 +95,10 @@ namespace ArdupilotMega.GCSViews
                 sr.Close();
 
 
-                if (!hashdefines.ContainsKey("WP_START_BYTE"))
+               // if (!hashdefines.ContainsKey("WP_START_BYTE"))
                 {
                     MessageBox.Show("Your Ardupilot Mega project defines.h is Invalid");
-                    return false;
+                    //return false;
                 }
             }
             catch (Exception)
@@ -290,15 +290,24 @@ namespace ArdupilotMega.GCSViews
                 }
 
                 float ans;
-                if (float.TryParse(TXT_homealt.Text, out result) && float.TryParse(cell.Value.ToString(), out ans))
+                if (float.TryParse(cell.Value.ToString(), out ans))
                 {
                     ans = (int)ans;
-                    if (alt != 0)
+                    if (alt != 0) // use passed in value;
                         cell.Value = alt.ToString();
-                    // is  absolute             online          verify height
-                    if (CHK_altmode.Checked && isonline && CHK_geheight.Checked)
+                    if (ans == 0)
+                        cell.Value = 50;
+                    //   online          verify height
+                    if (isonline && CHK_geheight.Checked)
                     {
-                        cell.Value = ((int)getGEAlt(lat, lng) + int.Parse(TXT_DefaultAlt.Text)).ToString();
+                        if (CHK_altmode.Checked)
+                        {
+                            cell.Value = ((int)getGEAlt(lat, lng) + int.Parse(TXT_DefaultAlt.Text)).ToString();
+                        }
+                        else
+                        {
+                            cell.Value = ((int)getGEAlt(lat, lng) + int.Parse(TXT_DefaultAlt.Text) - float.Parse(TXT_homealt.Text)).ToString();
+                        }
                     }
                     else
                     {
@@ -307,7 +316,7 @@ namespace ArdupilotMega.GCSViews
                         {
                             cell.Value = (float.Parse(TXT_homealt.Text) + int.Parse(TXT_DefaultAlt.Text)).ToString();
                         } // is relative and check height
-                        else if (float.TryParse(TXT_homealt.Text, out result) && isonline && CHK_geheight.Checked)
+                        else if (isonline && CHK_geheight.Checked)
                         {
                             alt = (int)getGEAlt(lat, lng);
 
@@ -475,7 +484,7 @@ namespace ArdupilotMega.GCSViews
 
             // map center
             center = new GMapMarkerCross(MainMap.Position);
-            //top.Markers.Add(center);
+            top.Markers.Add(center);
 
             MainMap.Zoom = 3;
 
@@ -503,12 +512,6 @@ namespace ArdupilotMega.GCSViews
 
             Up.Image = global::ArdupilotMega.Properties.Resources.up;
             Down.Image = global::ArdupilotMega.Properties.Resources.down;
-
-            hashdefines.Clear();
-            if (File.Exists(Path.GetDirectoryName(Application.ExecutablePath) + Path.DirectorySeparatorChar + "defines.h"))
-            {
-                readdefines(Path.GetDirectoryName(Application.ExecutablePath) + Path.DirectorySeparatorChar + "defines.h");
-            }
         }
 
         void updateCMDParams()
@@ -857,24 +860,6 @@ namespace ArdupilotMega.GCSViews
                     }
                 }
             }
-
-            DataGridViewTextBoxCell cell1;
-            cell1 = Commands.Rows[selectedrow].Cells[1] as DataGridViewTextBoxCell;
-
-            byte res;
-            if (byte.TryParse(cell1.Value.ToString(), out res))
-            {
-
-            }
-            else
-            {
-                try
-                {
-                    cell1.Value = (byte)(int)hashdefines[cell1.Value.ToString().ToUpper().Trim()];
-                }
-                catch { }
-            }
-
         }
 
         /// <summary>
@@ -884,7 +869,7 @@ namespace ArdupilotMega.GCSViews
         /// <param name="lng"></param>
         /// <param name="lat"></param>
         /// <param name="alt"></param>
-        private void addpolygonmarker(string tag, double lng, double lat, int alt)
+        private void addpolygonmarker(string tag, double lng, double lat, int alt, Color? color)
         {
             try
             {
@@ -900,6 +885,10 @@ namespace ArdupilotMega.GCSViews
                     mBorders.InnerMarker = m;
                     mBorders.wprad = (int)float.Parse(TXT_WPRad.Text);
                     mBorders.MainMap = MainMap;
+                    if (color.HasValue)
+                    {
+                        mBorders.Color = color.Value;
+                    }
                 }
 
                 objects.Markers.Add(m);
@@ -935,9 +924,11 @@ namespace ArdupilotMega.GCSViews
         /// </summary>
         private void writeKML()
         {
+            // quickadd is for when loading wps from eeprom or file, to prevent slow, loading times
             if (quickadd)
                 return;
 
+            // this is to share the current mission with the data tab
             pointlist = new List<PointLatLngAlt>();
 
             System.Diagnostics.Debug.WriteLine(DateTime.Now);
@@ -948,6 +939,7 @@ namespace ArdupilotMega.GCSViews
                     objects.Markers.Clear();
                 }
 
+                // process and add home to the list
                 string home;
                 if (TXT_homealt.Text != "" && TXT_homelat.Text != "" && TXT_homelng.Text != "")
                 {
@@ -955,7 +947,7 @@ namespace ArdupilotMega.GCSViews
                     if (objects != null) // during startup
                     {
                         pointlist.Add(new PointLatLngAlt(double.Parse(TXT_homelat.Text), double.Parse(TXT_homelng.Text), (int)double.Parse(TXT_homealt.Text), "Home"));
-                        addpolygonmarker("Home", double.Parse(TXT_homelng.Text), double.Parse(TXT_homelat.Text), 0);
+                        addpolygonmarker("Home", double.Parse(TXT_homelng.Text), double.Parse(TXT_homelat.Text), 0, null);
                     }
                 }
                 else
@@ -963,6 +955,7 @@ namespace ArdupilotMega.GCSViews
                     home = "";
                 }
 
+                // setup for centerpoint calc etc.
                 double avglat = 0;
                 double avglong = 0;
                 double maxlat = -180;
@@ -982,6 +975,7 @@ namespace ArdupilotMega.GCSViews
 
                 int usable = 0;
 
+                // number rows 
                 System.Threading.Thread t1 = new System.Threading.Thread(delegate()
                 {
                     // thread for updateing row numbers
@@ -1029,8 +1023,14 @@ namespace ArdupilotMega.GCSViews
                             if (cell4 == "?" || cell3 == "?")
                                 continue;
 
-                            pointlist.Add(new PointLatLngAlt(double.Parse(cell3), double.Parse(cell4), (int)double.Parse(cell2) + homealt, (a + 1).ToString()));
-                            addpolygonmarker((a + 1).ToString(), double.Parse(cell4), double.Parse(cell3), (int)double.Parse(cell2));
+                            
+                            if (command == (byte)MAVLink.MAV_CMD.LOITER_TIME || command == (byte)MAVLink.MAV_CMD.LOITER_TURNS || command == (byte)MAVLink.MAV_CMD.LOITER_UNLIM) {
+                                pointlist.Add(new PointLatLngAlt(double.Parse(cell3), double.Parse(cell4), (int)double.Parse(cell2) + homealt, (a + 1).ToString()){ color  = Color.LightBlue });
+                                addpolygonmarker((a + 1).ToString(), double.Parse(cell4), double.Parse(cell3), (int)double.Parse(cell2) , Color.LightBlue);
+                            } else {
+                                pointlist.Add(new PointLatLngAlt(double.Parse(cell3), double.Parse(cell4), (int)double.Parse(cell2) + homealt, (a + 1).ToString()));
+                                addpolygonmarker((a + 1).ToString(), double.Parse(cell4), double.Parse(cell3), (int)double.Parse(cell2) ,null);
+                            }
 
                             avglong += double.Parse(Commands.Rows[a].Cells[Lon.Index].Value.ToString());
                             avglat += double.Parse(Commands.Rows[a].Cells[Lat.Index].Value.ToString());
@@ -1405,8 +1405,8 @@ namespace ArdupilotMega.GCSViews
                 {
                     Commands.Rows.Add();
                 }
-                if (i == 0 && temp.alt == 0) // skip 0 home
-                    continue;
+                //if (i == 0 && temp.alt == 0) // skip 0 home
+                  //  continue;
                 DataGridViewTextBoxCell cell;
                 DataGridViewComboBoxCell cellcmd;
                 cellcmd = Commands.Rows[i].Cells[Command.Index] as DataGridViewComboBoxCell;
@@ -1458,7 +1458,7 @@ namespace ArdupilotMega.GCSViews
                 cellhome = Commands.Rows[0].Cells[Lat.Index] as DataGridViewTextBoxCell;
                 if (cellhome.Value != null)
                 {
-                    if (cellhome.Value.ToString() != TXT_homelat.Text)
+                    if (cellhome.Value.ToString() != TXT_homelat.Text && cellhome.Value.ToString() != "0")
                     {
                         DialogResult dr = MessageBox.Show("Reset Home to loaded coords", "Reset Home Coords", MessageBoxButtons.YesNo);
 
@@ -1473,21 +1473,21 @@ namespace ArdupilotMega.GCSViews
                     }
                 }
 
-                string hold_alt = ((float)param["ALT_HOLD_RTL"] * MainV2.cs.multiplierdist).ToString("0");
+                string hold_alt = ((int)((float)param["ALT_HOLD_RTL"] * MainV2.cs.multiplierdist)).ToString();
 
-                if (hold_alt != "-1")
+                if (!hold_alt.Equals("-1"))
                 {
                     TXT_DefaultAlt.Text = hold_alt;
                 }
 
-                TXT_WPRad.Text = ((float)param["WP_RADIUS"] * MainV2.cs.multiplierdist).ToString("0");
+                TXT_WPRad.Text = ((int)((float)param["WP_RADIUS"] * MainV2.cs.multiplierdist)).ToString();
                 try
                 {
-                    TXT_loiterrad.Text = ((float)param["LOITER_RADIUS"] * MainV2.cs.multiplierdist).ToString("0");
+                    TXT_loiterrad.Text = ((int)((float)param["LOITER_RADIUS"] * MainV2.cs.multiplierdist)).ToString();
                 }
                 catch
                 {
-                    TXT_loiterrad.Text = ((float)param["WP_LOITER_RAD"] * MainV2.cs.multiplierdist).ToString("0");
+                    TXT_loiterrad.Text = ((int)((float)param["WP_LOITER_RAD"] * MainV2.cs.multiplierdist)).ToString();
                 }
                 CHK_holdalt.Checked = Convert.ToBoolean((float)param["ALT_HOLD_RTL"] > 0);
 
@@ -2698,6 +2698,7 @@ namespace ArdupilotMega.GCSViews
             if (float.TryParse(heading, out ans))
             {
                 MainMap.Bearing = ans;
+                FlightData.mymap.Bearing = ans;
             }
         }
 
@@ -2954,7 +2955,7 @@ namespace ArdupilotMega.GCSViews
 
                 if (MainV2.cs.firmware == MainV2.Firmwares.ArduPlane)
                 {
-                    routes.Markers.Add(new GMapMarkerPlane(currentloc, MainV2.cs.yaw, MainV2.cs.groundcourse, MainV2.cs.nav_bearing, MainV2.cs.target_bearing));
+                    routes.Markers.Add(new GMapMarkerPlane(currentloc, MainV2.cs.yaw, MainV2.cs.groundcourse, MainV2.cs.nav_bearing, MainV2.cs.target_bearing) { ToolTipText = MainV2.cs.alt.ToString("0"), ToolTipMode = MarkerTooltipMode.Always });
                 }
                 else
                 {

@@ -687,21 +687,6 @@
   <data name="&gt;&gt;tabModes.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
-  <data name="label27.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="label27.Location" type="System.Drawing.Point, System.Drawing">
-    <value>510, 57</value>
-  </data>
-  <data name="label27.Size" type="System.Drawing.Size, System.Drawing">
-    <value>150, 20</value>
-  </data>
-  <data name="label27.TabIndex" type="System.Int32, mscorlib">
-    <value>32</value>
-  </data>
-  <data name="label27.Text" xml:space="preserve">
-    <value>in Degrees eg 2° 3' W is -2.3</value>
-  </data>
   <data name="&gt;&gt;label27.Name" xml:space="preserve">
     <value>label27</value>
   </data>
@@ -713,24 +698,6 @@
   </data>
   <data name="&gt;&gt;label27.ZOrder" xml:space="preserve">
     <value>0</value>
-  </data>
-  <data name="CMB_sonartype.Items" xml:space="preserve">
-    <value>XL-EZ0</value>
-  </data>
-  <data name="CMB_sonartype.Items1" xml:space="preserve">
-    <value>LV-EZ0</value>
-  </data>
-  <data name="CMB_sonartype.Items2" xml:space="preserve">
-    <value>XL-EXL0</value>
-  </data>
-  <data name="CMB_sonartype.Location" type="System.Drawing.Point, System.Drawing">
-    <value>308, 134</value>
-  </data>
-  <data name="CMB_sonartype.Size" type="System.Drawing.Size, System.Drawing">
-    <value>121, 21</value>
-  </data>
-  <data name="CMB_sonartype.TabIndex" type="System.Int32, mscorlib">
-    <value>31</value>
   </data>
   <data name="&gt;&gt;CMB_sonartype.Name" xml:space="preserve">
     <value>CMB_sonartype</value>
@@ -744,21 +711,6 @@
   <data name="&gt;&gt;CMB_sonartype.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
-  <data name="CHK_enableoptflow.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="CHK_enableoptflow.Location" type="System.Drawing.Point, System.Drawing">
-    <value>162, 297</value>
-  </data>
-  <data name="CHK_enableoptflow.Size" type="System.Drawing.Size, System.Drawing">
-    <value>134, 19</value>
-  </data>
-  <data name="CHK_enableoptflow.TabIndex" type="System.Int32, mscorlib">
-    <value>30</value>
-  </data>
-  <data name="CHK_enableoptflow.Text" xml:space="preserve">
-    <value>Enable Optical Flow</value>
-  </data>
   <data name="&gt;&gt;CHK_enableoptflow.Name" xml:space="preserve">
     <value>CHK_enableoptflow</value>
   </data>
@@ -770,21 +722,6 @@
   </data>
   <data name="&gt;&gt;CHK_enableoptflow.ZOrder" xml:space="preserve">
     <value>2</value>
-  </data>
-  <data name="pictureBox2.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Zoom</value>
-  </data>
-  <data name="pictureBox2.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="pictureBox2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>78, 271</value>
-  </data>
-  <data name="pictureBox2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>75, 75</value>
-  </data>
-  <data name="pictureBox2.TabIndex" type="System.Int32, mscorlib">
-    <value>29</value>
   </data>
   <data name="&gt;&gt;pictureBox2.Name" xml:space="preserve">
     <value>pictureBox2</value>
@@ -798,24 +735,6 @@
   <data name="&gt;&gt;pictureBox2.ZOrder" xml:space="preserve">
     <value>3</value>
   </data>
-  <data name="linkLabelmagdec.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="linkLabelmagdec.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="linkLabelmagdec.Location" type="System.Drawing.Point, System.Drawing">
-    <value>390, 80</value>
-  </data>
-  <data name="linkLabelmagdec.Size" type="System.Drawing.Size, System.Drawing">
-    <value>104, 13</value>
-  </data>
-  <data name="linkLabelmagdec.TabIndex" type="System.Int32, mscorlib">
-    <value>28</value>
-  </data>
-  <data name="linkLabelmagdec.Text" xml:space="preserve">
-    <value>Declination WebSite</value>
-  </data>
   <data name="&gt;&gt;linkLabelmagdec.Name" xml:space="preserve">
     <value>linkLabelmagdec</value>
   </data>
@@ -827,21 +746,6 @@
   </data>
   <data name="&gt;&gt;linkLabelmagdec.ZOrder" xml:space="preserve">
     <value>4</value>
-  </data>
-  <data name="label100.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="label100.Location" type="System.Drawing.Point, System.Drawing">
-    <value>305, 57</value>
-  </data>
-  <data name="label100.Size" type="System.Drawing.Size, System.Drawing">
-    <value>72, 16</value>
-  </data>
-  <data name="label100.TabIndex" type="System.Int32, mscorlib">
-    <value>23</value>
-  </data>
-  <data name="label100.Text" xml:space="preserve">
-    <value>Declination</value>
   </data>
   <data name="&gt;&gt;label100.Name" xml:space="preserve">
     <value>label100</value>
@@ -855,18 +759,6 @@
   <data name="&gt;&gt;label100.ZOrder" xml:space="preserve">
     <value>5</value>
   </data>
-  <data name="TXT_declination.Location" type="System.Drawing.Point, System.Drawing">
-    <value>383, 57</value>
-  </data>
-  <data name="TXT_declination.Size" type="System.Drawing.Size, System.Drawing">
-    <value>121, 20</value>
-  </data>
-  <data name="TXT_declination.TabIndex" type="System.Int32, mscorlib">
-    <value>20</value>
-  </data>
-  <data name="TXT_declination.ToolTip" xml:space="preserve">
-    <value>Magnetic Declination (-20.0 to 20.0) eg 2° 3' W is -2.3</value>
-  </data>
   <data name="&gt;&gt;TXT_declination.Name" xml:space="preserve">
     <value>TXT_declination</value>
   </data>
@@ -878,21 +770,6 @@
   </data>
   <data name="&gt;&gt;TXT_declination.ZOrder" xml:space="preserve">
     <value>6</value>
-  </data>
-  <data name="CHK_enableairspeed.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="CHK_enableairspeed.Location" type="System.Drawing.Point, System.Drawing">
-    <value>162, 214</value>
-  </data>
-  <data name="CHK_enableairspeed.Size" type="System.Drawing.Size, System.Drawing">
-    <value>103, 17</value>
-  </data>
-  <data name="CHK_enableairspeed.TabIndex" type="System.Int32, mscorlib">
-    <value>24</value>
-  </data>
-  <data name="CHK_enableairspeed.Text" xml:space="preserve">
-    <value>Enable Airspeed</value>
   </data>
   <data name="&gt;&gt;CHK_enableairspeed.Name" xml:space="preserve">
     <value>CHK_enableairspeed</value>
@@ -906,21 +783,6 @@
   <data name="&gt;&gt;CHK_enableairspeed.ZOrder" xml:space="preserve">
     <value>7</value>
   </data>
-  <data name="CHK_enablesonar.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="CHK_enablesonar.Location" type="System.Drawing.Point, System.Drawing">
-    <value>159, 136</value>
-  </data>
-  <data name="CHK_enablesonar.Size" type="System.Drawing.Size, System.Drawing">
-    <value>90, 17</value>
-  </data>
-  <data name="CHK_enablesonar.TabIndex" type="System.Int32, mscorlib">
-    <value>25</value>
-  </data>
-  <data name="CHK_enablesonar.Text" xml:space="preserve">
-    <value>Enable Sonar</value>
-  </data>
   <data name="&gt;&gt;CHK_enablesonar.Name" xml:space="preserve">
     <value>CHK_enablesonar</value>
   </data>
@@ -932,21 +794,6 @@
   </data>
   <data name="&gt;&gt;CHK_enablesonar.ZOrder" xml:space="preserve">
     <value>8</value>
-  </data>
-  <data name="CHK_enablecompass.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="CHK_enablecompass.Location" type="System.Drawing.Point, System.Drawing">
-    <value>162, 56</value>
-  </data>
-  <data name="CHK_enablecompass.Size" type="System.Drawing.Size, System.Drawing">
-    <value>105, 17</value>
-  </data>
-  <data name="CHK_enablecompass.TabIndex" type="System.Int32, mscorlib">
-    <value>27</value>
-  </data>
-  <data name="CHK_enablecompass.Text" xml:space="preserve">
-    <value>Enable Compass</value>
   </data>
   <data name="&gt;&gt;CHK_enablecompass.Name" xml:space="preserve">
     <value>CHK_enablecompass</value>
@@ -960,21 +807,6 @@
   <data name="&gt;&gt;CHK_enablecompass.ZOrder" xml:space="preserve">
     <value>9</value>
   </data>
-  <data name="pictureBox4.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Zoom</value>
-  </data>
-  <data name="pictureBox4.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="pictureBox4.Location" type="System.Drawing.Point, System.Drawing">
-    <value>78, 188</value>
-  </data>
-  <data name="pictureBox4.Size" type="System.Drawing.Size, System.Drawing">
-    <value>75, 75</value>
-  </data>
-  <data name="pictureBox4.TabIndex" type="System.Int32, mscorlib">
-    <value>3</value>
-  </data>
   <data name="&gt;&gt;pictureBox4.Name" xml:space="preserve">
     <value>pictureBox4</value>
   </data>
@@ -987,21 +819,6 @@
   <data name="&gt;&gt;pictureBox4.ZOrder" xml:space="preserve">
     <value>10</value>
   </data>
-  <data name="pictureBox3.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Zoom</value>
-  </data>
-  <data name="pictureBox3.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="pictureBox3.Location" type="System.Drawing.Point, System.Drawing">
-    <value>78, 106</value>
-  </data>
-  <data name="pictureBox3.Size" type="System.Drawing.Size, System.Drawing">
-    <value>75, 75</value>
-  </data>
-  <data name="pictureBox3.TabIndex" type="System.Int32, mscorlib">
-    <value>2</value>
-  </data>
   <data name="&gt;&gt;pictureBox3.Name" xml:space="preserve">
     <value>pictureBox3</value>
   </data>
@@ -1013,27 +830,6 @@
   </data>
   <data name="&gt;&gt;pictureBox3.ZOrder" xml:space="preserve">
     <value>11</value>
-  </data>
-  <data name="pictureBox1.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Zoom</value>
-  </data>
-  <data name="pictureBox1.ErrorImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value />
-  </data>
-  <data name="pictureBox1.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="pictureBox1.InitialImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
-    <value />
-  </data>
-  <data name="pictureBox1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>78, 25</value>
-  </data>
-  <data name="pictureBox1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>75, 75</value>
-  </data>
-  <data name="pictureBox1.TabIndex" type="System.Int32, mscorlib">
-    <value>0</value>
   </data>
   <data name="&gt;&gt;pictureBox1.Name" xml:space="preserve">
     <value>pictureBox1</value>
@@ -1074,101 +870,17 @@
   <data name="&gt;&gt;tabHardware.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
-  <data name="&gt;&gt;TXT_ampspervolt.Name" xml:space="preserve">
-    <value>TXT_ampspervolt</value>
+  <data name="&gt;&gt;label31.Name" xml:space="preserve">
+    <value>label31</value>
   </data>
-  <data name="&gt;&gt;TXT_ampspervolt.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="&gt;&gt;label31.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;TXT_ampspervolt.Parent" xml:space="preserve">
-    <value>tabBattery</value>
+  <data name="&gt;&gt;label31.Parent" xml:space="preserve">
+    <value>groupBox4</value>
   </data>
-  <data name="&gt;&gt;TXT_ampspervolt.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;label31.ZOrder" xml:space="preserve">
     <value>0</value>
-  </data>
-  <data name="&gt;&gt;TXT_divider.Name" xml:space="preserve">
-    <value>TXT_divider</value>
-  </data>
-  <data name="&gt;&gt;TXT_divider.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;TXT_divider.Parent" xml:space="preserve">
-    <value>tabBattery</value>
-  </data>
-  <data name="&gt;&gt;TXT_divider.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="&gt;&gt;TXT_voltage.Name" xml:space="preserve">
-    <value>TXT_voltage</value>
-  </data>
-  <data name="&gt;&gt;TXT_voltage.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;TXT_voltage.Parent" xml:space="preserve">
-    <value>tabBattery</value>
-  </data>
-  <data name="&gt;&gt;TXT_voltage.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="&gt;&gt;TXT_measuredvoltage.Name" xml:space="preserve">
-    <value>TXT_measuredvoltage</value>
-  </data>
-  <data name="&gt;&gt;TXT_measuredvoltage.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;TXT_measuredvoltage.Parent" xml:space="preserve">
-    <value>tabBattery</value>
-  </data>
-  <data name="&gt;&gt;TXT_measuredvoltage.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
-  <data name="&gt;&gt;TXT_inputvoltage.Name" xml:space="preserve">
-    <value>TXT_inputvoltage</value>
-  </data>
-  <data name="&gt;&gt;TXT_inputvoltage.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;TXT_inputvoltage.Parent" xml:space="preserve">
-    <value>tabBattery</value>
-  </data>
-  <data name="&gt;&gt;TXT_inputvoltage.ZOrder" xml:space="preserve">
-    <value>4</value>
-  </data>
-  <data name="&gt;&gt;label35.Name" xml:space="preserve">
-    <value>label35</value>
-  </data>
-  <data name="&gt;&gt;label35.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label35.Parent" xml:space="preserve">
-    <value>tabBattery</value>
-  </data>
-  <data name="&gt;&gt;label35.ZOrder" xml:space="preserve">
-    <value>5</value>
-  </data>
-  <data name="&gt;&gt;label34.Name" xml:space="preserve">
-    <value>label34</value>
-  </data>
-  <data name="&gt;&gt;label34.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label34.Parent" xml:space="preserve">
-    <value>tabBattery</value>
-  </data>
-  <data name="&gt;&gt;label34.ZOrder" xml:space="preserve">
-    <value>6</value>
-  </data>
-  <data name="&gt;&gt;label33.Name" xml:space="preserve">
-    <value>label33</value>
-  </data>
-  <data name="&gt;&gt;label33.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label33.Parent" xml:space="preserve">
-    <value>tabBattery</value>
-  </data>
-  <data name="&gt;&gt;label33.ZOrder" xml:space="preserve">
-    <value>7</value>
   </data>
   <data name="&gt;&gt;label32.Name" xml:space="preserve">
     <value>label32</value>
@@ -1177,22 +889,214 @@
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;label32.Parent" xml:space="preserve">
-    <value>tabBattery</value>
+    <value>groupBox4</value>
   </data>
   <data name="&gt;&gt;label32.ZOrder" xml:space="preserve">
-    <value>8</value>
+    <value>1</value>
   </data>
-  <data name="&gt;&gt;label31.Name" xml:space="preserve">
-    <value>label31</value>
+  <data name="&gt;&gt;label33.Name" xml:space="preserve">
+    <value>label33</value>
   </data>
-  <data name="&gt;&gt;label31.Type" xml:space="preserve">
+  <data name="&gt;&gt;label33.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;label31.Parent" xml:space="preserve">
+  <data name="&gt;&gt;label33.Parent" xml:space="preserve">
+    <value>groupBox4</value>
+  </data>
+  <data name="&gt;&gt;label33.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;TXT_ampspervolt.Name" xml:space="preserve">
+    <value>TXT_ampspervolt</value>
+  </data>
+  <data name="&gt;&gt;TXT_ampspervolt.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;TXT_ampspervolt.Parent" xml:space="preserve">
+    <value>groupBox4</value>
+  </data>
+  <data name="&gt;&gt;TXT_ampspervolt.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="&gt;&gt;label34.Name" xml:space="preserve">
+    <value>label34</value>
+  </data>
+  <data name="&gt;&gt;label34.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label34.Parent" xml:space="preserve">
+    <value>groupBox4</value>
+  </data>
+  <data name="&gt;&gt;label34.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="&gt;&gt;TXT_divider.Name" xml:space="preserve">
+    <value>TXT_divider</value>
+  </data>
+  <data name="&gt;&gt;TXT_divider.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;TXT_divider.Parent" xml:space="preserve">
+    <value>groupBox4</value>
+  </data>
+  <data name="&gt;&gt;TXT_divider.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="&gt;&gt;label35.Name" xml:space="preserve">
+    <value>label35</value>
+  </data>
+  <data name="&gt;&gt;label35.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label35.Parent" xml:space="preserve">
+    <value>groupBox4</value>
+  </data>
+  <data name="&gt;&gt;label35.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="&gt;&gt;TXT_voltage.Name" xml:space="preserve">
+    <value>TXT_voltage</value>
+  </data>
+  <data name="&gt;&gt;TXT_voltage.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;TXT_voltage.Parent" xml:space="preserve">
+    <value>groupBox4</value>
+  </data>
+  <data name="&gt;&gt;TXT_voltage.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="&gt;&gt;TXT_inputvoltage.Name" xml:space="preserve">
+    <value>TXT_inputvoltage</value>
+  </data>
+  <data name="&gt;&gt;TXT_inputvoltage.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;TXT_inputvoltage.Parent" xml:space="preserve">
+    <value>groupBox4</value>
+  </data>
+  <data name="&gt;&gt;TXT_inputvoltage.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="&gt;&gt;TXT_measuredvoltage.Name" xml:space="preserve">
+    <value>TXT_measuredvoltage</value>
+  </data>
+  <data name="&gt;&gt;TXT_measuredvoltage.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;TXT_measuredvoltage.Parent" xml:space="preserve">
+    <value>groupBox4</value>
+  </data>
+  <data name="&gt;&gt;TXT_measuredvoltage.ZOrder" xml:space="preserve">
+    <value>9</value>
+  </data>
+  <data name="groupBox4.Location" type="System.Drawing.Point, System.Drawing">
+    <value>31, 177</value>
+  </data>
+  <data name="groupBox4.Size" type="System.Drawing.Size, System.Drawing">
+    <value>238, 131</value>
+  </data>
+  <data name="groupBox4.TabIndex" type="System.Int32, mscorlib">
+    <value>41</value>
+  </data>
+  <data name="groupBox4.Text" xml:space="preserve">
+    <value>Calibration</value>
+  </data>
+  <data name="&gt;&gt;groupBox4.Name" xml:space="preserve">
+    <value>groupBox4</value>
+  </data>
+  <data name="&gt;&gt;groupBox4.Type" xml:space="preserve">
+    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;groupBox4.Parent" xml:space="preserve">
     <value>tabBattery</value>
   </data>
-  <data name="&gt;&gt;label31.ZOrder" xml:space="preserve">
-    <value>9</value>
+  <data name="&gt;&gt;groupBox4.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="label47.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="label47.Location" type="System.Drawing.Point, System.Drawing">
+    <value>123, 76</value>
+  </data>
+  <data name="label47.Size" type="System.Drawing.Size, System.Drawing">
+    <value>42, 13</value>
+  </data>
+  <data name="label47.TabIndex" type="System.Int32, mscorlib">
+    <value>40</value>
+  </data>
+  <data name="label47.Text" xml:space="preserve">
+    <value>Sensor</value>
+  </data>
+  <data name="&gt;&gt;label47.Name" xml:space="preserve">
+    <value>label47</value>
+  </data>
+  <data name="&gt;&gt;label47.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label47.Parent" xml:space="preserve">
+    <value>tabBattery</value>
+  </data>
+  <data name="&gt;&gt;label47.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="CMB_batmonsensortype.Items" xml:space="preserve">
+    <value>0: Other</value>
+  </data>
+  <data name="CMB_batmonsensortype.Items1" xml:space="preserve">
+    <value>1: AttoPilot 45A</value>
+  </data>
+  <data name="CMB_batmonsensortype.Items2" xml:space="preserve">
+    <value>2: AttoPilot 90A</value>
+  </data>
+  <data name="CMB_batmonsensortype.Items3" xml:space="preserve">
+    <value>3: AttoPilot 180A</value>
+  </data>
+  <data name="CMB_batmonsensortype.Location" type="System.Drawing.Point, System.Drawing">
+    <value>177, 73</value>
+  </data>
+  <data name="CMB_batmonsensortype.Size" type="System.Drawing.Size, System.Drawing">
+    <value>121, 21</value>
+  </data>
+  <data name="CMB_batmonsensortype.TabIndex" type="System.Int32, mscorlib">
+    <value>39</value>
+  </data>
+  <data name="&gt;&gt;CMB_batmonsensortype.Name" xml:space="preserve">
+    <value>CMB_batmonsensortype</value>
+  </data>
+  <data name="&gt;&gt;CMB_batmonsensortype.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;CMB_batmonsensortype.Parent" xml:space="preserve">
+    <value>tabBattery</value>
+  </data>
+  <data name="&gt;&gt;CMB_batmonsensortype.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="textBox3.Font" type="System.Drawing.Font, System.Drawing">
+    <value>Microsoft Sans Serif, 8.25pt</value>
+  </data>
+  <data name="textBox3.Location" type="System.Drawing.Point, System.Drawing">
+    <value>299, 177</value>
+  </data>
+  <data name="textBox3.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>2, 2, 2, 2</value>
+  </data>
+  <data name="textBox3.Multiline" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="textBox3.Size" type="System.Drawing.Size, System.Drawing">
+    <value>219, 131</value>
+  </data>
+  <data name="textBox3.TabIndex" type="System.Int32, mscorlib">
+    <value>28</value>
+  </data>
+  <data name="textBox3.Text" xml:space="preserve">
+    <value>Voltage sensor calibration:
+To calibrate your sensor, use a multimeter to measure the voltage coming out of your ESC's battery-elimination circuit (these are black and red wires in the three-wire cable that is powering your APM board).
+Then subtract 0.3v from that value and enter it in field #1 at left.
+</value>
   </data>
   <data name="&gt;&gt;textBox3.Name" xml:space="preserve">
     <value>textBox3</value>
@@ -1204,7 +1108,25 @@
     <value>tabBattery</value>
   </data>
   <data name="&gt;&gt;textBox3.ZOrder" xml:space="preserve">
-    <value>10</value>
+    <value>3</value>
+  </data>
+  <data name="label29.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="label29.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="label29.Location" type="System.Drawing.Point, System.Drawing">
+    <value>305, 50</value>
+  </data>
+  <data name="label29.Size" type="System.Drawing.Size, System.Drawing">
+    <value>48, 13</value>
+  </data>
+  <data name="label29.TabIndex" type="System.Int32, mscorlib">
+    <value>23</value>
+  </data>
+  <data name="label29.Text" xml:space="preserve">
+    <value>Capacity</value>
   </data>
   <data name="&gt;&gt;label29.Name" xml:space="preserve">
     <value>label29</value>
@@ -1216,7 +1138,22 @@
     <value>tabBattery</value>
   </data>
   <data name="&gt;&gt;label29.ZOrder" xml:space="preserve">
-    <value>11</value>
+    <value>4</value>
+  </data>
+  <data name="label30.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="label30.Location" type="System.Drawing.Point, System.Drawing">
+    <value>123, 50</value>
+  </data>
+  <data name="label30.Size" type="System.Drawing.Size, System.Drawing">
+    <value>42, 13</value>
+  </data>
+  <data name="label30.TabIndex" type="System.Int32, mscorlib">
+    <value>24</value>
+  </data>
+  <data name="label30.Text" xml:space="preserve">
+    <value>Monitor</value>
   </data>
   <data name="&gt;&gt;label30.Name" xml:space="preserve">
     <value>label30</value>
@@ -1228,7 +1165,16 @@
     <value>tabBattery</value>
   </data>
   <data name="&gt;&gt;label30.ZOrder" xml:space="preserve">
-    <value>12</value>
+    <value>5</value>
+  </data>
+  <data name="TXT_battcapacity.Location" type="System.Drawing.Point, System.Drawing">
+    <value>366, 47</value>
+  </data>
+  <data name="TXT_battcapacity.Size" type="System.Drawing.Size, System.Drawing">
+    <value>83, 20</value>
+  </data>
+  <data name="TXT_battcapacity.TabIndex" type="System.Int32, mscorlib">
+    <value>25</value>
   </data>
   <data name="&gt;&gt;TXT_battcapacity.Name" xml:space="preserve">
     <value>TXT_battcapacity</value>
@@ -1240,7 +1186,25 @@
     <value>tabBattery</value>
   </data>
   <data name="&gt;&gt;TXT_battcapacity.ZOrder" xml:space="preserve">
-    <value>13</value>
+    <value>6</value>
+  </data>
+  <data name="CMB_batmontype.Items" xml:space="preserve">
+    <value>0: Disabled</value>
+  </data>
+  <data name="CMB_batmontype.Items1" xml:space="preserve">
+    <value>3: Battery Volts</value>
+  </data>
+  <data name="CMB_batmontype.Items2" xml:space="preserve">
+    <value>4: Volts &amp; Current</value>
+  </data>
+  <data name="CMB_batmontype.Location" type="System.Drawing.Point, System.Drawing">
+    <value>177, 46</value>
+  </data>
+  <data name="CMB_batmontype.Size" type="System.Drawing.Size, System.Drawing">
+    <value>121, 21</value>
+  </data>
+  <data name="CMB_batmontype.TabIndex" type="System.Int32, mscorlib">
+    <value>26</value>
   </data>
   <data name="&gt;&gt;CMB_batmontype.Name" xml:space="preserve">
     <value>CMB_batmontype</value>
@@ -1252,7 +1216,22 @@
     <value>tabBattery</value>
   </data>
   <data name="&gt;&gt;CMB_batmontype.ZOrder" xml:space="preserve">
-    <value>14</value>
+    <value>7</value>
+  </data>
+  <data name="pictureBox5.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Zoom</value>
+  </data>
+  <data name="pictureBox5.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="pictureBox5.Location" type="System.Drawing.Point, System.Drawing">
+    <value>31, 21</value>
+  </data>
+  <data name="pictureBox5.Size" type="System.Drawing.Size, System.Drawing">
+    <value>75, 75</value>
+  </data>
+  <data name="pictureBox5.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
   </data>
   <data name="&gt;&gt;pictureBox5.Name" xml:space="preserve">
     <value>pictureBox5</value>
@@ -1264,7 +1243,7 @@
     <value>tabBattery</value>
   </data>
   <data name="&gt;&gt;pictureBox5.ZOrder" xml:space="preserve">
-    <value>15</value>
+    <value>8</value>
   </data>
   <data name="tabBattery.Location" type="System.Drawing.Point, System.Drawing">
     <value>4, 22</value>
@@ -1329,18 +1308,6 @@
   <data name="&gt;&gt;label15.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
-  <data name="&gt;&gt;BUT_levelac2.Name" xml:space="preserve">
-    <value>BUT_levelac2</value>
-  </data>
-  <data name="&gt;&gt;BUT_levelac2.Type" xml:space="preserve">
-    <value>ArdupilotMega.MyButton, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=38326cb7e06851fc</value>
-  </data>
-  <data name="&gt;&gt;BUT_levelac2.Parent" xml:space="preserve">
-    <value>tabArducopter</value>
-  </data>
-  <data name="&gt;&gt;BUT_levelac2.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
   <data name="&gt;&gt;pictureBoxQuadX.Name" xml:space="preserve">
     <value>pictureBoxQuadX</value>
   </data>
@@ -1351,7 +1318,7 @@
     <value>tabArducopter</value>
   </data>
   <data name="&gt;&gt;pictureBoxQuadX.ZOrder" xml:space="preserve">
-    <value>4</value>
+    <value>3</value>
   </data>
   <data name="&gt;&gt;pictureBoxQuad.Name" xml:space="preserve">
     <value>pictureBoxQuad</value>
@@ -1363,6 +1330,18 @@
     <value>tabArducopter</value>
   </data>
   <data name="&gt;&gt;pictureBoxQuad.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="&gt;&gt;BUT_levelac2.Name" xml:space="preserve">
+    <value>BUT_levelac2</value>
+  </data>
+  <data name="&gt;&gt;BUT_levelac2.Type" xml:space="preserve">
+    <value>ArdupilotMega.MyButton, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=38326cb7e06851fc</value>
+  </data>
+  <data name="&gt;&gt;BUT_levelac2.Parent" xml:space="preserve">
+    <value>tabArducopter</value>
+  </data>
+  <data name="&gt;&gt;BUT_levelac2.ZOrder" xml:space="preserve">
     <value>5</value>
   </data>
   <data name="tabArducopter.Location" type="System.Drawing.Point, System.Drawing">
@@ -1389,378 +1368,6 @@
   <data name="&gt;&gt;tabArducopter.ZOrder" xml:space="preserve">
     <value>4</value>
   </data>
-  <data name="&gt;&gt;groupBox3.Name" xml:space="preserve">
-    <value>groupBox3</value>
-  </data>
-  <data name="&gt;&gt;groupBox3.Type" xml:space="preserve">
-    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;groupBox3.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;groupBox3.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <data name="&gt;&gt;label44.Name" xml:space="preserve">
-    <value>label44</value>
-  </data>
-  <data name="&gt;&gt;label44.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label44.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;label44.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="&gt;&gt;label43.Name" xml:space="preserve">
-    <value>label43</value>
-  </data>
-  <data name="&gt;&gt;label43.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label43.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;label43.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="&gt;&gt;label42.Name" xml:space="preserve">
-    <value>label42</value>
-  </data>
-  <data name="&gt;&gt;label42.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label42.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;label42.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
-  <data name="&gt;&gt;groupBox2.Name" xml:space="preserve">
-    <value>groupBox2</value>
-  </data>
-  <data name="&gt;&gt;groupBox2.Type" xml:space="preserve">
-    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;groupBox2.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;groupBox2.ZOrder" xml:space="preserve">
-    <value>4</value>
-  </data>
-  <data name="&gt;&gt;groupBox1.Name" xml:space="preserve">
-    <value>groupBox1</value>
-  </data>
-  <data name="&gt;&gt;groupBox1.Type" xml:space="preserve">
-    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;groupBox1.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;groupBox1.ZOrder" xml:space="preserve">
-    <value>5</value>
-  </data>
-  <data name="&gt;&gt;HS4_TRIM.Name" xml:space="preserve">
-    <value>HS4_TRIM</value>
-  </data>
-  <data name="&gt;&gt;HS4_TRIM.Type" xml:space="preserve">
-    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;HS4_TRIM.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;HS4_TRIM.ZOrder" xml:space="preserve">
-    <value>6</value>
-  </data>
-  <data name="&gt;&gt;HS3_TRIM.Name" xml:space="preserve">
-    <value>HS3_TRIM</value>
-  </data>
-  <data name="&gt;&gt;HS3_TRIM.Type" xml:space="preserve">
-    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;HS3_TRIM.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;HS3_TRIM.ZOrder" xml:space="preserve">
-    <value>7</value>
-  </data>
-  <data name="&gt;&gt;HS2_TRIM.Name" xml:space="preserve">
-    <value>HS2_TRIM</value>
-  </data>
-  <data name="&gt;&gt;HS2_TRIM.Type" xml:space="preserve">
-    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;HS2_TRIM.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;HS2_TRIM.ZOrder" xml:space="preserve">
-    <value>8</value>
-  </data>
-  <data name="&gt;&gt;HS1_TRIM.Name" xml:space="preserve">
-    <value>HS1_TRIM</value>
-  </data>
-  <data name="&gt;&gt;HS1_TRIM.Type" xml:space="preserve">
-    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;HS1_TRIM.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;HS1_TRIM.ZOrder" xml:space="preserve">
-    <value>9</value>
-  </data>
-  <data name="&gt;&gt;label39.Name" xml:space="preserve">
-    <value>label39</value>
-  </data>
-  <data name="&gt;&gt;label39.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label39.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;label39.ZOrder" xml:space="preserve">
-    <value>10</value>
-  </data>
-  <data name="&gt;&gt;label38.Name" xml:space="preserve">
-    <value>label38</value>
-  </data>
-  <data name="&gt;&gt;label38.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label38.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;label38.ZOrder" xml:space="preserve">
-    <value>11</value>
-  </data>
-  <data name="&gt;&gt;label37.Name" xml:space="preserve">
-    <value>label37</value>
-  </data>
-  <data name="&gt;&gt;label37.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label37.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;label37.ZOrder" xml:space="preserve">
-    <value>12</value>
-  </data>
-  <data name="&gt;&gt;label36.Name" xml:space="preserve">
-    <value>label36</value>
-  </data>
-  <data name="&gt;&gt;label36.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label36.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;label36.ZOrder" xml:space="preserve">
-    <value>13</value>
-  </data>
-  <data name="&gt;&gt;label26.Name" xml:space="preserve">
-    <value>label26</value>
-  </data>
-  <data name="&gt;&gt;label26.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label26.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;label26.ZOrder" xml:space="preserve">
-    <value>14</value>
-  </data>
-  <data name="&gt;&gt;PIT_MAX_.Name" xml:space="preserve">
-    <value>PIT_MAX_</value>
-  </data>
-  <data name="&gt;&gt;PIT_MAX_.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;PIT_MAX_.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;PIT_MAX_.ZOrder" xml:space="preserve">
-    <value>15</value>
-  </data>
-  <data name="&gt;&gt;label25.Name" xml:space="preserve">
-    <value>label25</value>
-  </data>
-  <data name="&gt;&gt;label25.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label25.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;label25.ZOrder" xml:space="preserve">
-    <value>16</value>
-  </data>
-  <data name="&gt;&gt;ROL_MAX_.Name" xml:space="preserve">
-    <value>ROL_MAX_</value>
-  </data>
-  <data name="&gt;&gt;ROL_MAX_.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;ROL_MAX_.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;ROL_MAX_.ZOrder" xml:space="preserve">
-    <value>17</value>
-  </data>
-  <data name="&gt;&gt;label23.Name" xml:space="preserve">
-    <value>label23</value>
-  </data>
-  <data name="&gt;&gt;label23.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label23.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;label23.ZOrder" xml:space="preserve">
-    <value>18</value>
-  </data>
-  <data name="&gt;&gt;label22.Name" xml:space="preserve">
-    <value>label22</value>
-  </data>
-  <data name="&gt;&gt;label22.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label22.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;label22.ZOrder" xml:space="preserve">
-    <value>19</value>
-  </data>
-  <data name="&gt;&gt;HS4_REV.Name" xml:space="preserve">
-    <value>HS4_REV</value>
-  </data>
-  <data name="&gt;&gt;HS4_REV.Type" xml:space="preserve">
-    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;HS4_REV.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;HS4_REV.ZOrder" xml:space="preserve">
-    <value>20</value>
-  </data>
-  <data name="&gt;&gt;label20.Name" xml:space="preserve">
-    <value>label20</value>
-  </data>
-  <data name="&gt;&gt;label20.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label20.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;label20.ZOrder" xml:space="preserve">
-    <value>21</value>
-  </data>
-  <data name="&gt;&gt;label19.Name" xml:space="preserve">
-    <value>label19</value>
-  </data>
-  <data name="&gt;&gt;label19.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label19.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;label19.ZOrder" xml:space="preserve">
-    <value>22</value>
-  </data>
-  <data name="&gt;&gt;label18.Name" xml:space="preserve">
-    <value>label18</value>
-  </data>
-  <data name="&gt;&gt;label18.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label18.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;label18.ZOrder" xml:space="preserve">
-    <value>23</value>
-  </data>
-  <data name="&gt;&gt;SV3_POS_.Name" xml:space="preserve">
-    <value>SV3_POS_</value>
-  </data>
-  <data name="&gt;&gt;SV3_POS_.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;SV3_POS_.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;SV3_POS_.ZOrder" xml:space="preserve">
-    <value>24</value>
-  </data>
-  <data name="&gt;&gt;SV2_POS_.Name" xml:space="preserve">
-    <value>SV2_POS_</value>
-  </data>
-  <data name="&gt;&gt;SV2_POS_.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;SV2_POS_.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;SV2_POS_.ZOrder" xml:space="preserve">
-    <value>25</value>
-  </data>
-  <data name="&gt;&gt;SV1_POS_.Name" xml:space="preserve">
-    <value>SV1_POS_</value>
-  </data>
-  <data name="&gt;&gt;SV1_POS_.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;SV1_POS_.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;SV1_POS_.ZOrder" xml:space="preserve">
-    <value>26</value>
-  </data>
-  <data name="&gt;&gt;HS3_REV.Name" xml:space="preserve">
-    <value>HS3_REV</value>
-  </data>
-  <data name="&gt;&gt;HS3_REV.Type" xml:space="preserve">
-    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;HS3_REV.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;HS3_REV.ZOrder" xml:space="preserve">
-    <value>27</value>
-  </data>
-  <data name="&gt;&gt;HS2_REV.Name" xml:space="preserve">
-    <value>HS2_REV</value>
-  </data>
-  <data name="&gt;&gt;HS2_REV.Type" xml:space="preserve">
-    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;HS2_REV.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;HS2_REV.ZOrder" xml:space="preserve">
-    <value>28</value>
-  </data>
-  <data name="&gt;&gt;HS1_REV.Name" xml:space="preserve">
-    <value>HS1_REV</value>
-  </data>
-  <data name="&gt;&gt;HS1_REV.Type" xml:space="preserve">
-    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;HS1_REV.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;HS1_REV.ZOrder" xml:space="preserve">
-    <value>29</value>
-  </data>
-  <data name="&gt;&gt;label17.Name" xml:space="preserve">
-    <value>label17</value>
-  </data>
-  <data name="&gt;&gt;label17.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label17.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;label17.ZOrder" xml:space="preserve">
-    <value>30</value>
-  </data>
   <data name="&gt;&gt;BUT_HS4save.Name" xml:space="preserve">
     <value>BUT_HS4save</value>
   </data>
@@ -1771,7 +1378,7 @@
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;BUT_HS4save.ZOrder" xml:space="preserve">
-    <value>31</value>
+    <value>0</value>
   </data>
   <data name="&gt;&gt;BUT_swash_manual.Name" xml:space="preserve">
     <value>BUT_swash_manual</value>
@@ -1783,6 +1390,378 @@
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;BUT_swash_manual.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;groupBox3.Name" xml:space="preserve">
+    <value>groupBox3</value>
+  </data>
+  <data name="&gt;&gt;groupBox3.Type" xml:space="preserve">
+    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;groupBox3.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;groupBox3.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;label44.Name" xml:space="preserve">
+    <value>label44</value>
+  </data>
+  <data name="&gt;&gt;label44.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label44.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;label44.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="&gt;&gt;label43.Name" xml:space="preserve">
+    <value>label43</value>
+  </data>
+  <data name="&gt;&gt;label43.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label43.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;label43.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="&gt;&gt;label42.Name" xml:space="preserve">
+    <value>label42</value>
+  </data>
+  <data name="&gt;&gt;label42.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label42.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;label42.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="&gt;&gt;groupBox2.Name" xml:space="preserve">
+    <value>groupBox2</value>
+  </data>
+  <data name="&gt;&gt;groupBox2.Type" xml:space="preserve">
+    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;groupBox2.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;groupBox2.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="&gt;&gt;groupBox1.Name" xml:space="preserve">
+    <value>groupBox1</value>
+  </data>
+  <data name="&gt;&gt;groupBox1.Type" xml:space="preserve">
+    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;groupBox1.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;groupBox1.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="&gt;&gt;HS4_TRIM.Name" xml:space="preserve">
+    <value>HS4_TRIM</value>
+  </data>
+  <data name="&gt;&gt;HS4_TRIM.Type" xml:space="preserve">
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;HS4_TRIM.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;HS4_TRIM.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="&gt;&gt;HS3_TRIM.Name" xml:space="preserve">
+    <value>HS3_TRIM</value>
+  </data>
+  <data name="&gt;&gt;HS3_TRIM.Type" xml:space="preserve">
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;HS3_TRIM.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;HS3_TRIM.ZOrder" xml:space="preserve">
+    <value>9</value>
+  </data>
+  <data name="&gt;&gt;HS2_TRIM.Name" xml:space="preserve">
+    <value>HS2_TRIM</value>
+  </data>
+  <data name="&gt;&gt;HS2_TRIM.Type" xml:space="preserve">
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;HS2_TRIM.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;HS2_TRIM.ZOrder" xml:space="preserve">
+    <value>10</value>
+  </data>
+  <data name="&gt;&gt;HS1_TRIM.Name" xml:space="preserve">
+    <value>HS1_TRIM</value>
+  </data>
+  <data name="&gt;&gt;HS1_TRIM.Type" xml:space="preserve">
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;HS1_TRIM.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;HS1_TRIM.ZOrder" xml:space="preserve">
+    <value>11</value>
+  </data>
+  <data name="&gt;&gt;label39.Name" xml:space="preserve">
+    <value>label39</value>
+  </data>
+  <data name="&gt;&gt;label39.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label39.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;label39.ZOrder" xml:space="preserve">
+    <value>12</value>
+  </data>
+  <data name="&gt;&gt;label38.Name" xml:space="preserve">
+    <value>label38</value>
+  </data>
+  <data name="&gt;&gt;label38.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label38.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;label38.ZOrder" xml:space="preserve">
+    <value>13</value>
+  </data>
+  <data name="&gt;&gt;label37.Name" xml:space="preserve">
+    <value>label37</value>
+  </data>
+  <data name="&gt;&gt;label37.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label37.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;label37.ZOrder" xml:space="preserve">
+    <value>14</value>
+  </data>
+  <data name="&gt;&gt;label36.Name" xml:space="preserve">
+    <value>label36</value>
+  </data>
+  <data name="&gt;&gt;label36.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label36.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;label36.ZOrder" xml:space="preserve">
+    <value>15</value>
+  </data>
+  <data name="&gt;&gt;label26.Name" xml:space="preserve">
+    <value>label26</value>
+  </data>
+  <data name="&gt;&gt;label26.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label26.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;label26.ZOrder" xml:space="preserve">
+    <value>16</value>
+  </data>
+  <data name="&gt;&gt;PIT_MAX_.Name" xml:space="preserve">
+    <value>PIT_MAX_</value>
+  </data>
+  <data name="&gt;&gt;PIT_MAX_.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;PIT_MAX_.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;PIT_MAX_.ZOrder" xml:space="preserve">
+    <value>17</value>
+  </data>
+  <data name="&gt;&gt;label25.Name" xml:space="preserve">
+    <value>label25</value>
+  </data>
+  <data name="&gt;&gt;label25.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label25.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;label25.ZOrder" xml:space="preserve">
+    <value>18</value>
+  </data>
+  <data name="&gt;&gt;ROL_MAX_.Name" xml:space="preserve">
+    <value>ROL_MAX_</value>
+  </data>
+  <data name="&gt;&gt;ROL_MAX_.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;ROL_MAX_.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;ROL_MAX_.ZOrder" xml:space="preserve">
+    <value>19</value>
+  </data>
+  <data name="&gt;&gt;label23.Name" xml:space="preserve">
+    <value>label23</value>
+  </data>
+  <data name="&gt;&gt;label23.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label23.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;label23.ZOrder" xml:space="preserve">
+    <value>20</value>
+  </data>
+  <data name="&gt;&gt;label22.Name" xml:space="preserve">
+    <value>label22</value>
+  </data>
+  <data name="&gt;&gt;label22.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label22.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;label22.ZOrder" xml:space="preserve">
+    <value>21</value>
+  </data>
+  <data name="&gt;&gt;HS4_REV.Name" xml:space="preserve">
+    <value>HS4_REV</value>
+  </data>
+  <data name="&gt;&gt;HS4_REV.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;HS4_REV.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;HS4_REV.ZOrder" xml:space="preserve">
+    <value>22</value>
+  </data>
+  <data name="&gt;&gt;label20.Name" xml:space="preserve">
+    <value>label20</value>
+  </data>
+  <data name="&gt;&gt;label20.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label20.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;label20.ZOrder" xml:space="preserve">
+    <value>23</value>
+  </data>
+  <data name="&gt;&gt;label19.Name" xml:space="preserve">
+    <value>label19</value>
+  </data>
+  <data name="&gt;&gt;label19.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label19.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;label19.ZOrder" xml:space="preserve">
+    <value>24</value>
+  </data>
+  <data name="&gt;&gt;label18.Name" xml:space="preserve">
+    <value>label18</value>
+  </data>
+  <data name="&gt;&gt;label18.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label18.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;label18.ZOrder" xml:space="preserve">
+    <value>25</value>
+  </data>
+  <data name="&gt;&gt;SV3_POS_.Name" xml:space="preserve">
+    <value>SV3_POS_</value>
+  </data>
+  <data name="&gt;&gt;SV3_POS_.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;SV3_POS_.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;SV3_POS_.ZOrder" xml:space="preserve">
+    <value>26</value>
+  </data>
+  <data name="&gt;&gt;SV2_POS_.Name" xml:space="preserve">
+    <value>SV2_POS_</value>
+  </data>
+  <data name="&gt;&gt;SV2_POS_.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;SV2_POS_.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;SV2_POS_.ZOrder" xml:space="preserve">
+    <value>27</value>
+  </data>
+  <data name="&gt;&gt;SV1_POS_.Name" xml:space="preserve">
+    <value>SV1_POS_</value>
+  </data>
+  <data name="&gt;&gt;SV1_POS_.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;SV1_POS_.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;SV1_POS_.ZOrder" xml:space="preserve">
+    <value>28</value>
+  </data>
+  <data name="&gt;&gt;HS3_REV.Name" xml:space="preserve">
+    <value>HS3_REV</value>
+  </data>
+  <data name="&gt;&gt;HS3_REV.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;HS3_REV.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;HS3_REV.ZOrder" xml:space="preserve">
+    <value>29</value>
+  </data>
+  <data name="&gt;&gt;HS2_REV.Name" xml:space="preserve">
+    <value>HS2_REV</value>
+  </data>
+  <data name="&gt;&gt;HS2_REV.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;HS2_REV.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;HS2_REV.ZOrder" xml:space="preserve">
+    <value>30</value>
+  </data>
+  <data name="&gt;&gt;HS1_REV.Name" xml:space="preserve">
+    <value>HS1_REV</value>
+  </data>
+  <data name="&gt;&gt;HS1_REV.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;HS1_REV.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;HS1_REV.ZOrder" xml:space="preserve">
+    <value>31</value>
+  </data>
+  <data name="&gt;&gt;label17.Name" xml:space="preserve">
+    <value>label17</value>
+  </data>
+  <data name="&gt;&gt;label17.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label17.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;label17.ZOrder" xml:space="preserve">
     <value>32</value>
   </data>
   <data name="&gt;&gt;HS4.Name" xml:space="preserve">
@@ -1918,7 +1897,7 @@
     <value>3</value>
   </data>
   <data name="groupBoxElevons.Location" type="System.Drawing.Point, System.Drawing">
-    <value>21, 340</value>
+    <value>21, 349</value>
   </data>
   <data name="groupBoxElevons.Size" type="System.Drawing.Size, System.Drawing">
     <value>409, 42</value>
@@ -2083,7 +2062,7 @@
     <value>NoControl</value>
   </data>
   <data name="CHK_revch3.Location" type="System.Drawing.Point, System.Drawing">
-    <value>287, 158</value>
+    <value>287, 154</value>
   </data>
   <data name="CHK_revch3.Size" type="System.Drawing.Size, System.Drawing">
     <value>66, 17</value>
@@ -2113,7 +2092,7 @@
     <value>NoControl</value>
   </data>
   <data name="CHK_revch4.Location" type="System.Drawing.Point, System.Drawing">
-    <value>315, 310</value>
+    <value>315, 306</value>
   </data>
   <data name="CHK_revch4.Size" type="System.Drawing.Size, System.Drawing">
     <value>66, 17</value>
@@ -2143,7 +2122,7 @@
     <value>NoControl</value>
   </data>
   <data name="CHK_revch2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>71, 158</value>
+    <value>71, 154</value>
   </data>
   <data name="CHK_revch2.Size" type="System.Drawing.Size, System.Drawing">
     <value>66, 17</value>
@@ -2314,7 +2293,7 @@
     <value>9</value>
   </data>
   <data name="BARpitch.Location" type="System.Drawing.Point, System.Drawing">
-    <value>143, 61</value>
+    <value>143, 57</value>
   </data>
   <data name="BARpitch.Size" type="System.Drawing.Size, System.Drawing">
     <value>47, 211</value>
@@ -2335,7 +2314,7 @@
     <value>10</value>
   </data>
   <data name="BARthrottle.Location" type="System.Drawing.Point, System.Drawing">
-    <value>359, 61</value>
+    <value>359, 57</value>
   </data>
   <data name="BARthrottle.Size" type="System.Drawing.Size, System.Drawing">
     <value>47, 211</value>
@@ -2356,7 +2335,7 @@
     <value>11</value>
   </data>
   <data name="BARyaw.Location" type="System.Drawing.Point, System.Drawing">
-    <value>21, 304</value>
+    <value>21, 300</value>
   </data>
   <data name="BARyaw.Size" type="System.Drawing.Size, System.Drawing">
     <value>288, 23</value>
@@ -2733,9 +2712,6 @@
   <data name="label12.Text" xml:space="preserve">
     <value>PWM 0 - 1230</value>
   </data>
-  <data name="label12.Visible" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
   <data name="&gt;&gt;label12.Name" xml:space="preserve">
     <value>label12</value>
   </data>
@@ -2765,9 +2741,6 @@
   </data>
   <data name="label11.Text" xml:space="preserve">
     <value>PWM 1750 +</value>
-  </data>
-  <data name="label11.Visible" type="System.Boolean, mscorlib">
-    <value>False</value>
   </data>
   <data name="&gt;&gt;label11.Name" xml:space="preserve">
     <value>label11</value>
@@ -2799,9 +2772,6 @@
   <data name="label10.Text" xml:space="preserve">
     <value>PWM 1621 - 1749</value>
   </data>
-  <data name="label10.Visible" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
   <data name="&gt;&gt;label10.Name" xml:space="preserve">
     <value>label10</value>
   </data>
@@ -2831,9 +2801,6 @@
   </data>
   <data name="label9.Text" xml:space="preserve">
     <value>PWM 1491 - 1620</value>
-  </data>
-  <data name="label9.Visible" type="System.Boolean, mscorlib">
-    <value>False</value>
   </data>
   <data name="&gt;&gt;label9.Name" xml:space="preserve">
     <value>label9</value>
@@ -2865,9 +2832,6 @@
   <data name="label8.Text" xml:space="preserve">
     <value>PWM 1361 - 1490</value>
   </data>
-  <data name="label8.Visible" type="System.Boolean, mscorlib">
-    <value>False</value>
-  </data>
   <data name="&gt;&gt;label8.Name" xml:space="preserve">
     <value>label8</value>
   </data>
@@ -2897,9 +2861,6 @@
   </data>
   <data name="label7.Text" xml:space="preserve">
     <value>PWM 1231 - 1360</value>
-  </data>
-  <data name="label7.Visible" type="System.Boolean, mscorlib">
-    <value>False</value>
   </data>
   <data name="&gt;&gt;label7.Name" xml:space="preserve">
     <value>label7</value>
@@ -3246,8 +3207,467 @@
   <data name="&gt;&gt;BUT_SaveModes.ZOrder" xml:space="preserve">
     <value>28</value>
   </data>
+  <data name="label27.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="label27.Location" type="System.Drawing.Point, System.Drawing">
+    <value>510, 57</value>
+  </data>
+  <data name="label27.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="label27.TabIndex" type="System.Int32, mscorlib">
+    <value>32</value>
+  </data>
+  <data name="label27.Text" xml:space="preserve">
+    <value>in Degrees eg 2° 3' W is -2.3</value>
+  </data>
+  <data name="&gt;&gt;label27.Name" xml:space="preserve">
+    <value>label27</value>
+  </data>
+  <data name="&gt;&gt;label27.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label27.Parent" xml:space="preserve">
+    <value>tabHardware</value>
+  </data>
+  <data name="&gt;&gt;label27.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="CMB_sonartype.Items" xml:space="preserve">
+    <value>XL-EZ0</value>
+  </data>
+  <data name="CMB_sonartype.Items1" xml:space="preserve">
+    <value>LV-EZ0</value>
+  </data>
+  <data name="CMB_sonartype.Items2" xml:space="preserve">
+    <value>XL-EZL0</value>
+  </data>
+  <data name="CMB_sonartype.Location" type="System.Drawing.Point, System.Drawing">
+    <value>308, 134</value>
+  </data>
+  <data name="CMB_sonartype.Size" type="System.Drawing.Size, System.Drawing">
+    <value>121, 21</value>
+  </data>
+  <data name="CMB_sonartype.TabIndex" type="System.Int32, mscorlib">
+    <value>31</value>
+  </data>
+  <data name="&gt;&gt;CMB_sonartype.Name" xml:space="preserve">
+    <value>CMB_sonartype</value>
+  </data>
+  <data name="&gt;&gt;CMB_sonartype.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;CMB_sonartype.Parent" xml:space="preserve">
+    <value>tabHardware</value>
+  </data>
+  <data name="&gt;&gt;CMB_sonartype.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="CHK_enableoptflow.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="CHK_enableoptflow.Location" type="System.Drawing.Point, System.Drawing">
+    <value>162, 297</value>
+  </data>
+  <data name="CHK_enableoptflow.Size" type="System.Drawing.Size, System.Drawing">
+    <value>134, 19</value>
+  </data>
+  <data name="CHK_enableoptflow.TabIndex" type="System.Int32, mscorlib">
+    <value>30</value>
+  </data>
+  <data name="CHK_enableoptflow.Text" xml:space="preserve">
+    <value>Enable Optical Flow</value>
+  </data>
+  <data name="&gt;&gt;CHK_enableoptflow.Name" xml:space="preserve">
+    <value>CHK_enableoptflow</value>
+  </data>
+  <data name="&gt;&gt;CHK_enableoptflow.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;CHK_enableoptflow.Parent" xml:space="preserve">
+    <value>tabHardware</value>
+  </data>
+  <data name="&gt;&gt;CHK_enableoptflow.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="pictureBox2.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Zoom</value>
+  </data>
+  <data name="pictureBox2.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="pictureBox2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>78, 271</value>
+  </data>
+  <data name="pictureBox2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>75, 75</value>
+  </data>
+  <data name="pictureBox2.TabIndex" type="System.Int32, mscorlib">
+    <value>29</value>
+  </data>
+  <data name="&gt;&gt;pictureBox2.Name" xml:space="preserve">
+    <value>pictureBox2</value>
+  </data>
+  <data name="&gt;&gt;pictureBox2.Type" xml:space="preserve">
+    <value>System.Windows.Forms.PictureBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;pictureBox2.Parent" xml:space="preserve">
+    <value>tabHardware</value>
+  </data>
+  <data name="&gt;&gt;pictureBox2.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="linkLabelmagdec.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="linkLabelmagdec.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="linkLabelmagdec.Location" type="System.Drawing.Point, System.Drawing">
+    <value>390, 80</value>
+  </data>
+  <data name="linkLabelmagdec.Size" type="System.Drawing.Size, System.Drawing">
+    <value>104, 13</value>
+  </data>
+  <data name="linkLabelmagdec.TabIndex" type="System.Int32, mscorlib">
+    <value>28</value>
+  </data>
+  <data name="linkLabelmagdec.Text" xml:space="preserve">
+    <value>Declination WebSite</value>
+  </data>
+  <data name="&gt;&gt;linkLabelmagdec.Name" xml:space="preserve">
+    <value>linkLabelmagdec</value>
+  </data>
+  <data name="&gt;&gt;linkLabelmagdec.Type" xml:space="preserve">
+    <value>System.Windows.Forms.LinkLabel, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;linkLabelmagdec.Parent" xml:space="preserve">
+    <value>tabHardware</value>
+  </data>
+  <data name="&gt;&gt;linkLabelmagdec.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="label100.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="label100.Location" type="System.Drawing.Point, System.Drawing">
+    <value>305, 57</value>
+  </data>
+  <data name="label100.Size" type="System.Drawing.Size, System.Drawing">
+    <value>72, 16</value>
+  </data>
+  <data name="label100.TabIndex" type="System.Int32, mscorlib">
+    <value>23</value>
+  </data>
+  <data name="label100.Text" xml:space="preserve">
+    <value>Declination</value>
+  </data>
+  <data name="&gt;&gt;label100.Name" xml:space="preserve">
+    <value>label100</value>
+  </data>
+  <data name="&gt;&gt;label100.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label100.Parent" xml:space="preserve">
+    <value>tabHardware</value>
+  </data>
+  <data name="&gt;&gt;label100.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="TXT_declination.Location" type="System.Drawing.Point, System.Drawing">
+    <value>383, 57</value>
+  </data>
+  <data name="TXT_declination.Size" type="System.Drawing.Size, System.Drawing">
+    <value>121, 20</value>
+  </data>
+  <data name="TXT_declination.TabIndex" type="System.Int32, mscorlib">
+    <value>20</value>
+  </data>
+  <data name="TXT_declination.ToolTip" xml:space="preserve">
+    <value>Magnetic Declination (-20.0 to 20.0) eg 2° 3' W is -2.3</value>
+  </data>
+  <data name="&gt;&gt;TXT_declination.Name" xml:space="preserve">
+    <value>TXT_declination</value>
+  </data>
+  <data name="&gt;&gt;TXT_declination.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;TXT_declination.Parent" xml:space="preserve">
+    <value>tabHardware</value>
+  </data>
+  <data name="&gt;&gt;TXT_declination.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="CHK_enableairspeed.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="CHK_enableairspeed.Location" type="System.Drawing.Point, System.Drawing">
+    <value>162, 214</value>
+  </data>
+  <data name="CHK_enableairspeed.Size" type="System.Drawing.Size, System.Drawing">
+    <value>103, 17</value>
+  </data>
+  <data name="CHK_enableairspeed.TabIndex" type="System.Int32, mscorlib">
+    <value>24</value>
+  </data>
+  <data name="CHK_enableairspeed.Text" xml:space="preserve">
+    <value>Enable Airspeed</value>
+  </data>
+  <data name="&gt;&gt;CHK_enableairspeed.Name" xml:space="preserve">
+    <value>CHK_enableairspeed</value>
+  </data>
+  <data name="&gt;&gt;CHK_enableairspeed.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;CHK_enableairspeed.Parent" xml:space="preserve">
+    <value>tabHardware</value>
+  </data>
+  <data name="&gt;&gt;CHK_enableairspeed.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="CHK_enablesonar.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="CHK_enablesonar.Location" type="System.Drawing.Point, System.Drawing">
+    <value>159, 136</value>
+  </data>
+  <data name="CHK_enablesonar.Size" type="System.Drawing.Size, System.Drawing">
+    <value>90, 17</value>
+  </data>
+  <data name="CHK_enablesonar.TabIndex" type="System.Int32, mscorlib">
+    <value>25</value>
+  </data>
+  <data name="CHK_enablesonar.Text" xml:space="preserve">
+    <value>Enable Sonar</value>
+  </data>
+  <data name="&gt;&gt;CHK_enablesonar.Name" xml:space="preserve">
+    <value>CHK_enablesonar</value>
+  </data>
+  <data name="&gt;&gt;CHK_enablesonar.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;CHK_enablesonar.Parent" xml:space="preserve">
+    <value>tabHardware</value>
+  </data>
+  <data name="&gt;&gt;CHK_enablesonar.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="CHK_enablecompass.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="CHK_enablecompass.Location" type="System.Drawing.Point, System.Drawing">
+    <value>162, 56</value>
+  </data>
+  <data name="CHK_enablecompass.Size" type="System.Drawing.Size, System.Drawing">
+    <value>105, 17</value>
+  </data>
+  <data name="CHK_enablecompass.TabIndex" type="System.Int32, mscorlib">
+    <value>27</value>
+  </data>
+  <data name="CHK_enablecompass.Text" xml:space="preserve">
+    <value>Enable Compass</value>
+  </data>
+  <data name="&gt;&gt;CHK_enablecompass.Name" xml:space="preserve">
+    <value>CHK_enablecompass</value>
+  </data>
+  <data name="&gt;&gt;CHK_enablecompass.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;CHK_enablecompass.Parent" xml:space="preserve">
+    <value>tabHardware</value>
+  </data>
+  <data name="&gt;&gt;CHK_enablecompass.ZOrder" xml:space="preserve">
+    <value>9</value>
+  </data>
+  <data name="pictureBox4.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Zoom</value>
+  </data>
+  <data name="pictureBox4.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="pictureBox4.Location" type="System.Drawing.Point, System.Drawing">
+    <value>78, 188</value>
+  </data>
+  <data name="pictureBox4.Size" type="System.Drawing.Size, System.Drawing">
+    <value>75, 75</value>
+  </data>
+  <data name="pictureBox4.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="&gt;&gt;pictureBox4.Name" xml:space="preserve">
+    <value>pictureBox4</value>
+  </data>
+  <data name="&gt;&gt;pictureBox4.Type" xml:space="preserve">
+    <value>System.Windows.Forms.PictureBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;pictureBox4.Parent" xml:space="preserve">
+    <value>tabHardware</value>
+  </data>
+  <data name="&gt;&gt;pictureBox4.ZOrder" xml:space="preserve">
+    <value>10</value>
+  </data>
+  <data name="pictureBox3.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Zoom</value>
+  </data>
+  <data name="pictureBox3.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="pictureBox3.Location" type="System.Drawing.Point, System.Drawing">
+    <value>78, 106</value>
+  </data>
+  <data name="pictureBox3.Size" type="System.Drawing.Size, System.Drawing">
+    <value>75, 75</value>
+  </data>
+  <data name="pictureBox3.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;pictureBox3.Name" xml:space="preserve">
+    <value>pictureBox3</value>
+  </data>
+  <data name="&gt;&gt;pictureBox3.Type" xml:space="preserve">
+    <value>System.Windows.Forms.PictureBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;pictureBox3.Parent" xml:space="preserve">
+    <value>tabHardware</value>
+  </data>
+  <data name="&gt;&gt;pictureBox3.ZOrder" xml:space="preserve">
+    <value>11</value>
+  </data>
+  <data name="pictureBox1.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
+    <value>Zoom</value>
+  </data>
+  <data name="pictureBox1.ErrorImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="pictureBox1.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="pictureBox1.InitialImage" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="pictureBox1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>78, 25</value>
+  </data>
+  <data name="pictureBox1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>75, 75</value>
+  </data>
+  <data name="pictureBox1.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="&gt;&gt;pictureBox1.Name" xml:space="preserve">
+    <value>pictureBox1</value>
+  </data>
+  <data name="&gt;&gt;pictureBox1.Type" xml:space="preserve">
+    <value>System.Windows.Forms.PictureBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;pictureBox1.Parent" xml:space="preserve">
+    <value>tabHardware</value>
+  </data>
+  <data name="&gt;&gt;pictureBox1.ZOrder" xml:space="preserve">
+    <value>12</value>
+  </data>
+  <data name="label31.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="label31.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="label31.Location" type="System.Drawing.Point, System.Drawing">
+    <value>5, 16</value>
+  </data>
+  <data name="label31.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>2, 0, 2, 0</value>
+  </data>
+  <data name="label31.Size" type="System.Drawing.Size, System.Drawing">
+    <value>110, 13</value>
+  </data>
+  <data name="label31.TabIndex" type="System.Int32, mscorlib">
+    <value>29</value>
+  </data>
+  <data name="label31.Text" xml:space="preserve">
+    <value>1. APM Input voltage:</value>
+  </data>
+  <data name="&gt;&gt;label31.Name" xml:space="preserve">
+    <value>label31</value>
+  </data>
+  <data name="&gt;&gt;label31.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label31.Parent" xml:space="preserve">
+    <value>groupBox4</value>
+  </data>
+  <data name="&gt;&gt;label31.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="label32.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="label32.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="label32.Location" type="System.Drawing.Point, System.Drawing">
+    <value>5, 38</value>
+  </data>
+  <data name="label32.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>2, 0, 2, 0</value>
+  </data>
+  <data name="label32.Size" type="System.Drawing.Size, System.Drawing">
+    <value>142, 13</value>
+  </data>
+  <data name="label32.TabIndex" type="System.Int32, mscorlib">
+    <value>30</value>
+  </data>
+  <data name="label32.Text" xml:space="preserve">
+    <value>2. Measured battery voltage:</value>
+  </data>
+  <data name="&gt;&gt;label32.Name" xml:space="preserve">
+    <value>label32</value>
+  </data>
+  <data name="&gt;&gt;label32.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label32.Parent" xml:space="preserve">
+    <value>groupBox4</value>
+  </data>
+  <data name="&gt;&gt;label32.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="label33.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="label33.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="label33.Location" type="System.Drawing.Point, System.Drawing">
+    <value>5, 60</value>
+  </data>
+  <data name="label33.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>2, 0, 2, 0</value>
+  </data>
+  <data name="label33.Size" type="System.Drawing.Size, System.Drawing">
+    <value>135, 13</value>
+  </data>
+  <data name="label33.TabIndex" type="System.Int32, mscorlib">
+    <value>31</value>
+  </data>
+  <data name="label33.Text" xml:space="preserve">
+    <value>3. Battery voltage (Calced):</value>
+  </data>
+  <data name="&gt;&gt;label33.Name" xml:space="preserve">
+    <value>label33</value>
+  </data>
+  <data name="&gt;&gt;label33.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label33.Parent" xml:space="preserve">
+    <value>groupBox4</value>
+  </data>
+  <data name="&gt;&gt;label33.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
   <data name="TXT_ampspervolt.Location" type="System.Drawing.Point, System.Drawing">
-    <value>162, 267</value>
+    <value>149, 100</value>
   </data>
   <data name="TXT_ampspervolt.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>2, 2, 2, 2</value>
@@ -3265,13 +3685,46 @@
     <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;TXT_ampspervolt.Parent" xml:space="preserve">
-    <value>tabBattery</value>
+    <value>groupBox4</value>
   </data>
   <data name="&gt;&gt;TXT_ampspervolt.ZOrder" xml:space="preserve">
-    <value>0</value>
+    <value>3</value>
+  </data>
+  <data name="label34.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="label34.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="label34.Location" type="System.Drawing.Point, System.Drawing">
+    <value>5, 81</value>
+  </data>
+  <data name="label34.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>2, 0, 2, 0</value>
+  </data>
+  <data name="label34.Size" type="System.Drawing.Size, System.Drawing">
+    <value>134, 13</value>
+  </data>
+  <data name="label34.TabIndex" type="System.Int32, mscorlib">
+    <value>32</value>
+  </data>
+  <data name="label34.Text" xml:space="preserve">
+    <value>4. Voltage divider (Calced):</value>
+  </data>
+  <data name="&gt;&gt;label34.Name" xml:space="preserve">
+    <value>label34</value>
+  </data>
+  <data name="&gt;&gt;label34.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label34.Parent" xml:space="preserve">
+    <value>groupBox4</value>
+  </data>
+  <data name="&gt;&gt;label34.ZOrder" xml:space="preserve">
+    <value>4</value>
   </data>
   <data name="TXT_divider.Location" type="System.Drawing.Point, System.Drawing">
-    <value>162, 245</value>
+    <value>149, 78</value>
   </data>
   <data name="TXT_divider.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>2, 2, 2, 2</value>
@@ -3289,13 +3742,46 @@
     <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;TXT_divider.Parent" xml:space="preserve">
-    <value>tabBattery</value>
+    <value>groupBox4</value>
   </data>
   <data name="&gt;&gt;TXT_divider.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>5</value>
+  </data>
+  <data name="label35.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="label35.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="label35.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 103</value>
+  </data>
+  <data name="label35.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>2, 0, 2, 0</value>
+  </data>
+  <data name="label35.Size" type="System.Drawing.Size, System.Drawing">
+    <value>101, 13</value>
+  </data>
+  <data name="label35.TabIndex" type="System.Int32, mscorlib">
+    <value>33</value>
+  </data>
+  <data name="label35.Text" xml:space="preserve">
+    <value>5. Amperes per volt:</value>
+  </data>
+  <data name="&gt;&gt;label35.Name" xml:space="preserve">
+    <value>label35</value>
+  </data>
+  <data name="&gt;&gt;label35.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label35.Parent" xml:space="preserve">
+    <value>groupBox4</value>
+  </data>
+  <data name="&gt;&gt;label35.ZOrder" xml:space="preserve">
+    <value>6</value>
   </data>
   <data name="TXT_voltage.Location" type="System.Drawing.Point, System.Drawing">
-    <value>162, 224</value>
+    <value>149, 57</value>
   </data>
   <data name="TXT_voltage.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>2, 2, 2, 2</value>
@@ -3313,37 +3799,13 @@
     <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;TXT_voltage.Parent" xml:space="preserve">
-    <value>tabBattery</value>
+    <value>groupBox4</value>
   </data>
   <data name="&gt;&gt;TXT_voltage.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="TXT_measuredvoltage.Location" type="System.Drawing.Point, System.Drawing">
-    <value>162, 202</value>
-  </data>
-  <data name="TXT_measuredvoltage.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>2, 2, 2, 2</value>
-  </data>
-  <data name="TXT_measuredvoltage.Size" type="System.Drawing.Size, System.Drawing">
-    <value>76, 20</value>
-  </data>
-  <data name="TXT_measuredvoltage.TabIndex" type="System.Int32, mscorlib">
-    <value>35</value>
-  </data>
-  <data name="&gt;&gt;TXT_measuredvoltage.Name" xml:space="preserve">
-    <value>TXT_measuredvoltage</value>
-  </data>
-  <data name="&gt;&gt;TXT_measuredvoltage.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;TXT_measuredvoltage.Parent" xml:space="preserve">
-    <value>tabBattery</value>
-  </data>
-  <data name="&gt;&gt;TXT_measuredvoltage.ZOrder" xml:space="preserve">
-    <value>3</value>
+    <value>7</value>
   </data>
   <data name="TXT_inputvoltage.Location" type="System.Drawing.Point, System.Drawing">
-    <value>162, 180</value>
+    <value>149, 13</value>
   </data>
   <data name="TXT_inputvoltage.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>2, 2, 2, 2</value>
@@ -3361,349 +3823,34 @@
     <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;TXT_inputvoltage.Parent" xml:space="preserve">
-    <value>tabBattery</value>
+    <value>groupBox4</value>
   </data>
   <data name="&gt;&gt;TXT_inputvoltage.ZOrder" xml:space="preserve">
-    <value>4</value>
-  </data>
-  <data name="label35.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="label35.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="label35.Location" type="System.Drawing.Point, System.Drawing">
-    <value>29, 270</value>
-  </data>
-  <data name="label35.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>2, 0, 2, 0</value>
-  </data>
-  <data name="label35.Size" type="System.Drawing.Size, System.Drawing">
-    <value>89, 13</value>
-  </data>
-  <data name="label35.TabIndex" type="System.Int32, mscorlib">
-    <value>33</value>
-  </data>
-  <data name="label35.Text" xml:space="preserve">
-    <value>Amperes per volt:</value>
-  </data>
-  <data name="&gt;&gt;label35.Name" xml:space="preserve">
-    <value>label35</value>
-  </data>
-  <data name="&gt;&gt;label35.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label35.Parent" xml:space="preserve">
-    <value>tabBattery</value>
-  </data>
-  <data name="&gt;&gt;label35.ZOrder" xml:space="preserve">
-    <value>5</value>
-  </data>
-  <data name="label34.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="label34.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="label34.Location" type="System.Drawing.Point, System.Drawing">
-    <value>28, 248</value>
-  </data>
-  <data name="label34.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>2, 0, 2, 0</value>
-  </data>
-  <data name="label34.Size" type="System.Drawing.Size, System.Drawing">
-    <value>80, 13</value>
-  </data>
-  <data name="label34.TabIndex" type="System.Int32, mscorlib">
-    <value>32</value>
-  </data>
-  <data name="label34.Text" xml:space="preserve">
-    <value>Voltage divider:</value>
-  </data>
-  <data name="&gt;&gt;label34.Name" xml:space="preserve">
-    <value>label34</value>
-  </data>
-  <data name="&gt;&gt;label34.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label34.Parent" xml:space="preserve">
-    <value>tabBattery</value>
-  </data>
-  <data name="&gt;&gt;label34.ZOrder" xml:space="preserve">
-    <value>6</value>
-  </data>
-  <data name="label33.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="label33.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="label33.Location" type="System.Drawing.Point, System.Drawing">
-    <value>28, 227</value>
-  </data>
-  <data name="label33.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>2, 0, 2, 0</value>
-  </data>
-  <data name="label33.Size" type="System.Drawing.Size, System.Drawing">
-    <value>81, 13</value>
-  </data>
-  <data name="label33.TabIndex" type="System.Int32, mscorlib">
-    <value>31</value>
-  </data>
-  <data name="label33.Text" xml:space="preserve">
-    <value>Battery voltage:</value>
-  </data>
-  <data name="&gt;&gt;label33.Name" xml:space="preserve">
-    <value>label33</value>
-  </data>
-  <data name="&gt;&gt;label33.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label33.Parent" xml:space="preserve">
-    <value>tabBattery</value>
-  </data>
-  <data name="&gt;&gt;label33.ZOrder" xml:space="preserve">
-    <value>7</value>
-  </data>
-  <data name="label32.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="label32.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="label32.Location" type="System.Drawing.Point, System.Drawing">
-    <value>28, 205</value>
-  </data>
-  <data name="label32.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>2, 0, 2, 0</value>
-  </data>
-  <data name="label32.Size" type="System.Drawing.Size, System.Drawing">
-    <value>130, 13</value>
-  </data>
-  <data name="label32.TabIndex" type="System.Int32, mscorlib">
-    <value>30</value>
-  </data>
-  <data name="label32.Text" xml:space="preserve">
-    <value>Measured battery voltage:</value>
-  </data>
-  <data name="&gt;&gt;label32.Name" xml:space="preserve">
-    <value>label32</value>
-  </data>
-  <data name="&gt;&gt;label32.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label32.Parent" xml:space="preserve">
-    <value>tabBattery</value>
-  </data>
-  <data name="&gt;&gt;label32.ZOrder" xml:space="preserve">
     <value>8</value>
   </data>
-  <data name="label31.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
+  <data name="TXT_measuredvoltage.Location" type="System.Drawing.Point, System.Drawing">
+    <value>149, 35</value>
   </data>
-  <data name="label31.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="label31.Location" type="System.Drawing.Point, System.Drawing">
-    <value>28, 183</value>
-  </data>
-  <data name="label31.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>2, 0, 2, 0</value>
-  </data>
-  <data name="label31.Size" type="System.Drawing.Size, System.Drawing">
-    <value>72, 13</value>
-  </data>
-  <data name="label31.TabIndex" type="System.Int32, mscorlib">
-    <value>29</value>
-  </data>
-  <data name="label31.Text" xml:space="preserve">
-    <value>Input voltage:</value>
-  </data>
-  <data name="&gt;&gt;label31.Name" xml:space="preserve">
-    <value>label31</value>
-  </data>
-  <data name="&gt;&gt;label31.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label31.Parent" xml:space="preserve">
-    <value>tabBattery</value>
-  </data>
-  <data name="&gt;&gt;label31.ZOrder" xml:space="preserve">
-    <value>9</value>
-  </data>
-  <data name="textBox3.Location" type="System.Drawing.Point, System.Drawing">
-    <value>31, 110</value>
-  </data>
-  <data name="textBox3.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+  <data name="TXT_measuredvoltage.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>2, 2, 2, 2</value>
   </data>
-  <data name="textBox3.Multiline" type="System.Boolean, mscorlib">
-    <value>True</value>
+  <data name="TXT_measuredvoltage.Size" type="System.Drawing.Size, System.Drawing">
+    <value>76, 20</value>
   </data>
-  <data name="textBox3.Size" type="System.Drawing.Size, System.Drawing">
-    <value>428, 62</value>
+  <data name="TXT_measuredvoltage.TabIndex" type="System.Int32, mscorlib">
+    <value>35</value>
   </data>
-  <data name="textBox3.TabIndex" type="System.Int32, mscorlib">
-    <value>28</value>
+  <data name="&gt;&gt;TXT_measuredvoltage.Name" xml:space="preserve">
+    <value>TXT_measuredvoltage</value>
   </data>
-  <data name="textBox3.Text" xml:space="preserve">
-    <value>Voltage sensor calibration:
-1. Measure APM input voltage and enter it to the box below
-2. Measure battery voltage and enter it to the box below
-3. From current sensor datasheet, enter amperes per volt value to the box below</value>
-  </data>
-  <data name="&gt;&gt;textBox3.Name" xml:space="preserve">
-    <value>textBox3</value>
-  </data>
-  <data name="&gt;&gt;textBox3.Type" xml:space="preserve">
+  <data name="&gt;&gt;TXT_measuredvoltage.Type" xml:space="preserve">
     <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;textBox3.Parent" xml:space="preserve">
-    <value>tabBattery</value>
+  <data name="&gt;&gt;TXT_measuredvoltage.Parent" xml:space="preserve">
+    <value>groupBox4</value>
   </data>
-  <data name="&gt;&gt;textBox3.ZOrder" xml:space="preserve">
-    <value>10</value>
-  </data>
-  <data name="label29.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
-  </data>
-  <data name="label29.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="label29.Location" type="System.Drawing.Point, System.Drawing">
-    <value>305, 50</value>
-  </data>
-  <data name="label29.Size" type="System.Drawing.Size, System.Drawing">
-    <value>48, 13</value>
-  </data>
-  <data name="label29.TabIndex" type="System.Int32, mscorlib">
-    <value>23</value>
-  </data>
-  <data name="label29.Text" xml:space="preserve">
-    <value>Capacity</value>
-  </data>
-  <data name="&gt;&gt;label29.Name" xml:space="preserve">
-    <value>label29</value>
-  </data>
-  <data name="&gt;&gt;label29.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label29.Parent" xml:space="preserve">
-    <value>tabBattery</value>
-  </data>
-  <data name="&gt;&gt;label29.ZOrder" xml:space="preserve">
-    <value>11</value>
-  </data>
-  <data name="label30.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="label30.Location" type="System.Drawing.Point, System.Drawing">
-    <value>123, 50</value>
-  </data>
-  <data name="label30.Size" type="System.Drawing.Size, System.Drawing">
-    <value>42, 13</value>
-  </data>
-  <data name="label30.TabIndex" type="System.Int32, mscorlib">
-    <value>24</value>
-  </data>
-  <data name="label30.Text" xml:space="preserve">
-    <value>Monitor</value>
-  </data>
-  <data name="&gt;&gt;label30.Name" xml:space="preserve">
-    <value>label30</value>
-  </data>
-  <data name="&gt;&gt;label30.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label30.Parent" xml:space="preserve">
-    <value>tabBattery</value>
-  </data>
-  <data name="&gt;&gt;label30.ZOrder" xml:space="preserve">
-    <value>12</value>
-  </data>
-  <data name="TXT_battcapacity.Location" type="System.Drawing.Point, System.Drawing">
-    <value>366, 47</value>
-  </data>
-  <data name="TXT_battcapacity.Size" type="System.Drawing.Size, System.Drawing">
-    <value>83, 20</value>
-  </data>
-  <data name="TXT_battcapacity.TabIndex" type="System.Int32, mscorlib">
-    <value>25</value>
-  </data>
-  <data name="&gt;&gt;TXT_battcapacity.Name" xml:space="preserve">
-    <value>TXT_battcapacity</value>
-  </data>
-  <data name="&gt;&gt;TXT_battcapacity.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;TXT_battcapacity.Parent" xml:space="preserve">
-    <value>tabBattery</value>
-  </data>
-  <data name="&gt;&gt;TXT_battcapacity.ZOrder" xml:space="preserve">
-    <value>13</value>
-  </data>
-  <data name="CMB_batmontype.Items" xml:space="preserve">
-    <value>0: Disabled</value>
-  </data>
-  <data name="CMB_batmontype.Items1" xml:space="preserve">
-    <value>1: 3 Cell</value>
-  </data>
-  <data name="CMB_batmontype.Items2" xml:space="preserve">
-    <value>2: 4 Cell</value>
-  </data>
-  <data name="CMB_batmontype.Items3" xml:space="preserve">
-    <value>3: Battery Volts</value>
-  </data>
-  <data name="CMB_batmontype.Items4" xml:space="preserve">
-    <value>4: Volts &amp; Current</value>
-  </data>
-  <data name="CMB_batmontype.Location" type="System.Drawing.Point, System.Drawing">
-    <value>177, 46</value>
-  </data>
-  <data name="CMB_batmontype.Size" type="System.Drawing.Size, System.Drawing">
-    <value>121, 21</value>
-  </data>
-  <data name="CMB_batmontype.TabIndex" type="System.Int32, mscorlib">
-    <value>26</value>
-  </data>
-  <data name="&gt;&gt;CMB_batmontype.Name" xml:space="preserve">
-    <value>CMB_batmontype</value>
-  </data>
-  <data name="&gt;&gt;CMB_batmontype.Type" xml:space="preserve">
-    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;CMB_batmontype.Parent" xml:space="preserve">
-    <value>tabBattery</value>
-  </data>
-  <data name="&gt;&gt;CMB_batmontype.ZOrder" xml:space="preserve">
-    <value>14</value>
-  </data>
-  <data name="pictureBox5.BackgroundImageLayout" type="System.Windows.Forms.ImageLayout, System.Windows.Forms">
-    <value>Zoom</value>
-  </data>
-  <data name="pictureBox5.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="pictureBox5.Location" type="System.Drawing.Point, System.Drawing">
-    <value>31, 21</value>
-  </data>
-  <data name="pictureBox5.Size" type="System.Drawing.Size, System.Drawing">
-    <value>75, 75</value>
-  </data>
-  <data name="pictureBox5.TabIndex" type="System.Int32, mscorlib">
-    <value>2</value>
-  </data>
-  <data name="&gt;&gt;pictureBox5.Name" xml:space="preserve">
-    <value>pictureBox5</value>
-  </data>
-  <data name="&gt;&gt;pictureBox5.Type" xml:space="preserve">
-    <value>System.Windows.Forms.PictureBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;pictureBox5.Parent" xml:space="preserve">
-    <value>tabBattery</value>
-  </data>
-  <data name="&gt;&gt;pictureBox5.ZOrder" xml:space="preserve">
-    <value>15</value>
+  <data name="&gt;&gt;TXT_measuredvoltage.ZOrder" xml:space="preserve">
+    <value>9</value>
   </data>
   <data name="label28.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -3796,33 +3943,6 @@ will work with hexa's etc</value>
   <data name="&gt;&gt;label15.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
-  <data name="BUT_levelac2.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="BUT_levelac2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>274, 67</value>
-  </data>
-  <data name="BUT_levelac2.Size" type="System.Drawing.Size, System.Drawing">
-    <value>75, 23</value>
-  </data>
-  <data name="BUT_levelac2.TabIndex" type="System.Int32, mscorlib">
-    <value>8</value>
-  </data>
-  <data name="BUT_levelac2.Text" xml:space="preserve">
-    <value>Level</value>
-  </data>
-  <data name="&gt;&gt;BUT_levelac2.Name" xml:space="preserve">
-    <value>BUT_levelac2</value>
-  </data>
-  <data name="&gt;&gt;BUT_levelac2.Type" xml:space="preserve">
-    <value>ArdupilotMega.MyButton, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=38326cb7e06851fc</value>
-  </data>
-  <data name="&gt;&gt;BUT_levelac2.Parent" xml:space="preserve">
-    <value>tabArducopter</value>
-  </data>
-  <data name="&gt;&gt;BUT_levelac2.ZOrder" xml:space="preserve">
-    <value>3</value>
-  </data>
   <data name="pictureBoxQuadX.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
   </data>
@@ -3848,7 +3968,7 @@ will work with hexa's etc</value>
     <value>tabArducopter</value>
   </data>
   <data name="&gt;&gt;pictureBoxQuadX.ZOrder" xml:space="preserve">
-    <value>4</value>
+    <value>3</value>
   </data>
   <data name="pictureBoxQuad.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
@@ -3875,7 +3995,88 @@ will work with hexa's etc</value>
     <value>tabArducopter</value>
   </data>
   <data name="&gt;&gt;pictureBoxQuad.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="BUT_levelac2.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="BUT_levelac2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>274, 67</value>
+  </data>
+  <data name="BUT_levelac2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>75, 23</value>
+  </data>
+  <data name="BUT_levelac2.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="BUT_levelac2.Text" xml:space="preserve">
+    <value>Level</value>
+  </data>
+  <data name="&gt;&gt;BUT_levelac2.Name" xml:space="preserve">
+    <value>BUT_levelac2</value>
+  </data>
+  <data name="&gt;&gt;BUT_levelac2.Type" xml:space="preserve">
+    <value>ArdupilotMega.MyButton, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=38326cb7e06851fc</value>
+  </data>
+  <data name="&gt;&gt;BUT_levelac2.Parent" xml:space="preserve">
+    <value>tabArducopter</value>
+  </data>
+  <data name="&gt;&gt;BUT_levelac2.ZOrder" xml:space="preserve">
     <value>5</value>
+  </data>
+  <data name="BUT_HS4save.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="BUT_HS4save.Location" type="System.Drawing.Point, System.Drawing">
+    <value>479, 131</value>
+  </data>
+  <data name="BUT_HS4save.Size" type="System.Drawing.Size, System.Drawing">
+    <value>69, 23</value>
+  </data>
+  <data name="BUT_HS4save.TabIndex" type="System.Int32, mscorlib">
+    <value>131</value>
+  </data>
+  <data name="BUT_HS4save.Text" xml:space="preserve">
+    <value>Manual</value>
+  </data>
+  <data name="&gt;&gt;BUT_HS4save.Name" xml:space="preserve">
+    <value>BUT_HS4save</value>
+  </data>
+  <data name="&gt;&gt;BUT_HS4save.Type" xml:space="preserve">
+    <value>ArdupilotMega.MyButton, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=38326cb7e06851fc</value>
+  </data>
+  <data name="&gt;&gt;BUT_HS4save.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;BUT_HS4save.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="BUT_swash_manual.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="BUT_swash_manual.Location" type="System.Drawing.Point, System.Drawing">
+    <value>298, 40</value>
+  </data>
+  <data name="BUT_swash_manual.Size" type="System.Drawing.Size, System.Drawing">
+    <value>69, 23</value>
+  </data>
+  <data name="BUT_swash_manual.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="BUT_swash_manual.Text" xml:space="preserve">
+    <value>Manual</value>
+  </data>
+  <data name="&gt;&gt;BUT_swash_manual.Name" xml:space="preserve">
+    <value>BUT_swash_manual</value>
+  </data>
+  <data name="&gt;&gt;BUT_swash_manual.Type" xml:space="preserve">
+    <value>ArdupilotMega.MyButton, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=38326cb7e06851fc</value>
+  </data>
+  <data name="&gt;&gt;BUT_swash_manual.Parent" xml:space="preserve">
+    <value>tabHeli</value>
+  </data>
+  <data name="&gt;&gt;BUT_swash_manual.ZOrder" xml:space="preserve">
+    <value>1</value>
   </data>
   <data name="&gt;&gt;label46.Name" xml:space="preserve">
     <value>label46</value>
@@ -3947,7 +4148,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;groupBox3.ZOrder" xml:space="preserve">
-    <value>0</value>
+    <value>2</value>
   </data>
   <data name="label46.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -4088,7 +4289,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;label44.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>3</value>
   </data>
   <data name="label43.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -4118,7 +4319,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;label43.ZOrder" xml:space="preserve">
-    <value>2</value>
+    <value>4</value>
   </data>
   <data name="label42.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -4148,7 +4349,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;label42.ZOrder" xml:space="preserve">
-    <value>3</value>
+    <value>5</value>
   </data>
   <data name="&gt;&gt;label24.Name" xml:space="preserve">
     <value>label24</value>
@@ -4217,7 +4418,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;groupBox2.ZOrder" xml:space="preserve">
-    <value>4</value>
+    <value>6</value>
   </data>
   <data name="label24.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -4249,6 +4450,9 @@ will work with hexa's etc</value>
   <data name="&gt;&gt;label24.ZOrder" xml:space="preserve">
     <value>0</value>
   </data>
+  <data name="HS4_MIN.Enabled" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
   <data name="HS4_MIN.Location" type="System.Drawing.Point, System.Drawing">
     <value>21, 40</value>
   </data>
@@ -4272,6 +4476,9 @@ will work with hexa's etc</value>
   </data>
   <data name="&gt;&gt;HS4_MIN.ZOrder" xml:space="preserve">
     <value>1</value>
+  </data>
+  <data name="HS4_MAX.Enabled" type="System.Boolean, mscorlib">
+    <value>False</value>
   </data>
   <data name="HS4_MAX.Location" type="System.Drawing.Point, System.Drawing">
     <value>106, 40</value>
@@ -4418,7 +4625,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;groupBox1.ZOrder" xml:space="preserve">
-    <value>5</value>
+    <value>7</value>
   </data>
   <data name="label41.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -4480,6 +4687,9 @@ will work with hexa's etc</value>
   <data name="&gt;&gt;label21.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
+  <data name="COL_MIN_.Enabled" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
   <data name="COL_MIN_.Location" type="System.Drawing.Point, System.Drawing">
     <value>18, 173</value>
   </data>
@@ -4503,6 +4713,9 @@ will work with hexa's etc</value>
   </data>
   <data name="&gt;&gt;COL_MIN_.ZOrder" xml:space="preserve">
     <value>2</value>
+  </data>
+  <data name="COL_MID_.Enabled" type="System.Boolean, mscorlib">
+    <value>False</value>
   </data>
   <data name="COL_MID_.Location" type="System.Drawing.Point, System.Drawing">
     <value>17, 117</value>
@@ -4528,6 +4741,9 @@ will work with hexa's etc</value>
   <data name="&gt;&gt;COL_MID_.ZOrder" xml:space="preserve">
     <value>3</value>
   </data>
+  <data name="COL_MAX_.Enabled" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
   <data name="COL_MAX_.Location" type="System.Drawing.Point, System.Drawing">
     <value>18, 45</value>
   </data>
@@ -4551,6 +4767,9 @@ will work with hexa's etc</value>
   </data>
   <data name="&gt;&gt;COL_MAX_.ZOrder" xml:space="preserve">
     <value>4</value>
+  </data>
+  <data name="BUT_0collective.Enabled" type="System.Boolean, mscorlib">
+    <value>False</value>
   </data>
   <data name="BUT_0collective.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
     <value>NoControl</value>
@@ -4598,7 +4817,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;HS4_TRIM.ZOrder" xml:space="preserve">
-    <value>6</value>
+    <value>8</value>
   </data>
   <data name="HS3_TRIM.Location" type="System.Drawing.Point, System.Drawing">
     <value>122, 271</value>
@@ -4619,7 +4838,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;HS3_TRIM.ZOrder" xml:space="preserve">
-    <value>7</value>
+    <value>9</value>
   </data>
   <data name="HS2_TRIM.Location" type="System.Drawing.Point, System.Drawing">
     <value>122, 245</value>
@@ -4640,7 +4859,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;HS2_TRIM.ZOrder" xml:space="preserve">
-    <value>8</value>
+    <value>10</value>
   </data>
   <data name="HS1_TRIM.Location" type="System.Drawing.Point, System.Drawing">
     <value>122, 219</value>
@@ -4661,7 +4880,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;HS1_TRIM.ZOrder" xml:space="preserve">
-    <value>9</value>
+    <value>11</value>
   </data>
   <data name="label39.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -4691,7 +4910,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;label39.ZOrder" xml:space="preserve">
-    <value>10</value>
+    <value>12</value>
   </data>
   <data name="label38.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -4721,7 +4940,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;label38.ZOrder" xml:space="preserve">
-    <value>11</value>
+    <value>13</value>
   </data>
   <data name="label37.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -4751,7 +4970,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;label37.ZOrder" xml:space="preserve">
-    <value>12</value>
+    <value>14</value>
   </data>
   <data name="label36.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -4781,7 +5000,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;label36.ZOrder" xml:space="preserve">
-    <value>13</value>
+    <value>15</value>
   </data>
   <data name="label26.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -4811,7 +5030,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;label26.ZOrder" xml:space="preserve">
-    <value>14</value>
+    <value>16</value>
   </data>
   <data name="PIT_MAX_.Location" type="System.Drawing.Point, System.Drawing">
     <value>310, 342</value>
@@ -4835,7 +5054,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;PIT_MAX_.ZOrder" xml:space="preserve">
-    <value>15</value>
+    <value>17</value>
   </data>
   <data name="label25.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -4865,7 +5084,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;label25.ZOrder" xml:space="preserve">
-    <value>16</value>
+    <value>18</value>
   </data>
   <data name="ROL_MAX_.Location" type="System.Drawing.Point, System.Drawing">
     <value>310, 316</value>
@@ -4889,7 +5108,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;ROL_MAX_.ZOrder" xml:space="preserve">
-    <value>17</value>
+    <value>19</value>
   </data>
   <data name="label23.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -4919,7 +5138,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;label23.ZOrder" xml:space="preserve">
-    <value>18</value>
+    <value>20</value>
   </data>
   <data name="label22.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -4949,7 +5168,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;label22.ZOrder" xml:space="preserve">
-    <value>19</value>
+    <value>21</value>
   </data>
   <data name="HS4_REV.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -4976,7 +5195,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;HS4_REV.ZOrder" xml:space="preserve">
-    <value>20</value>
+    <value>22</value>
   </data>
   <data name="label20.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -5006,7 +5225,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;label20.ZOrder" xml:space="preserve">
-    <value>21</value>
+    <value>23</value>
   </data>
   <data name="label19.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -5036,7 +5255,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;label19.ZOrder" xml:space="preserve">
-    <value>22</value>
+    <value>24</value>
   </data>
   <data name="label18.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -5066,7 +5285,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;label18.ZOrder" xml:space="preserve">
-    <value>23</value>
+    <value>25</value>
   </data>
   <data name="SV3_POS_.Location" type="System.Drawing.Point, System.Drawing">
     <value>53, 271</value>
@@ -5090,7 +5309,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;SV3_POS_.ZOrder" xml:space="preserve">
-    <value>24</value>
+    <value>26</value>
   </data>
   <data name="SV2_POS_.Location" type="System.Drawing.Point, System.Drawing">
     <value>53, 245</value>
@@ -5114,7 +5333,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;SV2_POS_.ZOrder" xml:space="preserve">
-    <value>25</value>
+    <value>27</value>
   </data>
   <data name="SV1_POS_.Location" type="System.Drawing.Point, System.Drawing">
     <value>53, 219</value>
@@ -5138,7 +5357,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;SV1_POS_.ZOrder" xml:space="preserve">
-    <value>26</value>
+    <value>28</value>
   </data>
   <data name="HS3_REV.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -5165,7 +5384,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;HS3_REV.ZOrder" xml:space="preserve">
-    <value>27</value>
+    <value>29</value>
   </data>
   <data name="HS2_REV.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -5192,7 +5411,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;HS2_REV.ZOrder" xml:space="preserve">
-    <value>28</value>
+    <value>30</value>
   </data>
   <data name="HS1_REV.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -5219,7 +5438,7 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;HS1_REV.ZOrder" xml:space="preserve">
-    <value>29</value>
+    <value>31</value>
   </data>
   <data name="label17.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -5249,60 +5468,6 @@ will work with hexa's etc</value>
     <value>tabHeli</value>
   </data>
   <data name="&gt;&gt;label17.ZOrder" xml:space="preserve">
-    <value>30</value>
-  </data>
-  <data name="BUT_HS4save.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="BUT_HS4save.Location" type="System.Drawing.Point, System.Drawing">
-    <value>479, 138</value>
-  </data>
-  <data name="BUT_HS4save.Size" type="System.Drawing.Size, System.Drawing">
-    <value>69, 23</value>
-  </data>
-  <data name="BUT_HS4save.TabIndex" type="System.Int32, mscorlib">
-    <value>131</value>
-  </data>
-  <data name="BUT_HS4save.Text" xml:space="preserve">
-    <value>Manual</value>
-  </data>
-  <data name="&gt;&gt;BUT_HS4save.Name" xml:space="preserve">
-    <value>BUT_HS4save</value>
-  </data>
-  <data name="&gt;&gt;BUT_HS4save.Type" xml:space="preserve">
-    <value>ArdupilotMega.MyButton, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=38326cb7e06851fc</value>
-  </data>
-  <data name="&gt;&gt;BUT_HS4save.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;BUT_HS4save.ZOrder" xml:space="preserve">
-    <value>31</value>
-  </data>
-  <data name="BUT_swash_manual.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
-    <value>NoControl</value>
-  </data>
-  <data name="BUT_swash_manual.Location" type="System.Drawing.Point, System.Drawing">
-    <value>298, 47</value>
-  </data>
-  <data name="BUT_swash_manual.Size" type="System.Drawing.Size, System.Drawing">
-    <value>69, 23</value>
-  </data>
-  <data name="BUT_swash_manual.TabIndex" type="System.Int32, mscorlib">
-    <value>0</value>
-  </data>
-  <data name="BUT_swash_manual.Text" xml:space="preserve">
-    <value>Manual</value>
-  </data>
-  <data name="&gt;&gt;BUT_swash_manual.Name" xml:space="preserve">
-    <value>BUT_swash_manual</value>
-  </data>
-  <data name="&gt;&gt;BUT_swash_manual.Type" xml:space="preserve">
-    <value>ArdupilotMega.MyButton, ArdupilotMegaPlanner, Version=1.0.0.0, Culture=neutral, PublicKeyToken=38326cb7e06851fc</value>
-  </data>
-  <data name="&gt;&gt;BUT_swash_manual.Parent" xml:space="preserve">
-    <value>tabHeli</value>
-  </data>
-  <data name="&gt;&gt;BUT_swash_manual.ZOrder" xml:space="preserve">
     <value>32</value>
   </data>
   <data name="HS4.Location" type="System.Drawing.Point, System.Drawing">

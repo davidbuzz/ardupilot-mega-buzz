@@ -30,8 +30,8 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Configuration));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.Params = new System.Windows.Forms.DataGridView();
             this.Command = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Value = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -39,7 +39,7 @@
             this.mavScale = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.RawValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ConfigTabs = new System.Windows.Forms.TabControl();
-            this.TabAPM2 = new System.Windows.Forms.TabPage();
+            this.TabAP = new System.Windows.Forms.TabPage();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.THR_FS_VALUE = new System.Windows.Forms.NumericUpDown();
             this.label5 = new System.Windows.Forms.Label();
@@ -140,7 +140,7 @@
             this.label51 = new System.Windows.Forms.Label();
             this.RLL2SRV_P = new System.Windows.Forms.NumericUpDown();
             this.label52 = new System.Windows.Forms.Label();
-            this.TabAC2 = new System.Windows.Forms.TabPage();
+            this.TabAC = new System.Windows.Forms.TabPage();
             this.myLabel1 = new ArdupilotMega.MyLabel();
             this.CH7_OPT = new System.Windows.Forms.ComboBox();
             this.groupBox17 = new System.Windows.Forms.GroupBox();
@@ -285,9 +285,11 @@
             this.BUT_load = new ArdupilotMega.MyButton();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.BUT_compare = new ArdupilotMega.MyButton();
+            this.myLabel2 = new ArdupilotMega.MyLabel();
+            this.TUNE = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.Params)).BeginInit();
             this.ConfigTabs.SuspendLayout();
-            this.TabAPM2.SuspendLayout();
+            this.TabAP.SuspendLayout();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.THR_FS_VALUE)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.THR_MAX)).BeginInit();
@@ -344,7 +346,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.RLL2SRV_D)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.RLL2SRV_I)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.RLL2SRV_P)).BeginInit();
-            this.TabAC2.SuspendLayout();
+            this.TabAC.SuspendLayout();
             this.groupBox17.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.ACRO_PIT_IMAX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ACRO_PIT_I)).BeginInit();
@@ -405,14 +407,14 @@
             this.Params.AllowUserToAddRows = false;
             this.Params.AllowUserToDeleteRows = false;
             resources.ApplyResources(this.Params, "Params");
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle1.BackColor = System.Drawing.Color.Maroon;
-            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle1.ForeColor = System.Drawing.Color.White;
-            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.Params.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.Color.Maroon;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle3.ForeColor = System.Drawing.Color.White;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.Params.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle3;
             this.Params.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.Params.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.Command,
@@ -421,14 +423,14 @@
             this.mavScale,
             this.RawValue});
             this.Params.Name = "Params";
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.ActiveCaption;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.Params.RowHeadersDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.Params.RowHeadersDefaultCellStyle = dataGridViewCellStyle4;
             this.Params.RowHeadersVisible = false;
             this.Params.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.Params_CellValueChanged);
             // 
@@ -461,31 +463,31 @@
             // ConfigTabs
             // 
             resources.ApplyResources(this.ConfigTabs, "ConfigTabs");
-            this.ConfigTabs.Controls.Add(this.TabAPM2);
-            this.ConfigTabs.Controls.Add(this.TabAC2);
+            this.ConfigTabs.Controls.Add(this.TabAP);
+            this.ConfigTabs.Controls.Add(this.TabAC);
             this.ConfigTabs.Controls.Add(this.TabPlanner);
             this.ConfigTabs.Controls.Add(this.TabSetup);
             this.ConfigTabs.Name = "ConfigTabs";
             this.ConfigTabs.SelectedIndex = 0;
             this.ConfigTabs.SelectedIndexChanged += new System.EventHandler(this.Planner_TabIndexChanged);
             // 
-            // TabAPM2
+            // TabAP
             // 
-            this.TabAPM2.BackColor = System.Drawing.Color.Transparent;
-            this.TabAPM2.Controls.Add(this.groupBox3);
-            this.TabAPM2.Controls.Add(this.groupBox1);
-            this.TabAPM2.Controls.Add(this.groupBox2);
-            this.TabAPM2.Controls.Add(this.groupBox15);
-            this.TabAPM2.Controls.Add(this.groupBox16);
-            this.TabAPM2.Controls.Add(this.groupBox14);
-            this.TabAPM2.Controls.Add(this.groupBox13);
-            this.TabAPM2.Controls.Add(this.groupBox12);
-            this.TabAPM2.Controls.Add(this.groupBox11);
-            this.TabAPM2.Controls.Add(this.groupBox10);
-            this.TabAPM2.Controls.Add(this.groupBox9);
-            this.TabAPM2.Controls.Add(this.groupBox8);
-            resources.ApplyResources(this.TabAPM2, "TabAPM2");
-            this.TabAPM2.Name = "TabAPM2";
+            this.TabAP.BackColor = System.Drawing.Color.Transparent;
+            this.TabAP.Controls.Add(this.groupBox3);
+            this.TabAP.Controls.Add(this.groupBox1);
+            this.TabAP.Controls.Add(this.groupBox2);
+            this.TabAP.Controls.Add(this.groupBox15);
+            this.TabAP.Controls.Add(this.groupBox16);
+            this.TabAP.Controls.Add(this.groupBox14);
+            this.TabAP.Controls.Add(this.groupBox13);
+            this.TabAP.Controls.Add(this.groupBox12);
+            this.TabAP.Controls.Add(this.groupBox11);
+            this.TabAP.Controls.Add(this.groupBox10);
+            this.TabAP.Controls.Add(this.groupBox9);
+            this.TabAP.Controls.Add(this.groupBox8);
+            resources.ApplyResources(this.TabAP, "TabAP");
+            this.TabAP.Name = "TabAP";
             // 
             // groupBox3
             // 
@@ -1087,26 +1089,28 @@
             resources.ApplyResources(this.label52, "label52");
             this.label52.Name = "label52";
             // 
-            // TabAC2
+            // TabAC
             // 
-            this.TabAC2.Controls.Add(this.myLabel1);
-            this.TabAC2.Controls.Add(this.CH7_OPT);
-            this.TabAC2.Controls.Add(this.groupBox17);
-            this.TabAC2.Controls.Add(this.groupBox5);
-            this.TabAC2.Controls.Add(this.groupBox18);
-            this.TabAC2.Controls.Add(this.CHK_lockrollpitch);
-            this.TabAC2.Controls.Add(this.groupBox4);
-            this.TabAC2.Controls.Add(this.groupBox6);
-            this.TabAC2.Controls.Add(this.groupBox7);
-            this.TabAC2.Controls.Add(this.groupBox19);
-            this.TabAC2.Controls.Add(this.groupBox20);
-            this.TabAC2.Controls.Add(this.groupBox21);
-            this.TabAC2.Controls.Add(this.groupBox22);
-            this.TabAC2.Controls.Add(this.groupBox23);
-            this.TabAC2.Controls.Add(this.groupBox24);
-            this.TabAC2.Controls.Add(this.groupBox25);
-            resources.ApplyResources(this.TabAC2, "TabAC2");
-            this.TabAC2.Name = "TabAC2";
+            this.TabAC.Controls.Add(this.myLabel2);
+            this.TabAC.Controls.Add(this.TUNE);
+            this.TabAC.Controls.Add(this.myLabel1);
+            this.TabAC.Controls.Add(this.CH7_OPT);
+            this.TabAC.Controls.Add(this.groupBox17);
+            this.TabAC.Controls.Add(this.groupBox5);
+            this.TabAC.Controls.Add(this.groupBox18);
+            this.TabAC.Controls.Add(this.CHK_lockrollpitch);
+            this.TabAC.Controls.Add(this.groupBox4);
+            this.TabAC.Controls.Add(this.groupBox6);
+            this.TabAC.Controls.Add(this.groupBox7);
+            this.TabAC.Controls.Add(this.groupBox19);
+            this.TabAC.Controls.Add(this.groupBox20);
+            this.TabAC.Controls.Add(this.groupBox21);
+            this.TabAC.Controls.Add(this.groupBox22);
+            this.TabAC.Controls.Add(this.groupBox23);
+            this.TabAC.Controls.Add(this.groupBox24);
+            this.TabAC.Controls.Add(this.groupBox25);
+            resources.ApplyResources(this.TabAC, "TabAC");
+            this.TabAC.Name = "TabAC";
             // 
             // myLabel1
             // 
@@ -2092,6 +2096,40 @@
             this.BUT_compare.UseVisualStyleBackColor = true;
             this.BUT_compare.Click += new System.EventHandler(this.BUT_compare_Click);
             // 
+            // myLabel2
+            // 
+            resources.ApplyResources(this.myLabel2, "myLabel2");
+            this.myLabel2.Name = "myLabel2";
+            this.myLabel2.resize = false;
+            // 
+            // TUNE
+            // 
+            this.TUNE.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.TUNE.FormattingEnabled = true;
+            this.TUNE.Items.AddRange(new object[] {
+            resources.GetString("TUNE.Items"),
+            resources.GetString("TUNE.Items1"),
+            resources.GetString("TUNE.Items2"),
+            resources.GetString("TUNE.Items3"),
+            resources.GetString("TUNE.Items4"),
+            resources.GetString("TUNE.Items5"),
+            resources.GetString("TUNE.Items6"),
+            resources.GetString("TUNE.Items7"),
+            resources.GetString("TUNE.Items8"),
+            resources.GetString("TUNE.Items9"),
+            resources.GetString("TUNE.Items10"),
+            resources.GetString("TUNE.Items11"),
+            resources.GetString("TUNE.Items12"),
+            resources.GetString("TUNE.Items13"),
+            resources.GetString("TUNE.Items14"),
+            resources.GetString("TUNE.Items15"),
+            resources.GetString("TUNE.Items16"),
+            resources.GetString("TUNE.Items17"),
+            resources.GetString("TUNE.Items18"),
+            resources.GetString("TUNE.Items19")});
+            resources.ApplyResources(this.TUNE, "TUNE");
+            this.TUNE.Name = "TUNE";
+            // 
             // Configuration
             // 
             resources.ApplyResources(this, "$this");
@@ -2108,7 +2146,7 @@
             this.Load += new System.EventHandler(this.Configuration_Load);
             ((System.ComponentModel.ISupportInitialize)(this.Params)).EndInit();
             this.ConfigTabs.ResumeLayout(false);
-            this.TabAPM2.ResumeLayout(false);
+            this.TabAP.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.THR_FS_VALUE)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.THR_MAX)).EndInit();
@@ -2165,8 +2203,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.RLL2SRV_D)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.RLL2SRV_I)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.RLL2SRV_P)).EndInit();
-            this.TabAC2.ResumeLayout(false);
-            this.TabAC2.PerformLayout();
+            this.TabAC.ResumeLayout(false);
+            this.TabAC.PerformLayout();
             this.groupBox17.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.ACRO_PIT_IMAX)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.ACRO_PIT_I)).EndInit();
@@ -2231,8 +2269,8 @@
         private System.Windows.Forms.DataGridView Params;
         private MyButton BUT_writePIDS;
         private System.Windows.Forms.TabControl ConfigTabs;
-        private System.Windows.Forms.TabPage TabAPM2;
-        private System.Windows.Forms.TabPage TabAC2;
+        private System.Windows.Forms.TabPage TabAP;
+        private System.Windows.Forms.TabPage TabAC;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.NumericUpDown THR_FS_VALUE;
         private System.Windows.Forms.Label label5;
@@ -2479,5 +2517,7 @@
         private System.Windows.Forms.Label label48;
         private MyLabel myLabel1;
         private System.Windows.Forms.ComboBox CH7_OPT;
+        private MyLabel myLabel2;
+        private System.Windows.Forms.ComboBox TUNE;
     }
 }

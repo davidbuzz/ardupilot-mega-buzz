@@ -8,6 +8,9 @@ static void init_commands()
 	prev_nav_index 			= NO_COMMAND;
 	command_cond_queue.id 	= NO_COMMAND;
 	command_nav_queue.id 	= NO_COMMAND;
+
+	// default Yaw tracking
+	yaw_tracking 			= MAV_ROI_WPNEXT;
 }
 
 // Getters
@@ -98,34 +101,19 @@ static void set_cmd_with_index(struct Location temp, int i)
 	eeprom_write_dword((uint32_t *)	mem, temp.lng); // Long is stored in decimal degrees * 10^7
 
 	// Make sure our WP_total
-	if(g.command_total <= i)
+	if(g.command_total < (i+1))
 		g.command_total.set_and_save(i+1);
 }
 
-/*
-//static void increment_WP_index()
-{
-    if (g.command_index < (g.command_total-1)) {
-        g.command_index++;
-	}
-
-    SendDebugln(g.command_index,DEC);
-}
-*/
-/*
-//static void decrement_WP_index()
-{
-    if (g.command_index > 0) {
-        g.command_index.set_and_save(g.command_index - 1);
-    }
-}*/
-
 static int32_t read_alt_to_hold()
 {
+	return current_loc.alt;
+	/*
 	if(g.RTL_altitude <= 0)
 		return current_loc.alt;
 	else
 		return g.RTL_altitude;// + home.alt;
+	*/
 }
 
 
@@ -162,9 +150,13 @@ static void set_next_WP(struct Location *wp)
 	// ---------------------
 	next_WP = *wp;
 
-	// used to control and limit the rate of climb - not used right now!
-	// -----------------------------------------------------------------
-	target_altitude = current_loc.alt;
+	// used to control and limit the rate of climb
+	// -------------------------------------------
+	// We don't set next WP below 1m
+	next_WP.alt = max(next_WP.alt, 100);
+
+	// Save new altitude so we can track it for climb_rate
+	set_new_altitude(next_WP.alt);
 
 	// this is used to offset the shrinking longitude as we go towards the poles
 	float rads 			= (fabs((float)next_WP.lat)/t7) * 0.0174532925;
@@ -173,9 +165,12 @@ static void set_next_WP(struct Location *wp)
 
 	// this is handy for the groundstation
 	// -----------------------------------
-	wp_totalDistance 	= get_distance(&current_loc, &next_WP);
-	wp_distance 		= wp_totalDistance;
+	wp_distance 		= get_distance(&current_loc, &next_WP);
 	target_bearing 		= get_bearing(&prev_WP, &next_WP);
+	nav_bearing 		= target_bearing;
+
+	// calc the location error:
+	calc_location_error(&next_WP);
 
 	// to check if we have missed the WP
 	// ---------------------------------
@@ -183,7 +178,7 @@ static void set_next_WP(struct Location *wp)
 
 	// reset speed governer
 	// --------------------
-	waypoint_speed_gov = 0;
+	waypoint_speed_gov = WAYPOINT_SPEED_MIN;
 }
 
 

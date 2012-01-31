@@ -322,11 +322,12 @@ namespace ArdupilotMega
                     {
                         if (but.buttonno != -1 && getButtonState(but.buttonno))
                         {
+                            string mode = but.mode;
                             MainV2.instance.BeginInvoke((System.Windows.Forms.MethodInvoker)delegate()
                             {
                                 try
                                 {
-									MainV2.comPort.setMode(but.mode); 
+                                    MainV2.comPort.setMode(mode); 
 
                                 }
                                 catch { System.Windows.Forms.MessageBox.Show("Failed to change Modes"); }
@@ -513,6 +514,7 @@ namespace ArdupilotMega
             }
             if (chan == 3)
             {
+                trim = (min + max) / 2;
 //                trim = min; // throttle
             }
             

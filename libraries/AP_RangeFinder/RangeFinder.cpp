@@ -13,7 +13,11 @@
 */
 
 // AVR LibC Includes
-#include "WConstants.h"
+#if defined(ARDUINO) && ARDUINO >= 100
+	#include "Arduino.h"
+#else
+	#include "WConstants.h"
+#endif
 #include "RangeFinder.h"
 
 
@@ -31,9 +35,8 @@ void RangeFinder::set_orientation(int x, int y, int z)
 int RangeFinder::read()
 {
     int temp_dist;
-	
-	raw_value = _analog_source->read();
 
+	raw_value = _analog_source->read();
 	// convert analog value to distance in cm (using child implementation most likely)
 	temp_dist = convert_raw_to_distance(raw_value);
 

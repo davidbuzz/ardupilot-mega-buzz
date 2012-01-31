@@ -139,9 +139,9 @@ def deltree(path):
 
 
 
-def build_SIL(atype):
+def build_SIL(atype, target='sitl'):
     '''build desktop SIL'''
-    run_cmd("make clean sitl",
+    run_cmd("make clean %s" % target,
             dir=reltopdir(atype),
             checkfail=True)
     return True
@@ -375,8 +375,7 @@ class Wind(object):
         w_delta = math.sqrt(deltat)*(1.0-random.gauss(1.0, self.turbulance))
         w_delta -= (self.turbulance_mul-1.0)*(deltat/self.turbulance_time_constant)
         self.turbulance_mul += w_delta
-        
-        speed = self.speed * self.turbulance_mul
+        speed = self.speed * math.fabs(self.turbulance_mul)
         return (speed, self.direction)
 
     def accel(self, velocity, deltat=None):

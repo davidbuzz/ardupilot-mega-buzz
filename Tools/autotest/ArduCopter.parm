@@ -31,7 +31,8 @@ FLTMODE3        6
 FLTMODE4        3
 FLTMODE5        5
 FLTMODE6		0
-SUPER_SIMPLE	1
+SUPER_SIMPLE	0
+THR_FAILSAFE	1
 # flightmodes
 # switch 1 Circle
 # switch 2 LAND

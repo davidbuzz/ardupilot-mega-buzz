@@ -17,7 +17,7 @@ public:
 	// The increment will prevent old parameters from being used incorrectly
 	// by newer code.
 	//
-	static const uint16_t k_format_version = 113;
+	static const uint16_t k_format_version = 115;
 
 	// The parameter software_type is set up solely for ground station use
 	// and identifies the software type (eg ArduPilotMega versus ArduCopterMega)
@@ -26,7 +26,6 @@ public:
 	//
 	static const uint16_t k_software_type = 10;		// 0 for APM trunk
 
-	//
 	// Parameter identities.
 	//
 	// The enumeration defined here is used to ensure that every parameter
@@ -94,7 +93,10 @@ public:
 	// 140: Sensor parameters
 	//
 	k_param_IMU_calibration = 140,
-	k_param_battery_monitoring,
+    k_param_battery_monitoring,
+    k_param_volt_div_ratio,
+    k_param_curr_amp_per_volt,
+    k_param_input_voltage,
 	k_param_pack_capacity,
 	k_param_compass_enabled,
 	k_param_compass,
@@ -102,17 +104,18 @@ public:
 	k_param_frame_orientation,
 	k_param_top_bottom_ratio,
 	k_param_optflow_enabled,
-	k_param_input_voltage,
 	k_param_low_voltage,
 	k_param_ch7_option,
-	k_param_sonar_type,  // 153
-	k_param_super_simple,
+	k_param_sonar_type,
+	k_param_super_simple, //155
 
 	//
 	// 160: Navigation parameters
 	//
 	k_param_RTL_altitude = 160,
 	k_param_crosstrack_gain,
+	k_param_auto_land_timeout,
+
 
 	//
 	// 180: Radio settings
@@ -161,23 +164,23 @@ public:
 	k_param_waypoint_speed_max,
 
 	//
-	// 240: PI/D Controllers
+	// 235: PI/D Controllers
 	//
-	k_param_pi_rate_roll = 235,
-	k_param_pi_rate_pitch,
-	k_param_pi_rate_yaw,
+	k_param_stabilize_d = 234,
+	k_param_pid_rate_roll = 235,
+	k_param_pid_rate_pitch,
+	k_param_pid_rate_yaw,
 	k_param_pi_stabilize_roll,
 	k_param_pi_stabilize_pitch,
 	k_param_pi_stabilize_yaw,
 	k_param_pi_loiter_lat,
 	k_param_pi_loiter_lon,
-	k_param_pi_nav_lat,
-	k_param_pi_nav_lon,
+	k_param_pid_nav_lat,
+	k_param_pid_nav_lon,
 	k_param_pi_alt_hold,
-	k_param_pi_throttle,
-	k_param_pi_acro_roll,
-	k_param_pi_acro_pitch,
-
+	k_param_pid_throttle,
+	k_param_pid_optflow_roll,
+	k_param_pid_optflow_pitch,  // 250
 
     // 254,255: reserved
 	};
@@ -195,11 +198,13 @@ public:
 	AP_Int16	RTL_altitude;
 	AP_Int8		sonar_enabled;
 	AP_Int8		sonar_type;   // 0 = XL, 1 = LV, 2 = XLL (XL with 10m range)
-	AP_Int8		battery_monitoring;	// 0=disabled, 1=3 cell lipo, 2=4 cell lipo, 3=total voltage only, 4=total voltage and current
+    AP_Int8		battery_monitoring;	// 0=disabled, 3=voltage only, 4=voltage and current
+    AP_Float	volt_div_ratio;
+    AP_Float	curr_amp_per_volt;
+    AP_Float	input_voltage;
 	AP_Int16	pack_capacity;		// Battery pack capacity less reserve
 	AP_Int8		compass_enabled;
     AP_Int8		optflow_enabled;
-    AP_Float	input_voltage;
 	AP_Float	low_voltage;
 	AP_Int8		super_simple;
 
@@ -214,6 +219,8 @@ public:
 	AP_Int16	loiter_radius;
 	AP_Int16	waypoint_speed_max;
 	AP_Float	crosstrack_gain;
+	AP_Int32	auto_land_timeout;
+
 
 	// Throttle
 	//
@@ -274,27 +281,25 @@ public:
 
 	AP_Float	camera_pitch_gain;
 	AP_Float	camera_roll_gain;
+	AP_Float	stablize_d;
 
 	// PI/D controllers
-	APM_PI		pi_rate_roll;
-	APM_PI		pi_rate_pitch;
-	APM_PI		pi_rate_yaw;
+	AC_PID		pid_rate_roll;
+	AC_PID		pid_rate_pitch;
+	AC_PID		pid_rate_yaw;
+	AC_PID		pid_nav_lat;
+	AC_PID		pid_nav_lon;
 
-	APM_PI		pi_stabilize_roll;
-	APM_PI		pi_stabilize_pitch;
-	APM_PI		pi_stabilize_yaw;
+	AC_PID		pid_throttle;
+	AC_PID		pid_optflow_roll;
+	AC_PID		pid_optflow_pitch;
 
 	APM_PI		pi_loiter_lat;
 	APM_PI		pi_loiter_lon;
-
-	APM_PI		pi_nav_lat;
-	APM_PI		pi_nav_lon;
-
+	APM_PI		pi_stabilize_roll;
+	APM_PI		pi_stabilize_pitch;
+	APM_PI		pi_stabilize_yaw;
 	APM_PI		pi_alt_hold;
-	APM_PI		pi_throttle;
-
-	APM_PI		pi_acro_roll;
-	APM_PI		pi_acro_pitch;
 
 	uint8_t		junk;
 
@@ -312,11 +317,13 @@ public:
 	RTL_altitude			(ALT_HOLD_HOME * 100,		k_param_RTL_altitude,					PSTR("ALT_HOLD_RTL")),
 	sonar_enabled			(DISABLED,					k_param_sonar,							PSTR("SONAR_ENABLE")),
 	sonar_type				(AP_RANGEFINDER_MAXSONARXL,	k_param_sonar_type,						PSTR("SONAR_TYPE")),
-	battery_monitoring 		(DISABLED,					k_param_battery_monitoring,				PSTR("BATT_MONITOR")),
+    battery_monitoring 		(DISABLED,					k_param_battery_monitoring,		        PSTR("BATT_MONITOR")),
+    volt_div_ratio			(VOLT_DIV_RATIO,			k_param_volt_div_ratio,			        PSTR("VOLT_DIVIDER")),
+    curr_amp_per_volt		(CURR_AMP_PER_VOLT,			k_param_curr_amp_per_volt,		        PSTR("AMP_PER_VOLT")),
+    input_voltage			(INPUT_VOLTAGE,				k_param_input_voltage,			        PSTR("INPUT_VOLTS")),
 	pack_capacity			(HIGH_DISCHARGE,			k_param_pack_capacity,					PSTR("BATT_CAPACITY")),
 	compass_enabled			(MAGNETOMETER,				k_param_compass_enabled,				PSTR("MAG_ENABLE")),
 	optflow_enabled			(OPTFLOW,					k_param_optflow_enabled,				PSTR("FLOW_ENABLE")),
-	input_voltage			(INPUT_VOLTAGE,				k_param_input_voltage,					PSTR("IN_VOLT")),
 	low_voltage				(LOW_VOLTAGE,				k_param_low_voltage,					PSTR("LOW_VOLT")),
 	super_simple			(SUPER_SIMPLE,				k_param_super_simple,					PSTR("SUPER_SIMPLE")),
 
@@ -324,10 +331,11 @@ public:
 	command_total			(0,							k_param_command_total,					PSTR("WP_TOTAL")),
 	command_index			(0,							k_param_command_index,					PSTR("WP_INDEX")),
 	command_nav_index		(0,							k_param_command_nav_index,				PSTR("WP_MUST_INDEX")),
-	waypoint_radius			(WP_RADIUS_DEFAULT,			k_param_waypoint_radius,				PSTR("WP_RADIUS")),
+	waypoint_radius			(WP_RADIUS_DEFAULT * 100,	k_param_waypoint_radius,				PSTR("WP_RADIUS")),
 	loiter_radius			(LOITER_RADIUS,	    		k_param_loiter_radius,					PSTR("WP_LOITER_RAD")),
 	waypoint_speed_max		(WAYPOINT_SPEED_MAX,		k_param_waypoint_speed_max,				PSTR("WP_SPEED_MAX")),
 	crosstrack_gain			(CROSSTRACK_GAIN,			k_param_crosstrack_gain,				PSTR("XTRK_GAIN_SC")),
+	auto_land_timeout		(AUTO_LAND_TIME * 1000,		k_param_auto_land_timeout,				PSTR("AUTO_LAND")),
 
 	throttle_min			(0,							k_param_throttle_min,					PSTR("THR_MIN")),
 	throttle_max			(1000, 						k_param_throttle_max,					PSTR("THR_MAX")),
@@ -350,7 +358,7 @@ public:
 	radio_tuning 			(0, 						k_param_radio_tuning, 					PSTR("TUNE")),
 	frame_orientation 		(FRAME_ORIENTATION, 		k_param_frame_orientation, 				PSTR("FRAME")),
 	top_bottom_ratio 		(TOP_BOTTOM_RATIO, 			k_param_top_bottom_ratio, 				PSTR("TB_RATIO")),
-	ch7_option 				(CH7_SAVE_WP, 				k_param_ch7_option, 					PSTR("CH7_OPT")),
+	ch7_option 				(CH7_OPTION, 				k_param_ch7_option, 					PSTR("CH7_OPT")),
 
 	#if FRAME_CONFIG ==	HELI_FRAME
 	heli_servo_1			(k_param_heli_servo_1,		PSTR("HS1_")),
@@ -390,28 +398,32 @@ public:
 	//-------------------------------------------------------------------------------------------------------------------
 	camera_pitch_gain 		(CAM_PITCH_GAIN, 			k_param_camera_pitch_gain, 				PSTR("CAM_P_G")),
 	camera_roll_gain 		(CAM_ROLL_GAIN, 			k_param_camera_roll_gain,	 			PSTR("CAM_R_G")),
+	stablize_d 				(STABILIZE_D, 				k_param_stabilize_d,	 				PSTR("STAB_D")),
+
+	// PID controller	group key						name				initial P	   	    initial I		 	initial D       initial imax
+	//--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	pid_rate_roll       (k_param_pid_rate_roll,         PSTR("RATE_RLL_"),  RATE_ROLL_P,        RATE_ROLL_I,        RATE_ROLL_D,    RATE_ROLL_IMAX * 100),
+	pid_rate_pitch      (k_param_pid_rate_pitch,        PSTR("RATE_PIT_"),  RATE_PITCH_P,       RATE_PITCH_I,       RATE_PITCH_D,   RATE_PITCH_IMAX * 100),
+	pid_rate_yaw        (k_param_pid_rate_yaw,          PSTR("RATE_YAW_"),  RATE_YAW_P,         RATE_YAW_I,         RATE_YAW_D,     RATE_YAW_IMAX * 100),
+
+	pid_nav_lat			(k_param_pid_nav_lat,			PSTR("NAV_LAT_"),	NAV_P,				NAV_I,				NAV_D,			NAV_IMAX * 100),
+	pid_nav_lon			(k_param_pid_nav_lon,			PSTR("NAV_LON_"),	NAV_P,				NAV_I,				NAV_D,			NAV_IMAX * 100),
+
+	pid_throttle		(k_param_pid_throttle,			PSTR("THR_RATE_"),	THROTTLE_P,			THROTTLE_I,			THROTTLE_D,		THROTTLE_IMAX),
+	pid_optflow_roll	(k_param_pid_optflow_roll,		PSTR("OF_RLL_"),	OPTFLOW_ROLL_P,		OPTFLOW_ROLL_I,		OPTFLOW_ROLL_D,	OPTFLOW_IMAX * 100),
+	pid_optflow_pitch	(k_param_pid_optflow_pitch,		PSTR("OF_PIT_"),	OPTFLOW_PITCH_P,	OPTFLOW_PITCH_I,	OPTFLOW_PITCH_D,OPTFLOW_IMAX * 100),
+
 
 	// PI controller	group key						name				initial P			initial I			initial imax
 	//--------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	pi_rate_roll		(k_param_pi_rate_roll,			PSTR("RATE_RLL_"),	RATE_ROLL_P,		RATE_ROLL_I,		RATE_ROLL_IMAX * 100),
-	pi_rate_pitch		(k_param_pi_rate_pitch,			PSTR("RATE_PIT_"),	RATE_PITCH_P,		RATE_PITCH_I,		RATE_PITCH_IMAX * 100),
-	pi_rate_yaw			(k_param_pi_rate_yaw,			PSTR("RATE_YAW_"),	RATE_YAW_P,			RATE_YAW_I,			RATE_YAW_IMAX * 100),
-
 	pi_stabilize_roll	(k_param_pi_stabilize_roll,		PSTR("STB_RLL_"),	STABILIZE_ROLL_P,	STABILIZE_ROLL_I,	STABILIZE_ROLL_IMAX * 100),
 	pi_stabilize_pitch	(k_param_pi_stabilize_pitch,	PSTR("STB_PIT_"),	STABILIZE_PITCH_P,	STABILIZE_PITCH_I,	STABILIZE_PITCH_IMAX * 100),
 	pi_stabilize_yaw	(k_param_pi_stabilize_yaw,		PSTR("STB_YAW_"),	STABILIZE_YAW_P,	STABILIZE_YAW_I,	STABILIZE_YAW_IMAX * 100),
 
+	pi_alt_hold			(k_param_pi_alt_hold,			PSTR("THR_ALT_"),	ALT_HOLD_P,			ALT_HOLD_I,			ALT_HOLD_IMAX),
 	pi_loiter_lat		(k_param_pi_loiter_lat,			PSTR("HLD_LAT_"),	LOITER_P,			LOITER_I,			LOITER_IMAX * 100),
 	pi_loiter_lon		(k_param_pi_loiter_lon,			PSTR("HLD_LON_"),	LOITER_P,			LOITER_I,			LOITER_IMAX * 100),
 
-	pi_nav_lat			(k_param_pi_nav_lat,			PSTR("NAV_LAT_"),	NAV_P,				NAV_I,				NAV_IMAX * 100),
-	pi_nav_lon			(k_param_pi_nav_lon,			PSTR("NAV_LON_"),	NAV_P,				NAV_I,				NAV_IMAX * 100),
-
-	pi_alt_hold			(k_param_pi_alt_hold,			PSTR("THR_ALT_"),	THR_HOLD_P,			THR_HOLD_I,			THR_HOLD_IMAX),
-	pi_throttle			(k_param_pi_throttle,			PSTR("THR_RATE_"),	THROTTLE_P,			THROTTLE_I,			THROTTLE_IMAX),
-
-	pi_acro_roll		(k_param_pi_acro_roll,			PSTR("ACRO_RLL_"),	ACRO_ROLL_P,		ACRO_ROLL_I,		ACRO_ROLL_IMAX * 100),
-	pi_acro_pitch		(k_param_pi_acro_pitch,			PSTR("ACRO_PIT_"),	ACRO_PITCH_P,		ACRO_PITCH_I,		ACRO_PITCH_IMAX * 100),
 
 	junk(0)		// XXX just so that we can add things without worrying about the trailing comma
 	{

@@ -85,7 +85,7 @@ public:
         //
         k_param_flybywire_airspeed_min = 120,
         k_param_flybywire_airspeed_max,
-        k_param_FBWB_min_altitude,  // -1=disabled, minimum value for altitude in cm (default 30m)
+        k_param_FBWB_min_altitude,  // 0=disabled, minimum value for altitude in cm (for first time try 30 meters = 3000 cm)
 
         //
         // 130: Sensor parameters
@@ -330,7 +330,7 @@ public:
     AP_Int32    ground_pressure;
     AP_Int8		compass_enabled;
     AP_Int16    angle_of_attack;
-    AP_Int8		battery_monitoring;	// 0=disabled, 1=3 cell lipo, 2=4 cell lipo, 3=total voltage only, 4=total voltage and current
+    AP_Int8		battery_monitoring;	// 0=disabled, 3=voltage only, 4=voltage and current
     AP_Float	volt_div_ratio;
     AP_Float	curr_amp_per_volt;
     AP_Float	input_voltage;

@@ -39,8 +39,12 @@ extern "C" {
   // AVR LibC Includes
   #include <inttypes.h>
   #include <avr/interrupt.h>
-  #include "WConstants.h"
 }
+#if defined(ARDUINO) && ARDUINO >= 100
+  #include "Arduino.h"
+#else
+  #include "WConstants.h"
+#endif
 
 #include <AP_Common.h>
 #include <AP_Math.h>		// ArduPilot Mega Vector/Matrix math Library
@@ -56,6 +60,8 @@ extern "C" {
 // is not available to the arduino digitalRead function.
 #define BMP_DATA_READY() (_apm2_hardware?(PINE&0x80):digitalRead(BMP085_EOC))
 
+// oversampling 3 gives highest resolution
+#define OVERSAMPLING 3
 
 // Public Methods //////////////////////////////////////////////////////////////
 bool AP_Baro_BMP085::init( AP_PeriodicProcess * scheduler )
@@ -64,7 +70,6 @@ bool AP_Baro_BMP085::init( AP_PeriodicProcess * scheduler )
 	
 	pinMode(BMP085_EOC, INPUT);	 // End Of Conversion (PC7) input
 
-	oss = 3;					 // Over Sampling setting 3 = High resolution
 	BMP085_State = 0;		 // Initial state
 
 	// We read the calibration data registers
@@ -142,7 +147,7 @@ int32_t AP_Baro_BMP085::get_raw_temp() {
 // Send command to Read Pressure
 void AP_Baro_BMP085::Command_ReadPress()
 {
-	if (I2c.write(BMP085_ADDRESS, 0xF4, 0x34+(oss << 6)) != 0) {
+	if (I2c.write(BMP085_ADDRESS, 0xF4, 0x34+(OVERSAMPLING << 6)) != 0) {
 		healthy = false;
 	}
 }
@@ -152,19 +157,26 @@ void AP_Baro_BMP085::ReadPress()
 {
 	uint8_t buf[3];
 
+    if (!healthy && millis() < _retry_time) {
+        return;
+    }
+
 	if (I2c.read(BMP085_ADDRESS, 0xF6, 3, buf) != 0) {
+        _retry_time = millis() + 1000;
+        I2c.setSpeed(false);
 		healthy = false;
 		return;
 	}
 
-	RawPress = (((long)buf[0] << 16) | ((long)buf[1] << 8) | ((long)buf[2])) >> (8 - oss);
+	RawPress = (((uint32_t)buf[0] << 16) | ((uint32_t)buf[1] << 8) | ((uint32_t)buf[2])) >> (8 - OVERSAMPLING);
 
-	if(_offset_press == 0){
+	if (_offset_press == 0){
 		_offset_press = RawPress;
 		RawPress = 0;
 	} else{
 		RawPress -= _offset_press;
 	}
+
 	// filter
 	_press_filter[_press_index++] = RawPress;
 
@@ -180,7 +192,6 @@ void AP_Baro_BMP085::ReadPress()
 
 	// grab result
 	RawPress /= PRESS_FILTER_SIZE;
-	//RawPress >>= 3;
 	RawPress += _offset_press;
 }
 
@@ -197,7 +208,13 @@ void AP_Baro_BMP085::ReadTemp()
 {
 	uint8_t buf[2];
 
+    if (!healthy && millis() < _retry_time) {
+        return;
+    }
+
 	if (I2c.read(BMP085_ADDRESS, 0xF6, 2, buf) != 0) {
+        _retry_time = millis() + 1000;
+        I2c.setSpeed(false);
 		healthy = false;
 		return;
 	}
@@ -249,16 +266,16 @@ void AP_Baro_BMP085::Calculate()
 	x1 = (b2 * (b6 * b6 >> 12)) >> 11;
 	x2 = ac2 * b6 >> 11;
 	x3 = x1 + x2;
-	//b3 = (((int32_t) ac1 * 4 + x3)<<oss + 2) >> 2; // BAD
-	//b3 = ((int32_t) ac1 * 4 + x3 + 2) >> 2;  //OK for oss=0
+	//b3 = (((int32_t) ac1 * 4 + x3)<<OVERSAMPLING + 2) >> 2; // BAD
+	//b3 = ((int32_t) ac1 * 4 + x3 + 2) >> 2;  //OK for OVERSAMPLING=0
 	tmp = ac1;
-	tmp = (tmp*4 + x3)<<oss;
+	tmp = (tmp*4 + x3)<<OVERSAMPLING;
 	b3 = (tmp+2)/4;
 	x1 = ac3 * b6 >> 13;
 	x2 = (b1 * (b6 * b6 >> 12)) >> 16;
 	x3 = ((x1 + x2) + 2) >> 2;
 	b4 = (ac4 * (uint32_t) (x3 + 32768)) >> 15;
-	b7 = ((uint32_t) RawPress - b3) * (50000 >> oss);
+	b7 = ((uint32_t) RawPress - b3) * (50000 >> OVERSAMPLING);
 	p = b7 < 0x80000000 ? (b7 * 2) / b4 : (b7 / b4) * 2;
 
 	x1 = (p >> 8) * (p >> 8);

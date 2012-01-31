@@ -3,6 +3,7 @@
 static void read_control_switch()
 {
 	static bool switch_debouncer = false;
+
 	byte switchPosition = readSwitch();
 
 	if (oldSwitchPosition != switchPosition){
@@ -110,14 +111,16 @@ static void read_trim_switch()
 				trim_flag = false;
 
 				if(control_mode == AUTO){
+					// reset the mission
 					CH7_wp_index = 0;
 					g.command_total.set_and_save(1);
+					set_mode(RTL);
 					return;
 				}
 
 				if(CH7_wp_index == 0){
 					// this is our first WP, let's save WP 1 as a takeoff
-					// increment index
+					// increment index to WP index of 1 (home is stored at 0)
 					CH7_wp_index = 1;
 
 					// set our location ID to 16, MAV_CMD_NAV_WAYPOINT
@@ -133,7 +136,7 @@ static void read_trim_switch()
 				// increment index
 				CH7_wp_index++;
 
-				// set the next_WP, 0 is Home so we don't set that
+				// set the next_WP (home is stored at 0)
 				// max out at 100 since I think we need to stay under the EEPROM limit
 				CH7_wp_index = constrain(CH7_wp_index, 1, 100);
 
@@ -148,8 +151,10 @@ static void read_trim_switch()
 				// save command
 				set_cmd_with_index(current_loc, CH7_wp_index);
 
-				// save the index
-				g.command_total.set_and_save(CH7_wp_index + 1);
+				// 0 = home
+				// 1 = takeoff
+				// 2 = WP 2
+				// 3 = command total
 			}
 		}
 	}
@@ -207,8 +212,7 @@ A_off: 201.95, -24.00, -88.56
 
 static void trim_accel()
 {
-	g.pi_stabilize_roll.reset_I();
-	g.pi_stabilize_pitch.reset_I();
+	reset_stability_I();
 
 	float trim_roll  = (float)g.rc_1.control_in / 30000.0;
 	float trim_pitch = (float)g.rc_2.control_in / 30000.0;
