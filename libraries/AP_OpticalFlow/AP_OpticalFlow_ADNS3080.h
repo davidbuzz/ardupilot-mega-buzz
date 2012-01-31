@@ -77,7 +77,7 @@
 #define ADNS3080_LED_MODE_WHEN_REQUIRED    0x01
 
 #define ADNS3080_RESOLUTION_400			400
-#define ADNS3080_RESOLUTION_1200		1200
+#define ADNS3080_RESOLUTION_1600		1600
 
 // Extended Configuration bits
 #define ADNS3080_SERIALNPU_OFF	0x02
@@ -100,7 +100,8 @@ class AP_OpticalFlow_ADNS3080 : public AP_OpticalFlow
   public:
 	int _cs_pin;     // pin used for chip select
 	int _reset_pin;  // pin used for chip reset
-	bool _motion;  	// true if there has been motion
+	bool _motion;  	 // true if there has been motion
+	bool _overflow;  // true if the x or y data buffers overflowed
 
   public:
   	AP_OpticalFlow_ADNS3080(int cs_pin = ADNS3080_CHIP_SELECT, int reset_pin = ADNS3080_RESET);
@@ -118,8 +119,8 @@ class AP_OpticalFlow_ADNS3080 : public AP_OpticalFlow
 	bool get_led_always_on();                    // returns true if LED is always on, false if only on when required
 	void set_led_always_on( bool alwaysOn );     // set parameter to true if you want LED always on, otherwise false for only when required
 
-	int get_resolution();							// returns resolution (either 400 or 1200 counts per inch)
-	void set_resolution(int resolution);            // set parameter to 400 or 1200 counts per inch
+	int get_resolution();							// returns resolution (either 400 or 1600 counts per inch)
+	void set_resolution(int resolution);            // set parameter to 400 or 1600 counts per inch
 
 	bool get_frame_rate_auto();                      // get_frame_rate_auto - return true if frame rate is set to "auto", false if manual
 	void set_frame_rate_auto(bool auto_frame_rate);  // set_frame_rate_auto(bool) - set frame rate to auto (true), or manual (false)

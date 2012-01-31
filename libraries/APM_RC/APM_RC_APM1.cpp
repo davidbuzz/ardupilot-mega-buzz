@@ -21,7 +21,11 @@
 #include "APM_RC_APM1.h"
 
 #include <avr/interrupt.h>
-#include "WProgram.h"
+#if defined(ARDUINO) && ARDUINO >= 100
+	#include "Arduino.h"
+#else
+	#include "WProgram.h"
+#endif
 
 #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
 # error Please check the Tools/Board menu to ensure you have selected Arduino Mega as your target.
@@ -84,7 +88,7 @@ void APM_RC_APM1::Init( Arduino_Mega_ISR_Registry * isr_reg )
   pinMode(13,OUTPUT); //OUT3 (PB7/OC1C)
 
   //Remember the registers not declared here remains zero by default...
-  TCCR1A =((1<<WGM11)|(1<<COM1A1)|(1<<COM1B1)|(1<<COM1C1)); //Please read page 131 of DataSheet, we are changing the registers settings of WGM11,COM1B1,COM1A1 to 1 thats all...
+  TCCR1A =((1<<WGM11)); //Please read page 131 of DataSheet, we are changing the registers settings of WGM11,COM1B1,COM1A1 to 1 thats all...
   TCCR1B = (1<<WGM13)|(1<<WGM12)|(1<<CS11); //Prescaler set to 8, that give us a resolution of 0.5us, read page 134 of data sheet
   OCR1A = 0xFFFF; // Init ODR registers to nil output signal
   OCR1B = 0xFFFF;
@@ -95,7 +99,7 @@ void APM_RC_APM1::Init( Arduino_Mega_ISR_Registry * isr_reg )
   pinMode(2,OUTPUT); //OUT7 (PE4/OC3B)
   pinMode(3,OUTPUT); //OUT6 (PE5/OC3C)
   pinMode(5,OUTPUT); //OUT10(PE3/OC3A)
-  TCCR3A =((1<<WGM31)|(1<<COM3A1)|(1<<COM3B1)|(1<<COM3C1));
+  TCCR3A =((1<<WGM31));
   TCCR3B = (1<<WGM33)|(1<<WGM32)|(1<<CS31);
   OCR3A = 0xFFFF; // Init ODR registers to nil output signal
   OCR3B = 0xFFFF;
@@ -107,7 +111,7 @@ void APM_RC_APM1::Init( Arduino_Mega_ISR_Registry * isr_reg )
   pinMode(45,OUTPUT);  //OUT0 (PL4/OC5B)
   pinMode(46,OUTPUT);  //OUT8 (PL3/OC5A)
 
-  TCCR5A =((1<<WGM51)|(1<<COM5A1)|(1<<COM5B1)|(1<<COM5C1));
+  TCCR5A =((1<<WGM51));
   TCCR5B = (1<<WGM53)|(1<<WGM52)|(1<<CS51);
   OCR5A = 0xFFFF; // Init ODR registers to nil output signal
   OCR5B = 0xFFFF;
@@ -119,7 +123,7 @@ void APM_RC_APM1::Init( Arduino_Mega_ISR_Registry * isr_reg )
   pinMode(7,OUTPUT);   //OUT5 (PH4/OC4B)
   pinMode(8,OUTPUT);   //OUT4 (PH5/OC4C)
 
-  TCCR4A =((1<<WGM40)|(1<<WGM41)|(1<<COM4C1)|(1<<COM4B1)|(1<<COM4A1));
+  TCCR4A =((1<<WGM40)|(1<<WGM41));
   //Prescaler set to 8, that give us a resolution of 0.5us
   // Input Capture rising edge
   TCCR4B = ((1<<WGM43)|(1<<WGM42)|(1<<CS41)|(1<<ICES4));
@@ -139,17 +143,51 @@ void APM_RC_APM1::OutputCh(uint8_t ch, uint16_t pwm)
 
  switch(ch)
   {
-    case 0:  OCR5B=pwm; break;  //ch0
-    case 1:  OCR5C=pwm; break;  //ch1
-    case 2:  OCR1B=pwm; break;  //ch2
-    case 3:  OCR1C=pwm; break;  //ch3
-    case 4:  OCR4C=pwm; break;  //ch4
-    case 5:  OCR4B=pwm; break;  //ch5
-    case 6:  OCR3C=pwm; break;  //ch6
-    case 7:  OCR3B=pwm; break;  //ch7
-    case 8:  OCR5A=pwm; break;  //ch8,  PL3
-    case 9:  OCR1A=pwm; break;  //ch9,  PB5
-    case 10: OCR3A=pwm; break;  //ch10, PE3
+    case 0:  OCR5B=pwm; break;  //ch1
+    case 1:  OCR5C=pwm; break;  //ch2
+    case 2:  OCR1B=pwm; break;  //ch3
+    case 3:  OCR1C=pwm; break;  //ch4
+    case 4:  OCR4C=pwm; break;  //ch5
+    case 5:  OCR4B=pwm; break;  //ch6
+    case 6:  OCR3C=pwm; break;  //ch7
+    case 7:  OCR3B=pwm; break;  //ch8
+    case 8:  OCR5A=pwm; break;  //ch9,  PL3
+    case 9:  OCR1A=pwm; break;  //ch10, PB5
+    case 10: OCR3A=pwm; break;  //ch11, PE3
+  }
+}
+
+void APM_RC_APM1::enable_out(uint8_t ch)
+{
+ switch(ch){
+    case 0:  TCCR5A |= (1<<COM5B1); break;  // CH_1 : OC5B
+    case 1:  TCCR5A |= (1<<COM5C1); break;  // CH_2 : OC5C
+    case 2:  TCCR1A |= (1<<COM1B1); break;  // CH_3 : OC1B
+    case 3:  TCCR1A |= (1<<COM1C1); break;  // CH_4 : OC1C
+    case 4:  TCCR4A |= (1<<COM4C1); break;  // CH_5 : OC4C
+    case 5:  TCCR4A |= (1<<COM4B1); break;  // CH_6 : OC4B
+    case 6:  TCCR3A |= (1<<COM3C1); break;  // CH_7 : OC3C
+    case 7:  TCCR3A |= (1<<COM3B1); break;  // CH_8 : OC3B
+    case 8:  TCCR5A |= (1<<COM5A1); break;  // CH_9 : OC5A
+    case 9:  TCCR1A |= (1<<COM1A1); break;  // CH_10: OC1A
+    case 10: TCCR3A |= (1<<COM3A1); break;  // CH_11: OC3A
+  }
+}
+
+void APM_RC_APM1::disable_out(uint8_t ch)
+{
+ switch(ch){
+    case 0:  TCCR5A &= ~(1<<COM5B1); break;  // CH_1 : OC5B
+    case 1:  TCCR5A &= ~(1<<COM5C1); break;  // CH_2 : OC5C
+    case 2:  TCCR1A &= ~(1<<COM1B1); break;  // CH_3 : OC1B
+    case 3:  TCCR1A &= ~(1<<COM1C1); break;  // CH_4 : OC1C
+    case 4:  TCCR4A &= ~(1<<COM4C1); break;  // CH_5 : OC4C
+    case 5:  TCCR4A &= ~(1<<COM4B1); break;  // CH_6 : OC4B
+    case 6:  TCCR3A &= ~(1<<COM3C1); break;  // CH_7 : OC3C
+    case 7:  TCCR3A &= ~(1<<COM3B1); break;  // CH_8 : OC3B
+    case 8:  TCCR5A &= ~(1<<COM5A1); break;  // CH_9 : OC5A
+    case 9:  TCCR1A &= ~(1<<COM1A1); break;  // CH_10: OC1A
+    case 10: TCCR3A &= ~(1<<COM3A1); break;  // CH_11: OC3A
   }
 }
 
@@ -216,16 +254,16 @@ void APM_RC_APM1::Force_Out6_Out7(void)
 
 void APM_RC_APM1::SetFastOutputChannels(uint32_t chmask)
 {
-    if ((chmask & ( MSK_CH_1 | MSK_CH_2 | MSK_CH_9)) != 0)
+    if ((chmask & ( _BV(CH_1) | _BV(CH_2) | _BV(CH_9))) != 0)
         _set_speed_ch1_ch2_ch9(OUTPUT_SPEED_400HZ);
 
-    if ((chmask & ( MSK_CH_3 | MSK_CH_4 | MSK_CH_10 )) != 0)
+    if ((chmask & ( _BV(CH_3) | _BV(CH_4) | _BV(CH_10))) != 0)
         _set_speed_ch3_ch4_ch10(OUTPUT_SPEED_400HZ);
 
-    if ((chmask & ( MSK_CH_5 | MSK_CH_6 )) != 0)
+    if ((chmask & ( _BV(CH_5) | _BV(CH_6))) != 0)
         _set_speed_ch5_ch6(OUTPUT_SPEED_400HZ);
 
-    if ((chmask & ( MSK_CH_7 | MSK_CH_8 | MSK_CH_11 )) != 0)
+    if ((chmask & ( _BV(CH_7) | _BV(CH_8) | _BV(CH_11))) != 0)
         _set_speed_ch7_ch8_ch11(OUTPUT_SPEED_400HZ);
 
 }

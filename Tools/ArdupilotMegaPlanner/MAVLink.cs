@@ -8,6 +8,7 @@ using System.Diagnostics; // stopwatch
 using System.Reflection;
 using System.Reflection.Emit;
 using System.IO;
+using System.Drawing;
 
 
 namespace ArdupilotMega
@@ -455,6 +456,7 @@ namespace ArdupilotMega
                         Array.Reverse(datearray);
                         logfile.Write(datearray, 0, datearray.Length);
                         logfile.Write(packet, 0, i);
+                        logfile.Flush();
                     }
                 }
 
@@ -582,7 +584,13 @@ namespace ArdupilotMega
                 }
             }
         }
+        /*
+        public Bitmap getImage()
+        {
+            MemoryStream ms = new MemoryStream();
 
+        }
+        */
         /// <summary>
         /// Get param list from apm
         /// </summary>
@@ -973,7 +981,7 @@ namespace ArdupilotMega
                 actionid == MAV_ACTION.MAV_ACTION_REBOOT)
             {
                 retrys = 1;
-                timeout = 6000;
+                timeout = 20000;
             }
 
             while (true)
@@ -1998,10 +2006,11 @@ namespace ArdupilotMega
                     }
                     catch (Exception e) { Console.WriteLine("MAVLink readpacket read error: " + e.Message); break; }
 
-                    if (temp[0] != 254 && temp[0] != 'U' || lastbad[0] == 'I' && lastbad[1] == 'M') // out of sync
+                    if (temp[0] != 254 && temp[0] != 'U' || lastbad[0] == 'I' && lastbad[1] == 'M' || lastbad[1] == 'G') // out of sync
                     {
-                        if (temp[0] >= 0x20 && temp[0] <= 127 || temp[0] == '\n')
+                        if (temp[0] >= 0x20 && temp[0] <= 127 || temp[0] == '\n' || temp[0] == '\r')
                         {
+                            TCPConsole.Write(temp[0]);
                             Console.Write((char)temp[0]);
                         }
                         count = 0;

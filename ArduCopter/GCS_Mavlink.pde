@@ -78,7 +78,7 @@ static NOINLINE void send_extended_status1(mavlink_channel_t chan, uint16_t pack
         status 		= MAV_STATE_STANDBY;
     }
 
-    uint16_t battery_remaining = 1000.0 * (float)(g.pack_capacity - current_total)/(float)g.pack_capacity;	//Mavlink scaling 100% = 1000
+    uint16_t battery_remaining = 1000.0 * (float)(g.pack_capacity - current_total1)/(float)g.pack_capacity;	//Mavlink scaling 100% = 1000
 
     mavlink_msg_sys_status_send(
         chan,
@@ -86,7 +86,7 @@ static NOINLINE void send_extended_status1(mavlink_channel_t chan, uint16_t pack
         nav_mode,
         status,
         0,
-        battery_voltage * 1000,
+        battery_voltage1 * 1000,
         battery_remaining,
         packet_drops);
 }
@@ -118,7 +118,7 @@ static void NOINLINE send_nav_controller_output(mavlink_channel_t chan)
         nav_pitch / 1.0e2,
         nav_bearing / 1.0e2,
         target_bearing / 1.0e2,
-        wp_distance,
+        wp_distance / 1.0e2,
         altitude_error / 1.0e2,
         0,
         crosstrack_error);	// was 0
@@ -824,7 +824,7 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 					break;
 
 				case MAV_ACTION_EMCY_LAND:
-					//set_mode(LAND);
+					set_mode(LAND);
 					break;
 
 				case MAV_ACTION_HALT:
@@ -904,11 +904,9 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 					result=1;
 					break;
 
-				/* Land is not an implemented flight mode in APM 2.0
 				case MAV_ACTION_LAND:
 					set_mode(LAND);
 					break;
-				*/
 
 				case MAV_ACTION_LOITER:
 					set_mode(LOITER);
@@ -1520,6 +1518,34 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
             // set dcm hil sensor
             dcm.setHil(packet.roll,packet.pitch,packet.yaw,packet.rollspeed,
             packet.pitchspeed,packet.yawspeed);
+
+            // rad/sec
+            /*
+            Vector3f gyros;
+            gyros.x = (float)packet.rollspeed;
+            gyros.y = (float)packet.pitchspeed;
+            gyros.z = (float)packet.yawspeed;
+
+            imu.set_gyro(gyros);
+			*/
+            //imu.set_accel(accels);
+
+            // rad/sec            // JLN update - FOR HIL SIMULATION WITH AEROSIM
+            Vector3f gyros;
+            gyros.x = (float)packet.rollspeed / 1000.0;
+            gyros.y = (float)packet.pitchspeed / 1000.0;
+            gyros.z = (float)packet.yawspeed / 1000.0;
+
+            imu.set_gyro(gyros);
+
+            // m/s/s
+            Vector3f accels;
+            accels.x = (float)packet.roll * gravity / 1000.0;
+            accels.y = (float)packet.pitch * gravity / 1000.0;
+            accels.z = (float)packet.yaw * gravity / 1000.0;
+
+            imu.set_accel(accels);
+
             break;
         }
 #endif
@@ -1545,32 +1571,6 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 			// set gps hil sensor
 			g_gps->setHIL(packet.usec/1000.0,packet.lat,packet.lon,packet.alt,
 			packet.v,packet.hdg,0,0);
-			break;
-		}
-
-		//	Is this resolved? - MAVLink protocol change.....
-	case MAVLINK_MSG_ID_VFR_HUD:
-		{
-			// decode
-			mavlink_vfr_hud_t packet;
-			mavlink_msg_vfr_hud_decode(msg, &packet);
-
-			// set airspeed
-			airspeed = 100*packet.airspeed;
-			break;
-		}
-
-#endif
-#if HIL_MODE == HIL_MODE_ATTITUDE
-	case MAVLINK_MSG_ID_ATTITUDE:
-		{
-			// decode
-			mavlink_attitude_t packet;
-			mavlink_msg_attitude_decode(msg, &packet);
-
-			// set dcm hil sensor
-			dcm.setHil(packet.roll,packet.pitch,packet.yaw,packet.rollspeed,
-			packet.pitchspeed,packet.yawspeed);
 			break;
 		}
 #endif

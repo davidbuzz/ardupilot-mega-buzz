@@ -4,6 +4,9 @@
 
 static void init_camera()
 {
+	APM_RC.enable_out(CH_CAM_PITCH);
+	APM_RC.enable_out(CH_CAM_ROLL);
+
 	// ch 6 high(right) is down.
 	g.rc_camera_pitch.set_angle(4500);
 	g.rc_camera_roll.set_angle(4500);
@@ -51,8 +54,8 @@ camera_stabilization()
 	g.rc_camera_pitch.calc_pwm();
 	g.rc_camera_roll.calc_pwm();
 
-	APM_RC.OutputCh(CH_5, g.rc_camera_pitch.radio_out);
-	APM_RC.OutputCh(CH_6, g.rc_camera_roll.radio_out);
+	APM_RC.OutputCh(CH_CAM_PITCH, g.rc_camera_pitch.radio_out);
+	APM_RC.OutputCh(CH_CAM_ROLL , g.rc_camera_roll.radio_out);
 	//Serial.printf("c:%d\n",  g.rc_camera_pitch.radio_out);
 }
 

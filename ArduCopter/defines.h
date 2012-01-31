@@ -106,6 +106,10 @@
 #define HIL_MODE_ATTITUDE			1
 #define HIL_MODE_SENSORS			2
 
+#define ASCENDING			1
+#define DESCENDING			-1
+#define REACHED_ALT			0
+
 // Auto Pilot modes
 // ----------------
 #define STABILIZE 0			// hold level position
@@ -118,7 +122,8 @@
 #define CIRCLE 7			// AUTO control
 #define POSITION 8			// AUTO control
 #define LAND 9				// AUTO control
-#define NUM_MODES 10
+#define OF_LOITER 10			// Hold a single location using optical flow sensor
+#define NUM_MODES 11
 
 #define INITIALISING 9     // in startup routines
 
@@ -159,6 +164,7 @@
 // optical flow controller
 #define CH6_OPTFLOW_KP 17
 #define CH6_OPTFLOW_KI 18
+#define CH6_OPTFLOW_KD 19
 
 
 // nav byte mask
@@ -287,9 +293,9 @@ enum gcs_severity {
 // Climb rate calculations
 #define	ALTITUDE_HISTORY_LENGTH 8	//Number of (time,altitude) points to regress a climb rate from
 
+#define BATTERY_VOLTAGE(x) (x*(g.input_voltage/1024.0))*g.volt_div_ratio
+#define CURRENT_AMPS(x) ((x*(g.input_voltage/1024.0))-CURR_AMPS_OFFSET)*g.curr_amp_per_volt
 
-#define BATTERY_VOLTAGE(x) (x*(g.input_voltage/1023.0))*VOLT_DIV_RATIO
-#define CURRENT_AMPS(x) ((x*(g.input_voltage/1023.0))-CURR_AMPS_OFFSET)*CURR_AMP_PER_VOLT
 //#define BARO_FILTER_SIZE 8
 
 /* ************************************************************** */
@@ -321,15 +327,8 @@ enum gcs_severity {
 #define AN14  68 // NC
 #define AN15  69 // NC
 
-#define VOLTAGE_PIN_0 0 // These are the pins for current sensor: voltage
-#define CURRENT_PIN_1 1 // and current
-
 #define RELAY_PIN 47
 
-#define BATTERY_PIN1 0		        // These are the pins for the voltage dividers
-#define BATTERY_PIN2 1
-#define BATTERY_PIN3 2
-#define BATTERY_PIN4 3
 #define PIEZO_PIN AN5           //Last pin on the back ADC connector
 
 

@@ -96,16 +96,19 @@
             this.pictureBox3 = new System.Windows.Forms.PictureBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.tabBattery = new System.Windows.Forms.TabPage();
-            this.TXT_ampspervolt = new System.Windows.Forms.TextBox();
-            this.TXT_divider = new System.Windows.Forms.TextBox();
-            this.TXT_voltage = new System.Windows.Forms.TextBox();
-            this.TXT_measuredvoltage = new System.Windows.Forms.TextBox();
-            this.TXT_inputvoltage = new System.Windows.Forms.TextBox();
-            this.label35 = new System.Windows.Forms.Label();
-            this.label34 = new System.Windows.Forms.Label();
-            this.label33 = new System.Windows.Forms.Label();
-            this.label32 = new System.Windows.Forms.Label();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.label31 = new System.Windows.Forms.Label();
+            this.label32 = new System.Windows.Forms.Label();
+            this.label33 = new System.Windows.Forms.Label();
+            this.TXT_ampspervolt = new System.Windows.Forms.TextBox();
+            this.label34 = new System.Windows.Forms.Label();
+            this.TXT_divider = new System.Windows.Forms.TextBox();
+            this.label35 = new System.Windows.Forms.Label();
+            this.TXT_voltage = new System.Windows.Forms.TextBox();
+            this.TXT_inputvoltage = new System.Windows.Forms.TextBox();
+            this.TXT_measuredvoltage = new System.Windows.Forms.TextBox();
+            this.label47 = new System.Windows.Forms.Label();
+            this.CMB_batmonsensortype = new System.Windows.Forms.ComboBox();
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.label29 = new System.Windows.Forms.Label();
             this.label30 = new System.Windows.Forms.Label();
@@ -116,9 +119,9 @@
             this.label28 = new System.Windows.Forms.Label();
             this.label16 = new System.Windows.Forms.Label();
             this.label15 = new System.Windows.Forms.Label();
-            this.BUT_levelac2 = new ArdupilotMega.MyButton();
             this.pictureBoxQuadX = new System.Windows.Forms.PictureBox();
             this.pictureBoxQuad = new System.Windows.Forms.PictureBox();
+            this.BUT_levelac2 = new ArdupilotMega.MyButton();
             this.tabHeli = new System.Windows.Forms.TabPage();
             this.BUT_HS4save = new ArdupilotMega.MyButton();
             this.BUT_swash_manual = new ArdupilotMega.MyButton();
@@ -184,6 +187,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.tabBattery.SuspendLayout();
+            this.groupBox4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).BeginInit();
             this.tabArducopter.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxQuadX)).BeginInit();
@@ -765,16 +769,9 @@
             // 
             // tabBattery
             // 
-            this.tabBattery.Controls.Add(this.TXT_ampspervolt);
-            this.tabBattery.Controls.Add(this.TXT_divider);
-            this.tabBattery.Controls.Add(this.TXT_voltage);
-            this.tabBattery.Controls.Add(this.TXT_measuredvoltage);
-            this.tabBattery.Controls.Add(this.TXT_inputvoltage);
-            this.tabBattery.Controls.Add(this.label35);
-            this.tabBattery.Controls.Add(this.label34);
-            this.tabBattery.Controls.Add(this.label33);
-            this.tabBattery.Controls.Add(this.label32);
-            this.tabBattery.Controls.Add(this.label31);
+            this.tabBattery.Controls.Add(this.groupBox4);
+            this.tabBattery.Controls.Add(this.label47);
+            this.tabBattery.Controls.Add(this.CMB_batmonsensortype);
             this.tabBattery.Controls.Add(this.textBox3);
             this.tabBattery.Controls.Add(this.label29);
             this.tabBattery.Controls.Add(this.label30);
@@ -785,12 +782,48 @@
             this.tabBattery.Name = "tabBattery";
             this.tabBattery.UseVisualStyleBackColor = true;
             // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.label31);
+            this.groupBox4.Controls.Add(this.label32);
+            this.groupBox4.Controls.Add(this.label33);
+            this.groupBox4.Controls.Add(this.TXT_ampspervolt);
+            this.groupBox4.Controls.Add(this.label34);
+            this.groupBox4.Controls.Add(this.TXT_divider);
+            this.groupBox4.Controls.Add(this.label35);
+            this.groupBox4.Controls.Add(this.TXT_voltage);
+            this.groupBox4.Controls.Add(this.TXT_inputvoltage);
+            this.groupBox4.Controls.Add(this.TXT_measuredvoltage);
+            resources.ApplyResources(this.groupBox4, "groupBox4");
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.TabStop = false;
+            // 
+            // label31
+            // 
+            resources.ApplyResources(this.label31, "label31");
+            this.label31.Name = "label31";
+            // 
+            // label32
+            // 
+            resources.ApplyResources(this.label32, "label32");
+            this.label32.Name = "label32";
+            // 
+            // label33
+            // 
+            resources.ApplyResources(this.label33, "label33");
+            this.label33.Name = "label33";
+            // 
             // TXT_ampspervolt
             // 
             resources.ApplyResources(this.TXT_ampspervolt, "TXT_ampspervolt");
             this.TXT_ampspervolt.Name = "TXT_ampspervolt";
             this.TXT_ampspervolt.Validating += new System.ComponentModel.CancelEventHandler(this.TXT_ampspervolt_Validating);
             this.TXT_ampspervolt.Validated += new System.EventHandler(this.TXT_ampspervolt_Validated);
+            // 
+            // label34
+            // 
+            resources.ApplyResources(this.label34, "label34");
+            this.label34.Name = "label34";
             // 
             // TXT_divider
             // 
@@ -799,19 +832,17 @@
             this.TXT_divider.Validating += new System.ComponentModel.CancelEventHandler(this.TXT_divider_Validating);
             this.TXT_divider.Validated += new System.EventHandler(this.TXT_divider_Validated);
             // 
+            // label35
+            // 
+            resources.ApplyResources(this.label35, "label35");
+            this.label35.Name = "label35";
+            // 
             // TXT_voltage
             // 
             this.TXT_voltage.DataBindings.Add(new System.Windows.Forms.Binding("Text", this.currentStateBindingSource, "battery_voltage", true));
             resources.ApplyResources(this.TXT_voltage, "TXT_voltage");
             this.TXT_voltage.Name = "TXT_voltage";
             this.TXT_voltage.ReadOnly = true;
-            // 
-            // TXT_measuredvoltage
-            // 
-            resources.ApplyResources(this.TXT_measuredvoltage, "TXT_measuredvoltage");
-            this.TXT_measuredvoltage.Name = "TXT_measuredvoltage";
-            this.TXT_measuredvoltage.Validating += new System.ComponentModel.CancelEventHandler(this.TXT_measuredvoltage_Validating);
-            this.TXT_measuredvoltage.Validated += new System.EventHandler(this.TXT_measuredvoltage_Validated);
             // 
             // TXT_inputvoltage
             // 
@@ -820,30 +851,29 @@
             this.TXT_inputvoltage.Validating += new System.ComponentModel.CancelEventHandler(this.TXT_inputvoltage_Validating);
             this.TXT_inputvoltage.Validated += new System.EventHandler(this.TXT_inputvoltage_Validated);
             // 
-            // label35
+            // TXT_measuredvoltage
             // 
-            resources.ApplyResources(this.label35, "label35");
-            this.label35.Name = "label35";
+            resources.ApplyResources(this.TXT_measuredvoltage, "TXT_measuredvoltage");
+            this.TXT_measuredvoltage.Name = "TXT_measuredvoltage";
+            this.TXT_measuredvoltage.Validating += new System.ComponentModel.CancelEventHandler(this.TXT_measuredvoltage_Validating);
+            this.TXT_measuredvoltage.Validated += new System.EventHandler(this.TXT_measuredvoltage_Validated);
             // 
-            // label34
+            // label47
             // 
-            resources.ApplyResources(this.label34, "label34");
-            this.label34.Name = "label34";
+            resources.ApplyResources(this.label47, "label47");
+            this.label47.Name = "label47";
             // 
-            // label33
+            // CMB_batmonsensortype
             // 
-            resources.ApplyResources(this.label33, "label33");
-            this.label33.Name = "label33";
-            // 
-            // label32
-            // 
-            resources.ApplyResources(this.label32, "label32");
-            this.label32.Name = "label32";
-            // 
-            // label31
-            // 
-            resources.ApplyResources(this.label31, "label31");
-            this.label31.Name = "label31";
+            this.CMB_batmonsensortype.FormattingEnabled = true;
+            this.CMB_batmonsensortype.Items.AddRange(new object[] {
+            resources.GetString("CMB_batmonsensortype.Items"),
+            resources.GetString("CMB_batmonsensortype.Items1"),
+            resources.GetString("CMB_batmonsensortype.Items2"),
+            resources.GetString("CMB_batmonsensortype.Items3")});
+            resources.ApplyResources(this.CMB_batmonsensortype, "CMB_batmonsensortype");
+            this.CMB_batmonsensortype.Name = "CMB_batmonsensortype";
+            this.CMB_batmonsensortype.SelectedIndexChanged += new System.EventHandler(this.CMB_batmonsensortype_SelectedIndexChanged);
             // 
             // textBox3
             // 
@@ -874,9 +904,7 @@
             this.CMB_batmontype.Items.AddRange(new object[] {
             resources.GetString("CMB_batmontype.Items"),
             resources.GetString("CMB_batmontype.Items1"),
-            resources.GetString("CMB_batmontype.Items2"),
-            resources.GetString("CMB_batmontype.Items3"),
-            resources.GetString("CMB_batmontype.Items4")});
+            resources.GetString("CMB_batmontype.Items2")});
             resources.ApplyResources(this.CMB_batmontype, "CMB_batmontype");
             this.CMB_batmontype.Name = "CMB_batmontype";
             this.CMB_batmontype.SelectedIndexChanged += new System.EventHandler(this.CMB_batmontype_SelectedIndexChanged);
@@ -895,9 +923,9 @@
             this.tabArducopter.Controls.Add(this.label28);
             this.tabArducopter.Controls.Add(this.label16);
             this.tabArducopter.Controls.Add(this.label15);
-            this.tabArducopter.Controls.Add(this.BUT_levelac2);
             this.tabArducopter.Controls.Add(this.pictureBoxQuadX);
             this.tabArducopter.Controls.Add(this.pictureBoxQuad);
+            this.tabArducopter.Controls.Add(this.BUT_levelac2);
             resources.ApplyResources(this.tabArducopter, "tabArducopter");
             this.tabArducopter.Name = "tabArducopter";
             this.tabArducopter.UseVisualStyleBackColor = true;
@@ -917,13 +945,6 @@
             resources.ApplyResources(this.label15, "label15");
             this.label15.Name = "label15";
             // 
-            // BUT_levelac2
-            // 
-            resources.ApplyResources(this.BUT_levelac2, "BUT_levelac2");
-            this.BUT_levelac2.Name = "BUT_levelac2";
-            this.BUT_levelac2.UseVisualStyleBackColor = true;
-            this.BUT_levelac2.Click += new System.EventHandler(this.BUT_levelac2_Click);
-            // 
             // pictureBoxQuadX
             // 
             this.pictureBoxQuadX.Cursor = System.Windows.Forms.Cursors.Hand;
@@ -941,6 +962,13 @@
             this.pictureBoxQuad.Name = "pictureBoxQuad";
             this.pictureBoxQuad.TabStop = false;
             this.pictureBoxQuad.Click += new System.EventHandler(this.pictureBoxQuad_Click);
+            // 
+            // BUT_levelac2
+            // 
+            resources.ApplyResources(this.BUT_levelac2, "BUT_levelac2");
+            this.BUT_levelac2.Name = "BUT_levelac2";
+            this.BUT_levelac2.UseVisualStyleBackColor = true;
+            this.BUT_levelac2.Click += new System.EventHandler(this.BUT_levelac2_Click);
             // 
             // tabHeli
             // 
@@ -1551,6 +1579,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.tabBattery.ResumeLayout(false);
             this.tabBattery.PerformLayout();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox5)).EndInit();
             this.tabArducopter.ResumeLayout(false);
             this.tabArducopter.PerformLayout();
@@ -1718,6 +1748,9 @@
         private System.Windows.Forms.CheckBox CHK_elevonrev;
         private System.Windows.Forms.GroupBox groupBoxElevons;
         private System.Windows.Forms.Label label27;
+        private System.Windows.Forms.ComboBox CMB_batmonsensortype;
+        private System.Windows.Forms.Label label47;
+        private System.Windows.Forms.GroupBox groupBox4;
 
     }
 }
