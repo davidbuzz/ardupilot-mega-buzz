@@ -341,9 +341,9 @@ ARDUINO_VERS	:=	$(shell expr `head -1 $(ARDUINO)/revisions.txt | cut -d ' ' -f 2
 ifneq ($(ARDUINO_VERS),$(shell echo $(ARDUINO_VERS) | sed 's/[^0-9]*//g'))
 	ARDUINO_VERS	:=	$(shell expr `head -1 $(ARDUINO)/lib/version.txt | cut -d ' ' -f 2`)
 endif
-ifneq ($(ARDUINO_VERS),$(shell echo $(ARDUINO_VERS) | sed 's/[^0-9]*//g'))
-	$(warning Could not determine Arduino version)
-endif
+#ifneq ($(ARDUINO_VERS),$(shell echo $(ARDUINO_VERS) | sed 's/[^0-9]*//g'))
+#	$(warning Could not determine Arduino version)
+#endif
 
 # Find the hardware directory to use
 HARDWARE_DIR		:=	$(firstword $(wildcard $(SKETCHBOOK)/hardware/$(HARDWARE) \
