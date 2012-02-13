@@ -310,12 +310,12 @@ static const char* flight_mode_strings[] = {
 ////////////////////////////////////////////////////////////////////////////////
 // This is the state of the flight control system
 // There are multiple states defined such as MANUAL, FBW-A, AUTO
-byte    control_mode        = INITIALISING;
+//byte    control_mode        = INITIALISING;
 // Used to maintain the state of the previous control switch position
 // This is set to -1 when we need to re-read the switch
-byte 	oldSwitchPosition;
+//byte 	oldSwitchPosition;
 // This is used to enable the inverted flight feature
-bool    inverted_flight     = false;
+//bool    inverted_flight     = false;
 // These are trim values used for elevon control
 // For elevons radio_in[CH_ROLL] and radio_in[CH_PITCH] are equivalent aileron and elevator, not left and right elevon
 static uint16_t elevon1_trim  = 1500; 	

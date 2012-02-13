@@ -72,6 +72,7 @@ ifeq ($(SKETCH),)
   WORDLIST		:=	$(subst /, ,$(SRCROOT))
   SKETCH		:=	$(word $(words $(WORDLIST)),$(WORDLIST))
 endif
+    $(warning WARNING: SKETCH directory is $(SKETCH) )
 
 #
 # Work out where we are going to be building things

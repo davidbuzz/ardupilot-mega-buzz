@@ -204,7 +204,6 @@ static void init_ardupilot()
 	}
 #endif
 
-<<<<<<< HEAD
 #if LOGGING_ENABLED == ENABLED
 	DataFlash.Init(); 	// DataFlash log initialization
 #endif
@@ -220,8 +219,6 @@ static void init_ardupilot()
           delay(1000);        
           #endif  
           
-=======
->>>>>>> origin/master
 	// Do GPS init
 	g_gps = &g_gps_driver;
 	g_gps->init();			// GPS Initialization
