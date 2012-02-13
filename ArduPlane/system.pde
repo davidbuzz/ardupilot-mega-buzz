@@ -135,28 +135,7 @@ static void init_ardupilot()
 	//
 	// Check the EEPROM format version before loading any parameters from EEPROM.
 	//
-	
-	if (!g.format_version.load() ||
-	     g.format_version != Parameters::k_format_version) {
-
-		// erase all parameters
-		Serial.printf_P(PSTR("Firmware change: erasing EEPROM...\n"));
-		delay(100); // wait for serial send
-		AP_Var::erase_all();
-		
-		// save the current format version
-		g.format_version.set_and_save(Parameters::k_format_version);
-		Serial.println_P(PSTR("done."));
-
-    } else {
-	    unsigned long before = micros();
-	    // Load all auto-loaded EEPROM variables
-	    AP_Var::load_all();
-
-	    Serial.printf_P(PSTR("load_all took %luus\n"), micros() - before);
-	    Serial.printf_P(PSTR("using %u bytes of memory (%u resets)\n"), 
-                        AP_Var::get_memory_use(), (unsigned)g.num_resets);
-	}
+    load_parameters();
 
     // keep a record of how many resets have happened. This can be
     // used to detect in-flight resets
@@ -645,6 +624,9 @@ static void resetPerfData(void) {
 static uint32_t map_baudrate(int8_t rate, uint32_t default_baud)
 {
     switch (rate) {
+    case 1:    return 1200;
+    case 2:    return 2400;
+    case 4:    return 4800;
     case 9:    return 9600;
     case 19:   return 19200;
     case 38:   return 38400;

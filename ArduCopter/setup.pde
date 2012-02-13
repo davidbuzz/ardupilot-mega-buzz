@@ -102,7 +102,8 @@ setup_show(uint8_t argc, const Menu::arg *argv)
 	report_gyro();
 #endif
 
-	AP_Var_menu_show(argc, argv);
+    AP_Param::show_all();
+
 	return(0);
 }
 
@@ -122,7 +123,7 @@ setup_factory(uint8_t argc, const Menu::arg *argv)
 	if (('y' != c) && ('Y' != c))
 		return(-1);
 
-	AP_Var::erase_all();
+	AP_Param::erase_all();
 	Serial.printf_P(PSTR("\nReboot APM"));
 
 	delay(1000);
@@ -224,6 +225,10 @@ setup_radio(uint8_t argc, const Menu::arg *argv)
 static int8_t
 setup_motors(uint8_t argc, const Menu::arg *argv)
 {
+  Serial.printf_P(PSTR(
+        "Move RC joystick to extremes to "
+        "turn on individual motors.\n"
+        "Any key to exit.\n"));
 	while(1){
 		delay(20);
 		read_radio();

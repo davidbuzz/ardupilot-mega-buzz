@@ -81,6 +81,30 @@ get_stabilize_yaw(int32_t target_angle)
 }
 
 static int
+get_acro_roll(int32_t target_rate)
+{
+	target_rate = target_rate * g.pi_stabilize_roll.kP();
+	target_rate = constrain(target_rate, -10000, 10000);
+	return get_rate_roll(target_rate);
+}
+
+static int
+get_acro_pitch(int32_t target_rate)
+{
+	target_rate = target_rate * g.pi_stabilize_pitch.kP();
+	target_rate = constrain(target_rate, -10000, 10000);
+	return get_rate_pitch(target_rate);
+}
+
+static int
+get_acro_yaw(int32_t target_rate)
+{
+	target_rate = g.pi_stabilize_yaw.get_p(target_rate);
+	target_rate = constrain(target_rate, -15000, 15000);
+	return get_rate_yaw(target_rate);
+}
+
+static int
 get_rate_roll(int32_t target_rate)
 {
 	static int32_t last_rate 	= 0;
@@ -91,7 +115,7 @@ get_rate_roll(int32_t target_rate)
 	target_rate 			= g.pid_rate_roll.get_pid(target_rate, G_Dt);
 
 	// Dampening
-	target_rate 			-= constrain((current_rate - last_rate) * g.stablize_d, -500, 500);
+	target_rate 			-= constrain((current_rate - last_rate) * g.stabilize_d, -500, 500);
 	last_rate 				= current_rate;
 
 	// output control:
@@ -109,7 +133,7 @@ get_rate_pitch(int32_t target_rate)
 	target_rate 			= g.pid_rate_pitch.get_pid(target_rate, G_Dt);
 
 	// Dampening
-	target_rate 			-= constrain((current_rate - last_rate) * g.stablize_d, -500, 500);
+	target_rate 			-= constrain((current_rate - last_rate) * g.stabilize_d, -500, 500);
 	last_rate 				= current_rate;
 
 	// output control:
@@ -441,7 +465,7 @@ get_of_roll(int32_t control_roll)
 
 		// only stop roll if caller isn't modifying roll
 		if( control_roll == 0 && current_loc.alt < 1500) {
-			//new_roll = g.pid_optflow_roll.get_pid(-tot_x_cm, 1.0, 1.0);  // we could use the last update time to calculate the time change
+			new_roll = g.pid_optflow_roll.get_pid(-tot_x_cm, 1.0);  // we could use the last update time to calculate the time change
 		}else{
 		    g.pid_optflow_roll.reset_I();
 			tot_x_cm = 0;
@@ -475,7 +499,7 @@ get_of_pitch(int32_t control_pitch)
 
 		// only stop roll if caller isn't modifying pitch
 		if( control_pitch == 0 && current_loc.alt < 1500 ) {
-			//new_pitch = g.pid_optflow_pitch.get_pid(tot_y_cm, 1.0, 1.0);  // we could use the last update time to calculate the time change
+			new_pitch = g.pid_optflow_pitch.get_pid(tot_y_cm, 1.0);  // we could use the last update time to calculate the time change
 		}else{
 		    tot_y_cm = 0;
 		    g.pid_optflow_pitch.reset_I();

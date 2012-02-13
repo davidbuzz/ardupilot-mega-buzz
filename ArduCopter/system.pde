@@ -159,34 +159,8 @@ static void init_ardupilot()
 		piezo_beep();
 	#endif
 
-
-	if (!g.format_version.load() ||
-	     g.format_version != Parameters::k_format_version) {
-		//Serial.printf_P(PSTR("\n\nForcing complete parameter reset..."));
-
-		/*Serial.printf_P(PSTR("\n\nEEPROM format version  %d not compatible with this firmware (requires %d)"
-		                     "\n\nForcing complete parameter reset..."),
-		                     g.format_version.get(),
-		                     Parameters::k_format_version);
-		*/
-
-		// erase all parameters
-		Serial.printf_P(PSTR("Firmware change: erasing EEPROM...\n"));
-		delay(100); // wait for serial send
-		AP_Var::erase_all();
-
-		// save the new format version
-		g.format_version.set_and_save(Parameters::k_format_version);
-
-		// save default radio values
-		default_dead_zones();
-	}else{
-		// save default radio values
-		//default_dead_zones();
-
-	    // Load all auto-loaded EEPROM variables
-	    AP_Var::load_all();
-	}
+    // load parameters from EEPROM
+    load_parameters();
 
 	// init the GCS
     gcs0.init(&Serial);
@@ -205,6 +179,7 @@ static void init_ardupilot()
 
     // identify ourselves correctly with the ground station
 	mavlink_system.sysid = g.sysid_this_mav;
+    mavlink_system.type = 2; //MAV_QUADROTOR;
 
 #if LOGGING_ENABLED == ENABLED
     DataFlash.Init();
@@ -447,7 +422,7 @@ static void set_mode(byte mode)
 	switch(control_mode)
 	{
 		case ACRO:
-			yaw_mode 		= YAW_ACRO;
+			yaw_mode 		= YAW_HOLD;
 			roll_pitch_mode = ROLL_PITCH_ACRO;
 			throttle_mode 	= THROTTLE_MANUAL;
 			break;
@@ -626,6 +601,9 @@ check_startup_for_CLI()
 static uint32_t map_baudrate(int8_t rate, uint32_t default_baud)
 {
     switch (rate) {
+    case 1:    return 1200;
+    case 2:    return 2400;
+    case 4:    return 4800;
     case 9:    return 9600;
     case 19:   return 19200;
     case 38:   return 38400;

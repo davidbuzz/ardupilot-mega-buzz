@@ -1,10 +1,10 @@
 /// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
-#define THISFIRMWARE "ArduCopter V2.2 b6"
+#define THISFIRMWARE "ArduCopter V2.3.1"
 /*
-ArduCopter Version 2.2
+ArduCopter Version 2.3.1
 Authors:	Jason Short
-Based on code and ideas from the Arducopter team: Jose Julio, Randy Mackay, Jani Hirvinen
+Based on code and ideas from the Arducopter team: Randy Mackay, Pat Hickey, Jose Julio, Jani Hirvinen
 Thanks to:	Chris Anderson, Mike Smith, Jordi Munoz, Doug Weibel, James Goppert, Benjamin Pelletier
 
 This firmware is free software; you can redistribute it and/or
@@ -32,6 +32,9 @@ Oliver				:Piezo support
 Guntars				:Arming safety suggestion
 Igor van Airde 		:Control Law optimization
 Jean-Louis Naudin 	:Auto Landing
+Sandro Benigno  : Camera support
+Olivier Adler : PPM Encoder
+John Arne Birkeland: PPM Encoder
 
 And much more so PLEASE PM me on DIYDRONES to add your contribution to the List
 
@@ -176,7 +179,7 @@ static AP_Int8                *flight_modes = &g.flight_mode1;
     AP_Baro_MS5611 barometer;
 #endif
 
-    AP_Compass_HMC5843      compass(Parameters::k_param_compass);
+    AP_Compass_HMC5843      compass;
 #endif
 
 #ifdef OPTFLOW_ENABLED
@@ -216,7 +219,7 @@ AP_InertialSensor_MPU6000 ins( CONFIG_MPU6000_CHIP_SELECT_PIN );
 #else
 AP_InertialSensor_Oilpan ins(&adc);
 #endif
-AP_IMU_INS  imu(&ins, Parameters::k_param_IMU_calibration);
+AP_IMU_INS  imu(&ins);
 AP_DCM  dcm(&imu, g_gps);
 AP_TimerProcess timer_scheduler;
 
@@ -255,8 +258,8 @@ AP_TimerProcess timer_scheduler;
 ////////////////////////////////////////////////////////////////////////////////
 // GCS selection
 ////////////////////////////////////////////////////////////////////////////////
-GCS_MAVLINK	gcs0(Parameters::k_param_streamrates_port0);
-GCS_MAVLINK	gcs3(Parameters::k_param_streamrates_port3);
+GCS_MAVLINK	gcs0;
+GCS_MAVLINK	gcs3;
 
 ////////////////////////////////////////////////////////////////////////////////
 // SONAR selection
@@ -547,7 +550,7 @@ static bool		low_batt = false;
 static int32_t 	ground_pressure;
 // The ground temperature at home location - calibrated at arming
 static int16_t 	ground_temperature;
-// The cm we are off in altitude from next_WP.alt – Positive value means we are below the WP
+// The cm we are off in altitude from next_WP.alt – Positive value means we are below the WP
 static int32_t		altitude_error;
 // The cm/s we are moving up or down - Positive = UP
 static int16_t		climb_rate;
@@ -899,12 +902,6 @@ static void fast_loop()
 
 	// IMU DCM Algorithm
 	read_AHRS();
-
-	if(takeoff_complete == false){
-		// reset these I terms to prevent awkward tipping on takeoff
-		reset_rate_I();
-		reset_stability_I();
-	}
 
 	// custom code/exceptions for flight modes
 	// ---------------------------------------
@@ -1363,12 +1360,11 @@ static void update_GPS(void)
 	}
 }
 
-
 void update_yaw_mode(void)
 {
 	switch(yaw_mode){
 		case YAW_ACRO:
-			g.rc_4.servo_out = get_rate_yaw(g.rc_4.control_in);
+			g.rc_4.servo_out = get_acro_yaw(g.rc_4.control_in);
 			return;
 			break;
 
@@ -1412,8 +1408,8 @@ void update_roll_pitch_mode(void)
 	switch(roll_pitch_mode){
 		case ROLL_PITCH_ACRO:
 			// ACRO does not get SIMPLE mode ability
-			g.rc_1.servo_out = get_rate_roll(g.rc_1.control_in);
-			g.rc_2.servo_out = get_rate_pitch(g.rc_2.control_in);
+			g.rc_1.servo_out = get_acro_roll(g.rc_1.control_in);
+			g.rc_2.servo_out = get_acro_pitch(g.rc_2.control_in);
 			break;
 
 		case ROLL_PITCH_STABLE:
@@ -1448,6 +1444,17 @@ void update_roll_pitch_mode(void)
 			g.rc_1.servo_out = get_stabilize_roll(get_of_roll(g.rc_1.control_in));
 			g.rc_2.servo_out = get_stabilize_pitch(get_of_pitch(g.rc_2.control_in));
 			break;
+	}
+
+	if(g.rc_3.control_in == 0 && roll_pitch_mode <= ROLL_PITCH_ACRO){
+		reset_rate_I();
+		reset_stability_I();
+	}
+
+	if(takeoff_complete == false){
+		// reset these I terms to prevent awkward tipping on takeoff
+		//reset_rate_I();
+		//reset_stability_I();
 	}
 
 	// clear new radio frame info
@@ -1912,17 +1919,18 @@ static void tuning(){
 
 		case CH6_DAMP:
 			g.rc_6.set_range(0,300); 		// 0 to 1
-			g.stablize_d.set(tuning_value);
+			g.stabilize_d.set(tuning_value);
 
-			//g.rc_6.set_range(0,60); 		// 0 to 1
+			//tuning_value = (float)g.rc_6.control_in / 100000.0;
+			//g.rc_6.set_range(0,1000); 		// 0 to 1
 			//g.pid_rate_roll.kD(tuning_value);
 			//g.pid_rate_pitch.kD(tuning_value);
 			break;
 
 		case CH6_STABILIZE_KP:
 			g.rc_6.set_range(0,8000); 		// 0 to 8
-			g.pid_rate_roll.kP(tuning_value);
-			g.pid_rate_pitch.kP(tuning_value);
+			g.pi_stabilize_roll.kP(tuning_value);
+			g.pi_stabilize_pitch.kP(tuning_value);
 			break;
 
 		case CH6_STABILIZE_KI:
@@ -1939,7 +1947,7 @@ static void tuning(){
 			break;
 
 		case CH6_RATE_KI:
-			g.rc_6.set_range(0,300);		 // 0 to .3
+			g.rc_6.set_range(0,500);		 // 0 to .5
 			g.pid_rate_roll.kI(tuning_value);
 			g.pid_rate_pitch.kI(tuning_value);
 			break;
@@ -1982,9 +1990,15 @@ static void tuning(){
 			break;
 
 		case CH6_NAV_P:
-			g.rc_6.set_range(0,6000);
+			g.rc_6.set_range(0,4000);
 			g.pid_nav_lat.kP(tuning_value);
 			g.pid_nav_lon.kP(tuning_value);
+			break;
+
+		case CH6_NAV_I:
+			g.rc_6.set_range(0,500);
+			g.pid_nav_lat.kI(tuning_value);
+			g.pid_nav_lon.kI(tuning_value);
 			break;
 
 		#if FRAME_CONFIG == HELI_FRAME
