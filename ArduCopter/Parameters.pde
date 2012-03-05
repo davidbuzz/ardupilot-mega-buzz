@@ -32,6 +32,8 @@ static const AP_Param::Info var_info[] PROGMEM = {
 	GSCALAR(optflow_enabled,	"FLOW_ENABLE"),
 	GSCALAR(low_voltage,	"LOW_VOLT"),
 	GSCALAR(super_simple,	"SUPER_SIMPLE"),
+	GSCALAR(rtl_land_enabled,	"RTL_LAND"),
+
 
 	GSCALAR(waypoint_mode,	"WP_MODE"),
 	GSCALAR(command_total,	"WP_TOTAL"),
@@ -62,29 +64,33 @@ static const AP_Param::Info var_info[] PROGMEM = {
 	GSCALAR(log_last_filenumber, "LOG_LASTFILE"),
 	GSCALAR(esc_calibrate, "ESC"),
 	GSCALAR(radio_tuning, "TUNE"),
+	GSCALAR(radio_tuning_low, "TUNE_LOW"),
+	GSCALAR(radio_tuning_high, "TUNE_HIGH"),
 	GSCALAR(frame_orientation, "FRAME"),
 	GSCALAR(top_bottom_ratio, "TB_RATIO"),
 	GSCALAR(ch7_option, "CH7_OPT"),
+	GSCALAR(auto_slew_rate, "AUTO_SLEW"),
 
 	#if FRAME_CONFIG ==	HELI_FRAME
-	GSCALAR(heli_servo_1,	"HS1_"),
-	GSCALAR(heli_servo_2,	"HS2_"),
-	GSCALAR(heli_servo_3,	"HS3_"),
-	GSCALAR(heli_servo_4,	"HS4_"),
-	GSCALAR(heli_servo1_pos,	"SV1_POS_"),
-	GSCALAR(heli_servo2_pos,	"SV2_POS_"),
-	GSCALAR(heli_servo3_pos,	"SV3_POS_"),
-	GSCALAR(heli_roll_max,	"ROL_MAX_"),
-	GSCALAR(heli_pitch_max,	"PIT_MAX_"),
-	GSCALAR(heli_coll_min,	"COL_MIN_"),
-	GSCALAR(heli_coll_max,	"COL_MAX_"),
-	GSCALAR(heli_coll_mid,	"COL_MID_"),
-	GSCALAR(heli_ext_gyro_enabled,	"GYR_ENABLE_"),
-	GSCALAR(heli_ext_gyro_gain,	"GYR_GAIN_"),
+	GGROUP(heli_servo_1,	"HS1_", RC_Channel),
+	GGROUP(heli_servo_2,	"HS2_", RC_Channel),
+	GGROUP(heli_servo_3,	"HS3_", RC_Channel),
+	GGROUP(heli_servo_4,	"HS4_", RC_Channel),
+	GSCALAR(heli_servo1_pos,	"SV1_POS"),
+	GSCALAR(heli_servo2_pos,	"SV2_POS"),
+	GSCALAR(heli_servo3_pos,	"SV3_POS"),
+	GSCALAR(heli_roll_max,	"ROL_MAX"),
+	GSCALAR(heli_pitch_max,	"PIT_MAX"),
+	GSCALAR(heli_collective_min,	"COL_MIN"),
+	GSCALAR(heli_collective_max,	"COL_MAX"),
+	GSCALAR(heli_collective_mid,	"COL_MID"),
+	GSCALAR(heli_ext_gyro_enabled,	"GYR_ENABLE"),
+	GSCALAR(heli_h1_swash_enabled,	"H1_ENABLE"),
+	GSCALAR(heli_ext_gyro_gain,	"GYR_GAIN"),
 	GSCALAR(heli_servo_averaging,	"SV_AVG"),
 	GSCALAR(heli_servo_manual,	"HSV_MAN"),
 	GSCALAR(heli_phase_angle,	"H_PHANG"),
-	GSCALAR(heli_coll_yaw_effect,	"H_COLYAW"),
+	GSCALAR(heli_collective_yaw_effect,	"H_COLYAW"),
 	#endif
 
 	// RC channel
@@ -100,11 +106,18 @@ static const AP_Param::Info var_info[] PROGMEM = {
 	GGROUP(rc_camera_pitch,	"CAM_P_", RC_Channel),
 	GGROUP(rc_camera_roll,	"CAM_R_", RC_Channel),
 
+	// speed of fast RC channels in Hz
+	GSCALAR(rc_speed, "RC_SPEED"),
+
 	// variable
 	//---------
-	GSCALAR(camera_pitch_gain, "CAM_P_G"),
-	GSCALAR(camera_roll_gain, "CAM_R_G"),
-	GSCALAR(stabilize_d, "STAB_D"),
+	GSCALAR(camera_pitch_gain, 	"CAM_P_G"),
+	GSCALAR(camera_roll_gain, 	"CAM_R_G"),
+	GSCALAR(stabilize_d, 		"STAB_D"),
+	GSCALAR(stabilize_d_schedule, "STAB_D_S"),
+	GSCALAR(acro_p, 			"ACRO_P"),
+	GSCALAR(axis_lock_p, 		"AXIS_P"),
+	GSCALAR(axis_enabled, 		"AXIS_ENABLE"),
 
 	// PID controller
 	//---------------
@@ -112,8 +125,12 @@ static const AP_Param::Info var_info[] PROGMEM = {
 	GGROUP(pid_rate_pitch,    "RATE_PIT_", AC_PID),
 	GGROUP(pid_rate_yaw,      "RATE_YAW_", AC_PID),
 
-	GGROUP(pid_nav_lat,	  "NAV_LAT_",  AC_PID),
-	GGROUP(pid_nav_lon,	  "NAV_LON_",  AC_PID),
+
+	GGROUP(pid_loiter_rate_lat,	 "LOITER_LAT_",  AC_PID),
+	GGROUP(pid_loiter_rate_lon,	 "LOITER_LON_",  AC_PID),
+
+	GGROUP(pid_nav_lat,	  	"NAV_LAT_",  AC_PID),
+	GGROUP(pid_nav_lon,	  	"NAV_LON_",  AC_PID),
 
 	GGROUP(pid_throttle,	  "THR_RATE_", AC_PID),
 	GGROUP(pid_optflow_roll,  "OF_RLL_",   AC_PID),
@@ -125,14 +142,15 @@ static const AP_Param::Info var_info[] PROGMEM = {
 	GGROUP(pi_stabilize_pitch,	"STB_PIT_", APM_PI),
 	GGROUP(pi_stabilize_yaw,	"STB_YAW_", APM_PI),
 
-	GGROUP(pi_alt_hold,	"THR_ALT_", APM_PI),
+	GGROUP(pi_alt_hold,		"THR_ALT_", APM_PI),
 	GGROUP(pi_loiter_lat,	"HLD_LAT_", APM_PI),
 	GGROUP(pi_loiter_lon,	"HLD_LON_", APM_PI),
 
 	// variables not in the g class which contain EEPROM saved variables
 	GOBJECT(compass,        "COMPASS_", Compass),
-	GOBJECT(gcs0,		"SR0_",     GCS_MAVLINK),
-	GOBJECT(gcs3,		"SR3_",     GCS_MAVLINK)
+	GOBJECT(gcs0,			"SR0_",     GCS_MAVLINK),
+	GOBJECT(gcs3,			"SR3_",     GCS_MAVLINK),
+	GOBJECT(imu,			"IMU_",     IMU)
 };
 
 

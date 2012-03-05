@@ -105,6 +105,11 @@
 # define INSTANT_PWM	DISABLED
 #endif
 
+// default RC speed in Hz if INSTANT_PWM is not used
+#ifndef RC_FAST_SPEED
+# define RC_FAST_SPEED 400
+#endif
+
 // LED and IO Pins
 //
 #if CONFIG_APM_HARDWARE == APM_HARDWARE_APM1
@@ -398,7 +403,7 @@
 # define MINIMUM_THROTTLE	130
 #endif
 #ifndef MAXIMUM_THROTTLE
-# define MAXIMUM_THROTTLE	1000
+# define MAXIMUM_THROTTLE	850
 #endif
 
 #ifndef AUTO_LAND_TIME
@@ -510,6 +515,12 @@
 # define SUPER_SIMPLE		DISABLED
 #endif
 
+// RTL Mode
+#ifndef RTL_AUTO_LAND
+# define RTL_AUTO_LAND 		ENABLED
+#endif
+
+
 // LOITER Mode
 #ifndef OF_LOITER_YAW
 # define OF_LOITER_YAW 		YAW_HOLD
@@ -548,9 +559,19 @@
 #endif
 
 
-#ifndef STABILIZE_D
-# define STABILIZE_D 		.06
+#ifndef ACRO_P
+# define ACRO_P 		4.5
 #endif
+
+
+#ifndef AXIS_LOCK_ENABLED
+# define AXIS_LOCK_ENABLED 	DISABLED
+#endif
+
+#ifndef AXIS_LOCK_P
+# define AXIS_LOCK_P 		.02
+#endif
+
 
 // Good for smaller payload motors.
 #ifndef STABILIZE_ROLL_P
@@ -574,7 +595,7 @@
 #endif
 
 #ifndef  STABILIZE_YAW_P
-# define STABILIZE_YAW_P		7.5		// increase for more aggressive Yaw Hold, decrease if it's bouncy
+# define STABILIZE_YAW_P		7.0		// increase for more aggressive Yaw Hold, decrease if it's bouncy
 #endif
 #ifndef  STABILIZE_YAW_I
 # define STABILIZE_YAW_I		0.01
@@ -591,10 +612,10 @@
 # define RATE_ROLL_P        0.14
 #endif
 #ifndef RATE_ROLL_I
-# define RATE_ROLL_I        0.18
+# define RATE_ROLL_I        0.0
 #endif
 #ifndef RATE_ROLL_D
-# define RATE_ROLL_D        0.0025
+# define RATE_ROLL_D        0.002
 #endif
 #ifndef RATE_ROLL_IMAX
 # define RATE_ROLL_IMAX	 	5			// degrees
@@ -604,10 +625,10 @@
 # define RATE_PITCH_P       0.14
 #endif
 #ifndef RATE_PITCH_I
-# define RATE_PITCH_I		0.18
+# define RATE_PITCH_I		0.0
 #endif
 #ifndef RATE_PITCH_D
-# define RATE_PITCH_D       0.0025
+# define RATE_PITCH_D       0.002
 #endif
 #ifndef RATE_PITCH_IMAX
 # define RATE_PITCH_IMAX   	5			// degrees
@@ -620,18 +641,26 @@
 # define RATE_YAW_I    		 0.0
 #endif
 #ifndef RATE_YAW_D
-# define RATE_YAW_D    		 .002
+# define RATE_YAW_D    		 .000
 #endif
 #ifndef RATE_YAW_IMAX
 # define RATE_YAW_IMAX 		  50		// degrees
 #endif
 
 
+#ifndef STABILIZE_D
+# define STABILIZE_D 		0.1
+#endif
+
+#ifndef STABILIZE_D_SCHEDULE
+# define STABILIZE_D_SCHEDULE 		0.0
+#endif
+
 //////////////////////////////////////////////////////////////////////////////
 // Loiter control gains
 //
 #ifndef LOITER_P
-# define LOITER_P			.2		// was .25 in previous
+# define LOITER_P			.8
 #endif
 #ifndef LOITER_I
 # define LOITER_I			0.0
@@ -641,13 +670,33 @@
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
+// Loiter Navigation control gains
+//
+#ifndef LOITER_RATE
+# define LOITER_RATE		1
+#endif
+
+#ifndef LOITER_RATE_P
+# define LOITER_RATE_P		3.5			//
+#endif
+#ifndef LOITER_RATE_I
+# define LOITER_RATE_I		0.2			// Wind control
+#endif
+#ifndef LOITER_RATE_D
+# define LOITER_RATE_D		0.0			// try 2 or 3 for LOITER_RATE 1
+#endif
+#ifndef LOITER_RATE_IMAX
+# define LOITER_RATE_IMAX	30			// degrees
+#endif
+
+//////////////////////////////////////////////////////////////////////////////
 // WP Navigation control gains
 //
 #ifndef NAV_P
-# define NAV_P				3.0			//
+# define NAV_P				3.5			//
 #endif
 #ifndef NAV_I
-# define NAV_I				0.4			// Wind control
+# define NAV_I				0.2			// Wind control
 #endif
 #ifndef NAV_D
 # define NAV_D				0.00		//
@@ -655,6 +704,11 @@
 #ifndef NAV_IMAX
 # define NAV_IMAX			30			// degrees
 #endif
+
+#ifndef AUTO_SLEW_RATE
+# define AUTO_SLEW_RATE		30			// degrees
+#endif
+
 
 #ifndef WAYPOINT_SPEED_MAX
 # define WAYPOINT_SPEED_MAX		600			// 6m/s error = 13mph
@@ -676,7 +730,7 @@
 # define ALT_HOLD_P			0.4		//
 #endif
 #ifndef ALT_HOLD_I
-# define ALT_HOLD_I			0.02
+# define ALT_HOLD_I			0.04
 #endif
 #ifndef ALT_HOLD_IMAX
 # define ALT_HOLD_IMAX		300

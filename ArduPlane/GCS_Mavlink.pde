@@ -113,7 +113,7 @@ static NOINLINE void send_attitude(mavlink_channel_t chan)
         chan,
         micros(),
         dcm.roll,
-        dcm.pitch,
+        dcm.pitch - radians(g.pitch_trim*0.01),
         dcm.yaw,
         omega.x,
         omega.y,
@@ -322,12 +322,13 @@ static void NOINLINE send_location(mavlink_channel_t chan)
 
 static void NOINLINE send_nav_controller_output(mavlink_channel_t chan)
 {
+    int16_t bearing = (hold_course==-1?nav_bearing:hold_course) / 100;
     mavlink_msg_nav_controller_output_send(
         chan,
         nav_roll / 1.0e2,
         nav_pitch / 1.0e2,
-        nav_bearing / 1.0e2,
-        target_bearing / 1.0e2,
+        bearing,
+        target_bearing / 100,
         wp_distance,
         altitude_error / 1.0e2,
         airspeed_error,
@@ -934,14 +935,14 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
             switch(packet.req_stream_id){
 
                 case MAV_DATA_STREAM_ALL:
-                    streamRateRawSensors = freq;
-                    streamRateExtendedStatus = freq;
-                    streamRateRCChannels = freq;
-                    streamRateRawController = freq;
-                    streamRatePosition = freq;
-                    streamRateExtra1 = freq;
-                    streamRateExtra2 = freq;
-                    streamRateExtra3.set_and_save(freq);	// We just do set and save on the last as it takes care of the whole group.
+                    streamRateRawSensors.set_and_save_ifchanged(freq);
+                    streamRateExtendedStatus.set_and_save_ifchanged(freq);
+                    streamRateRCChannels.set_and_save_ifchanged(freq);
+                    streamRateRawController.set_and_save_ifchanged(freq);
+                    streamRatePosition.set_and_save_ifchanged(freq);
+                    streamRateExtra1.set_and_save_ifchanged(freq);
+                    streamRateExtra2.set_and_save_ifchanged(freq);
+                    streamRateExtra3.set_and_save_ifchanged(freq);
                     break;
 
                 case MAV_DATA_STREAM_RAW_SENSORS:
@@ -949,15 +950,15 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 														// we will not continue to broadcast raw sensor data at 50Hz.
                     break;
                 case MAV_DATA_STREAM_EXTENDED_STATUS:
-                    streamRateExtendedStatus.set_and_save(freq);
+                    streamRateExtendedStatus.set_and_save_ifchanged(freq);
                     break;
 
                 case MAV_DATA_STREAM_RC_CHANNELS:
-                    streamRateRCChannels.set_and_save(freq);
+                    streamRateRCChannels.set_and_save_ifchanged(freq);
                     break;
 
                 case MAV_DATA_STREAM_RAW_CONTROLLER:
-                    streamRateRawController.set_and_save(freq);
+                    streamRateRawController.set_and_save_ifchanged(freq);
                     break;
 
 				//case MAV_DATA_STREAM_RAW_SENSOR_FUSION:
@@ -965,19 +966,19 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 				//    break;
 
                 case MAV_DATA_STREAM_POSITION:
-                    streamRatePosition.set_and_save(freq);
+                    streamRatePosition.set_and_save_ifchanged(freq);
                     break;
 
                 case MAV_DATA_STREAM_EXTRA1:
-                    streamRateExtra1.set_and_save(freq);
+                    streamRateExtra1.set_and_save_ifchanged(freq);
                     break;
 
                 case MAV_DATA_STREAM_EXTRA2:
-                    streamRateExtra2.set_and_save(freq);
+                    streamRateExtra2.set_and_save_ifchanged(freq);
                     break;
 
                 case MAV_DATA_STREAM_EXTRA3:
-                    streamRateExtra3.set_and_save(freq);
+                    streamRateExtra3.set_and_save_ifchanged(freq);
                     break;
 
                 default:
@@ -1969,7 +1970,7 @@ GCS_MAVLINK::_count_parameters()
     // if we haven't cached the parameter count yet...
     if (0 == _parameter_count) {
         AP_Param  *vp;
-        uint16_t token;
+        AP_Param::ParamToken token;
 
         vp = AP_Param::first(&token, NULL);
         do {
@@ -1999,7 +2000,7 @@ GCS_MAVLINK::queued_param_send()
     value = vp->cast_to_float(_queued_parameter_type);
 
     char param_name[ONBOARD_PARAM_NAME_LENGTH];
-    vp->copy_name(param_name, sizeof(param_name));
+    vp->copy_name(param_name, sizeof(param_name), true);
 
     mavlink_msg_param_value_send(
         chan,
@@ -2101,14 +2102,6 @@ static void gcs_update(void)
 	gcs0.update();
     if (gcs3.initialised) {
         gcs3.update();
-    }
-}
-
-static void gcs_send_text(gcs_severity severity, const char *str)
-{
-    gcs0.send_text(severity, str);
-    if (gcs3.initialised) {
-        gcs3.send_text(severity, str);
     }
 }
 

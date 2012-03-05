@@ -44,7 +44,8 @@ version 2.1 of the License, or (at your option) any later version.
 #include <PID.h>            // PID library
 #include <RC_Channel.h>     // RC Channel Library
 #include <AP_RangeFinder.h>	// Range finder library
-#include <ModeFilter.h>
+#include <Filter.h>			// Filter library
+#include <ModeFilter.h>		// Mode Filter from Filter library
 #include <AP_Relay.h>       // APM relay
 #include <AP_Mount.h>		// Camera/Antenna mount
 #include <GCS_MAVLink.h>    // MAVLink GCS definitions
@@ -232,7 +233,7 @@ GCS_MAVLINK	gcs3;
 // PITOT selection
 ////////////////////////////////////////////////////////////////////////////////
 //
-ModeFilter sonar_mode_filter;
+ModeFilterInt16_Size5 sonar_mode_filter(2);
 
 #if CONFIG_PITOT_SOURCE == PITOT_SOURCE_ADC
 AP_AnalogSource_ADC pitot_analog_source( &adc,
@@ -781,8 +782,11 @@ static void medium_loop()
 
 			#if HIL_MODE != HIL_MODE_ATTITUDE
             if (g.compass_enabled && compass.read()) {
+                dcm.set_compass(&compass);
                 compass.calculate(dcm.get_dcm_matrix());  // Calculate heading
                 compass.null_offsets(dcm.get_dcm_matrix());
+            } else {
+                dcm.set_compass(NULL);
             }
 			#endif
 /*{
@@ -1003,7 +1007,7 @@ static void update_current_flight_mode(void)
 
 		switch(nav_command_ID){
 			case MAV_CMD_NAV_TAKEOFF:
-				if (hold_course > -1) {
+				if (hold_course != -1) {
 					calc_nav_roll();
 				} else {
 					nav_roll = 0;
@@ -1036,12 +1040,16 @@ static void update_current_flight_mode(void)
 					nav_pitch = landing_pitch;      // pitch held constant
 				}
 
-				if (land_complete){
+				if (land_complete) {
+                    // we are in the final stage of a landing - force
+                    // zero throttle
 					g.channel_throttle.servo_out = 0;
 				}
 				break;
 
 			default:
+                // we are doing normal AUTO flight, the special cases
+                // are for takeoff and landing
 				hold_course = -1;
 				calc_nav_roll();
 				calc_nav_pitch();
@@ -1049,11 +1057,13 @@ static void update_current_flight_mode(void)
 				break;
 		}
 	}else{
+        // hold_course is only used in takeoff and landing
+        hold_course = -1;
+
 		switch(control_mode){
 			case RTL:
 			case LOITER:
 			case GUIDED:
-				hold_course = -1;
 				crash_checker();
 				calc_nav_roll();
 				calc_nav_pitch();

@@ -146,7 +146,11 @@ namespace ArdupilotMega.GCSViews
                             }
                         }
                         // do not change this  \r is correct - no \n
+                        if (cmd == "+++")
+                            comPort.Write(Encoding.ASCII.GetBytes(cmd), 0, cmd.Length);
+                        else {
                         comPort.Write(Encoding.ASCII.GetBytes(cmd + "\r"), 0, cmd.Length + 1);
+                        }
                     }
                     catch { MessageBox.Show("Error writing to com port"); }
                 }
@@ -289,7 +293,7 @@ namespace ArdupilotMega.GCSViews
         private void Logs_Click(object sender, EventArgs e)
         {
             Form Log = new Log();
-            MainV2.fixtheme(Log);
+            ThemeManager.ApplyThemeTo(Log);
             inlogview = true;
             Log.ShowDialog();
             inlogview = false;
@@ -298,7 +302,7 @@ namespace ArdupilotMega.GCSViews
         private void BUT_logbrowse_Click(object sender, EventArgs e)
         {
             Form logbrowse = new LogBrowse();
-            MainV2.fixtheme(logbrowse);
+            ThemeManager.ApplyThemeTo(logbrowse);
             logbrowse.ShowDialog();
         }
     }

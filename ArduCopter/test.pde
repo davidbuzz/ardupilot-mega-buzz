@@ -16,8 +16,9 @@ static int8_t	test_imu(uint8_t argc, 			const Menu::arg *argv);
 //static int8_t	test_dcm_eulers(uint8_t argc, 	const Menu::arg *argv);
 //static int8_t	test_dcm(uint8_t argc, 			const Menu::arg *argv);
 //static int8_t	test_omega(uint8_t argc, 		const Menu::arg *argv);
+//static int8_t	test_stab_d(uint8_t argc, 		const Menu::arg *argv);
 static int8_t	test_battery(uint8_t argc, 		const Menu::arg *argv);
-//static int8_t	test_nav(uint8_t argc, 			const Menu::arg *argv);
+//static int8_t	test_boost(uint8_t argc, 		const Menu::arg *argv);
 //static int8_t	test_wp_nav(uint8_t argc, 		const Menu::arg *argv);
 //static int8_t	test_reverse(uint8_t argc, 		const Menu::arg *argv);
 static int8_t	test_tuning(uint8_t argc, 		const Menu::arg *argv);
@@ -65,12 +66,13 @@ const struct Menu::command test_menu_commands[] PROGMEM = {
 	{"imu",			test_imu},
 //	{"dcm",			test_dcm_eulers},
 	//{"omega",		test_omega},
+//	{"stab_d",		test_stab_d},
 	{"battery",		test_battery},
 	{"tune",		test_tuning},
 	//{"tri",			test_tri},
 	{"relay",		test_relay},
 	{"wp",			test_wp},
-	//{"nav",			test_nav},
+//	{"boost",		test_boost},
 #if HIL_MODE != HIL_MODE_ATTITUDE
 	{"altitude",	test_baro},
 	{"sonar",		test_sonar},
@@ -179,37 +181,26 @@ test_radio_pwm(uint8_t argc, const Menu::arg *argv)
 }*/
 
 /*
-//static int8_t
-//test_nav(uint8_t argc, const Menu::arg *argv)
+static int8_t
+//test_boost(uint8_t argc, const Menu::arg *argv)
 {
 	print_hit_enter();
 	delay(1000);
+	int16_t temp = MINIMUM_THROTTLE;
 
 	while(1){
-		delay(1000);
-		g_gps->ground_course = 19500;
-		calc_nav_rate2(g.waypoint_speed_max);
-		calc_nav_pitch_roll2();
+		delay(20);
+		g.rc_3.control_in = temp;
+		adjust_altitude();
+		Serial.printf("tmp:%d, boost: %d\n", temp, manual_boost);
+		temp++;
 
-		g_gps->ground_course = 28500;
-		calc_nav_rate2(g.waypoint_speed_max);
-		calc_nav_pitch_roll2();
-
-		g_gps->ground_course = 1500;
-		calc_nav_rate2(g.waypoint_speed_max);
-		calc_nav_pitch_roll2();
-
-		g_gps->ground_course = 10500;
-		calc_nav_rate2(g.waypoint_speed_max);
-		calc_nav_pitch_roll2();
-
-
-		//if(Serial.available() > 0){
+		if(temp > MAXIMUM_THROTTLE){
 			return (0);
-		//}
+		}
 	}
 }
-*/
+//*/
 
 static int8_t
 test_radio(uint8_t argc, const Menu::arg *argv)
@@ -602,6 +593,42 @@ test_gps(uint8_t argc, const Menu::arg *argv)
 	*/
 	return 0;
 }
+
+// used to test the gain scheduler for Stab_D
+/*
+static int8_t
+test_stab_d(uint8_t argc, const Menu::arg *argv)
+{
+	int16_t i = 0;
+	g.stabilize_d = 1;
+
+	g.stabilize_d_schedule = 1
+	for (i = -4600; i < 4600; i+=10) {
+		new_radio_frame = true;
+		g.rc_1.control_in = i;
+		g.rc_2.control_in = i;
+		update_roll_pitch_mode();
+    	Serial.printf("rin:%d, d:%1.6f \tpin:%d, d:%1.6f\n",g.rc_1.control_in, roll_scale_d, g.rc_2.control_in, pitch_scale_d);
+    }
+	g.stabilize_d_schedule = .5
+	for (i = -4600; i < 4600; i+=10) {
+		new_radio_frame = true;
+		g.rc_1.control_in = i;
+		g.rc_2.control_in = i;
+		update_roll_pitch_mode();
+    	Serial.printf("rin:%d, d:%1.6f \tpin:%d, d:%1.6f\n",g.rc_1.control_in, roll_scale_d, g.rc_2.control_in, pitch_scale_d);
+    }
+
+	g.stabilize_d_schedule = 0
+	for (i = -4600; i < 4600; i+=10) {
+		new_radio_frame = true;
+		g.rc_1.control_in = i;
+		g.rc_2.control_in = i;
+		update_roll_pitch_mode();
+    	Serial.printf("rin:%d, d:%1.6f \tpin:%d, d:%1.6f\n",g.rc_1.control_in, roll_scale_d, g.rc_2.control_in, pitch_scale_d);
+    }
+
+}*/
 
 /*
 //static int8_t

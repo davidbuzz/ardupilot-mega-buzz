@@ -18,9 +18,9 @@
 
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
-#include <AP_Math.h>
 
 #define AP_MAX_NAME_SIZE 15
+#define AP_NESTED_GROUPS_ENABLED
 
 // a varient of offsetof() to work around C++ restrictions.
 // this can only be used when the offset of a variable in a object
@@ -34,7 +34,9 @@
 #define AP_GROUPINFO(name, idx, class, element) { AP_CLASSTYPE(class, element), idx, name, AP_VAROFFSET(class, element) }
 
 // declare a nested group entry in a group var_info
+#ifdef AP_NESTED_GROUPS_ENABLED
 #define AP_NESTEDGROUPINFO(class, idx) { AP_PARAM_GROUP, idx, "", 0, class::var_info }
+#endif
 
 #define AP_GROUPEND	{ AP_PARAM_NONE, 0xFF, "" }
 
@@ -75,10 +77,20 @@ public:
         const struct GroupInfo *group_info;
     };
 
+    // a token used for first()/next() state
+    typedef struct {
+        uint8_t key;
+        uint8_t group_element;
+        uint8_t idx; // offset into array types
+    } ParamToken;
+
     // called once at startup to setup the _var_info[] table. This
     // will also check the EEPROM header and re-initialise it if the
     // wrong version is found
     static bool setup(const struct Info *info, uint8_t num_vars, uint16_t eeprom_size);
+
+    // return true if AP_Param has been initialised via setup()
+    static bool initialised(void);
 
     /// Copy the variable's name, prefixed by any containing group name, to a buffer.
     ///
@@ -90,7 +102,7 @@ public:
     /// @param	buffer			The destination buffer
     /// @param	bufferSize		Total size of the destination buffer.
     ///
-    void copy_name(char *buffer, size_t bufferSize);
+    void copy_name(char *buffer, size_t bufferSize, bool force_scalar=false);
 
     /// Find a variable by name.
     ///
@@ -136,15 +148,15 @@ public:
     /// @return             The first variable in _var_info, or NULL if
     ///                     there are none.
     ///
-    static AP_Param *first(uint16_t *token, enum ap_var_type *ptype);
+    static AP_Param *first(ParamToken *token, enum ap_var_type *ptype);
 
     /// Returns the next variable in _var_info, recursing into groups
     /// as needed
-    static AP_Param *next(uint16_t *token, enum ap_var_type *ptype);
+    static AP_Param *next(ParamToken *token, enum ap_var_type *ptype);
 
     /// Returns the next scalar variable in _var_info, recursing into groups
     /// as needed
-    static AP_Param *next_scalar(uint16_t *token, enum ap_var_type *ptype);
+    static AP_Param *next_scalar(ParamToken *token, enum ap_var_type *ptype);
 
     /// cast a variable to a float given its type
     float cast_to_float(enum ap_var_type type);
@@ -177,21 +189,25 @@ private:
     static const uint8_t  _sentinal_group = 0xFF;
 
     static bool check_group_info(const struct GroupInfo *group_info, uint16_t *total_size, uint8_t max_bits);
+    static bool duplicate_key(uint8_t vindex, uint8_t key);
     static bool check_var_info(void);
     const struct Info *find_var_info_group(const struct GroupInfo *group_info,
                                            uint8_t vindex,
                                            uint8_t group_base,
                                            uint8_t group_shift,
                                            uint8_t *group_element,
-                                           const struct GroupInfo **group_ret);
+                                           const struct GroupInfo **group_ret,
+                                           uint8_t *idx);
     const struct Info *find_var_info(uint8_t *group_element,
-                                     const struct GroupInfo **group_ret);
+                                     const struct GroupInfo **group_ret,
+                                     uint8_t *idx);
     static const struct Info *find_by_header_group(struct Param_header phdr, void **ptr,
                                                    uint8_t vindex,
                                                    const struct GroupInfo *group_info,
                                                    uint8_t group_base,
                                                    uint8_t group_shift);
     static const struct Info *find_by_header(struct Param_header phdr, void **ptr);
+    void add_vector3f_suffix(char *buffer, size_t buffer_size, uint8_t idx);
     static AP_Param *find_group(const char *name, uint8_t vindex, const struct GroupInfo *group_info, enum ap_var_type *ptype);
     static void write_sentinal(uint16_t ofs);
     bool scan(const struct Param_header *phdr, uint16_t *pofs);
@@ -201,7 +217,7 @@ private:
                                 bool *found_current,
                                 uint8_t group_base,
                                 uint8_t group_shift,
-                                uint16_t *token,
+                                ParamToken *token,
                                 enum ap_var_type *ptype);
 
     static uint16_t _eeprom_size;
@@ -255,6 +271,19 @@ public:
     /// Combined set and save
     ///
     bool set_and_save(T v) {
+        set(v);
+        return save();
+    }
+
+    /// Combined set and save, but only does the save if the value if
+    /// different from the current ram value, thus saving us a
+    /// scan(). This should only be used where we have not set() the
+    /// value separately, as otherwise the value in EEPROM won't be
+    /// updated correctly.
+    bool set_and_save_ifchanged(T v) {
+        if (v == _value) {
+            return true;
+        }
         set(v);
         return save();
     }
@@ -334,13 +363,13 @@ public:
 
     /// Copy assignment from self does nothing.
     ///
-    AP_ParamT<T,PT>& operator=(AP_ParamT<T,PT>& v) {
+    AP_ParamV<T,PT>& operator=(AP_ParamV<T,PT>& v) {
         return v;
     }
 
     /// Copy assignment from T is equivalent to ::set.
     ///
-    AP_ParamT<T,PT>& operator=(T v) {
+    AP_ParamV<T,PT>& operator=(T v) {
         _value = v;
         return *this;
     }
@@ -409,18 +438,30 @@ protected:
 
 /// Convenience macro for defining instances of the AP_ParamT template.
 ///
-#define AP_PARAMDEF(_t, _n, _pt)   typedef AP_ParamT<_t, _pt> AP_##_n;
+// declare a scalar type
+// _t is the base type
+// _suffix is the suffix on the AP_* type name
+// _pt is the enum ap_var_type type
+#define AP_PARAMDEF(_t, _suffix, _pt)   typedef AP_ParamT<_t, _pt> AP_##_suffix;
 AP_PARAMDEF(float, Float, AP_PARAM_FLOAT);    // defines AP_Float
 AP_PARAMDEF(int8_t, Int8, AP_PARAM_INT8);     // defines AP_Int8
 AP_PARAMDEF(int16_t, Int16, AP_PARAM_INT16);  // defines AP_Int16
 AP_PARAMDEF(int32_t, Int32, AP_PARAM_INT32);  // defines AP_Int32
 
-#define AP_PARAMDEFV(_t, _n, _pt)   typedef AP_ParamV<_t, _pt> AP_##_n;
-AP_PARAMDEFV(Matrix3f, Matrix3f, AP_PARAM_MATRIX3F);
-AP_PARAMDEFV(Vector3f, Vector3f, AP_PARAM_VECTOR3F);
-
-#define AP_PARAMDEFA(_t, _n, _size, _pt)   typedef AP_ParamA<_t, _size, _pt> AP_##_n;
+// declare an array type
+// _t is the base type
+// _suffix is the suffix on the AP_* type name
+// _size is the size of the array
+// _pt is the enum ap_var_type type
+#define AP_PARAMDEFA(_t, _suffix, _size, _pt)   typedef AP_ParamA<_t, _size, _pt> AP_##_suffix;
 AP_PARAMDEFA(float, Vector6f, 6, AP_PARAM_VECTOR6F);
+
+// declare a non-scalar type
+// this is used in AP_Math.h
+// _t is the base type
+// _suffix is the suffix on the AP_* type name
+// _pt is the enum ap_var_type type
+#define AP_PARAMDEFV(_t, _suffix, _pt)   typedef AP_ParamV<_t, _pt> AP_##_suffix;
 
 /// Rely on built in casting for other variable types
 /// to minimize template creation and save memory

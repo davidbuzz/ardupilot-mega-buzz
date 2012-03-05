@@ -116,7 +116,6 @@ void AP_ADC_ADS7844::read(uint32_t tnow)
 			// reader below could get a division by zero
 			_sum[ch] = 0;
 			_count[ch] = 1;
-			last_ch6_micros = tnow;
 		}
 		_sum[ch] += (v >> 3);
 	}
@@ -128,8 +127,8 @@ void AP_ADC_ADS7844::read(uint32_t tnow)
 
 // Constructors ////////////////////////////////////////////////////////////////
 AP_ADC_ADS7844::AP_ADC_ADS7844() :
-			_filter_index_accel(0),
-			filter_result(false)
+			filter_result(false),
+			_filter_index_accel(0)
 {
 }
 

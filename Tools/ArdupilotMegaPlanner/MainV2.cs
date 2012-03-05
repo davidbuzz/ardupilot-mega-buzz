@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Drawing;
 using System.Linq;
@@ -20,11 +21,15 @@ using System.Globalization;
 using System.Threading;
 using System.Net.Sockets;
 using IronPython.Hosting;
+using log4net;
+using ArdupilotMega.Controls;
 
 namespace ArdupilotMega
 {
     public partial class MainV2 : Form
     {
+        private static readonly ILog log =
+            LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         [DllImport("user32.dll")]
         public static extern int FindWindow(string szClass, string szTitle);
         [DllImport("user32.dll")]
@@ -32,11 +37,6 @@ namespace ArdupilotMega
 
         const int SW_SHOWNORMAL = 1;
         const int SW_HIDE = 0;
-
-        /// <summary>
-        /// Home Location
-        /// </summary>
-        public static PointLatLngAlt HomeLocation = new PointLatLngAlt();
 
         public static MAVLink comPort = new MAVLink();
         public static string comportname = "";
@@ -46,7 +46,7 @@ namespace ArdupilotMega
         public static bool MONO = false;
 
         public static bool speechenable = false;
-        public static SpeechSynthesizer talk = new SpeechSynthesizer();
+        public static Speech talk = null;
 
         public static Joystick joystick = null;
         DateTime lastjoystick = DateTime.Now;
@@ -106,6 +106,8 @@ namespace ArdupilotMega
             var t = Type.GetType("Mono.Runtime");
             MONO = (t != null);
 
+            talk = new Speech();
+
             //talk.SpeakAsync("Welcome to APM Planner");
 
             MyRenderer.currentpressed = MenuFlightData;
@@ -130,8 +132,8 @@ namespace ArdupilotMega
             CMB_serialport.Items.Add("UDP");
             if (CMB_serialport.Items.Count > 0)
             {
-                CMB_serialport.SelectedIndex = 0;
                 CMB_baudrate.SelectedIndex = 7;
+                CMB_serialport.SelectedIndex = 0;
             }
 
             splash.Refresh();
@@ -143,7 +145,7 @@ namespace ArdupilotMega
             xmlconfig(false);
 
             if (config.ContainsKey("language") && !string.IsNullOrEmpty((string)config["language"]))
-                changelanguage(getcultureinfo((string)config["language"]));
+                changelanguage(CultureInfoEx.GetCultureInfo((string)config["language"]));
 
             if (!MONO) // windows only
             {
@@ -208,13 +210,13 @@ namespace ArdupilotMega
                 try
                 {
                     if (config["TXT_homelat"] != null)
-                        HomeLocation.Lat = double.Parse(config["TXT_homelat"].ToString());
+                        cs.HomeLocation.Lat = double.Parse(config["TXT_homelat"].ToString());
 
                     if (config["TXT_homelng"] != null)
-                        HomeLocation.Lng = double.Parse(config["TXT_homelng"].ToString());
+                        cs.HomeLocation.Lng = double.Parse(config["TXT_homelng"].ToString());
 
                     if (config["TXT_homealt"] != null)
-                        HomeLocation.Alt = double.Parse(config["TXT_homealt"].ToString());
+                        cs.HomeLocation.Alt = double.Parse(config["TXT_homealt"].ToString());
                 }
                 catch { }
 
@@ -238,9 +240,9 @@ namespace ArdupilotMega
                 double Framework = Convert.ToDouble(version_names[version_names.Length - 1].Remove(0, 1), CultureInfo.InvariantCulture);
                 int SP = Convert.ToInt32(installed_versions.OpenSubKey(version_names[version_names.Length - 1]).GetValue("SP", 0));
 
-                if (Framework < 4.0)
+                if (Framework < 3.5)
                 {
-                    MessageBox.Show("This program requires .NET Framework 4.0 +. You currently have " + Framework);
+                    MessageBox.Show("This program requires .NET Framework 3.5. You currently have " + Framework);
                 }
             }
 
@@ -254,13 +256,26 @@ namespace ArdupilotMega
         {
             string[] devs = new string[0];
 
+
+            log.Debug("Geting Comports");
+
             if (MONO)
             {
                 if (Directory.Exists("/dev/"))
+                {
+                    if (Directory.Exists("/dev/serial/by-id/"))
+                        devs = Directory.GetFiles("/dev/serial/by-id/", "*");
                     devs = Directory.GetFiles("/dev/", "*ACM*");
+                    devs = Directory.GetFiles("/dev/", "ttyUSB*");
+                }
             }
 
             string[] ports = SerialPort.GetPortNames();
+
+            for (int a = 0; a < ports.Length; a++)
+            {
+                ports[a] = ports[a].TrimEnd();
+            }
 
             string[] all = new string[devs.Length + ports.Length];
 
@@ -297,174 +312,6 @@ namespace ArdupilotMega
                 CMB_serialport.Text = oldport;
         }
 
-        public static void fixtheme(Control temp)
-        {
-            fixtheme(temp, 0);
-        }
-
-        public static void fixtheme(Control temp, int level)
-        {
-            if (level == 0)
-            {
-                temp.BackColor = Color.FromArgb(0x26, 0x27, 0x28);
-                temp.ForeColor = Color.White;// Color.FromArgb(0xe6, 0xe8, 0xea);
-            }
-            //Console.WriteLine(temp.GetType());
-
-            //temp.Font = new Font("Lucida Console", 8.25f);
-
-            foreach (Control ctl in temp.Controls)
-            {
-                if (((Type)ctl.GetType()) == typeof(System.Windows.Forms.Button))
-                {
-                    ctl.ForeColor = Color.Black;
-                    System.Windows.Forms.Button but = (System.Windows.Forms.Button)ctl;
-                }
-                else if (((Type)ctl.GetType()) == typeof(TextBox))
-                {
-                    ctl.BackColor = Color.FromArgb(0x43, 0x44, 0x45);
-                    ctl.ForeColor = Color.White;// Color.FromArgb(0xe6, 0xe8, 0xea);
-                    TextBox txt = (TextBox)ctl;
-                    txt.BorderStyle = BorderStyle.None;
-                }
-                else if (((Type)ctl.GetType()) == typeof(DomainUpDown))
-                {
-                    ctl.BackColor = Color.FromArgb(0x43, 0x44, 0x45);
-                    ctl.ForeColor = Color.White;// Color.FromArgb(0xe6, 0xe8, 0xea);
-                    DomainUpDown txt = (DomainUpDown)ctl;
-                    txt.BorderStyle = BorderStyle.None;
-                }
-                else if (((Type)ctl.GetType()) == typeof(GroupBox))
-                {
-                    ctl.BackColor = Color.FromArgb(0x26, 0x27, 0x28);
-                    ctl.ForeColor = Color.White;// Color.FromArgb(0xe6, 0xe8, 0xea);
-                }
-                else if (((Type)ctl.GetType()) == typeof(ZedGraph.ZedGraphControl))
-                {
-                    ZedGraph.ZedGraphControl zg1 = (ZedGraph.ZedGraphControl)ctl;
-                    zg1.GraphPane.Chart.Fill = new ZedGraph.Fill(Color.FromArgb(0x1f, 0x1f, 0x20));
-                    zg1.GraphPane.Fill = new ZedGraph.Fill(Color.FromArgb(0x37, 0x37, 0x38));
-
-                    foreach (ZedGraph.LineItem li in zg1.GraphPane.CurveList)
-                    {
-                        li.Line.Width = 4;
-                    }
-
-                    zg1.GraphPane.Title.FontSpec.FontColor = Color.White;
-
-                    zg1.GraphPane.XAxis.MajorTic.Color = Color.White;
-                    zg1.GraphPane.XAxis.MinorTic.Color = Color.White;
-                    zg1.GraphPane.YAxis.MajorTic.Color = Color.White;
-                    zg1.GraphPane.YAxis.MinorTic.Color = Color.White;
-
-                    zg1.GraphPane.XAxis.MajorGrid.Color = Color.White;
-                    zg1.GraphPane.YAxis.MajorGrid.Color = Color.White;
-
-                    zg1.GraphPane.YAxis.Scale.FontSpec.FontColor = Color.White;
-                    zg1.GraphPane.YAxis.Title.FontSpec.FontColor = Color.White;
-
-                    zg1.GraphPane.XAxis.Scale.FontSpec.FontColor = Color.White;
-                    zg1.GraphPane.XAxis.Title.FontSpec.FontColor = Color.White;
-
-                    zg1.GraphPane.Legend.Fill = new ZedGraph.Fill(Color.FromArgb(0x85, 0x84, 0x83));
-                    zg1.GraphPane.Legend.FontSpec.FontColor = Color.White;
-                }
-                else if (((Type)ctl.GetType()) == typeof(BSE.Windows.Forms.Panel) || ((Type)ctl.GetType()) == typeof(System.Windows.Forms.SplitterPanel))
-                {
-                    ctl.BackColor = Color.FromArgb(0x26, 0x27, 0x28);
-                    ctl.ForeColor = Color.White;// Color.FromArgb(0xe6, 0xe8, 0xea);
-                }
-                else if (((Type)ctl.GetType()) == typeof(Form))
-                {
-                    ctl.BackColor = Color.FromArgb(0x26, 0x27, 0x28);
-                    ctl.ForeColor = Color.White;// Color.FromArgb(0xe6, 0xe8, 0xea);
-                }
-                else if (((Type)ctl.GetType()) == typeof(RichTextBox))
-                {
-                    ctl.BackColor = Color.FromArgb(0x43, 0x44, 0x45);
-                    ctl.ForeColor = Color.White;
-                    RichTextBox txtr = (RichTextBox)ctl;
-                    txtr.BorderStyle = BorderStyle.None;
-                }
-                else if (((Type)ctl.GetType()) == typeof(CheckedListBox))
-                {
-                    ctl.BackColor = Color.FromArgb(0x43, 0x44, 0x45);
-                    ctl.ForeColor = Color.White;
-                    CheckedListBox txtr = (CheckedListBox)ctl;
-                    txtr.BorderStyle = BorderStyle.None;
-                }
-                else if (((Type)ctl.GetType()) == typeof(TabPage))
-                {
-                    ctl.BackColor = Color.FromArgb(0x26, 0x27, 0x28);  //Color.FromArgb(0x43, 0x44, 0x45);
-                    ctl.ForeColor = Color.White;
-                    TabPage txtr = (TabPage)ctl;
-                    txtr.BorderStyle = BorderStyle.None;
-                }
-                else if (((Type)ctl.GetType()) == typeof(TabControl))
-                {
-                    ctl.BackColor = Color.FromArgb(0x26, 0x27, 0x28);  //Color.FromArgb(0x43, 0x44, 0x45);
-                    ctl.ForeColor = Color.White;
-                    TabControl txtr = (TabControl)ctl;
-
-                }
-                else if (((Type)ctl.GetType()) == typeof(DataGridView))
-                {
-                    ctl.ForeColor = Color.White;
-                    DataGridView dgv = (DataGridView)ctl;
-                    dgv.EnableHeadersVisualStyles = false;
-                    dgv.BorderStyle = BorderStyle.None;
-                    dgv.BackgroundColor = Color.FromArgb(0x26, 0x27, 0x28);
-                    DataGridViewCellStyle rs = new DataGridViewCellStyle();
-                    rs.BackColor = Color.FromArgb(0x43, 0x44, 0x45);
-                    rs.ForeColor = Color.White;
-                    dgv.RowsDefaultCellStyle = rs;
-
-                    DataGridViewCellStyle hs = new DataGridViewCellStyle(dgv.ColumnHeadersDefaultCellStyle);
-                    hs.BackColor = Color.FromArgb(0x26, 0x27, 0x28);
-                    hs.ForeColor = Color.White;
-
-                    dgv.ColumnHeadersDefaultCellStyle = hs;
-
-                    dgv.RowHeadersDefaultCellStyle = hs;
-                }
-                else if (((Type)ctl.GetType()) == typeof(ComboBox))
-                {
-                    ctl.BackColor = Color.FromArgb(0x43, 0x44, 0x45);
-                    ctl.ForeColor = Color.White;
-                    ComboBox CMB = (ComboBox)ctl;
-                    CMB.FlatStyle = FlatStyle.Flat;
-                }
-                else if (((Type)ctl.GetType()) == typeof(NumericUpDown))
-                {
-                    ctl.BackColor = Color.FromArgb(0x43, 0x44, 0x45);
-                    ctl.ForeColor = Color.White;
-                }
-                else if (((Type)ctl.GetType()) == typeof(TrackBar))
-                {
-                    ctl.BackColor = Color.FromArgb(0x26, 0x27, 0x28);
-                    ctl.ForeColor = Color.White;
-                }
-                else if (((Type)ctl.GetType()) == typeof(LinkLabel))
-                {
-                    ctl.BackColor = Color.FromArgb(0x26, 0x27, 0x28);
-                    ctl.ForeColor = Color.White;
-                    LinkLabel LNK = (LinkLabel)ctl;
-                    LNK.ActiveLinkColor = Color.White;
-                    LNK.LinkColor = Color.White;
-                    LNK.VisitedLinkColor = Color.White;
-
-                }
-                else if (((Type)ctl.GetType()) == typeof(HorizontalProgressBar2) ||
-                  ((Type)ctl.GetType()) == typeof(VerticalProgressBar2))
-                {
-                    ((HorizontalProgressBar2)ctl).BackgroundColor = Color.FromArgb(0x43, 0x44, 0x45);
-                    ((HorizontalProgressBar2)ctl).ValueColor = Color.FromArgb(148, 193, 31);
-                }
-
-                if (ctl.Controls.Count > 0)
-                    fixtheme(ctl, 1);
-            }
-        }
 
         private void MenuFlightData_Click(object sender, EventArgs e)
         {
@@ -474,7 +321,7 @@ namespace ArdupilotMega
 
             UserControl temp = FlightData;
 
-            fixtheme(temp);
+            ThemeManager.ApplyThemeTo(temp);
 
             temp.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
 
@@ -500,7 +347,7 @@ namespace ArdupilotMega
 
             UserControl temp = FlightPlanner;
 
-            fixtheme(temp);
+            ThemeManager.ApplyThemeTo(temp);
 
             temp.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
 
@@ -535,7 +382,7 @@ namespace ArdupilotMega
 
             UserControl temp = Configuration;
 
-            fixtheme(temp);
+            ThemeManager.ApplyThemeTo(temp);
 
             //temp.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
 
@@ -562,7 +409,7 @@ namespace ArdupilotMega
 
             UserControl temp = Simulation;
 
-            fixtheme(temp);
+            ThemeManager.ApplyThemeTo(temp);
 
             temp.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
 
@@ -585,7 +432,7 @@ namespace ArdupilotMega
 
             UserControl temp = Firmware;
 
-            fixtheme(temp);
+            ThemeManager.ApplyThemeTo(temp);
 
             temp.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
 
@@ -625,7 +472,7 @@ namespace ArdupilotMega
 
             UserControl temp = Terminal;
 
-            fixtheme(temp);
+            ThemeManager.ApplyThemeTo(temp);
 
             temp.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
 
@@ -655,8 +502,12 @@ namespace ArdupilotMega
             {
                 try
                 {
-                    if (talk != null) // cancel all pending speech
-                        talk.SpeakAsyncCancelAll();
+                    try
+                    {
+                        if (talk != null) // cancel all pending speech
+                            talk.SpeakAsyncCancelAll();
+                    }
+                    catch { }
 
                     if (comPort.logfile != null)
                         comPort.logfile.Close();
@@ -664,7 +515,7 @@ namespace ArdupilotMega
                     comPort.BaseStream.DtrEnable = false;
                     comPort.Close();
                 }
-                catch { }
+                catch (Exception ex) { log.Debug(ex.ToString()); }
 
                 this.MenuConnect.BackgroundImage = global::ArdupilotMega.Properties.Resources.connect;
             }
@@ -765,19 +616,20 @@ namespace ArdupilotMega
                             byte[] buffer = port.download(20);
                             port.Close();
 
-                            if (buffer[0] != 'A' || buffer[1] != 'P') // this is the apvar header
+                            if ((buffer[0] == 'A' || buffer[0] == 'P') && (buffer[1] == 'A' || buffer[1] == 'P')) // this is the apvar header
+                            {
+                                log.Info("Valid eeprom contents");
+                            }
+                            else
                             {
                                 MessageBox.Show("You dont appear to have uploaded a firmware yet,\n\nPlease goto the firmware page and upload one.");
                                 return;
                             }
-                            else
-                            {
-                                Console.WriteLine("Valid eeprom contents");
-                            }
                         }
                     }
                     catch { }
-                    MessageBox.Show("Can not establish a connection\n\n" + ex.ToString());
+                    log.Debug(ex.ToString());
+                    //MessageBox.Show("Can not establish a connection\n\n" + ex.ToString());
                     return;
                 }
             }
@@ -953,11 +805,11 @@ namespace ArdupilotMega
                                         break;
                                 }
                             }
-                            catch (Exception ee) { Console.WriteLine(ee.Message); } // silent fail on bad entry
+                            catch (Exception ee) { log.Info(ee.Message); } // silent fail on bad entry
                         }
                     }
                 }
-                catch (Exception ex) { Console.WriteLine("Bad Config File: " + ex.ToString()); } // bad config file
+                catch (Exception ex) { log.Info("Bad Config File: " + ex.ToString()); } // bad config file
             }
         }
 
@@ -1171,7 +1023,7 @@ namespace ArdupilotMega
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Serial Reader fail :" + e.Message);
+                    log.Info("Serial Reader fail :" + e.Message);
                     try
                     {
                         comPort.Close();
@@ -1239,7 +1091,7 @@ namespace ArdupilotMega
             try
             {
                 listener = new TcpListener(IPAddress.Any, 56781);
-                System.Threading.Thread t13 = new System.Threading.Thread(new System.Threading.ThreadStart(listernforclients))
+                var t13 = new Thread(listernforclients)
                 {
                     Name = "motion jpg stream",
                     IsBackground = true
@@ -1249,10 +1101,11 @@ namespace ArdupilotMega
             }
             catch (Exception ex)
             {
+                log.Error("Error starting TCP listener thread: ", ex);
                 MessageBox.Show(ex.ToString());
             }
 
-            System.Threading.Thread t12 = new System.Threading.Thread(new ThreadStart(joysticksend))
+            var t12 = new Thread(new ThreadStart(joysticksend))
             {
                 IsBackground = true,
                 Priority = ThreadPriority.AboveNormal,
@@ -1260,18 +1113,28 @@ namespace ArdupilotMega
             };
             t12.Start();
 
-            System.Threading.Thread t11 = new System.Threading.Thread(new ThreadStart(SerialReader))
+            var t11 = new Thread(SerialReader)
             {
                 IsBackground = true,
                 Name = "Main Serial reader"
             };
             t11.Start();
 
-            try
+            if (Debugger.IsAttached)
             {
-                checkForUpdate();
+                log.Info("Skipping update test as it appears we are debugging");
             }
-            catch { Console.WriteLine("update check failed"); }
+            else
+            {
+                try
+                {
+                    CheckForUpdate();
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Update check failed", ex);
+                }
+            }
         }
 
         public static String ComputeWebSocketHandshakeSecurityHash09(String secWebSocketKey)
@@ -1302,7 +1165,7 @@ namespace ArdupilotMega
             {
                 listener.Start();
             }
-            catch { Console.WriteLine("do you have the planner open already"); return; } // in use
+            catch { log.Info("do you have the planner open already"); return; } // in use
             // Enter the listening loop.               
             while (true)
             {
@@ -1310,10 +1173,10 @@ namespace ArdupilotMega
                 // You could also user server.AcceptSocket() here.               
                 try
                 {
-                    Console.WriteLine("Listening for client - 1 client at a time");
+                    log.Info("Listening for client - 1 client at a time");
                     TcpClient client = listener.AcceptTcpClient();
                     // Get a stream object for reading and writing          
-                    Console.WriteLine("Accepted Client " + client.Client.RemoteEndPoint.ToString());
+                    log.Info("Accepted Client " + client.Client.RemoteEndPoint.ToString());
                     //client.SendBufferSize = 100 * 1024; // 100kb
                     //client.LingerState.Enabled = true;
                     //client.NoDelay = true;
@@ -1336,7 +1199,7 @@ namespace ArdupilotMega
 
                     int len = stream.Read(request, 0, request.Length);
                     string head = System.Text.ASCIIEncoding.ASCII.GetString(request, 0, len);
-                    Console.WriteLine(head);
+                    log.Info(head);
 
                     int index = head.IndexOf('\n');
 
@@ -1372,7 +1235,7 @@ namespace ArdupilotMega
                             while (client.Connected)
                             {
                                 System.Threading.Thread.Sleep(200);
-                                Console.WriteLine(stream.DataAvailable + " " + client.Available);
+                                log.Info(stream.DataAvailable + " " + client.Available);
 
                                 while (client.Available > 0)
                                 {
@@ -1443,12 +1306,19 @@ namespace ArdupilotMega
 
                         pmplane.Geometry = model;
 
-                        SharpKml.Dom.LookAt la = new SharpKml.Dom.LookAt() 
-                        { Altitude = loc.Altitude.Value, Latitude = loc.Latitude.Value, Longitude = loc.Longitude.Value, Tilt = 80,
-                            Heading = cs.yaw, AltitudeMode = SharpKml.Dom.AltitudeMode.Absolute, Range = 50};
+                        SharpKml.Dom.LookAt la = new SharpKml.Dom.LookAt()
+                        {
+                            Altitude = loc.Altitude.Value,
+                            Latitude = loc.Latitude.Value,
+                            Longitude = loc.Longitude.Value,
+                            Tilt = 80,
+                            Heading = cs.yaw,
+                            AltitudeMode = SharpKml.Dom.AltitudeMode.Absolute,
+                            Range = 50
+                        };
 
                         kml.Viewpoint = la;
-                        
+
                         kml.AddFeature(pmplane);
 
                         SharpKml.Base.Serializer serializer = new SharpKml.Base.Serializer();
@@ -1555,7 +1425,7 @@ namespace ArdupilotMega
                     }
                     stream.Close();
                 }
-                catch (Exception ee) { Console.WriteLine("Failed mjpg " + ee.Message); }
+                catch (Exception ee) { log.Info("Failed mjpg " + ee.Message); }
             }
         }
 
@@ -1567,8 +1437,8 @@ namespace ArdupilotMega
 
         private void MainV2_Resize(object sender, EventArgs e)
         {
-            Console.WriteLine("myview width " + MyView.Width + " height " + MyView.Height);
-            Console.WriteLine("this   width " + this.Width + " height " + this.Height);
+            log.Info("myview width " + MyView.Width + " height " + MyView.Height);
+            log.Info("this   width " + this.Width + " height " + this.Height);
         }
 
         private void MenuHelp_Click(object sender, EventArgs e)
@@ -1577,7 +1447,7 @@ namespace ArdupilotMega
 
             UserControl temp = new GCSViews.Help();
 
-            fixtheme(temp);
+            ThemeManager.ApplyThemeTo(temp);
 
             temp.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
 
@@ -1590,158 +1460,181 @@ namespace ArdupilotMega
             temp.BackColor = Color.FromArgb(0x26, 0x27, 0x28);
         }
 
-        static string baseurl = "http://ardupilot-mega.googlecode.com/git/Tools/ArdupilotMegaPlanner/bin/Release/";
 
-        public static void updatecheck(Label loadinglabel)
+        public static void updatecheck(ProgressReporterDialogue frmProgressReporter)
         {
+            var baseurl = ConfigurationManager.AppSettings["UpdateLocation"];
             try
             {
-                bool update = updatecheck(loadinglabel, baseurl, "");
-                System.Diagnostics.Process P = new System.Diagnostics.Process();
+                bool update = updatecheck(frmProgressReporter, baseurl, "");
+                var process = new Process();
+                string exePath = Path.GetDirectoryName(Application.ExecutablePath);
                 if (MONO)
                 {
-                    P.StartInfo.FileName = "mono";
-                    P.StartInfo.Arguments = " \"" + Path.GetDirectoryName(Application.ExecutablePath) + Path.DirectorySeparatorChar + "Updater.exe\"";
+                    process.StartInfo.FileName = "mono";
+                    process.StartInfo.Arguments = " \"" + exePath + Path.DirectorySeparatorChar + "Updater.exe\"";
                 }
                 else
                 {
-                    P.StartInfo.FileName = Path.GetDirectoryName(Application.ExecutablePath) + Path.DirectorySeparatorChar + "Updater.exe";
-                    P.StartInfo.Arguments = "";
+                    process.StartInfo.FileName = exePath + Path.DirectorySeparatorChar + "Updater.exe";
+                    process.StartInfo.Arguments = "";
                     try
                     {
-                        foreach (string newupdater in Directory.GetFiles(Path.GetDirectoryName(Application.ExecutablePath), "Updater.exe*.new"))
+                        foreach (string newupdater in Directory.GetFiles(exePath, "Updater.exe*.new"))
                         {
                             File.Copy(newupdater, newupdater.Remove(newupdater.Length - 4), true);
                             File.Delete(newupdater);
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        log.Error("Exception during update", ex);
                     }
                 }
-                if (loadinglabel != null)
-                    updatelabel(loadinglabel,"Starting Updater");
-                Console.WriteLine("Start " + P.StartInfo.FileName + " with " + P.StartInfo.Arguments);
-                P.Start();
+                if (frmProgressReporter != null)
+                    frmProgressReporter.UpdateProgressAndStatus(-1, "Starting Updater");
+                log.Info("Starting new process: " + process.StartInfo.FileName + " with " + process.StartInfo.Arguments);
+                process.Start();
+                log.Info("Quitting existing process");
                 try
+                {
+                    MainV2.instance.BeginInvoke((MethodInvoker)delegate() {
+                        Application.Exit();
+                    });
+                }
+                catch
                 {
                     Application.Exit();
                 }
-                catch { }
             }
-            catch (Exception ex) { MessageBox.Show("Update Failed " + ex.Message); }
+            catch (Exception ex)
+            {
+                log.Error("Update Failed", ex);
+                MessageBox.Show("Update Failed " + ex.Message);
+            }
         }
 
-        private static void updatelabel(Label loadinglabel, string text)
+        private static void UpdateLabel(Label loadinglabel, string text)
         {
             MainV2.instance.Invoke((MethodInvoker)delegate
             {
                 loadinglabel.Text = text;
-            });
 
-            Application.DoEvents();
+                Application.DoEvents();
+            });
         }
 
-        private static void checkForUpdate()
+        private static void CheckForUpdate()
         {
-              string path = Path.GetFileNameWithoutExtension(Application.ExecutablePath) + ".exe";
+            var baseurl = ConfigurationManager.AppSettings["UpdateLocation"];
+            string path = Path.GetFileName(Application.ExecutablePath);
 
-                // Create a request using a URL that can receive a post. 
-                WebRequest request = WebRequest.Create(baseurl + path);
-                request.Timeout = 5000;
-                Console.Write(baseurl + path + " ");
-                // Set the Method property of the request to POST.
-                request.Method = "HEAD";
+            // Create a request using a URL that can receive a post. 
+            string requestUriString = baseurl + path;
+            log.Debug("Checking for update at: " + requestUriString);
+            var webRequest = WebRequest.Create(requestUriString);
+            webRequest.Timeout = 5000;
 
-                ((HttpWebRequest)request).IfModifiedSince = File.GetLastWriteTimeUtc(path);
+            // Set the Method property of the request to POST.
+            webRequest.Method = "HEAD";
 
-                // Get the response.
-                WebResponse response = request.GetResponse();
-                // Display the status.
-                Console.WriteLine(((HttpWebResponse)response).StatusDescription);
-                // Get the stream containing content returned by the server.
-                //dataStream = response.GetResponseStream();
-                // Open the stream using a StreamReader for easy access.
+            ((HttpWebRequest)webRequest).IfModifiedSince = File.GetLastWriteTimeUtc(path);
 
-                bool getfile = false;
+            // Get the response.
+            var response = webRequest.GetResponse();
+            // Display the status.
+            log.Debug("Response status: " + ((HttpWebResponse)response).StatusDescription);
+            // Get the stream containing content returned by the server.
+            //dataStream = response.GetResponseStream();
+            // Open the stream using a StreamReader for easy access.
 
-                if (File.Exists(path))
+            bool shouldGetFile = false;
+
+            if (File.Exists(path))
+            {
+                var fi = new FileInfo(path);
+
+                string CurrentEtag = "";
+
+                if (File.Exists(path + ".etag"))
                 {
-                    FileInfo fi = new FileInfo(path);
-
-                    Console.WriteLine(response.Headers[HttpResponseHeader.ETag]);
-
-                    if (fi.Length != response.ContentLength) // && response.Headers[HttpResponseHeader.ETag] != "0")
+                    using (Stream fs = File.OpenRead(path + ".etag"))
                     {
-                        StreamWriter sw = new StreamWriter(path + ".etag");
+                        using (StreamReader sr = new StreamReader(fs))
+                        {
+                            CurrentEtag = sr.ReadLine();
+                            sr.Close();
+                        }
+                        fs.Close();
+                    }
+                }
+
+                if (fi.Length != response.ContentLength && response.Headers[HttpResponseHeader.ETag] != CurrentEtag)
+                {
+                    log.Debug("New file Check: " + fi.Length + " vs " + response.ContentLength + " " + response.Headers[HttpResponseHeader.ETag] + " vs " + CurrentEtag);
+
+                    using (var sw = new StreamWriter(path + ".etag"))
+                    {
                         sw.WriteLine(response.Headers[HttpResponseHeader.ETag]);
                         sw.Close();
-                        getfile = true;
-                        Console.WriteLine("NEW FILE " + path);
                     }
+                    shouldGetFile = true;
+                    log.Info("Newer file found: " + path + " " + fi.Length + " vs " + response.ContentLength);
+                }
+            }
+            else
+            {
+                shouldGetFile = true;
+                log.Info("File does not exist: Getting " + path);
+                // get it
+            }
+
+            response.Close();
+
+            if (shouldGetFile)
+            {
+                var dr = MessageBox.Show("Update Found\n\nDo you wish to update now?", "Update Now", MessageBoxButtons.YesNo);
+                if (dr == DialogResult.Yes)
+                {
+                    DoUpdate();
                 }
                 else
                 {
-                    getfile = true;
-                    Console.WriteLine("NEW FILE " + path);
-                    // get it
+                    return;
                 }
-
-                response.Close();
-
-                if (getfile)
-                {
-                    DialogResult dr = MessageBox.Show("Update Found\n\nDo you wish to update now?", "Update Now", MessageBoxButtons.YesNo);
-                    if (dr == DialogResult.Yes)
-                    {
-                        doupdate();
-                    }
-                    else
-                    {
-                        return;
-                    }
-                }
-        }
-
-        public static void doupdate()
-        {
-            //System.Threading.Thread t12 = new System.Threading.Thread(delegate()
-            { 
-
-            Form loading = new Form();
-            loading.Width = 400;
-            loading.Height = 150;
-            loading.StartPosition = FormStartPosition.CenterScreen;
-            loading.TopMost = true;
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainV2));
-            loading.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-
-            Label loadinglabel = new Label();
-            loadinglabel.Location = new System.Drawing.Point(50, 40);
-            loadinglabel.Name = "load";
-            loadinglabel.AutoSize = true;
-            loadinglabel.Text = "Checking...";
-            loadinglabel.Size = new System.Drawing.Size(100, 20);
-
-            loading.Controls.Add(loadinglabel);
-            loading.Show();
-
-            try { MainV2.updatecheck(loadinglabel); } catch (Exception ex) { Console.WriteLine(ex.ToString()); } 
-            
             }
-            //); 
-            //t12.Name = "Update check thread";
-            //t12.Start();
-            //MainV2.threads.Add(t12);
         }
 
-        private static bool updatecheck(Label loadinglabel, string baseurl, string subdir)
+        public static void DoUpdate()
+        {
+            ProgressReporterDialogue frmProgressReporter = new ProgressReporterDialogue()
+            {
+                Text = "Check for Updates",
+                StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
+            };
+
+            ThemeManager.ApplyThemeTo(frmProgressReporter);
+
+            frmProgressReporter.DoWork += new Controls.ProgressReporterDialogue.DoWorkEventHandler(frmProgressReporter_DoWork);
+
+            frmProgressReporter.UpdateProgressAndStatus(-1, "Checking for Updates");
+
+            frmProgressReporter.RunBackgroundOperationAsync();
+        }
+
+        static void frmProgressReporter_DoWork(object sender, Controls.ProgressWorkerEventArgs e)
+        {
+            ((ProgressReporterDialogue)sender).UpdateProgressAndStatus(-1, "Getting Base URL");
+            MainV2.updatecheck((ProgressReporterDialogue)sender);
+        }
+
+        private static bool updatecheck(ProgressReporterDialogue frmProgressReporter, string baseurl, string subdir)
         {
             bool update = false;
             List<string> files = new List<string>();
 
             // Create a request using a URL that can receive a post. 
-            Console.WriteLine(baseurl);
+            log.Info(baseurl);
             WebRequest request = WebRequest.Create(baseurl);
             request.Timeout = 10000;
             // Set the Method property of the request to POST.
@@ -1751,7 +1644,7 @@ namespace ArdupilotMega
             // Get the response.
             WebResponse response = request.GetResponse();
             // Display the status.
-            Console.WriteLine(((HttpWebResponse)response).StatusDescription);
+            log.Info(((HttpWebResponse)response).StatusDescription);
             // Get the stream containing content returned by the server.
             dataStream = response.GetResponseStream();
             // Open the stream using a StreamReader for easy access.
@@ -1784,17 +1677,23 @@ namespace ArdupilotMega
                 Directory.CreateDirectory(dir);
             foreach (string file in files)
             {
+                if (frmProgressReporter.doWorkArgs.CancelRequested)
+                {
+                    frmProgressReporter.doWorkArgs.CancelAcknowledged = true;
+                    throw new Exception("Cancel");
+                }
+
                 if (file.Equals("/"))
                 {
                     continue;
                 }
                 if (file.EndsWith("/"))
                 {
-                    update = updatecheck(loadinglabel, baseurl + file, subdir.Replace("/", "\\") + file) && update;
+                    update = updatecheck(frmProgressReporter, baseurl + file, subdir.Replace('/', Path.DirectorySeparatorChar) + file) && update;
                     continue;
                 }
-                if (loadinglabel != null)
-                    updatelabel(loadinglabel, "Checking " + file);
+                if (frmProgressReporter != null)
+                    frmProgressReporter.UpdateProgressAndStatus(-1, "Checking " + file);
 
                 string path = Path.GetDirectoryName(Application.ExecutablePath) + Path.DirectorySeparatorChar + subdir + file;
 
@@ -1810,32 +1709,50 @@ namespace ArdupilotMega
                 // Get the response.
                 response = request.GetResponse();
                 // Display the status.
-                Console.WriteLine(((HttpWebResponse)response).StatusDescription);
+                log.Info(((HttpWebResponse)response).StatusDescription);
                 // Get the stream containing content returned by the server.
                 //dataStream = response.GetResponseStream();
                 // Open the stream using a StreamReader for easy access.
 
-                bool getfile = false;
+                bool updateThisFile = false;
 
                 if (File.Exists(path))
                 {
                     FileInfo fi = new FileInfo(path);
 
-                    Console.WriteLine(response.Headers[HttpResponseHeader.ETag]);
+                    //log.Info(response.Headers[HttpResponseHeader.ETag]);
+                    string CurrentEtag = "";
 
-                    if (fi.Length != response.ContentLength) // && response.Headers[HttpResponseHeader.ETag] != "0")
+                    if (File.Exists(path + ".etag"))
                     {
-                        StreamWriter sw = new StreamWriter(path + ".etag");
-                        sw.WriteLine(response.Headers[HttpResponseHeader.ETag]);
-                        sw.Close();
-                        getfile = true;
-                        Console.WriteLine("NEW FILE " + file);
+                        using (Stream fs = File.OpenRead(path + ".etag"))
+                        {
+                            using (StreamReader sr = new StreamReader(fs))
+                            {
+                                CurrentEtag = sr.ReadLine();
+                                sr.Close();
+                            }
+                            fs.Close();
+                        }
+                    }
+
+                    if (fi.Length != response.ContentLength && response.Headers[HttpResponseHeader.ETag] != CurrentEtag)
+                    {
+                        log.Debug("New file Check: " + fi.Length + " vs " + response.ContentLength + " " + response.Headers[HttpResponseHeader.ETag] + " vs " + CurrentEtag);
+
+                        using (StreamWriter sw = new StreamWriter(path + ".etag"))
+                        {
+                            sw.WriteLine(response.Headers[HttpResponseHeader.ETag]);
+                            sw.Close();
+                        }
+                        updateThisFile = true;
+                        log.Info("NEW FILE " + file);
                     }
                 }
                 else
                 {
-                    getfile = true;
-                    Console.WriteLine("NEW FILE " + file);
+                    updateThisFile = true;
+                    log.Info("NEW FILE " + file);
                     // get it
                 }
 
@@ -1843,7 +1760,7 @@ namespace ArdupilotMega
                 //dataStream.Close();
                 response.Close();
 
-                if (getfile)
+                if (updateThisFile)
                 {
                     if (!update)
                     {
@@ -1857,23 +1774,28 @@ namespace ArdupilotMega
                             //    return;
                         }
                     }
-                    if (loadinglabel != null)
-                        updatelabel(loadinglabel, "Getting " + file);
+                    if (frmProgressReporter != null)
+                        frmProgressReporter.UpdateProgressAndStatus(-1, "Getting " + file);
 
                     // from head
                     long bytes = response.ContentLength;
 
                     // Create a request using a URL that can receive a post. 
-                    request = WebRequest.Create(baseurl + file);
+                    request = HttpWebRequest.Create(baseurl + file);
                     // Set the Method property of the request to POST.
                     request.Method = "GET";
+
+                    ((HttpWebRequest)request).AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+
+                    request.Headers.Add("Accept-Encoding", "gzip,deflate"); 
+
                     // Get the response.
                     response = request.GetResponse();
                     // Display the status.
-                    Console.WriteLine(((HttpWebResponse)response).StatusDescription);
+                    log.Info(((HttpWebResponse)response).StatusDescription);
                     // Get the stream containing content returned by the server.
                     dataStream = response.GetResponseStream();
-                    
+
                     long contlen = bytes;
 
                     byte[] buf1 = new byte[1024];
@@ -1886,18 +1808,17 @@ namespace ArdupilotMega
 
                     while (dataStream.CanRead)
                     {
-                        Application.DoEvents();
                         try
                         {
                             if (dt.Second != DateTime.Now.Second)
                             {
-                                if (loadinglabel != null)
-                                    updatelabel(loadinglabel, "Getting " + file + ": " + (((double)(contlen - bytes) / (double)contlen) * 100).ToString("0.0") + "%"); //+ Math.Abs(bytes) + " bytes");
+                                if (frmProgressReporter != null)
+                                    frmProgressReporter.UpdateProgressAndStatus((int)(((double)(contlen - bytes) / (double)contlen) * 100), "Getting " + file + ": " + (((double)(contlen - bytes) / (double)contlen) * 100).ToString("0.0") + "%"); //+ Math.Abs(bytes) + " bytes");
                                 dt = DateTime.Now;
                             }
                         }
                         catch { }
-                        Console.WriteLine(file + " " + bytes);
+                        log.Info(file + " " + bytes);
                         int len = dataStream.Read(buf1, 0, 1024);
                         if (len == 0)
                             break;
@@ -1920,17 +1841,12 @@ namespace ArdupilotMega
 
         }
 
-        private void toolStripMenuItem3_Click(object sender, EventArgs e)
-        {
-
-        }
-
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             if (keyData == (Keys.Control | Keys.F))
             {
                 Form frm = new temp();
-                fixtheme(frm);
+                ThemeManager.ApplyThemeTo(frm);
                 frm.Show();
                 return true;
             }
@@ -1942,7 +1858,14 @@ namespace ArdupilotMega
             if (keyData == (Keys.Control | Keys.G)) // test
             {
                 Form frm = new SerialOutput();
-                fixtheme(frm);
+                ThemeManager.ApplyThemeTo(frm);
+                frm.Show();
+                return true;
+            }
+            if (keyData == (Keys.Control | Keys.A)) // test
+            {
+                Form frm = new _3DRradio();
+                ThemeManager.ApplyThemeTo(frm);
                 frm.Show();
                 return true;
             }
@@ -1997,48 +1920,10 @@ namespace ArdupilotMega
                     {
                         ComponentResourceManager rm = new ComponentResourceManager(view.GetType());
                         foreach (Control ctrl in view.Controls)
-                            applyresource(rm, ctrl);
+                            rm.ApplyResource(ctrl);
                         rm.ApplyResources(view, "$this");
                     }
                 }
-            }
-        }
-
-        private void applyresource(ComponentResourceManager rm, Control ctrl)
-        {
-            rm.ApplyResources(ctrl, ctrl.Name);
-            foreach (Control subctrl in ctrl.Controls)
-                applyresource(rm, subctrl);
-
-            if (ctrl.ContextMenu != null)
-                applyresource(rm, ctrl.ContextMenu);
-
-
-            if (ctrl is DataGridView)
-            {
-                foreach (DataGridViewColumn col in (ctrl as DataGridView).Columns)
-                    rm.ApplyResources(col, col.Name);
-            }
-
-
-        }
-
-        private void applyresource(ComponentResourceManager rm, Menu menu)
-        {
-            rm.ApplyResources(menu, menu.Name);
-            foreach (MenuItem submenu in menu.MenuItems)
-                applyresource(rm, submenu);
-        }
-
-        public static CultureInfo getcultureinfo(string name)
-        {
-            try
-            {
-                return new CultureInfo(name);
-            }
-            catch (Exception)
-            {
-                return null;
             }
         }
 
@@ -2130,6 +2015,11 @@ namespace ArdupilotMega
                     comPort.BaseStream.BaudRate = baud;
             }
             catch (Exception) { }
+        }
+
+        private void CMB_serialport_Enter(object sender, EventArgs e)
+        {
+            CMB_serialport_Click(sender, e);
         }
     }
 }

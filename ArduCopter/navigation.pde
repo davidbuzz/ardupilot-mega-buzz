@@ -55,7 +55,7 @@ static void calc_XY_velocity(){
 
 	// straightforward approach:
 	///*
-	x_actual_speed	= x_speed_old + (float)(g_gps->longitude - last_longitude) * tmp;
+	x_actual_speed = x_speed_old + (float)(g_gps->longitude - last_longitude)  * scaleLongDown * tmp;
 	y_actual_speed	= y_speed_old + (float)(g_gps->latitude  - last_latitude)  * tmp;
 
 	x_actual_speed = x_actual_speed >> 1;
@@ -66,7 +66,7 @@ static void calc_XY_velocity(){
 
 	/*
 	// Ryan Beall's forward estimator:
-	int16_t	x_speed_new = (float)(g_gps->longitude - last_longitude) * tmp;
+	int16_t	x_speed_new = (float)(g_gps->longitude - last_longitude) * scaleLongDown* tmp;
 	int16_t	y_speed_new = (float)(g_gps->latitude  - last_latitude)  * tmp;
 
 	x_actual_speed 	= x_speed_new + (x_speed_new - x_speed_old);
@@ -101,29 +101,50 @@ static void calc_location_error(struct Location *next_loc)
 #define NAV_ERR_MAX 600
 static void calc_loiter(int x_error, int y_error)
 {
-	// East/West
-	int16_t x_target_speed 	= g.pi_loiter_lon.get_p(x_error);
-	x_target_speed			= constrain(x_error, -250, 250);
+	#if LOITER_RATE == 1
+	int16_t x_target_speed, y_target_speed;
+	int16_t x_iterm, y_iterm;
+
+	// East / West
+	x_target_speed 	= g.pi_loiter_lon.get_p(x_error);			// not contstrained yet
+	//x_target_speed	= constrain(x_target_speed, -250, 250);		// limit to 2.5m/s travel speed
+	x_rate_error 	= x_target_speed - x_actual_speed;			// calc the speed error
+	nav_lon			= g.pid_loiter_rate_lon.get_pid(x_rate_error, dTnav);
+	nav_lon			= constrain(nav_lon, -3000, 3000); 			// 30°
+
+	// North / South
+	y_target_speed 	= g.pi_loiter_lat.get_p(y_error);
+	//y_target_speed	= constrain(y_target_speed, -250, 250);
+	y_rate_error 	= y_target_speed - y_actual_speed;
+	nav_lat			= g.pid_loiter_rate_lat.get_pid(y_rate_error, dTnav);
+	nav_lat			= constrain(nav_lat, -3000, 3000); // 30°
+
+	// copy over I term to Nav_Rate
+	g.pid_nav_lon.set_integrator(g.pid_loiter_rate_lon.get_integrator());
+	g.pid_nav_lat.set_integrator(g.pid_loiter_rate_lat.get_integrator());
+
+	#else
+
+	// no rate control on Loiter
+	nav_lon			= g.pid_loiter_rate_lon.get_pid(x_error, dTnav);
+	nav_lat			= g.pid_loiter_rate_lat.get_pid(y_error, dTnav);
+
+	nav_lon			= constrain(nav_lon, -3000, 3000); 			// 30°
+	nav_lat			= constrain(nav_lat, -3000, 3000); // 30°
+
+	#endif
+
+
+	// Wind I term based on location error,
 	// limit windup
-	x_error 				= constrain(x_error, -NAV_ERR_MAX, NAV_ERR_MAX);
-	int16_t x_iterm 		= g.pi_loiter_lon.get_i(x_error, dTnav);
-	x_rate_error 			= x_target_speed - x_actual_speed;
-
-	// North/South
-	int16_t y_target_speed 	= g.pi_loiter_lat.get_p(y_error);
-	y_target_speed			= constrain(y_error, -250, 250);
-	// limit windup
-	y_error 				= constrain(y_error, -NAV_ERR_MAX, NAV_ERR_MAX);
-	int16_t y_iterm 		= g.pi_loiter_lat.get_i(y_error, dTnav);
-	y_rate_error 			= y_target_speed - y_actual_speed;
-
-	calc_nav_lon(x_rate_error);
-	calc_nav_lat(y_rate_error);
-
-	nav_lat					= nav_lat + y_iterm;
-	nav_lon					= nav_lon + x_iterm;
-
-
+	/*
+	x_error 		= constrain(x_error, -NAV_ERR_MAX, NAV_ERR_MAX);
+	y_error 		= constrain(y_error, -NAV_ERR_MAX, NAV_ERR_MAX);
+	x_iterm 		= g.pi_loiter_lon.get_i(x_error, dTnav);
+	y_iterm 		= g.pi_loiter_lat.get_i(y_error, dTnav);
+	nav_lat			= nav_lat + y_iterm;
+	nav_lon			= nav_lon + x_iterm;
+	*/
 
 	/*
 	int8_t ttt = 1.0/dTnav;
@@ -166,21 +187,31 @@ static void calc_nav_rate(int max_speed)
 	update_crosstrack();
 
 	// nav_bearing includes crosstrack
-	float temp 			= (9000l - nav_bearing) * RADX100;
+	float temp 		= (9000l - nav_bearing) * RADX100;
 
-	x_rate_error 		= (cos(temp) * max_speed) - x_actual_speed; // 413
-	x_rate_error 		= constrain(x_rate_error, -1000, 1000);
-	int16_t x_iterm 	= g.pi_loiter_lon.get_i(x_rate_error, dTnav);
+	// East / West
+	x_rate_error 	= (cos(temp) * max_speed) - x_actual_speed; // 413
+	x_rate_error 	= constrain(x_rate_error, -1000, 1000);
+	nav_lon			= g.pid_nav_lon.get_pid(x_rate_error, dTnav);
+	nav_lon			= constrain(nav_lon, -3000, 3000);
 
-	y_rate_error 		= (sin(temp) * max_speed) - y_actual_speed; // 413
-	y_rate_error 		= constrain(y_rate_error, -1000, 1000);	// added a rate error limit to keep pitching down to a minimum
-	int16_t y_iterm 	= g.pi_loiter_lat.get_i(y_rate_error, dTnav);
+	// North / South
+	y_rate_error 	= (sin(temp) * max_speed) - y_actual_speed; // 413
+	y_rate_error 	= constrain(y_rate_error, -1000, 1000);	// added a rate error limit to keep pitching down to a minimum
+	nav_lat			= g.pid_nav_lat.get_pid(y_rate_error, dTnav);
+	nav_lat			= constrain(nav_lat, -3000, 3000);
 
-	calc_nav_lon(x_rate_error);
-	calc_nav_lat(y_rate_error);
+	// copy over I term to Loiter_Rate
+	g.pid_loiter_rate_lon.set_integrator(g.pid_nav_lon.get_integrator());
+	g.pid_loiter_rate_lat.set_integrator(g.pid_nav_lat.get_integrator());
 
-	nav_lon				= nav_lon + x_iterm;
-	nav_lat				= nav_lat + y_iterm;
+	//int16_t x_iterm 	= g.pi_loiter_lon.get_i(x_rate_error, dTnav);
+	//int16_t y_iterm 	= g.pi_loiter_lat.get_i(y_rate_error, dTnav);
+
+	//nav_lon				= nav_lon + x_iterm;
+	//nav_lat				= nav_lat + y_iterm;
+
+
 
 	/*
 	Serial.printf("max_sp %d,\t x_sp %d, y_sp %d,\t x_re: %d, y_re: %d, \tnav_lon: %d, nav_lat: %d, Xi:%d, Yi:%d, \t XE %d \n",
@@ -209,19 +240,18 @@ static void calc_nav_rate(int max_speed)
 }
 
 
-static void calc_nav_lon(int rate)
+/*static void calc_nav_lon(int rate)
 {
 	nav_lon		= g.pid_nav_lon.get_pid(rate, dTnav);
-	//nav_lon		= get_corrected_angle(rate, nav_lon);
 	nav_lon		= constrain(nav_lon, -3000, 3000);
 }
 
 static void calc_nav_lat(int rate)
 {
 	nav_lat		= g.pid_nav_lat.get_pid(rate, dTnav);
-	//nav_lat		= get_corrected_angle(rate, nav_lat);
 	nav_lat		= constrain(nav_lat, -3000, 3000);
 }
+*/
 
 //static int16_t get_corrected_angle(int16_t desired_rate, int16_t rate_out)
 /*{
@@ -252,14 +282,14 @@ static void calc_loiter_pitch_roll()
 {
 	//Serial.printf("ys %ld, cx %1.4f, _cx %1.4f | sy %1.4f, _sy %1.4f\n", dcm.yaw_sensor, cos_yaw_x, _cos_yaw_x, sin_yaw_y, _sin_yaw_y);
 	// rotate the vector
-	nav_roll 	= (float)nav_lon * sin_yaw_y - (float)nav_lat * cos_yaw_x;
-	nav_pitch 	= (float)nav_lon * cos_yaw_x + (float)nav_lat * sin_yaw_y;
+	auto_roll 	= (float)nav_lon * sin_yaw_y - (float)nav_lat * cos_yaw_x;
+	auto_pitch 	= (float)nav_lon * cos_yaw_x + (float)nav_lat * sin_yaw_y;
 
 	// flip pitch because forward is negative
-	nav_pitch = -nav_pitch;
+	auto_pitch = -auto_pitch;
 }
 
-static int16_t calc_desired_speed(int16_t max_speed)
+static int16_t calc_desired_speed(int16_t max_speed, bool _slow)
 {
 	/*
 	|< WP Radius
@@ -271,14 +301,13 @@ static int16_t calc_desired_speed(int16_t max_speed)
 	*/
 
 	// max_speed is default 600 or 6m/s
-	// (wp_distance * .5) = 1/2 of the distance converted to speed
-	// wp_distance is always in m/s and not cm/s - I know it's stupid that way
-	// for example 4m from target = 200cm/s speed
-	// we choose the lowest speed based on disance
-	max_speed 		= min(max_speed, wp_distance);
-
-	// go at least 100cm/s
-	max_speed 		= max(max_speed, WAYPOINT_SPEED_MIN);
+	if(_slow){
+		max_speed 		= min(max_speed, wp_distance / 2);
+		max_speed 		= max(max_speed, 0);
+	}else{
+		max_speed 		= min(max_speed, wp_distance);
+		max_speed 		= max(max_speed, WAYPOINT_SPEED_MIN);	// go at least 100cm/s
+	}
 
 	// limit the ramp up of the speed
 	// waypoint_speed_gov is reset to 0 at each new WP command
@@ -320,6 +349,13 @@ static void clear_new_altitude()
 
 static void set_new_altitude(int32_t _new_alt)
 {
+	if(_new_alt == current_loc.alt){
+		next_WP.alt 	= _new_alt;
+		target_altitude = _new_alt;
+		alt_change_flag = REACHED_ALT;
+		return;
+	}
+
 	// just to be clear
 	next_WP.alt = current_loc.alt;
 

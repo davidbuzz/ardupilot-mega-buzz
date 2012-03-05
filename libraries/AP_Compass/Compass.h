@@ -33,14 +33,14 @@
 class Compass
 {
 public:
-	int				product_id;     /// product id
-	int             mag_x;          ///< magnetic field strength along the X axis
-	int             mag_y;          ///< magnetic field strength along the Y axis
-	int             mag_z;          ///< magnetic field strength along the Z axis
+	int16_t			product_id;     /// product id
+	int16_t         mag_x;          ///< magnetic field strength along the X axis
+	int16_t         mag_y;          ///< magnetic field strength along the Y axis
+	int16_t         mag_z;          ///< magnetic field strength along the Z axis
 	float           heading;        ///< compass heading in radians
 	float           heading_x;      ///< compass vector X magnitude
 	float           heading_y;      ///< compass vector Y magnitude
-	unsigned long   last_update;    ///< millis() time of last update
+	uint32_t        last_update;    ///< millis() time of last update
 	bool			healthy;        ///< true if last read OK
 
 	/// Constructor
@@ -124,6 +124,8 @@ public:
 	///
 	void null_offsets_disable(void);
 
+    /// return true if the compass should be used for yaw calculations
+    bool use_for_yaw(void) { return healthy && _use_for_yaw; }
 
 	/// Sets the local magnetic field declination.
 	///
@@ -138,6 +140,8 @@ protected:
 	AP_Matrix3f         _orientation_matrix;
 	AP_Vector3f         _offset;
 	AP_Float            _declination;
+    AP_Int8             _learn;                 ///<enable calibration learning
+    AP_Int8             _use_for_yaw;           ///<enable use for yaw calculation
 
 	bool                _null_enable;        	///< enabled flag for offset nulling
 	bool                _null_init_done;        ///< first-time-around flag used by offset nulling
