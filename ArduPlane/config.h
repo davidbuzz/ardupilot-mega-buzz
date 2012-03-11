@@ -36,6 +36,10 @@
 #define ENABLED			1
 #define DISABLED		0
 
+// this avoids a very common config error
+#define ENABLE ENABLED
+#define DISABLE DISABLED
+
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 // HARDWARE CONFIGURATION AND CONNECTIONS
@@ -844,4 +848,9 @@
 // fence breach)
 #ifndef RESET_SWITCH_CHAN_PWM
 # define RESET_SWITCH_CHAN_PWM 1750
+#endif
+
+// experimental quaternion code
+#ifndef QUATERNION_ENABLE
+# define QUATERNION_ENABLE DISABLED
 #endif

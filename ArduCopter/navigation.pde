@@ -103,7 +103,7 @@ static void calc_loiter(int x_error, int y_error)
 {
 	#if LOITER_RATE == 1
 	int16_t x_target_speed, y_target_speed;
-	int16_t x_iterm, y_iterm;
+	//int16_t x_iterm, y_iterm;
 
 	// East / West
 	x_target_speed 	= g.pi_loiter_lon.get_p(x_error);			// not contstrained yet
@@ -347,16 +347,21 @@ static void clear_new_altitude()
 	alt_change_flag = REACHED_ALT;
 }
 
+static void force_new_altitude(int32_t _new_alt)
+{
+	next_WP.alt 	= _new_alt;
+	target_altitude = _new_alt;
+	alt_change_flag = REACHED_ALT;
+}
+
 static void set_new_altitude(int32_t _new_alt)
 {
 	if(_new_alt == current_loc.alt){
-		next_WP.alt 	= _new_alt;
-		target_altitude = _new_alt;
-		alt_change_flag = REACHED_ALT;
+		force_new_altitude(_new_alt);
 		return;
 	}
 
-	// just to be clear
+	// We start at the current location altitude and gradually change alt
 	next_WP.alt = current_loc.alt;
 
 	// for calculating the delta time
@@ -419,14 +424,16 @@ static int32_t get_new_altitude()
 	}
 
 	int32_t diff 	= abs(next_WP.alt - target_altitude);
+	// scale is how we generate a desired rate from the elapsed time
+	// a smaller scale means faster rates
 	int8_t			_scale 	= 4;
 
 	if (next_WP.alt < target_altitude){
 		// we are below the target alt
 		if(diff < 200){
-			_scale = 5;
-		} else {
 			_scale = 4;
+		} else {
+			_scale = 3;
 		}
 	}else {
 		// we are above the target, going down

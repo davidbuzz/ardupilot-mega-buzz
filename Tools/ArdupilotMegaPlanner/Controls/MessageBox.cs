@@ -94,7 +94,12 @@ namespace System.Windows.Forms
 
             AddButtonsToForm(msgBoxFrm, buttons);
 
-            ThemeManager.ApplyThemeTo(msgBoxFrm);
+            // display even if theme fails
+            try
+            {
+                ThemeManager.ApplyThemeTo(msgBoxFrm);
+            }
+            catch { }
 
             if (System.Windows.Forms.Application.OpenForms.Count > 0)
             {
