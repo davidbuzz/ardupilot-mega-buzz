@@ -28,3 +28,4 @@ mav.log
 mav.log.raw
 status.txt
 *.parm
+/tmp/
