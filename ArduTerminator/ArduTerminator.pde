@@ -34,6 +34,7 @@ version 2.1 of the License, or (at your option) any later version.
 // Header includes
 ////////////////////////////////////////////////////////////////////////////////
 
+
 // AVR runtime
 #include <avr/io.h>
 #include <avr/eeprom.h>
@@ -52,12 +53,12 @@ version 2.1 of the License, or (at your option) any later version.
 #include <DataFlash.h>      // ArduPilot Mega Flash Memory Library
 #include <AP_ADC.h>         // ArduPilot Mega Analog to Digital Converter Library
 //#include <APM_BMP085.h>     // ArduPilot Mega BMP085 Library
-#include <AP_Baro.h>        // ArduPilot barometer library
-#include <AP_Compass.h>     // ArduPilot Mega Magnetometer Library
+//#include <AP_Baro.h>        // ArduPilot barometer library
+//#include <AP_Compass.h>     // ArduPilot Mega Magnetometer Library
 #include <AP_Math.h>        // ArduPilot Mega Vector/Matrix math Library
 #include <AP_IMU.h>         // ArduPilot Mega IMU Library
 #include <AP_DCM.h>         // ArduPilot Mega DCM Library
-#include <AP_Baro.h>        // ArduPilot barometer library
+//#include <AP_Baro.h>        // ArduPilot barometer library
 
 #include <PID.h>            // PID library
 #include <RC_Channel.h>     // RC Channel Library
@@ -136,9 +137,9 @@ static AP_Int8		*flight_modes = &g.flight_mode1;
 
 // real sensors
 static AP_ADC_ADS7844          adc;
-static AP_Baro_BMP085          barometer(false);
+//static AP_Baro_BMP085          barometer(false);
 //static APM_BMP085_Class        barometer;
-static AP_Compass_HMC5843      compass(Parameters::k_param_compass);
+//static AP_Compass_HMC5843      compass(Parameters::k_param_compass);
 
 #if GPS_PROTOCOL == GPS_PROTOCOL_MTK16
 AP_GPS_MTK16    g_gps_driver(&Serial1);
@@ -573,9 +574,9 @@ static void slow_loop()
 			superslow_loopCounter++;
 			if(superslow_loopCounter >=200) {				//	200 = Execute every minute
 				#if HIL_MODE != HIL_MODE_ATTITUDE
-					if(g.compass_enabled) {
-						compass.save_offsets();
-					}
+					//if(g.compass_enabled) {
+					//	compass.save_offsets();
+					//}
 				#endif
 
 				superslow_loopCounter = 0;
