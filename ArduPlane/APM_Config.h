@@ -43,3 +43,8 @@
 
 //#define EXTRA_GPS  ENABLED
 #define EXTRA_GPS_DEBUG 1
+
+// Enabling this will use the GPS lat/long coordinate to get the compass declination
+//#define AUTOMATIC_DECLINATION ENABLED
+
+

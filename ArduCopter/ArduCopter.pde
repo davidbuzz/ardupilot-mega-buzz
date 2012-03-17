@@ -1,11 +1,11 @@
 /// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
-#define THISFIRMWARE "ArduCopter V2.4.2"
+#define THISFIRMWARE "ArduCopter V2.5"
 /*
-ArduCopter Version 2.4
-Authors:	Jason Short
-Based on code and ideas from the Arducopter team: Randy Mackay, Pat Hickey, Jose Julio, Jani Hirvinen
-Thanks to:	Chris Anderson, Mike Smith, Jordi Munoz, Doug Weibel, James Goppert, Benjamin Pelletier
+ArduCopter Version 2.5
+Lead author:	Jason Short
+Based on code and ideas from the Arducopter team: Randy Mackay, Pat Hickey, Jose Julio, Jani Hirvinen, Andrew Tridgell, Justin Beech, Adam Rivera, Jean-Louis Naudin, Roberto Navoni
+Thanks to:	Chris Anderson, Mike Smith, Jordi Munoz, Doug Weibel, James Goppert, Benjamin Pelletier, Robert Lefebvre, Marco Robustini
 
 This firmware is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -35,6 +35,7 @@ Jean-Louis Naudin 	:Auto Landing
 Sandro Benigno  	:Camera support
 Olivier Adler 		:PPM Encoder
 John Arne Birkeland	:PPM Encoder
+Adam M Rivera		:Auto Compass Declination
 
 And much more so PLEASE PM me on DIYDRONES to add your contribution to the List
 
@@ -94,6 +95,11 @@ http://code.google.com/p/ardupilot-mega/downloads/list
 // Local modules
 #include "Parameters.h"
 #include "GCS.h"
+
+#if AUTOMATIC_DECLINATION == ENABLED
+// this is in an #if to avoid the static data
+#include <AP_Declination.h> // ArduPilot Mega Declination Helper Library
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // Serial ports
@@ -238,7 +244,6 @@ static GPS         *g_gps_null;
 #endif
 
 AP_TimerProcess timer_scheduler;
-
 #elif HIL_MODE == HIL_MODE_SENSORS
 	// sensor emulators
 	AP_ADC_HIL              adc;
@@ -335,6 +340,9 @@ static const char* flight_mode_strings[] = {
 // updated after GPS read - 5-10hz
 static int16_t x_actual_speed;
 static int16_t y_actual_speed;
+
+static int16_t x_rate_d;
+static int16_t y_rate_d;
 
 // The difference between the desired rate of travel and the actual rate of travel
 // updated after GPS read - 5-10hz
@@ -517,6 +525,9 @@ int32_t pitch_axis;
 // Filters
 AverageFilterInt32_Size3 roll_rate_d_filter;	// filtered acceleration
 AverageFilterInt32_Size3 pitch_rate_d_filter;	// filtered pitch acceleration
+
+AverageFilterInt16_Size2 lat_rate_d_filter;		// for filtering D term
+AverageFilterInt16_Size2 lon_rate_d_filter;		// for filtering D term
 
 // Barometer filter
 AverageFilterInt32_Size5 baro_filter;	// filtered pitch acceleration
@@ -1150,10 +1161,10 @@ static void fifty_hz_loop()
 	camera_stabilization();
 
 	# if HIL_MODE == HIL_MODE_DISABLED
-		if (g.log_bitmask & MASK_LOG_ATTITUDE_FAST)
+		if (g.log_bitmask & MASK_LOG_ATTITUDE_FAST && motor_armed)
 			Log_Write_Attitude();
 
-		if (g.log_bitmask & MASK_LOG_RAW)
+		if (g.log_bitmask & MASK_LOG_RAW && motor_armed)
 			Log_Write_Raw();
 	#endif
 
@@ -1374,6 +1385,12 @@ static void update_GPS(void)
 				ground_start_count = 5;
 
 			}else{
+#if AUTOMATIC_DECLINATION == ENABLED
+				if(g.compass_enabled) {
+					// Set compass declination automatically
+					compass.set_initial_location(g_gps->latitude, g_gps->longitude, false);
+				}
+#endif
 				// save home to eeprom (we must have a good fix to have reached this point)
 				init_home();
 				ground_start_count = 0;
@@ -1391,7 +1408,6 @@ static void update_GPS(void)
 			//update_altitude();
 			alt_sensor_flag = true;
 		#endif
-
 	}
 }
 
@@ -1683,8 +1699,8 @@ void update_throttle_mode(void)
 				}
 
 				// hack to remove the influence of the ground effect
-				if(current_loc.alt < 200 && landing_boost != 0) {
-				  nav_throttle = min(nav_throttle, 0);
+				if(g.sonar_enabled && current_loc.alt < 100 && landing_boost != 0) {
+					nav_throttle = min(nav_throttle, 0);
 				}
 
 				#if FRAME_CONFIG == HELI_FRAME
@@ -1908,6 +1924,7 @@ static void update_altitude()
 		// calc the vertical accel rate
 		int temp			= (baro_alt - old_baro_alt) * 10;
 		baro_rate 			= (temp + baro_rate) >> 1;
+		baro_rate			= constrain(baro_rate, -300, 300);
 		old_baro_alt		= baro_alt;
 
 		// Note: sonar_alt is calculated in a faster loop and filtered with a mode filter
@@ -1926,6 +1943,7 @@ static void update_altitude()
 			// calc the vertical accel rate
 			// positive = going up.
 			sonar_rate 		= (sonar_alt - old_sonar_alt) * 10;
+			sonar_rate		= constrain(sonar_rate, -150, 150);
 			old_sonar_alt 	= sonar_alt;
 		#endif
 
@@ -1937,9 +1955,8 @@ static void update_altitude()
 				sonar_alt = (float)sonar_alt * temp;
 			#endif
 
-			scale = (sonar_alt - 400) / 200;
-			scale = constrain(scale, 0, 1);
-
+			scale = (float)(sonar_alt - 400) / 200.0;
+			scale = constrain(scale, 0.0, 1.0);
 			// solve for a blended altitude
 			current_loc.alt = ((float)sonar_alt * (1.0 - scale)) + ((float)baro_alt * scale) + home.alt;
 
@@ -2192,8 +2209,8 @@ static void update_nav_wp()
 		// or change Loiter position
 
 		// We bring copy over our Iterms for wind control, but we don't navigate
-		nav_lon	= g.pi_loiter_lon.get_integrator();
-		nav_lat = g.pi_loiter_lat.get_integrator();
+		nav_lon	= g.pid_loiter_rate_lon.get_integrator();
+		nav_lat = g.pid_loiter_rate_lon.get_integrator();
 
 		// rotate pitch and roll to the copter frame of reference
 		calc_loiter_pitch_roll();

@@ -107,7 +107,7 @@
 
 // default RC speed in Hz if INSTANT_PWM is not used
 #ifndef RC_FAST_SPEED
-# define RC_FAST_SPEED 400
+# define RC_FAST_SPEED 490
 #endif
 
 // LED and IO Pins
@@ -425,6 +425,10 @@
 # define GROUND_START_DELAY		3
 #endif
 
+#ifndef AUTOMATIC_DECLINATION
+	#define AUTOMATIC_DECLINATION DISABLED
+#endif
+
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -660,7 +664,7 @@
 // Loiter control gains
 //
 #ifndef LOITER_P
-# define LOITER_P			.4
+# define LOITER_P			.7
 #endif
 #ifndef LOITER_I
 # define LOITER_I			0.0
@@ -672,18 +676,14 @@
 //////////////////////////////////////////////////////////////////////////////
 // Loiter Navigation control gains
 //
-#ifndef LOITER_RATE
-# define LOITER_RATE		1
-#endif
-
 #ifndef LOITER_RATE_P
-# define LOITER_RATE_P		2.6			//
+# define LOITER_RATE_P		2.0			//
 #endif
 #ifndef LOITER_RATE_I
-# define LOITER_RATE_I		0.25		// Wind control
+# define LOITER_RATE_I		0.30		// Wind control
 #endif
 #ifndef LOITER_RATE_D
-# define LOITER_RATE_D		0.0			// try 2 or 3 for LOITER_RATE 1
+# define LOITER_RATE_D		0			// try 2 or 3 for LOITER_RATE 1
 #endif
 #ifndef LOITER_RATE_IMAX
 # define LOITER_RATE_IMAX	30			// degrees
@@ -696,7 +696,7 @@
 # define NAV_P				3.0			//
 #endif
 #ifndef NAV_I
-# define NAV_I				0.25		// Wind control
+# define NAV_I				0.20		// Wind control
 #endif
 #ifndef NAV_D
 # define NAV_D				0.00		//

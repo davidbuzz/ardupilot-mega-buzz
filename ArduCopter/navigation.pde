@@ -55,11 +55,15 @@ static void calc_XY_velocity(){
 
 	// straightforward approach:
 	///*
-	x_actual_speed = x_speed_old + (float)(g_gps->longitude - last_longitude)  * scaleLongDown * tmp;
-	y_actual_speed	= y_speed_old + (float)(g_gps->latitude  - last_latitude)  * tmp;
 
-	x_actual_speed = x_actual_speed >> 1;
-	y_actual_speed = y_actual_speed >> 1;
+	x_actual_speed 	= (float)(g_gps->longitude - last_longitude)  * scaleLongDown * tmp;
+	y_actual_speed	= (float)(g_gps->latitude  - last_latitude)  * tmp;
+
+	x_actual_speed	= (x_actual_speed + x_speed_old * 3) / 4;
+	y_actual_speed	= (y_actual_speed + y_speed_old * 3) / 4;
+
+	//x_actual_speed	= x_actual_speed >> 1;
+	//y_actual_speed	= y_actual_speed >> 1;
 
 	x_speed_old 	= x_actual_speed;
 	y_speed_old 	= y_actual_speed;
@@ -82,6 +86,12 @@ static void calc_XY_velocity(){
 
 static void calc_location_error(struct Location *next_loc)
 {
+	static int16_t last_lon_error = 0;
+	static int16_t last_lat_error  = 0;
+
+	static int16_t last_lon_d = 0;
+	static int16_t last_lat_d = 0;
+
 	/*
 	Becuase we are using lat and lon to do our distance errors here's a quick chart:
 	100 	= 1m
@@ -96,44 +106,70 @@ static void calc_location_error(struct Location *next_loc)
 
 	// Y Error
 	lat_error	= next_loc->lat - current_loc.lat;							// 500 - 0 = 500 Go North
+
+	int16_t tmp;
+
+	// -------------------------------------
+	tmp	= (long_error - last_lon_error);
+	if(abs(abs(tmp) -last_lon_d) > 20){
+		tmp = x_rate_d;
+	}/*
+	if(long_error > 0){
+		if(tmp < 0) tmp = 0;
+	}else{
+		if(tmp > 0) tmp = 0;
+	}*/
+	x_rate_d	= lon_rate_d_filter.apply(tmp);
+	x_rate_d	= constrain(x_rate_d, -800, 800);
+	last_lon_d 	= abs(tmp);
+
+	// -------------------------------------
+	tmp	= (lat_error - last_lat_error);
+	if(abs(abs(tmp) -last_lat_d) > 20)
+		tmp = y_rate_d;
+	/*if(lat_error > 0){
+		if(tmp < 0) tmp = 0;
+	}else{
+		if(tmp > 0) tmp = 0;
+	}*/
+	y_rate_d	= lat_rate_d_filter.apply(tmp);
+	y_rate_d	= constrain(y_rate_d, -800, 800);
+	last_lat_d 	= abs(tmp);
+
+	// debug
+	//int16_t t22 = x_rate_d * (g.pid_loiter_rate_lon.kD() / dTnav);
+	//if(control_mode	== LOITER)
+	//	Serial.printf("XX, %d, %d, %d \n", long_error, t22, (int16_t)g.pid_loiter_rate_lon.get_integrator());
+
+	last_lon_error 	= long_error;
+	last_lat_error 	= lat_error;
 }
 
 #define NAV_ERR_MAX 600
 static void calc_loiter(int x_error, int y_error)
 {
-	#if LOITER_RATE == 1
 	int16_t x_target_speed, y_target_speed;
 	//int16_t x_iterm, y_iterm;
 
 	// East / West
 	x_target_speed 	= g.pi_loiter_lon.get_p(x_error);			// not contstrained yet
-	//x_target_speed	= constrain(x_target_speed, -250, 250);		// limit to 2.5m/s travel speed
 	x_rate_error 	= x_target_speed - x_actual_speed;			// calc the speed error
 	nav_lon			= g.pid_loiter_rate_lon.get_pid(x_rate_error, dTnav);
+	//nav_lon			+= x_rate_d * (g.pid_loiter_rate_lon.kD() / dTnav);
 	nav_lon			= constrain(nav_lon, -3000, 3000); 			// 30°
 
 	// North / South
 	y_target_speed 	= g.pi_loiter_lat.get_p(y_error);
-	//y_target_speed	= constrain(y_target_speed, -250, 250);
 	y_rate_error 	= y_target_speed - y_actual_speed;
 	nav_lat			= g.pid_loiter_rate_lat.get_pid(y_rate_error, dTnav);
+	//nav_lat			+= y_rate_d * (g.pid_loiter_rate_lat.kD() / dTnav);
 	nav_lat			= constrain(nav_lat, -3000, 3000); // 30°
 
 	// copy over I term to Nav_Rate
 	g.pid_nav_lon.set_integrator(g.pid_loiter_rate_lon.get_integrator());
 	g.pid_nav_lat.set_integrator(g.pid_loiter_rate_lat.get_integrator());
 
-	#else
-
-	// no rate control on Loiter
-	nav_lon			= g.pid_loiter_rate_lon.get_pid(x_error, dTnav);
-	nav_lat			= g.pid_loiter_rate_lat.get_pid(y_error, dTnav);
-
-	nav_lon			= constrain(nav_lon, -3000, 3000); 			// 30°
-	nav_lat			= constrain(nav_lat, -3000, 3000); // 30°
-
-	#endif
-
+	//Serial.printf("XX, %d, %d, %d\n", long_error, x_actual_speed, (int16_t)g.pid_loiter_rate_lon.get_integrator());
 
 	// Wind I term based on location error,
 	// limit windup

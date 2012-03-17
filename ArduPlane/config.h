@@ -430,6 +430,9 @@
 # define GROUND_START_DELAY		0
 #endif
 
+#ifndef AUTOMATIC_DECLINATION
+	#define AUTOMATIC_DECLINATION DISABLED
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 // ENABLE_AIR_START
@@ -528,7 +531,7 @@
 
 
 
-/*  The following parmaeters have no corresponding control implementation
+/*  The following parameters have no corresponding control implementation
 #ifndef THROTTLE_ALT_P
 # define THROTTLE_ALT_P         0.32
 #endif

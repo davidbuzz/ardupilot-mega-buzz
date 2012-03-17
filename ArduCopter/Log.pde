@@ -250,8 +250,8 @@ static void Log_Read_GPS()
 	int8_t temp2 	= DataFlash.ReadByte();			// 2 sats
 	int32_t temp3 	= DataFlash.ReadLong();			// 3 lat
 	int32_t temp4 	= DataFlash.ReadLong();			// 4 lon
-	float temp5 	= DataFlash.ReadLong() / 100.0;	// 5 gps alt
-	float temp6 	= DataFlash.ReadLong() / 100.0;	// 6 sensor alt
+	float temp5 	= DataFlash.ReadLong() / 100.0;	// 5 sensor alt
+	float temp6 	= DataFlash.ReadLong() / 100.0;	// 6 gps alt
 	int16_t temp7 	= DataFlash.ReadInt();			// 7 ground speed
 	int32_t temp8 	= DataFlash.ReadLong();// 8 ground course
 
@@ -701,7 +701,7 @@ static void Log_Write_Attitude()
 	DataFlash.WriteInt((int)dcm.pitch_sensor);		// 4
 	DataFlash.WriteInt(g.rc_4.control_in);			// 5
 	DataFlash.WriteInt((uint16_t)dcm.yaw_sensor);	// 6
-	DataFlash.WriteInt((uint16_t)(ToDeg(compass.heading)*100));	// 7
+	DataFlash.WriteInt((uint16_t)(wrap_360(ToDeg(compass.heading)*100)));	// 7
 
 	DataFlash.WriteByte(END_BYTE);
 }
