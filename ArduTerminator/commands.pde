@@ -156,6 +156,10 @@ static void set_next_WP(struct Location *wp)
 	else
 		offset_altitude = 0;
 
+	// zero out our loiter vals to watch for missed waypoints
+//	loiter_delta 		= 0;
+//	loiter_sum 			= 0;
+//	loiter_total 		= 0;
 
 	// this is used to offset the shrinking longitude as we go towards the poles
 	float rads 			= (fabs((float)next_WP.lat)/t7) * 0.0174532925;
@@ -209,6 +213,10 @@ static void set_guided_WP(void)
 void init_home()
 {
 	gcs_send_text_P(SEVERITY_LOW, PSTR("init home"));
+
+#if EXTRA_GPS == ENABLED
+        use_best_gps(); 
+#endif 
 
 	// block until we get a good fix
 	// -----------------------------

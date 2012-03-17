@@ -36,11 +36,87 @@
 #define ENABLED			1
 #define DISABLED		0
 
+// this avoids a very common config error
+#define ENABLE ENABLED
+#define DISABLE DISABLED
+
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 // HARDWARE CONFIGURATION AND CONNECTIONS
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////
+// APM HARDWARE
+//
+
+#ifndef CONFIG_APM_HARDWARE
+# define CONFIG_APM_HARDWARE APM_HARDWARE_APM1
+#endif
+
+#if defined( __AVR_ATmega1280__ )
+#define LOGGING_ENABLED DISABLED
+#endif
+
+//////////////////////////////////////////////////////////////////////////////
+// APM2 HARDWARE DEFAULTS
+//
+
+#if CONFIG_APM_HARDWARE == APM_HARDWARE_APM2
+# define CONFIG_IMU_TYPE   CONFIG_IMU_MPU6000
+# define CONFIG_PUSHBUTTON DISABLED
+# define CONFIG_RELAY      DISABLED
+# define MAG_ORIENTATION   AP_COMPASS_APM2_SHIELD
+# define CONFIG_SONAR_SOURCE SONAR_SOURCE_ANALOG_PIN
+# define CONFIG_PITOT_SOURCE PITOT_SOURCE_ANALOG_PIN
+# define MAGNETOMETER ENABLED
+# ifdef APM2_BETA_HARDWARE
+#  define CONFIG_BARO     AP_BARO_BMP085
+# else // APM2 Production Hardware (default)
+#  define CONFIG_BARO     AP_BARO_MS5611
+# endif
+#endif
+
+//////////////////////////////////////////////////////////////////////////////
+// LED and IO Pins
+//
+#if CONFIG_APM_HARDWARE == APM_HARDWARE_APM1
+# define A_LED_PIN        37
+# define B_LED_PIN        36
+# define C_LED_PIN        35
+# define LED_ON           HIGH
+# define LED_OFF          LOW
+# define SLIDE_SWITCH_PIN 40
+# define PUSHBUTTON_PIN   41
+#define TELEMETRY_ON_SERIAL0 1  // put telemetry to Serial0 instead of Serial3
+# define USB_MUX_PIN      -1
+#define SERIAL3_INIT      1    // 
+#define CLI_ENABLED 0   // 
+# define CONFIG_RELAY     ENABLED
+# define BATTERY_PIN_1	  0
+# define CURRENT_PIN_1	  1
+#elif CONFIG_APM_HARDWARE == APM_HARDWARE_APM2
+# define A_LED_PIN        27
+# define B_LED_PIN        26
+# define C_LED_PIN        25
+# define LED_ON           LOW
+# define LED_OFF          HIGH
+# define SLIDE_SWITCH_PIN (-1)
+# define PUSHBUTTON_PIN   (-1)
+# define CLI_SLIDER_ENABLED DISABLED
+#define TELEMETRY_ON_SERIAL0 1  //always, because of MUX
+# define USB_MUX_PIN 23
+#define SERIAL3_INIT 0   // not needed at present. 
+# define BATTERY_PIN_1	  1
+# define CURRENT_PIN_1	  2
+#endif
+
+
+//
+#ifndef EXTRA_GPS
+# define EXTRA_GPS		DISABLED
+#endif
+
 
 //////////////////////////////////////////////////////////////////////////////
 // AIRSPEED_SENSOR
@@ -55,21 +131,70 @@
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
-// Sonar
+// IMU Selection
 //
-
-#ifndef SONAR_ENABLED
-# define SONAR_ENABLED         	DISABLED
+#ifndef CONFIG_IMU_TYPE
+# define CONFIG_IMU_TYPE CONFIG_IMU_OILPAN
 #endif
 
-#ifndef SONAR_PIN
-# define SONAR_PIN              AN4				// AN5,  AP_RANGEFINDER_PITOT_TUBE
+#if CONFIG_IMU_TYPE == CONFIG_IMU_MPU6000
+# ifndef CONFIG_MPU6000_CHIP_SELECT_PIN
+#  define CONFIG_MPU6000_CHIP_SELECT_PIN 53
+# endif
+#endif
+
+//////////////////////////////////////////////////////////////////////////////
+// ADC Enable - used to eliminate for systems which don't have ADC.
+//
+#ifndef CONFIG_ADC
+# if CONFIG_IMU_TYPE == CONFIG_IMU_OILPAN
+#   define CONFIG_ADC ENABLED
+# else
+#   define CONFIG_ADC DISABLED
+# endif
+#endif
+
+//////////////////////////////////////////////////////////////////////////////
+// Barometer
+//
+
+#ifndef CONFIG_BARO
+# define CONFIG_BARO AP_BARO_BMP085
+#endif
+
+//////////////////////////////////////////////////////////////////////////////
+// Pitot
+//
+
+#ifndef PITOT_ENABLED
+# define PITOT_ENABLED         	DISABLED
+#endif
+
+#ifndef CONFIG_PITOT_SOURCE
+# define CONFIG_PITOT_SOURCE PITOT_SOURCE_ADC
+#endif
+
+#if CONFIG_PITOT_SOURCE == PITOT_SOURCE_ADC
+# ifndef CONFIG_PITOT_SOURCE_ADC_CHANNEL
+#  define CONFIG_PITOT_SOURCE_ADC_CHANNEL 7
+# endif
+#elif CONFIG_PITOT_SOURCE == PITOT_SOURCE_ANALOG_PIN
+# ifndef CONFIG_PITOT_SOURCE_ANALOG_PIN
+#  define CONFIG_PITOT_SOURCE_ANALOG_PIN 0
+# endif
+#else
+# warning Invalid value for CONFIG_PITOT_SOURCE, disabling airspeed
+# undef PITOT_ENABLED
+# define PITOT_ENABLED DISABLED
 #endif
 
 #ifndef SONAR_TYPE
 # define SONAR_TYPE             MAX_SONAR_LV	// MAX_SONAR_XL,  
 #endif
 
+#ifndef SONAR_ENABLED
+#define SONAR_ENABLED DISABLED
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 // HIL_MODE                                 OPTIONAL
@@ -94,7 +219,7 @@
 #endif
 
 #ifndef MAV_SYSTEM_ID
-# define MAV_SYSTEM_ID		2
+# define MAV_SYSTEM_ID		1
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -118,12 +243,17 @@
 # define LOW_VOLTAGE			9.6
 #endif
 #ifndef VOLT_DIV_RATIO
-# define VOLT_DIV_RATIO			3.56
+# define VOLT_DIV_RATIO			3.56	// This is the proper value for an on-board APM1 voltage divider with a 3.9kOhm resistor
+//# define VOLT_DIV_RATIO		15.70	// This is the proper value for the AttoPilot 50V/90A sensor
+//# define VOLT_DIV_RATIO		4.127	// This is the proper value for the AttoPilot 13.6V/45A sensor
+
 #endif
 
 #ifndef CURR_AMP_PER_VOLT
-# define CURR_AMP_PER_VOLT		27.32
+# define CURR_AMP_PER_VOLT		27.32	// This is the proper value for the AttoPilot 50V/90A sensor
+//# define CURR_AMP_PER_VOLT	13.66	// This is the proper value for the AttoPilot 13.6V/45A sensor
 #endif
+
 #ifndef CURR_AMPS_OFFSET
 # define CURR_AMPS_OFFSET		0.0
 #endif
@@ -300,6 +430,9 @@
 # define GROUND_START_DELAY		0
 #endif
 
+#ifndef AUTOMATIC_DECLINATION
+	#define AUTOMATIC_DECLINATION DISABLED
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 // ENABLE_AIR_START
@@ -371,6 +504,16 @@
 #endif
 #define AIRSPEED_CRUISE_CM AIRSPEED_CRUISE*100
 
+
+//////////////////////////////////////////////////////////////////////////////
+// MIN_GNDSPEED
+//
+#ifndef MIN_GNDSPEED
+# define MIN_GNDSPEED			0 // m/s (0 disables)
+#endif
+#define MIN_GNDSPEED_CM MIN_GNDSPEED*100
+
+
 //////////////////////////////////////////////////////////////////////////////
 // FLY_BY_WIRE_B airspeed control
 //
@@ -388,7 +531,7 @@
 
 
 
-/*  The following parmaeters have no corresponding control implementation
+/*  The following parameters have no corresponding control implementation
 #ifndef THROTTLE_ALT_P
 # define THROTTLE_ALT_P         0.32
 #endif
@@ -684,4 +827,33 @@
 // delay to prevent Xbee bricking, in milliseconds
 #ifndef MAVLINK_TELEMETRY_PORT_DELAY
 # define MAVLINK_TELEMETRY_PORT_DELAY 2000
+#endif
+
+// use this to disable gen-fencing
+#ifndef GEOFENCE_ENABLED
+# define GEOFENCE_ENABLED ENABLED
+#endif
+
+// pwm value on FENCE_CHANNEL to use to enable fenced mode
+#ifndef FENCE_ENABLE_PWM
+# define FENCE_ENABLE_PWM 1750
+#endif
+
+// a digital pin to set high when the geo-fence triggers. Defaults
+// to -1, which means don't activate a pin
+#ifndef FENCE_TRIGGERED_PIN
+# define FENCE_TRIGGERED_PIN -1
+#endif
+
+// if RESET_SWITCH_CH is not zero, then this is the PWM value on
+// that channel where we reset the control mode to the current switch
+// position (to for example return to switched mode after failsafe or
+// fence breach)
+#ifndef RESET_SWITCH_CHAN_PWM
+# define RESET_SWITCH_CHAN_PWM 1750
+#endif
+
+// experimental quaternion code
+#ifndef QUATERNION_ENABLE
+# define QUATERNION_ENABLE DISABLED
 #endif

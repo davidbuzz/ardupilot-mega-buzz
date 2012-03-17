@@ -1,4 +1,9 @@
 
+static void stabilize()
+{
+}
+
+
 static void crash_checker()
 {
 	

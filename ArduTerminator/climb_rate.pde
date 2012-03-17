@@ -1,5 +1,7 @@
 // -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
+#if 0 // currently unused
+
 struct DataPoint {
 	unsigned long	x;
 	long			y;
@@ -17,5 +19,5 @@ long			yi;
 long			xiyi;
 unsigned long	xi2;
 
-
+#endif
 

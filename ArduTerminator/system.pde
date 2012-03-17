@@ -12,6 +12,9 @@ The init_ardupilot function processes everything we need for an in - air restart
 
 static void init_ardupilot()
 {
+#if TELEMETRY_ON_SERIAL0 == 1   // we might put telemetry to Serial0 instead of Serial3, even without the MUX, 
+        delay( 1000 ) ; 
+#endif 
 	// Console serial port
 	//
 	// The console port buffers are defined to be sufficiently large to support
@@ -40,94 +43,120 @@ static void init_ardupilot()
                     memcheck_available_memory());
 
 	//
+	// Initialize the ISR registry.
+	//
+    isr_registry.init();
+    //
+	// Initialize the timer scheduler to use the ISR registry.
+	//
+
+    timer_scheduler.init( & isr_registry );
+	//
 	// Check the EEPROM format version before loading any parameters from EEPROM.
 	//
-	if (!g.format_version.load()) {
-
-        Serial.println_P(PSTR("\nEEPROM blank - resetting all parameters to defaults...\n"));
-        delay(100); // wait for serial msg to flush
-
-		AP_Var::erase_all();
-
-		// save the current format version
-		g.format_version.set_and_save(Parameters::k_format_version);
-
-    } else if (g.format_version != Parameters::k_format_version) {
-
-		Serial.printf_P(PSTR("\n\nEEPROM format version %d not compatible with this firmware (requires %d)"
-		                     "\n\nForcing complete parameter reset..."),
-		                     g.format_version.get(), Parameters::k_format_version);
-		delay(100); // wait for serial msg to flush
-
-		// erase all parameters
-		AP_Var::erase_all();
-
-		// save the new format version
-		g.format_version.set_and_save(Parameters::k_format_version);
-
-		Serial.println_P(PSTR("done."));
-	} else {
-	    unsigned long before = micros();
-	    // Load all auto-loaded EEPROM variables
-	    AP_Var::load_all();
-
-	    Serial.printf_P(PSTR("load_all took %luus\n"), micros() - before);
-	    Serial.printf_P(PSTR("using %u bytes of memory (%u resets)\n"), 
-                        AP_Var::get_memory_use(), (unsigned)g.num_resets);
-	}
+    load_parameters();
 
     // keep a record of how many resets have happened. This can be
     // used to detect in-flight resets
-    g.num_resets.set_and_save(g.num_resets+1);
+   // g.num_resets.set_and_save(g.num_resets+1);
 
-	// Telemetry port.
-	//
-	// Not used if telemetry is going to the console.
-	//
-	// XXX for unidirectional protocols, we could (should) minimize
-	// the receive buffer, and the transmit buffer could also be
-	// shrunk for protocols that don't send large messages.
-	//
-	Serial3.begin(map_baudrate(g.serial3_baud, SERIAL3_BAUD), 128, 128);
+	// init the GCS
+	gcs0.init(&Serial);
+
+#if USB_MUX_PIN > 0
+    if (!usb_connected) {
+        // we are not connected via USB, re-init UART0 with right
+        // baud rate
+        Serial.begin(map_baudrate(g.serial3_baud, SERIAL3_BAUD), 128, 128);
+    }
+#endif
+
+// wack serial zero into the baud rate that we are supposed to use in Serial3
+#if TELEMETRY_ON_SERIAL0 == 1 
+         Serial.begin(57600, 128, 128); //TODO DONT HARDCODE THIS, BUT DONT MAKE IT SERIAL0_BAUD OR SERIAL3_BAUD it may clash! 
+#endif 
+
+#if SERIAL3_INIT == 1 
+    // we have a 2nd serial port, possibly for telemetry, or maybe for other stuff 
+        Serial3.begin(map_baudrate(g.serial3_baud, SERIAL3_BAUD), 128, 128);
+#endif
+#if TELEMETRY_ON_SERIAL0 != 1  && SERIAL3_INIT == 1 
+     // ok, so we're doing hte classic APM1 thing for telemetry.. 
+	gcs3.init(&Serial3);
+#endif
+
 
 	mavlink_system.sysid = g.sysid_this_mav;
 
-
 #if LOGGING_ENABLED == ENABLED
 #endif
+	pinMode(C_LED_PIN, OUTPUT);			// GPS status LED
+	pinMode(A_LED_PIN, OUTPUT);			// GPS status LED
+	pinMode(B_LED_PIN, OUTPUT);			// GPS status LED
+       #if EXTRA_GPS_DEBUG == 1
+          digitalWrite(A_LED_PIN, 1 );
+          delay(1000);        
+          #endif  
+          
 
 	// Do GPS init
 	g_gps = &g_gps_driver;
 	g_gps->init();			// GPS Initialization
-    g_gps->callback = mavlink_delay;
+        g_gps->callback = mavlink_delay;
+        g_gps->update();
+        	
+          #if EXTRA_GPS_DEBUG == 1
+          digitalWrite(A_LED_PIN, 0 );
+          delay(500);        
+          digitalWrite(B_LED_PIN, 1 );
+          delay(1000);        
+          #endif 
+          
+        #if EXTRA_GPS == ENABLED
+  	// Do other GPS init
+	g_gps2 = &g_gps_driver2;
+	g_gps2->init();			// EXTRA GPS Initialization
+        g_gps2->callback = mavlink_delay;
+        g_gps2->update();	
+        #endif
+        
+          #if EXTRA_GPS_DEBUG == 1
+          digitalWrite(B_LED_PIN, 0 );
+          #endif
 
-	// init the GCS
-	gcs0.init(&Serial);
-	gcs3.init(&Serial3);
-
+ 
 	//mavlink_system.sysid = MAV_SYSTEM_ID;				// Using g.sysid_this_mav
 	mavlink_system.compid = 1;	//MAV_COMP_ID_IMU;   // We do not check for comp id
 	mavlink_system.type = MAV_FIXED_WING;
 
 	rc_override_active = APM_RC.setHIL(rc_override);		// Set initial values for no override
 
+    RC_Channel::set_apm_rc( &APM_RC ); // Provide reference to RC outputs.
 	init_rc_in();		// sets up rc channels from radio
 	init_rc_out();		// sets up the timer libs
 
-	pinMode(C_LED_PIN, OUTPUT);			// GPS status LED
-	pinMode(A_LED_PIN, OUTPUT);			// GPS status LED
-	pinMode(B_LED_PIN, OUTPUT);			// GPS status LED
+#if SLIDE_SWITCH_PIN > 0
 	pinMode(SLIDE_SWITCH_PIN, INPUT);	// To enter interactive mode
+#endif
+#if CONFIG_PUSHBUTTON == ENABLED
 	pinMode(PUSHBUTTON_PIN, INPUT);		// unused
+#endif
+#if CONFIG_RELAY == ENABLED
 	DDRL |= B00000100;					// Set Port L, pin 2 to output for the relay
+#endif
+
+#if FENCE_TRIGGERED_PIN > 0
+    pinMode(FENCE_TRIGGERED_PIN, OUTPUT);
+    digitalWrite(FENCE_TRIGGERED_PIN, LOW);
+#endif
+
+    /*
+      setup the 'main loop is dead' check. Note that this relies on
+      the RC library being initialised.
+     */
+  //  timer_scheduler.set_failsafe(failsafe_check);
 
 
-	if(g.log_bitmask != 0){
-		//	TODO - Here we will check  on the length of the last log
-		//  We don't want to create a bunch of little logs due to powering on and off
-		byte last_log_num = get_num_logs();
-		start_new_log(last_log_num);
-	}
 
 	// read in the flight switches
 	update_servo_switches();
@@ -170,6 +199,52 @@ static void init_ardupilot()
 	// ---------------------------
 	reset_control_switch();
 }
+
+
+#if EXTRA_GPS == ENABLED
+ void use_best_gps(void){
+  
+   static int _active = 1;   // default to primary GPS on Serial1 first  
+   #ifdef  EXTRA_GPS_DEBUG  
+   static int _which = 0; // primary GPS defaults to A LED being OFF. alternate GPS turns this LED on.! 
+   #endif
+   
+   int G1 = g_gps->num_sats; // currently active
+   int G3 = g_gps2->num_sats;  // currently inactive/backup
+     
+    // quick, decide which GPS is better? 
+    // for now, we use the number of sattelites, but we *could* also use GDOP values 
+    // or similar, if the appropriate module/s supply this info
+    if ( G3 > G1 ) { 
+      
+    #ifdef  EXTRA_GPS_DEBUG  
+      if ( _which == 0 ) {  _which=1; _active=3 ; } else { _which=0;_active = 1 ; } // which serial are we switching to... Serial1 or Serial3? 
+      Serial.print("GPS FLIP! Now using Serial");
+      Serial.print(_active);
+      Serial.print(" ( Sats: ");
+      Serial.print((int)G3);
+      Serial.println(" )");
+   #endif         
+           
+      //switch the pointers for g_gps, and g_gps2, so we go to the other GPS! 
+      g_gpscurrent = g_gps; 
+      g_gps = g_gps2;
+      g_gps2 = g_gpscurrent;
+           
+    #ifdef EXTRA_GPS_DEBUG  
+      //indicate the GPS toggle state with an extra LED 
+      digitalWrite(A_LED_PIN, _which );
+    #endif  
+        } else {
+    #ifdef  EXTRA_GPS_DEBUG  
+      Serial.print("GPS Sats? active: ");
+      Serial.print( (int)G1);
+      Serial.print(" inactive: ");
+      Serial.println( (int)G3);
+    #endif
+        }  
+}
+#endif
 
 //********************************************************************************
 //This function does all the calibrations, etc. that we need during a ground start

@@ -28,6 +28,18 @@ static void init_rc_in()
 
 static void init_rc_out()
 {
+	APM_RC.Init( &isr_registry );		// APM Radio initialization
+
+
+  APM_RC.enable_out(CH_1);
+  APM_RC.enable_out(CH_2);
+  APM_RC.enable_out(CH_3);
+  APM_RC.enable_out(CH_4);
+  APM_RC.enable_out(CH_5);
+  APM_RC.enable_out(CH_6);
+  APM_RC.enable_out(CH_7);
+  APM_RC.enable_out(CH_8);
+
   // BUZ:   I don't know why this is here twice, I just leave it like this.  :-) 
   
 	APM_RC.OutputCh(CH_1, 	g.channel_roll.radio_trim);					// Initialization of servo outputs

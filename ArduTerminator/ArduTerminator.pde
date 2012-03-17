@@ -1,6 +1,6 @@
 /// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
-#define THISFIRMWARE "ArduTerminator Code@V2.251/Libraries@2.27"
+#define THISFIRMWARE "ArduTerminator Code@V2.251/Libraries@2.28"
 /*
   ArduTerminator, based apon the excellent work of the authors of ArduPlane and ArduPilot, see below for their details
   Author: Buzz aka DavidBuzz email: davidbuzz@gmail.com
@@ -52,6 +52,7 @@ version 2.1 of the License, or (at your option) any later version.
 #include <SPI.h>			// Arduino SPI lib
 #include <DataFlash.h>      // ArduPilot Mega Flash Memory Library
 #include <AP_ADC.h>         // ArduPilot Mega Analog to Digital Converter Library
+#include <AP_PeriodicProcess.h> // ArduPilot Mega TimerProcess
 //#include <APM_BMP085.h>     // ArduPilot Mega BMP085 Library
 //#include <AP_Baro.h>        // ArduPilot barometer library
 //#include <AP_Compass.h>     // ArduPilot Mega Magnetometer Library
@@ -161,18 +162,25 @@ AP_GPS_HIL              g_gps_driver(NULL);
  #error Unrecognised HIL_MODE setting.
 #endif // HIL MODE
 
+
+// we always have a timer scheduler
+AP_TimerProcess timer_scheduler; //TODO prolly not needed, as it's only needed for IMU, ADC, barometer, mainloop_failsafe, 
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // GCS selection
 ////////////////////////////////////////////////////////////////////////////////
 //
-GCS_MAVLINK	gcs0(Parameters::k_param_streamrates_port0);
-GCS_MAVLINK	gcs3(Parameters::k_param_streamrates_port3);
+GCS_MAVLINK	gcs0;
+GCS_MAVLINK	gcs3;
 
 ////////////////////////////////////////////////////////////////////////////////
 // SONAR selection
 ////////////////////////////////////////////////////////////////////////////////
 //
-ModeFilter sonar_mode_filter;
+ModeFilterInt16_Size5 sonar_mode_filter(2);
+
 
 #if SONAR_TYPE == MAX_SONAR_XL
 //	AP_RangeFinder_MaxsonarXL sonar(&adc, &sonar_mode_filter);//(SONAR_PORT, &adc);
@@ -280,14 +288,14 @@ static float	crosstrack_error;					// meters we are off trackline
 
 // Battery Sensors
 // ---------------
-static float	battery_voltage		= LOW_VOLTAGE * 1.05;		// Battery Voltage of total battery, initialized above threshold for filter
+//static float	battery_voltage		= LOW_VOLTAGE * 1.05;		// Battery Voltage of total battery, initialized above threshold for filter
 static float 	battery_voltage1 	= LOW_VOLTAGE * 1.05;		// Battery Voltage of cell 1, initialized above threshold for filter
-static float 	battery_voltage2 	= LOW_VOLTAGE * 1.05;		// Battery Voltage of cells 1 + 2, initialized above threshold for filter
-static float 	battery_voltage3 	= LOW_VOLTAGE * 1.05;		// Battery Voltage of cells 1 + 2+3, initialized above threshold for filter
-static float 	battery_voltage4 	= LOW_VOLTAGE * 1.05;		// Battery Voltage of cells 1 + 2+3 + 4, initialized above threshold for filter
+//static float 	battery_voltage2 	= LOW_VOLTAGE * 1.05;		// Battery Voltage of cells 1 + 2, initialized above threshold for filter
+//static float 	battery_voltage3 	= LOW_VOLTAGE * 1.05;		// Battery Voltage of cells 1 + 2+3, initialized above threshold for filter
+//static float 	battery_voltage4 	= LOW_VOLTAGE * 1.05;		// Battery Voltage of cells 1 + 2+3 + 4, initialized above threshold for filter
 
-static float	current_amps;
-static float	current_total;
+static float	current_amps1;
+static float	current_total1;
 
 // Airspeed Sensors
 // ----------------

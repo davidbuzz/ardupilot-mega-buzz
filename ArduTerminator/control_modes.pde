@@ -23,6 +23,7 @@ byte switchPosition = readSwitch();
 //  0..5 for the 6 possible modes! 
 static byte readSwitch(void){
 	uint16_t pulsewidth = APM_RC.InputCh(g.flight_mode_channel - 1);
+	if (pulsewidth <= 910 || pulsewidth >= 2090) 	return 255;	// This is an error condition
 	if (pulsewidth > 1230 && pulsewidth <= 1360) 	return 1;
 	if (pulsewidth > 1360 && pulsewidth <= 1490) 	return 2;
 	if (pulsewidth > 1490 && pulsewidth <= 1620) 	return 3;

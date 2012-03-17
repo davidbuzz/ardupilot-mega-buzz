@@ -44,4 +44,4 @@
 #define LOG_CUR		    DISABLED
 
 
-
+#define GEOFENCE_ENABLED DISABLED
