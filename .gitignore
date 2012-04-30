@@ -22,9 +22,13 @@ build
 tags
 *.o
 .*.swp
+*.log
+*.raw
+*.pyc
 .*.swo
 mav.log
 mav.log.raw
 status.txt
-
 /Tools/ArdupilotMegaPlanner/Msi/upload.bat
+*.parm
+/tmp/

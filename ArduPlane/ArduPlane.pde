@@ -70,9 +70,9 @@ version 2.1 of the License, or (at your option) any later version.
 // so there is not much of a penalty to defining ports that we don't
 // use.
 //
-FastSerialPort0(Serial);        // FTDI/console
+FastSerialPort0(Serial);        // FTDI/console  ( and optioonally telemetry ) 
 FastSerialPort1(Serial1);       // GPS port
-FastSerialPort3(Serial3);       // Telemetry port
+FastSerialPort3(Serial3);       // Telemetry port ( and optionally extra GPS ) 
 
 ////////////////////////////////////////////////////////////////////////////////
 // ISR Registry
@@ -128,6 +128,10 @@ static void update_events(void);
 
 // All GPS access should be through this pointer.
 static GPS         *g_gps;
+#if EXTRA_GPS == ENABLED
+static GPS         *g_gps2; // an optional second GPS unit! 
+static GPS        *g_gpscurrent; // temp pointer which is used only when switching from one GPS unit ot the other.   can probably optimise this away to a void pointer. ? 
+#endif
 
 // flight modes convenience array
 static AP_Int8		*flight_modes = &g.flight_mode1;
@@ -160,6 +164,9 @@ static AP_Compass_HMC5843      compass;
 // real GPS selection
 #if   GPS_PROTOCOL == GPS_PROTOCOL_AUTO
 AP_GPS_Auto     g_gps_driver(&Serial1, &g_gps);
+#if EXTRA_GPS == ENABLED
+AP_GPS_Auto     g_gps_driver2(&Serial3, &g_gps2); //Serial3 is the most likely place for a second GPS unit to be attached.  
+#endif
 
 #elif GPS_PROTOCOL == GPS_PROTOCOL_NMEA
 AP_GPS_NMEA     g_gps_driver(&Serial1);
@@ -188,6 +195,7 @@ AP_GPS_None     g_gps_driver(NULL);
 # else
   AP_InertialSensor_Oilpan ins( &adc );
 #endif // CONFIG_IMU_TYPE
+
 AP_IMU_INS imu( &ins );
 
 #if QUATERNION_ENABLE == ENABLED
@@ -263,6 +271,10 @@ AP_Mount camera_mount(g_gps, &ahrs);
 // Global variables
 ////////////////////////////////////////////////////////////////////////////////
 
+byte    control_mode        = INITIALISING;
+byte    oldSwitchPosition;              // for remembering the control mode switch
+bool    inverted_flight     = false;
+
 // APM2 only
 #if USB_MUX_PIN > 0
 static bool usb_connected;
@@ -307,12 +319,12 @@ static const char* flight_mode_strings[] = {
 ////////////////////////////////////////////////////////////////////////////////
 // This is the state of the flight control system
 // There are multiple states defined such as MANUAL, FBW-A, AUTO
-byte    control_mode        = INITIALISING;
+//byte    control_mode        = INITIALISING;
 // Used to maintain the state of the previous control switch position
 // This is set to -1 when we need to re-read the switch
-byte 	oldSwitchPosition;
+//byte 	oldSwitchPosition;
 // This is used to enable the inverted flight feature
-bool    inverted_flight     = false;
+//bool    inverted_flight     = false;
 // These are trim values used for elevon control
 // For elevons radio_in[CH_ROLL] and radio_in[CH_PITCH] are equivalent aileron and elevator, not left and right elevon
 static uint16_t elevon1_trim  = 1500; 	
@@ -929,12 +941,24 @@ static void one_second_loop()
 
 	// send a heartbeat
 	gcs_send_message(MSG_HEARTBEAT);
+    
+        #if EXTRA_GPS == ENABLED
+        use_best_gps();   //  check if the other GPS has better data.
+        #endif
 }
 
 static void update_GPS(void)
 {
+       
 	g_gps->update();
-	update_GPS_light();
+
+        #if EXTRA_GPS == ENABLED
+        // if we have a second GPS, keep it updated it too! 
+        if ( g_gps2->status() != 0 ) { g_gps2->update(); } 
+        #endif
+        
+        update_GPS_light();
+
 
 	if (g_gps->new_data && g_gps->fix) {
 		// for performance

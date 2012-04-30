@@ -26,11 +26,7 @@
 /// DO NOT EDIT THIS INCLUDE - if you want to make a local change, make that
 /// change in your local copy of APM_Config.h.
 ///
-#ifdef USE_CMAKE_APM_CONFIG
-#include "APM_Config_cmake.h"  // <== Prefer cmake config if it exists
-#else
 #include "APM_Config.h"  // <== THIS INCLUDE, DO NOT EDIT IT. EVER.
-#endif
 ///
 /// DO NOT EDIT THIS INCLUDE - if you want to make a local change, make that
 /// change in your local copy of APM_Config.h.
@@ -434,6 +430,10 @@
 # define GROUND_START_DELAY		0
 #endif
 
+#ifndef AUTOMATIC_DECLINATION
+	#define AUTOMATIC_DECLINATION DISABLED
+#endif
+
 //////////////////////////////////////////////////////////////////////////////
 // ENABLE_AIR_START
 //
@@ -636,7 +636,7 @@
 # define NAV_ROLL_P           0.7
 #endif
 #ifndef NAV_ROLL_I
-# define NAV_ROLL_I           0.1
+# define NAV_ROLL_I           0.0
 #endif
 #ifndef NAV_ROLL_D
 # define NAV_ROLL_D           0.02
@@ -649,7 +649,7 @@
 # define NAV_PITCH_ASP_P      0.65
 #endif
 #ifndef NAV_PITCH_ASP_I
-# define NAV_PITCH_ASP_I      0.1
+# define NAV_PITCH_ASP_I      0.0
 #endif
 #ifndef NAV_PITCH_ASP_D
 # define NAV_PITCH_ASP_D      0.0
@@ -662,7 +662,7 @@
 # define NAV_PITCH_ALT_P      0.65
 #endif
 #ifndef NAV_PITCH_ALT_I
-# define NAV_PITCH_ALT_I      0.1
+# define NAV_PITCH_ALT_I      0.0
 #endif
 #ifndef NAV_PITCH_ALT_D
 # define NAV_PITCH_ALT_D      0.0

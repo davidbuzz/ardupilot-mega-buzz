@@ -34,6 +34,8 @@ void Print::write(const char *str)
 {
   while (*str)
     write(*str++);
+
+
 }
 
 /* default implementation: may be overridden */
@@ -41,6 +43,7 @@ void Print::write(const uint8_t *buffer, size_t size)
 {
   while (size--)
     write(*buffer++);
+
 }
 
 void Print::print(const String &s)

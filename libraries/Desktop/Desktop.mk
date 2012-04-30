@@ -72,6 +72,7 @@ ifeq ($(SKETCH),)
   WORDLIST		:=	$(subst /, ,$(SRCROOT))
   SKETCH		:=	$(word $(words $(WORDLIST)),$(WORDLIST))
 endif
+    $(warning WARNING: SKETCH directory is $(SKETCH) )
 
 #
 # Work out where we are going to be building things
@@ -116,8 +117,9 @@ endif
 #
 # Tool options
 #
-DEFINES			=	$(EXTRAFLAGS) -DSKETCH=\"$(SKETCH)\"
-OPTFLAGS		=	-g -Wformat -Wall -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wformat=2 -Wno-reorder
+DEFINES			=	$(EXTRAFLAGS)
+OPTFLAGSC		=	-g -Wformat -Wall -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wformat=2 -Wno-reorder
+OPTFLAGSCXX		=	-g -Wformat -Wall -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wformat=2 
 DEPFLAGS		=	-MD -MT $@
 
 # XXX warning options TBD
@@ -125,10 +127,10 @@ CXXOPTS			= 	-fno-exceptions -D__AVR_ATmega2560__ -I$(SKETCHBOOK)/libraries/Desk
 COPTS			=	-I$(SKETCHBOOK)/libraries/Desktop/include -DDESKTOP_BUILD=1
 ASOPTS			=	-assembler-with-cpp
 
-CXXFLAGS		=	-g $(DEFINES) $(OPTFLAGS) $(DEPFLAGS) $(CXXOPTS)
-CFLAGS			=	-g $(DEFINES) $(OPTFLAGS) $(DEPFLAGS) $(COPTS)
+CXXFLAGS		=	-g $(DEFINES) $(OPTFLAGSCXX) $(DEPFLAGS) $(CXXOPTS)
+CFLAGS			=	-g $(DEFINES) $(OPTFLAGSC) $(DEPFLAGS) $(COPTS)
 ASFLAGS			=	-g $(DEFINES) $(DEPFLAGS) $(ASOPTS)
-LDFLAGS			=	-g $(OPTFLAGS)
+LDFLAGS			=	-g $(OPTFLAGSC)
 
 LIBS			=	-lm
 

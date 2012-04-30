@@ -1,7 +1,19 @@
 // -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
-/*
-  logic for dealing with the current command in the mission and home location
- */
+
+/* Functions in this file:
+	void init_commands()
+	void update_auto()
+	void reload_commands_airstart()
+	struct Location get_cmd_with_index(int i)
+	void set_cmd_with_index(struct Location temp, int i)
+	void increment_cmd_index()
+	void decrement_cmd_index()
+	long read_alt_to_hold()
+	void set_next_WP(struct Location *wp)
+	void set_guided_WP(void)
+	void init_home()
+************************************************************ 
+*/
 
 static void init_commands()
 {
@@ -13,22 +25,7 @@ static void init_commands()
 
 static void update_auto()
 {
-	if (g.command_index >= g.command_total) {
-		handle_no_commands();
-		if(g.command_total == 0) {
-			next_WP.lat 		= home.lat + 1000;	// so we don't have bad calcs
-			next_WP.lng 		= home.lng + 1000;	// so we don't have bad calcs
-		}
-	} else {
-    	if(g.command_index != 0) {
-    		g.command_index = nav_command_index;
-    		nav_command_index--;
-    	}
-		nav_command_ID	= NO_COMMAND;
-		non_nav_command_ID	= NO_COMMAND;
-		next_nav_command.id 	= CMD_BLANK;
-		process_next_command();
-	}
+
 }
 
 // this is only used by an air-start
@@ -113,6 +110,13 @@ static void set_cmd_with_index(struct Location temp, int i)
 	eeprom_write_dword((uint32_t *)	mem, temp.lng);
 }
 
+static void increment_cmd_index()
+{
+    if (g.command_index <= g.command_total) {
+        g.command_index.set_and_save(g.command_index + 1);
+	}
+}
+
 static void decrement_cmd_index()
 {
     if (g.command_index > 0) {
@@ -153,9 +157,9 @@ static void set_next_WP(struct Location *wp)
 		offset_altitude = 0;
 
 	// zero out our loiter vals to watch for missed waypoints
-	loiter_delta 		= 0;
-	loiter_sum 			= 0;
-	loiter_total 		= 0;
+//	loiter_delta 		= 0;
+//	loiter_sum 			= 0;
+//	loiter_total 		= 0;
 
 	// this is used to offset the shrinking longitude as we go towards the poles
 	float rads 			= (fabs((float)next_WP.lat)/t7) * 0.0174532925;
@@ -167,10 +171,7 @@ static void set_next_WP(struct Location *wp)
 	target_bearing 		= get_bearing(&current_loc, &next_WP);
 	nav_bearing 		= target_bearing;
 
-	// to check if we have missed the WP
-	// ----------------------------
-	old_target_bearing 	= target_bearing;
-
+	
 	// set a new crosstrack bearing
 	// ----------------------------
 	reset_crosstrack();
@@ -201,9 +202,6 @@ static void set_guided_WP(void)
 	wp_distance 		= wp_totalDistance;
 	target_bearing 		= get_bearing(&current_loc, &next_WP);
 
-	// to check if we have missed the WP
-	// ----------------------------
-	old_target_bearing 	= target_bearing;
 
 	// set a new crosstrack bearing
 	// ----------------------------

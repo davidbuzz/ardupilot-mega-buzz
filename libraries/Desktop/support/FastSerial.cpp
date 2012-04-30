@@ -342,6 +342,9 @@ void FastSerial::write(uint8_t c)
 	if (!desktop_state.slider) {
 		flags |= MSG_DONTWAIT;
 	}
+//	fprintf(stdout,"%i", &c);
+//	fflush(stdout);
+	
 	if (s->console) {
 		::write(s->fd, &c, 1);
 	} else {
