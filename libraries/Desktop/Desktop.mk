@@ -117,7 +117,8 @@ endif
 #
 # Tool options
 #
-DEFINES			=	$(EXTRAFLAGS)
+DEFINES			=	$(EXTRAFLAGS) -DSKETCH=\"$(SKETCH)\"
+OPTFLAGS		=	-g -Wformat -Wall -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wformat=2 -Wno-reorder
 OPTFLAGSC		=	-g -Wformat -Wall -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wformat=2 -Wno-reorder
 OPTFLAGSCXX		=	-g -Wformat -Wall -Wshadow -Wpointer-arith -Wcast-align -Wwrite-strings -Wformat=2 
 DEPFLAGS		=	-MD -MT $@
