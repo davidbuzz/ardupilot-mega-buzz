@@ -13,7 +13,7 @@ namespace uploader
 		private int bytes_processed;
 		public SerialPort port;
 		
-		private enum Code : byte
+		public enum Code : byte
 		{
 			// response codes
 			OK				= 0x10,
@@ -33,12 +33,13 @@ namespace uploader
 			REBOOT			= 0x30,
 			
 			// protocol constants
-			PROG_MULTI_MAX	= 64,	// maximum number of bytes in a PROG_MULTI command
-			READ_MULTI_MAX	= 64,	// from 255 // largest read that can be requested
+			PROG_MULTI_MAX	= 32,	// maximum number of bytes in a PROG_MULTI command
+			READ_MULTI_MAX	= 255,	// largest read that can be requested
 			
 			// device IDs XXX should come with the firmware image...
 			DEVICE_ID_RF50	= 0x4d,
 			DEVICE_ID_HM_TRP= 0x4e,
+            DEVICE_ID_RFD900= 0X42,
 			
 			// frequency code bytes XXX should come with the firmware image...
 			FREQ_NONE		= 0xf0,
@@ -221,7 +222,10 @@ namespace uploader
 		{
 			send (Code.CHIP_ERASE);
 			send (Code.EOC);
-			
+
+            // sleep for 2 second - erase seems to take about 2 seconds
+            System.Threading.Thread.Sleep(2000);
+
 			getSync ();
 		}
 		
@@ -318,11 +322,24 @@ namespace uploader
 			freq = (Code)recv ();
 			
 			// XXX should be getting valid board/frequency data from firmware file
-			if ((id != Code.DEVICE_ID_HM_TRP) && (id != Code.DEVICE_ID_RF50))
-				throw new Exception ("bootloader device ID mismatch");
+            if ((id != Code.DEVICE_ID_HM_TRP) && (id != Code.DEVICE_ID_RF50) && (id != Code.DEVICE_ID_RFD900))
+				throw new Exception ("bootloader device ID mismatch - device:" + id.ToString());
 			
 			getSync ();
 		}
+
+        public void getDevice(ref Code device, ref Code freq)
+        {
+            connect_and_sync();
+
+            send(Code.GET_DEVICE);
+            send(Code.EOC);
+
+            device = (Code)recv();
+            freq = (Code)recv();
+
+            getSync();
+        }
 		
 		/// <summary>
 		/// Expect the two-byte synchronisation codes within the read timeout.

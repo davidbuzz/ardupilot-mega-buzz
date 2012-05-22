@@ -161,7 +161,7 @@ namespace ArdupilotMega.GCSViews.ConfigurationView
             if (dr == DialogResult.OK)
             {
                 StreamWriter sw = new StreamWriter(sfd.OpenFile());
-                string input = DateTime.Now + " Frame : + | Arducopter Kit | Kit motors";
+                string input = DateTime.Now + " Frame : ";
                 if (MainV2.cs.firmware == MainV2.Firmwares.ArduPlane)
                 {
                     input = DateTime.Now + " Plane: Skywalker";
@@ -310,14 +310,7 @@ namespace ArdupilotMega.GCSViews.ConfigurationView
 
         void readToolTips()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Configuration));
-
-            string data = resources.GetString("MAVParam");
-
-            if (data == null)
-            {
-                data = global::ArdupilotMega.Properties.Resources.MAVParam;
-            }
+            string data = global::ArdupilotMega.Properties.Resources.MAVParam;
 
             string[] tips = data.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 

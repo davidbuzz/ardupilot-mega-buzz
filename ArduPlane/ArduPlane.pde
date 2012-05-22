@@ -1,6 +1,6 @@
 /// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
-#define THISFIRMWARE "ArduPlane V2.33"
+#define THISFIRMWARE "ArduPlane V2.34"
 /*
 Authors:    Doug Weibel, Jose Julio, Jordi Munoz, Jason Short, Andrew Tridgell, Randy Mackay, Pat Hickey, John Arne Birkeland, Olivier Adler
 Thanks to:  Chris Anderson, Michael Oborne, Paul Mather, Bill Premerlani, James Cohen, JB from rotorFX, Automatik, Fefenin, Peter Meister, Remzibi, Yury Smirnov, Sandro Benigno, Max Levine, Roberto Navoni, Lorenz Meier 
@@ -72,7 +72,13 @@ version 2.1 of the License, or (at your option) any later version.
 //
 FastSerialPort0(Serial);        // FTDI/console  ( and optioonally telemetry ) 
 FastSerialPort1(Serial1);       // GPS port
-FastSerialPort3(Serial3);       // Telemetry port ( and optionally extra GPS ) 
+//FastSerialPort3(Serial3);       // Telemetry port ( and optionally extra GPS ) 
+#if TELEMETRY_UART2 == ENABLED
+ // solder bridge set to enable UART2 instead of USB MUX
+ FastSerialPort2(Serial3);
+#else
+ FastSerialPort3(Serial3);       // Telemetry port for APM1
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // ISR Registry
@@ -1018,7 +1024,7 @@ static void update_current_flight_mode(void)
 					nav_roll = 0;
 				}
 
-				if (g.airspeed_enabled == true)
+				if (g.airspeed_enabled == true && g.airspeed_use == true)
                                 {
 					calc_nav_pitch();
 					if (nav_pitch < (long)takeoff_pitch) nav_pitch = (long)takeoff_pitch;
@@ -1036,7 +1042,7 @@ static void update_current_flight_mode(void)
 			case MAV_CMD_NAV_LAND:
 				calc_nav_roll();
 
-				if (g.airspeed_enabled == true){
+				if (g.airspeed_enabled == true && g.airspeed_use == true) {
 					calc_nav_pitch();
 					calc_throttle();
 				}else{

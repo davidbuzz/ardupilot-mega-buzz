@@ -34,9 +34,9 @@ namespace ArdupilotMega.GCSViews.ConfigurationView
 
                     var configpanel = new Controls.ConfigPanel();
                     configpanel.LoadXML("ArduCopterConfig.xml");
-                    this.backstageView.AddPage(new BackstageView.BackstageViewPage(configpanel, "ArduCopter Config"));
+                    this.backstageView.AddPage(new BackstageView.BackstageViewPage(configpanel, "ArduCopter Pids"));
 
-                    this.backstageView.AddPage(new BackstageView.BackstageViewPage(new ConfigArducopter(), "OLD ArduCopter Config"));
+                    this.backstageView.AddPage(new BackstageView.BackstageViewPage(new ConfigArducopter(), "ArduCopter Config"));
                 }
                 /****************************** ArduCopter **************************/
                 else if (MainV2.cs.firmware == MainV2.Firmwares.ArduCopter2)
@@ -45,15 +45,21 @@ namespace ArdupilotMega.GCSViews.ConfigurationView
 
                     var configpanel = new Controls.ConfigPanel();
                     configpanel.LoadXML("ArduCopterConfig.xml");
-                    this.backstageView.AddPage(new BackstageView.BackstageViewPage(configpanel, "ArduCopter Config"));
+                    this.backstageView.AddPage(new BackstageView.BackstageViewPage(configpanel, "ArduCopter Pids"));
 
-                    this.backstageView.AddPage(new BackstageView.BackstageViewPage(new ConfigArducopter(), "OLD ArduCopter Config"));
+                    this.backstageView.AddPage(new BackstageView.BackstageViewPage(new ConfigArducopter(), "ArduCopter Config"));
                 }
                 /****************************** ArduPlane **************************/
                 else if (MainV2.cs.firmware == MainV2.Firmwares.ArduPlane)
                 {
                     this.backstageView.AddPage(new BackstageView.BackstageViewPage(new ConfigAccelerometerCalibrationPlane(), "ArduPlane Level"));
-                    this.backstageView.AddPage(new BackstageView.BackstageViewPage(new ConfigArduplane(), "ArduPlane Config"));
+                    this.backstageView.AddPage(new BackstageView.BackstageViewPage(new ConfigArduplane(), "ArduPlane Pids"));
+                }
+                /****************************** ArduRover **************************/
+                else if (MainV2.cs.firmware == MainV2.Firmwares.ArduRover)
+                {
+                    //this.backstageView.AddPage(new BackstageView.BackstageViewPage(new ConfigAccelerometerCalibrationPlane(), "ArduRover Level"));
+                    this.backstageView.AddPage(new BackstageView.BackstageViewPage(new ConfigArdurover(), "ArduRover Pids"));
                 }
 
                 this.backstageView.AddPage(new BackstageView.BackstageViewPage(new ConfigFriendlyParams { ParameterMode = ParameterMetaDataConstants.Standard }, "Standard Params"));
@@ -73,7 +79,7 @@ namespace ArdupilotMega.GCSViews.ConfigurationView
 
             if (!MainV2.comPort.BaseStream.IsOpen)
             {
-                CustomMessageBox.Show("Please connect (click Connect Button) before using setup!!");
+                Common.MessageShowAgain("Config Connect", "Please connect (click Connect Button) before using setup!!");
             }
         }
 

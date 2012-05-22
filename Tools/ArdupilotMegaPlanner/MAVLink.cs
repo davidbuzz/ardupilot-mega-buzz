@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Collections; // hashs
@@ -58,6 +59,30 @@ namespace ArdupilotMega
         /// time last seen a packet of a type
         /// </summary>
         DateTime[] packetspersecondbuild = new DateTime[256];
+
+
+        private readonly Subject<int> _bytesReceivedSubj = new Subject<int>();
+        private readonly Subject<int> _bytesSentSubj = new Subject<int>();
+
+        /// <summary>
+        /// Observable of the count of bytes received, notified when the bytes themselves are received
+        /// </summary>
+        public IObservable<int> BytesReceived { get { return _bytesReceivedSubj; } }
+
+        /// <summary>
+        /// Observable of the count of bytes sent, notified when the bytes themselves are received
+        /// </summary>
+        public IObservable<int> BytesSent { get { return _bytesSentSubj; } }
+
+        /// <summary>
+        /// Observable of the count of packets skipped (on reception), 
+        /// calculated from periods where received packet sequence is not
+        /// contiguous
+        /// </summary>
+        public readonly Subject<int> WhenPacketLost = new Subject<int>();
+
+        public Subject<int> WhenPacketReceived = new Subject<int>();
+
         /// <summary>
         /// used as a serial port write lock
         /// </summary>
@@ -86,7 +111,7 @@ namespace ArdupilotMega
         /// <summary>
         /// mavlink ap type
         /// </summary>
-        public byte aptype = 0;
+        public MAV_TYPE aptype = 0;
         /// <summary>
         /// used as a snapshot of what is loaded on the ap atm. - derived from the stream
         /// </summary>
@@ -163,7 +188,7 @@ namespace ArdupilotMega
             OpenBg(false, e);
         }
 
-        private void OpenBg(bool getparams,  ProgressWorkerEventArgs progressWorkerEventArgs)
+        private void OpenBg(bool getparams, ProgressWorkerEventArgs progressWorkerEventArgs)
         {
             frmProgressReporter.UpdateProgressAndStatus(-1, "Mavlink Connecting...");
 
@@ -171,6 +196,7 @@ namespace ArdupilotMega
             sysid = 0;
             compid = 0;
             param = new Hashtable();
+            packets.Initialize();
 
             try
             {
@@ -273,7 +299,7 @@ namespace ArdupilotMega
                         mavlink_heartbeat_t hb = buffer.ByteArrayToStructure<mavlink_heartbeat_t>(6);
 
                         mavlinkversion = hb.mavlink_version;
-                        aptype = hb.type;
+                        aptype = (MAV_TYPE)hb.type;
 
                         sysid = buffer[3];
                         compid = buffer[4];
@@ -286,8 +312,8 @@ namespace ArdupilotMega
 
                 countDown.Stop();
 
-//                if (Progress != null)
-//                    Progress(-1, "Getting Params.. (sysid " + sysid + " compid " + compid + ") ");
+                //                if (Progress != null)
+                //                    Progress(-1, "Getting Params.. (sysid " + sysid + " compid " + compid + ") ");
                 frmProgressReporter.UpdateProgressAndStatus(0, "Getting Params.. (sysid " + sysid + " compid " + compid + ") ");
 
                 if (getparams)
@@ -309,8 +335,8 @@ namespace ArdupilotMega
                 }
                 catch { }
                 MainV2.giveComport = false;
-//                if (Progress != null)
-//                    Progress(-1, "Connect Failed\n" + e.Message);
+                //                if (Progress != null)
+                //                    Progress(-1, "Connect Failed\n" + e.Message);
                 if (string.IsNullOrEmpty(progressWorkerEventArgs.ErrorMessage))
                     progressWorkerEventArgs.ErrorMessage = "Connect Failed";
                 throw e;
@@ -429,6 +455,7 @@ namespace ArdupilotMega
                 {
                     BaseStream.Write(packet, 0, i);
                 }
+                _bytesSentSubj.OnNext(i);
             }
 
             try
@@ -474,6 +501,7 @@ namespace ArdupilotMega
             {
                 BaseStream.Write(line);
             }
+            _bytesSentSubj.OnNext(line.Length);
             return true;
         }
 
@@ -488,6 +516,12 @@ namespace ArdupilotMega
             {
                 log.Info("Param doesnt exist " + paramname);
                 return false;
+            }
+
+            if ((float)param[paramname] == value)
+            {
+                log.Debug("setParam " + paramname + " not modified");
+                return true;
             }
 
             MainV2.giveComport = true;
@@ -570,7 +604,6 @@ namespace ArdupilotMega
 
         }
         */
-
         public void getParamList()
         {
             frmProgressReporter = new ProgressReporterDialogue
@@ -587,7 +620,7 @@ namespace ArdupilotMega
 
             if (ParamListChanged != null)
             {
-               ParamListChanged(this, null);
+                ParamListChanged(this, null);
             }
         }
 
@@ -617,7 +650,7 @@ namespace ArdupilotMega
             int param_count = 0;
             int param_total = 5;
 
-            goagain:
+        goagain:
 
             mavlink_param_request_list_t req = new mavlink_param_request_list_t();
             req.target_system = sysid;
@@ -667,7 +700,7 @@ namespace ArdupilotMega
                         mavlink_param_value_t par = buffer.ByteArrayToStructure<mavlink_param_value_t>(6);
 
                         // set new target
-                        param_total = (par.param_count - 1);
+                        param_total = (par.param_count);
 
 
                         string paramID = System.Text.ASCIIEncoding.ASCII.GetString(par.param_id);
@@ -681,12 +714,12 @@ namespace ArdupilotMega
                         // check if we already have it
                         if (got.Contains(par.param_index))
                         {
-                            log.Info("Already got "+(par.param_index)  + " '" + paramID + "'");
+                            log.Info("Already got " + (par.param_index) + " '" + paramID + "'");
                             this.frmProgressReporter.UpdateProgressAndStatus((got.Count * 100) / param_total, "Already Got param " + paramID);
                             continue;
                         }
 
-                        log.Info(DateTime.Now.Millisecond + " got param " + (par.param_index) + " of " + (par.param_count - 2) + " name: " + paramID );
+                        log.Info(DateTime.Now.Millisecond + " got param " + (par.param_index) + " of " + (par.param_count) + " name: " + paramID);
 
                         modifyParamForDisplay(true, paramID, ref par.param_value);
                         param[paramID] = (par.param_value);
@@ -698,7 +731,7 @@ namespace ArdupilotMega
                         this.frmProgressReporter.UpdateProgressAndStatus((got.Count * 100) / param_total, "Got param " + paramID);
 
                         // we have them all - lets escape eq total = 176 index = 0-175
-                        if (par.param_index == (param_total - 1))
+                        if (par.param_index == (param_total -1))
                             break;
                     }
                     else
@@ -1035,9 +1068,9 @@ namespace ArdupilotMega
 
         public void requestDatastream(byte id, byte hzrate)
         {
-            
+
             double pps = 0;
-            
+
             switch (id)
             {
                 case (byte)MAVLink.MAV_DATA_STREAM.ALL:
@@ -1080,9 +1113,6 @@ namespace ArdupilotMega
                     }
                     break;
                 case (byte)MAVLink.MAV_DATA_STREAM.POSITION:
-                    // ac2 does not send rate position
-                    if (MainV2.cs.firmware == MainV2.Firmwares.ArduCopter2)
-                        return;
                     if (packetspersecondbuild[MAVLINK_MSG_ID_GLOBAL_POSITION_INT] < DateTime.Now.AddSeconds(-2))
                         break;
                     pps = packetspersecond[MAVLINK_MSG_ID_GLOBAL_POSITION_INT];
@@ -1126,7 +1156,7 @@ namespace ArdupilotMega
             {
                 return;
             }
-             
+
 
             log.InfoFormat("Request stream {0} at {1} hz", Enum.Parse(typeof(MAV_DATA_STREAM), id.ToString()), hzrate);
             getDatastream(id, hzrate);
@@ -1156,7 +1186,7 @@ namespace ArdupilotMega
             {
                 return true;
             }
-            
+
             return false;
 
         }
@@ -1473,7 +1503,7 @@ namespace ArdupilotMega
         public object DebugPacket(byte[] datin)
         {
             string text = "";
-            return DebugPacket(datin, ref text,true);
+            return DebugPacket(datin, ref text, true);
         }
 
         public object DebugPacket(byte[] datin, bool PrintToConsole)
@@ -1492,7 +1522,7 @@ namespace ArdupilotMega
         /// </summary>
         /// <param name="datin">packet byte array</param>
         /// <returns>struct of data</returns>
-        public object DebugPacket(byte[] datin, ref string text, bool PrintToConsole)
+        public object DebugPacket(byte[] datin, ref string text, bool PrintToConsole, string delimeter = " ")
         {
             string textoutput;
             try
@@ -1506,7 +1536,7 @@ namespace ArdupilotMega
                     byte compid = datin[4];
                     byte messid = datin[5];
 
-                    textoutput = string.Format("{0:X} {1:X} {2:X} {3:X} {4:X} {5:X} ", header, length, seq, sysid, compid, messid);
+                    textoutput = string.Format("{0:X}{6}{1:X}{6}{2:X}{6}{3:X}{6}{4:X}{6}{5:X}{6}", header, length, seq, sysid, compid, messid, delimeter);
 
                     object data = Activator.CreateInstance(MAVLINK_MESSAGE_INFO[messid]);
 
@@ -1517,7 +1547,7 @@ namespace ArdupilotMega
                     if (PrintToConsole)
                     {
 
-                        textoutput = textoutput + test.Name + " ";
+                        textoutput = textoutput + test.Name + delimeter;
 
                         foreach (var field in test.GetFields())
                         {
@@ -1527,7 +1557,7 @@ namespace ArdupilotMega
 
                             if (field.FieldType.IsArray)
                             {
-                                textoutput = textoutput + field.Name + "=";
+                                textoutput = textoutput + field.Name + delimeter;
                                 byte[] crap = (byte[])fieldValue;
                                 foreach (byte fiel in crap)
                                 {
@@ -1540,14 +1570,14 @@ namespace ArdupilotMega
                                         textoutput = textoutput + (char)fiel;
                                     }
                                 }
-                                textoutput = textoutput + " ";
+                                textoutput = textoutput + delimeter;
                             }
                             else
                             {
-                                textoutput = textoutput + field.Name + "=" + fieldValue.ToString() + " ";
+                                textoutput = textoutput + field.Name + delimeter + fieldValue.ToString() + delimeter;
                             }
                         }
-                        textoutput = textoutput + " Len:" + datin.Length + "\r\n";
+                        textoutput = textoutput + delimeter + "Len" + delimeter + datin.Length + "\r\n";
                         if (PrintToConsole)
                             Console.Write(textoutput);
 
@@ -2050,6 +2080,7 @@ namespace ArdupilotMega
                             TCPConsole.Write(temp[0]);
                             Console.Write((char)temp[0]);
                         }
+                        _bytesReceivedSubj.OnNext(1);
                         count = 0;
                         lastbad[0] = lastbad[1];
                         lastbad[1] = temp[0];
@@ -2072,7 +2103,9 @@ namespace ArdupilotMega
                                     if (temp[3] == '3' && temp[4] == 'D')
                                     {
                                         // this is a 3dr radio rssi packet
-                                    } else {
+                                    }
+                                    else
+                                    {
                                         log.InfoFormat("Mavlink Bad Packet (not addressed to this MAV) got {0} {1} vs {2} {3}", temp[3], temp[4], sysid, compid);
                                         return new byte[0];
                                     }
@@ -2125,7 +2158,9 @@ namespace ArdupilotMega
 
             Array.Resize<byte>(ref temp, count);
 
-            if (packetlosttimer.AddSeconds(10) < DateTime.Now)
+            _bytesReceivedSubj.OnNext(temp.Length);
+
+            if (packetlosttimer.AddSeconds(5) < DateTime.Now)
             {
                 packetlosttimer = DateTime.Now;
                 packetslost = (packetslost * 0.8f);
@@ -2163,7 +2198,7 @@ namespace ArdupilotMega
             {
                 if (MAVLINK_MESSAGE_LENGTHS[temp[5]] == 0) // pass for unknown packets
                 {
-                
+
                 }
                 else
                 {
@@ -2207,26 +2242,33 @@ namespace ArdupilotMega
                     }
                     else
                     {
-                        if (temp[2] != ((recvpacketcount + 1) % 0x100))
+                        byte packetSeqNo = temp[2];
+                        int expectedPacketSeqNo = ((recvpacketcount + 1) % 0x100);
+
+                        if (packetSeqNo != expectedPacketSeqNo)
                         {
                             synclost++; // actualy sync loss's
+                            int numLost = 0;
 
-                            if (temp[2] < ((recvpacketcount + 1) % 0x100))
+                            if (packetSeqNo < ((recvpacketcount + 1))) // recvpacketcount = 255 then   10 < 256 = true if was % 0x100 this would fail
                             {
-                                packetslost += 0x100 - recvpacketcount + temp[2];
+                                numLost = 0x100 - expectedPacketSeqNo + packetSeqNo;
                             }
                             else
                             {
-                                packetslost += temp[2] - recvpacketcount;
+                                numLost = packetSeqNo - recvpacketcount;
                             }
+                            packetslost += numLost;
+                            WhenPacketLost.OnNext(numLost);
 
-                            log.InfoFormat("lost {0} pkts {1}", temp[2], (int)packetslost);
+                            log.InfoFormat("lost {0} pkts {1}", packetSeqNo, (int)packetslost);
                         }
 
                         packetsnotlost++;
 
-                        recvpacketcount = temp[2];
-
+                        recvpacketcount = packetSeqNo;
+                        WhenPacketReceived.OnNext(1);
+                       // Console.WriteLine(DateTime.Now.Millisecond);
                     }
 
                     //MAVLINK_MSG_ID_GPS_STATUS
@@ -2500,10 +2542,14 @@ namespace ArdupilotMega
                 a++;
             }
 
+            if (temp[5] == 0) {
+                mavlink_heartbeat_t hb = temp.ByteArrayToStructure<mavlink_heartbeat_t>(6);
+
+                mavlinkversion = hb.mavlink_version;
+                aptype = (MAV_TYPE)hb.type;
+            }
+
             return temp;
         }
-
-
-
     }
 }

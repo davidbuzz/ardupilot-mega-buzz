@@ -27,7 +27,6 @@ planner_gcs(uint8_t argc, const Menu::arg *argv)
 {
   gcs0.init(&Serial);
 
-
 #if TELEMETRY_ON_SERIAL0 != 1  && SERIAL3_INIT == 1
   // we don't have gcs3 if we have the USB mux setup, or if we put our telemetry on serial0 
   gcs3.init(&Serial3);

@@ -79,14 +79,7 @@ namespace ArdupilotMega.GCSViews.ConfigurationView
 
         void readToolTips()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Configuration));
-
-            string data = resources.GetString("MAVParam");
-
-            if (data == null)
-            {
-                data = global::ArdupilotMega.Properties.Resources.MAVParam;
-            }
+            string data = global::ArdupilotMega.Properties.Resources.MAVParam;
 
             string[] tips = data.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -380,6 +373,33 @@ namespace ArdupilotMega.GCSViews.ConfigurationView
                     CustomMessageBox.Show("Set " + value + " Failed");
                 }
             }
+        }
+
+        /// <summary>
+        /// Handles the Click event of the BUT_rerequestparams control.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The <see cref="System.EventArgs"/> instance containing the event data.</param>
+        protected void BUT_rerequestparams_Click(object sender, EventArgs e)
+        {
+            if (!MainV2.comPort.BaseStream.IsOpen)
+                return;
+
+            ((Control)sender).Enabled = false;
+
+            try
+            {
+                MainV2.comPort.getParamList();
+            }
+            catch (Exception ex)
+            {
+                CustomMessageBox.Show("Error: getting param list " + ex.ToString());
+            }
+
+
+            ((Control)sender).Enabled = true;
+
+            this.DoLoad(new EventArgs());
         }
       
         

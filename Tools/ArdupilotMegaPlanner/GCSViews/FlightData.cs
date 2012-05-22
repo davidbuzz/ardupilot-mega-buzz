@@ -24,7 +24,7 @@ namespace ArdupilotMega.GCSViews
 {
     partial class FlightData : MyUserControl
     {
-        ArdupilotMega.MAVLink comPort = MainV2.comPort;
+        ArdupilotMega.IMAVLink comPort = MainV2.comPort;
         public static int threadrun = 0;
         StreamWriter swlog;
         int tickStart = 0;
@@ -77,7 +77,7 @@ namespace ArdupilotMega.GCSViews
         public static GMapControl mymap = null;
 
         bool playingLog = false;
-
+        double LogPlayBackSpeed = 1.0;
 
         public static PointLatLngAlt GuidedModeWP = new PointLatLngAlt();
 
@@ -126,7 +126,7 @@ namespace ArdupilotMega.GCSViews
 
             List<string> list = new List<string>();
 
-            //foreach (object obj in Enum.GetValues(typeof(MAVLink.MAV_ACTION)))
+            //foreach (object obj in Enum.GetValues(typeof(MAVLink09.MAV_ACTION)))
 #if MAVLINK10
             {
                 list.Add("LOITER_UNLIM");
@@ -280,7 +280,7 @@ namespace ArdupilotMega.GCSViews
                     {
                         //System.Threading.Thread.Sleep(1000);
 
-                        //comPort.requestDatastream((byte)ArdupilotMega.MAVLink.MAV_DATA_STREAM.RAW_CONTROLLER, 0); // request servoout
+                        //comPort.requestDatastream((byte)ArdupilotMega.MAVLink09.MAV_DATA_STREAM.RAW_CONTROLLER, 0); // request servoout
                         comPort.requestDatastream((byte)ArdupilotMega.MAVLink.MAV_DATA_STREAM.EXTENDED_STATUS, MainV2.cs.ratestatus); // mode
                         comPort.requestDatastream((byte)ArdupilotMega.MAVLink.MAV_DATA_STREAM.POSITION, MainV2.cs.rateposition); // request gps
                         comPort.requestDatastream((byte)ArdupilotMega.MAVLink.MAV_DATA_STREAM.EXTRA1, MainV2.cs.rateattitude); // request attitude
@@ -319,8 +319,14 @@ namespace ArdupilotMega.GCSViews
 
                     updatePlayPauseButton(true);
 
+                    MainV2.comPort.setAPType();
+
                     if (comPort.BaseStream.IsOpen)
+                    {
                         MainV2.comPort.logreadmode = false;
+                        MainV2.comPort.logplaybackfile.Close();
+                        MainV2.comPort.logplaybackfile = null;
+                    }
 
                     DateTime logplayback = MainV2.comPort.lastlogread;
                     try
@@ -337,9 +343,11 @@ namespace ArdupilotMega.GCSViews
                         act = 0;
 
                     int ts = 0;
+                    if (LogPlayBackSpeed == 0)
+                        LogPlayBackSpeed = 0.01;
                     try
                     {
-                        ts = (int)(act / (double)NUM_playbackspeed.Value);
+                        ts = (int) Math.Min((act / LogPlayBackSpeed),1000);
                     }
                     catch { }
                     if (ts > 0)
@@ -356,7 +364,7 @@ namespace ArdupilotMega.GCSViews
                         tunning = DateTime.Now;
                     }
 
-                    if (MainV2.comPort.logplaybackfile.BaseStream.Position == MainV2.comPort.logplaybackfile.BaseStream.Length)
+                    if (MainV2.comPort.logplaybackfile != null && MainV2.comPort.logplaybackfile.BaseStream.Position == MainV2.comPort.logplaybackfile.BaseStream.Length)
                     {
                         MainV2.comPort.logreadmode = false;
                     }
@@ -381,6 +389,12 @@ namespace ArdupilotMega.GCSViews
                     //Console.WriteLine(DateTime.Now.Millisecond);
                     updateBindingSource();
                     //Console.WriteLine(DateTime.Now.Millisecond + " done ");
+
+                    if (ArdupilotMega.Controls.OpenGLtest.instance != null)
+                    {
+                        ArdupilotMega.Controls.OpenGLtest.instance.rpy = new OpenTK.Vector3(MainV2.cs.roll,MainV2.cs.pitch,MainV2.cs.yaw);
+                        ArdupilotMega.Controls.OpenGLtest.instance.LocationCenter = new PointLatLngAlt(MainV2.cs.lat,MainV2.cs.lng,MainV2.cs.alt,"here");
+                    }
 
                     if (tunning.AddMilliseconds(50) < DateTime.Now && CB_tuning.Checked == true)
                     {
@@ -484,10 +498,13 @@ namespace ArdupilotMega.GCSViews
                             {
                                 PointLatLng currentloc = new PointLatLng(MainV2.cs.lat, MainV2.cs.lng);
 
-
                                 if (MainV2.cs.firmware == MainV2.Firmwares.ArduPlane)
                                 {
                                     routes.Markers.Add(new GMapMarkerPlane(currentloc, MainV2.cs.yaw, MainV2.cs.groundcourse, MainV2.cs.nav_bearing, MainV2.cs.target_bearing, gMapControl1));
+                                }
+                                else if (MainV2.cs.firmware == MainV2.Firmwares.ArduRover)
+                                {
+                                    routes.Markers.Add(new GMapMarkerRover(currentloc, MainV2.cs.yaw, MainV2.cs.groundcourse, MainV2.cs.nav_bearing, MainV2.cs.target_bearing, gMapControl1));
                                 }
                                 else
                                 {
@@ -835,11 +852,11 @@ namespace ArdupilotMega.GCSViews
             {
                 ((Button)sender).Enabled = false;
 
-                //comPort.doAction(MAVLink.MAV_ACTION.MAV_ACTION_RETURN); // set nav from
+                //comPort.doAction(MAVLink09.MAV_ACTION.MAV_ACTION_RETURN); // set nav from
                 //System.Threading.Thread.Sleep(100);
                 comPort.setWPCurrent(1); // set nav to
                 //System.Threading.Thread.Sleep(100);
-                //comPort.doAction(MAVLink.MAV_ACTION.MAV_ACTION_SET_AUTO); // set auto
+                //comPort.doAction(MAVLink09.MAV_ACTION.MAV_ACTION_SET_AUTO); // set auto
             }
             catch { CustomMessageBox.Show("The command failed to execute"); }
             ((Button)sender).Enabled = true;
@@ -985,8 +1002,8 @@ namespace ArdupilotMega.GCSViews
                 catch { }
             }
         }
-
-        private void FlightData_ParentChanged(object sender, EventArgs e)
+		
+		        private void FlightData_ParentChanged(object sender, EventArgs e)
         {
             if (MainV2.cam != null)
             {
@@ -1110,7 +1127,33 @@ namespace ArdupilotMega.GCSViews
 
         private void tabPage1_Resize(object sender, EventArgs e)
         {
-            int mywidth;
+            int mywidth, myheight;
+
+            float scale = tabGauges.Width / (float)tabGauges.Height;
+
+            if (scale > 0.5 && scale < 1.9)
+            {// square
+                Gvspeed.Visible = true;
+
+                if (tabGauges.Height < tabGauges.Width)
+                    myheight = tabGauges.Height / 2;
+                else
+                    myheight = tabGauges.Width / 2;
+
+                Gvspeed.Height = myheight;
+                Gspeed.Height = myheight;
+                Galt.Height = myheight;
+                Gheading.Height = myheight;
+
+                Gvspeed.Location = new Point(0, 0);
+                Gspeed.Location = new Point(Gvspeed.Right, 0);
+
+
+                Galt.Location = new Point(0, Gspeed.Bottom);
+                Gheading.Location = new Point(Galt.Right, Gspeed.Bottom);
+
+                return;
+            }
 
             if (tabGauges.Width < 500)
             {
@@ -1180,7 +1223,7 @@ namespace ArdupilotMega.GCSViews
             {
                 ((Button)sender).Enabled = false;
 #if MAVLINK10
-				MainV2.comPort.setMode("AUTO");
+				MainV2.comPort.setMode("Auto");
 #else
                 comPort.doAction(MAVLink.MAV_ACTION.MAV_ACTION_SET_AUTO);
 #endif
@@ -1210,7 +1253,7 @@ namespace ArdupilotMega.GCSViews
             {
                 ((Button)sender).Enabled = false;
 #if MAVLINK10
-				MainV2.comPort.setMode("MANUAL");
+				MainV2.comPort.setMode("Manual");
 #else
                 comPort.doAction(MAVLink.MAV_ACTION.MAV_ACTION_SET_MANUAL);
 #endif
@@ -1419,7 +1462,7 @@ namespace ArdupilotMega.GCSViews
             aviwriter = null;
         }
 
-        void setupPropertyInfo(ref System.Reflection.PropertyInfo input, string name, object source)
+        bool setupPropertyInfo(ref System.Reflection.PropertyInfo input, string name, object source)
         {
             Type test = source.GetType();
 
@@ -1428,11 +1471,11 @@ namespace ArdupilotMega.GCSViews
                 if (field.Name == name)
                 {
                     input = field;
-                    return;
+                    return true;
                 }
             }
 
-
+            return false;
         }
 
         private void zg1_DoubleClick(object sender, EventArgs e)
@@ -1546,53 +1589,53 @@ namespace ArdupilotMega.GCSViews
             {
                 if (list1item == null)
                 {
-                    setupPropertyInfo(ref list1item, ((CheckBox)sender).Name, MainV2.cs);
-                    list1curve = zg1.GraphPane.AddCurve(((CheckBox)sender).Name, list1, Color.Red, SymbolType.None);
+                    if (setupPropertyInfo(ref list1item, ((CheckBox)sender).Name, MainV2.cs))
+                        list1curve = zg1.GraphPane.AddCurve(((CheckBox)sender).Name, list1, Color.Red, SymbolType.None);
                 }
                 else if (list2item == null)
                 {
-                    setupPropertyInfo(ref list2item, ((CheckBox)sender).Name, MainV2.cs);
-                    list2curve = zg1.GraphPane.AddCurve(((CheckBox)sender).Name, list2, Color.Blue, SymbolType.None);
+                    if (setupPropertyInfo(ref list2item, ((CheckBox)sender).Name, MainV2.cs))
+                        list2curve = zg1.GraphPane.AddCurve(((CheckBox)sender).Name, list2, Color.Blue, SymbolType.None);
                 }
                 else if (list3item == null)
                 {
-                    setupPropertyInfo(ref list3item, ((CheckBox)sender).Name, MainV2.cs);
-                    list3curve = zg1.GraphPane.AddCurve(((CheckBox)sender).Name, list3, Color.Green, SymbolType.None);
+                    if (setupPropertyInfo(ref list3item, ((CheckBox)sender).Name, MainV2.cs))
+                        list3curve = zg1.GraphPane.AddCurve(((CheckBox)sender).Name, list3, Color.Green, SymbolType.None);
                 }
                 else if (list4item == null)
                 {
-                    setupPropertyInfo(ref list4item, ((CheckBox)sender).Name, MainV2.cs);
-                    list4curve = zg1.GraphPane.AddCurve(((CheckBox)sender).Name, list4, Color.Orange, SymbolType.None);
+                    if (setupPropertyInfo(ref list4item, ((CheckBox)sender).Name, MainV2.cs))
+                        list4curve = zg1.GraphPane.AddCurve(((CheckBox)sender).Name, list4, Color.Orange, SymbolType.None);
                 }
                 else if (list5item == null)
                 {
-                    setupPropertyInfo(ref list5item, ((CheckBox)sender).Name, MainV2.cs);
-                    list5curve = zg1.GraphPane.AddCurve(((CheckBox)sender).Name, list5, Color.Yellow, SymbolType.None);
+                    if (setupPropertyInfo(ref list5item, ((CheckBox)sender).Name, MainV2.cs))
+                        list5curve = zg1.GraphPane.AddCurve(((CheckBox)sender).Name, list5, Color.Yellow, SymbolType.None);
                 }
                 else if (list6item == null)
                 {
-                    setupPropertyInfo(ref list6item, ((CheckBox)sender).Name, MainV2.cs);
-                    list6curve = zg1.GraphPane.AddCurve(((CheckBox)sender).Name, list6, Color.Magenta, SymbolType.None);
+                    if (setupPropertyInfo(ref list6item, ((CheckBox)sender).Name, MainV2.cs))
+                        list6curve = zg1.GraphPane.AddCurve(((CheckBox)sender).Name, list6, Color.Magenta, SymbolType.None);
                 }
                 else if (list7item == null)
                 {
-                    setupPropertyInfo(ref list7item, ((CheckBox)sender).Name, MainV2.cs);
-                    list7curve = zg1.GraphPane.AddCurve(((CheckBox)sender).Name, list7, Color.Purple, SymbolType.None);
+                    if (setupPropertyInfo(ref list7item, ((CheckBox)sender).Name, MainV2.cs))
+                        list7curve = zg1.GraphPane.AddCurve(((CheckBox)sender).Name, list7, Color.Purple, SymbolType.None);
                 }
                 else if (list8item == null)
                 {
-                    setupPropertyInfo(ref list8item, ((CheckBox)sender).Name, MainV2.cs);
-                    list8curve = zg1.GraphPane.AddCurve(((CheckBox)sender).Name, list8, Color.LimeGreen, SymbolType.None);
+                    if (setupPropertyInfo(ref list8item, ((CheckBox)sender).Name, MainV2.cs))
+                        list8curve = zg1.GraphPane.AddCurve(((CheckBox)sender).Name, list8, Color.LimeGreen, SymbolType.None);
                 }
                 else if (list9item == null)
                 {
-                    setupPropertyInfo(ref list9item, ((CheckBox)sender).Name, MainV2.cs);
-                    list9curve = zg1.GraphPane.AddCurve(((CheckBox)sender).Name, list9, Color.Cyan, SymbolType.None);
+                    if (setupPropertyInfo(ref list9item, ((CheckBox)sender).Name, MainV2.cs))
+                        list9curve = zg1.GraphPane.AddCurve(((CheckBox)sender).Name, list9, Color.Cyan, SymbolType.None);
                 }
                 else if (list10item == null)
                 {
-                    setupPropertyInfo(ref list10item, ((CheckBox)sender).Name, MainV2.cs);
-                    list10curve = zg1.GraphPane.AddCurve(((CheckBox)sender).Name, list10, Color.Violet, SymbolType.None);
+                    if (setupPropertyInfo(ref list10item, ((CheckBox)sender).Name, MainV2.cs))
+                        list10curve = zg1.GraphPane.AddCurve(((CheckBox)sender).Name, list10, Color.Violet, SymbolType.None);
                 }
                 else
                 {
@@ -1813,6 +1856,12 @@ print 'Roll complete'
         private void CHK_autopan_CheckedChanged(object sender, EventArgs e)
         {
             MainV2.config["CHK_autopan"] = CHK_autopan.Checked.ToString();
+        }
+
+        private void NUM_playbackspeed_Scroll(object sender, EventArgs e)
+        {
+            LogPlayBackSpeed = NUM_playbackspeed.Value;
+            lbl_playbackspeed.Text = "x " + LogPlayBackSpeed;
         }
     }
 }

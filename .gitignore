@@ -32,3 +32,7 @@ status.txt
 /Tools/ArdupilotMegaPlanner/Msi/upload.bat
 *.parm
 /tmp/
+*.exe
+*.dll
+*.obj
+*.zip

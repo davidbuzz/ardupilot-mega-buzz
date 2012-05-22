@@ -554,6 +554,9 @@ namespace ArdupilotMega.GCSViews
                 if (MainV2.cs.firmware == MainV2.Firmwares.ArduPlane)
                 {
                     reader.ReadToFollowing("APM");
+                } else if (MainV2.cs.firmware == MainV2.Firmwares.ArduRover)
+                {
+                    reader.ReadToFollowing("APRover");
                 }
                 else
                 {
@@ -1218,7 +1221,7 @@ namespace ArdupilotMega.GCSViews
 
             try
             {
-                MAVLink port = MainV2.comPort;
+                IMAVLink port = MainV2.comPort;
 
                 if (!port.BaseStream.IsOpen)
                 {
@@ -1327,7 +1330,7 @@ namespace ArdupilotMega.GCSViews
         {
             try
             {
-                MAVLink port = MainV2.comPort;
+                IMAVLink port = MainV2.comPort;
 
                 if (!port.BaseStream.IsOpen)
                 {
@@ -2488,6 +2491,12 @@ namespace ArdupilotMega.GCSViews
                 CustomMessageBox.Show("Right click the map to draw a polygon", "Area", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
+
+            // ensure points/latlong are current
+            MainMap.Zoom = (int)MainMap.Zoom;
+
+            MainMap.Refresh();
+
             GMapPolygon area = drawnpolygon;
             area.Points.Add(area.Points[0]); // make a full loop
             RectLatLng arearect = getPolyMinMax(area);
@@ -2538,7 +2547,7 @@ namespace ArdupilotMega.GCSViews
                 //Commands.Rows.Clear();
 #endif
                 // get x y components
-                double x1 = Math.Cos((double.Parse(angle)) * deg2rad);
+                double x1 = Math.Cos((double.Parse(angle)) * deg2rad); // needs to mod for long scale
                 double y1 = Math.Sin((double.Parse(angle)) * deg2rad);
 
                 // get x y step amount in lat lng from m
@@ -3048,7 +3057,11 @@ namespace ArdupilotMega.GCSViews
 
                 if (MainV2.cs.firmware == MainV2.Firmwares.ArduPlane)
                 {
-                    routes.Markers.Add(new GMapMarkerPlane(currentloc, MainV2.cs.yaw, MainV2.cs.groundcourse, MainV2.cs.nav_bearing, MainV2.cs.target_bearing, MainMap) { ToolTipText = MainV2.cs.alt.ToString("0"), ToolTipMode = MarkerTooltipMode.Always });
+                    routes.Markers.Add(new GMapMarkerPlane(currentloc, MainV2.cs.yaw, MainV2.cs.groundcourse, MainV2.cs.nav_bearing, MainV2.cs.target_bearing, MainMap));
+                }
+                else if (MainV2.cs.firmware == MainV2.Firmwares.ArduRover)
+                {
+                    routes.Markers.Add(new GMapMarkerRover(currentloc, MainV2.cs.yaw, MainV2.cs.groundcourse, MainV2.cs.nav_bearing, MainV2.cs.target_bearing, MainMap));
                 }
                 else
                 {

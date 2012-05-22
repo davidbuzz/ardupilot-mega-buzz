@@ -11,62 +11,52 @@ using System.IO;
 using ArdupilotMega.Controls.BackstageView;
 using ArdupilotMega.Arduino;
 using ArdupilotMega.Comms;
+using log4net;
+using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace ArdupilotMega
 {
     public partial class _3DRradio : BackStageViewContentPanel
     {
-        /*
-responce 0 S0: FORMAT=25
-
-S1: SERIAL_SPEED=57
-
-S2: AIR_SPEED=64
-
-S3: NETID=25
-
-S4: TXPOWER=20
-
-S5: ECC=1
-
-S6: MAVLINK=1
-
-S7: OPPRESEND=1
-
-S8: MIN_FREQ=915000
-
-S9: MAX_FREQ=928000
-
-S10: NUM_CHANNELS=50
-
-S11: DUTY_CYCLE=100
-
-S12: LBT_RSSI=0
-
-S13: MANCHESTER=0
-
-         */
-
         public delegate void LogEventHandler(string message, int level = 0);
 
         public delegate void ProgressEventHandler(double completed);
 
-        string firmwarefile = Path.GetDirectoryName(Application.ExecutablePath) + Path.DirectorySeparatorChar + "radio.hm_trp.hex";
+        string firmwarefile = Path.GetDirectoryName(Application.ExecutablePath) + Path.DirectorySeparatorChar + "radio.hex";
+
+        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public _3DRradio()
         {
             InitializeComponent();
 
+            // hide advanced view
+            SPLIT_local.Panel2Collapsed = true;
+            SPLIT_remote.Panel2Collapsed = true;
+
+            // setup netid
             S3.DataSource = Enumerable.Range(0, 500).ToArray();
-            RS3.DataSource = S3.DataSource;
+            RS3.DataSource = Enumerable.Range(0, 500).ToArray();
         }
 
-        bool getFirmware()
+        bool getFirmware(uploader.Uploader.Code device)
         {
             // was https://raw.github.com/tridge/SiK/master/Firmware/dst/radio.hm_trp.hex
             // now http://www.samba.org/tridge/UAV/3DR/radio.hm_trp.hex
 
-            return Common.getFilefromNet("http://www.samba.org/tridge/UAV/3DR/radio.hm_trp.hex", firmwarefile);
+            if (device == uploader.Uploader.Code.DEVICE_ID_HM_TRP)
+            {
+                return Common.getFilefromNet("http://www.samba.org/tridge/UAV/3DR/radio.hm_trp.hex", firmwarefile);
+            }
+            else if (device == uploader.Uploader.Code.DEVICE_ID_RFD900)
+            {
+                return Common.getFilefromNet("http://www.samba.org/tridge/UAV/3DR/radio.rfd900.hex", firmwarefile);
+            }
+            else
+            {
+                return false;
+            }
         }
 
         void Sleep(int mstimeout)
@@ -98,8 +88,7 @@ S13: MANCHESTER=0
 
             bool bootloadermode = false;
 
-
-
+            // attempt bootloader mode
             try
             {
                 uploader_ProgressEvent(0);
@@ -115,6 +104,7 @@ S13: MANCHESTER=0
             }
             catch
             {
+                // cleanup bootloader mode fail, and try firmware mode
                 comPort.Close();
                 comPort.BaudRate = MainV2.comPort.BaseStream.BaudRate;
                 comPort.Open();
@@ -126,46 +116,59 @@ S13: MANCHESTER=0
                 bootloadermode = false;
             }
 
-
+            // check for either already bootloadermode, or if we can do a ATI to ID the firmware 
             if (bootloadermode || doConnect(comPort))
             {
-                if (getFirmware())
+
+                uploader.IHex iHex = new uploader.IHex();
+
+                iHex.LogEvent += new LogEventHandler(iHex_LogEvent);
+
+                iHex.ProgressEvent += new ProgressEventHandler(iHex_ProgressEvent);
+
+                // put into bootloader mode/udpate mode
+                if (!bootloadermode)
                 {
-                    uploader.IHex iHex = new uploader.IHex();
+                    try
+                    {
+                        comPort.Write("AT&UPDATE\r\n");
+                        string left = comPort.ReadExisting();
+                        log.Info(left);
+                        Sleep(700);
+                        comPort.BaudRate = 115200;
+                    }
+                    catch { }
+                }
 
-                    iHex.LogEvent += new LogEventHandler(iHex_LogEvent);
+                global::uploader.Uploader.Code device = global::uploader.Uploader.Code.FAILED;
+                global::uploader.Uploader.Code freq = global::uploader.Uploader.Code.FAILED;
 
-                    iHex.ProgressEvent += new ProgressEventHandler(iHex_ProgressEvent);
+                // get the device type and frequency in the bootloader
+                uploader.getDevice(ref device, ref freq);
 
+                // get firmware for this device
+                if (getFirmware(device))
+                {
+                    // load the hex
                     try
                     {
                         iHex.load(firmwarefile);
                     }
                     catch { CustomMessageBox.Show("Bad Firmware File"); goto exit; }
 
-                    if (!bootloadermode)
-                    {
-                        try
-                        {
-                            comPort.Write("AT&UPDATE\r\n");
-                            string left = comPort.ReadExisting();
-                            Console.WriteLine(left);
-                            Sleep(700);
-                            comPort.BaudRate = 115200;
-                        }
-                        catch { }
-                    }
-
+                    // upload the hex and verify
                     try
                     {
                         uploader.upload(comPort, iHex);
                     }
                     catch (Exception ex) { CustomMessageBox.Show("Upload Failed " + ex.Message); }
+
                 }
                 else
                 {
                     CustomMessageBox.Show("Failed to download new firmware");
                 }
+
             }
             else
             {
@@ -175,7 +178,6 @@ S13: MANCHESTER=0
         exit:
             if (comPort.IsOpen)
                 comPort.Close();
-
         }
 
         void iHex_ProgressEvent(double completed)
@@ -196,7 +198,12 @@ S13: MANCHESTER=0
                 {
                     Console.Write(message);
                     lbl_status.Text = message;
+                    log.Info(message);
                     Application.DoEvents();
+                }
+                else if (level < 5) // 5 = byte data
+                {
+                    log.Debug(message);
                 }
             }
             catch { }
@@ -210,6 +217,7 @@ S13: MANCHESTER=0
                 {
                     lbl_status.Text = message;
                     Console.WriteLine(message);
+                    log.Info(message);
                     Application.DoEvents();
                 }
             }
@@ -247,6 +255,9 @@ S13: MANCHESTER=0
 
             if (doConnect(comPort))
             {
+                // cleanup
+                doCommand(comPort, "AT&T");
+
                 comPort.DiscardInBuffer();
 
                 lbl_status.Text = "Doing Command";
@@ -401,6 +412,18 @@ S13: MANCHESTER=0
             comPort.Close();
         }
 
+        public static IEnumerable<int> Range(int start,int step, int end)
+        {
+            List<int> list = new List<int>();
+
+            for (int a = start; a <= end; a += step)
+            {
+                list.Add(a);
+            }
+
+            return list;
+        }
+
 
         private void BUT_getcurrent_Click(object sender, EventArgs e)
         {
@@ -423,13 +446,40 @@ S13: MANCHESTER=0
 
             if (doConnect(comPort))
             {
+                // cleanup
+                doCommand(comPort, "AT&T");
+
                 comPort.DiscardInBuffer();
 
                 lbl_status.Text = "Doing Command ATI & RTI";
 
-                ATI.Text = doCommand(comPort, "ATI1").Trim();
+                ATI.Text = doCommand(comPort, "ATI");
 
-                RTI.Text = doCommand(comPort, "RTI1").Trim();
+                RTI.Text = doCommand(comPort, "RTI");
+
+                    uploader.Uploader.Code freq = (uploader.Uploader.Code)Enum.Parse(typeof(uploader.Uploader.Code), doCommand(comPort, "ATI3"));
+                    uploader.Uploader.Code board = (uploader.Uploader.Code)Enum.Parse(typeof(uploader.Uploader.Code), doCommand(comPort, "ATI2"));
+
+                    ATI3.Text = freq.ToString();
+                // 8 and 9
+                    if (freq == uploader.Uploader.Code.FREQ_915) {
+                        S8.DataSource = Range(895000, 1000, 935000);
+                        RS8.DataSource = Range(895000, 1000, 935000);
+
+                        S9.DataSource = Range(895000, 1000, 935000);
+                        RS9.DataSource = Range(895000, 1000, 935000);
+                    }
+                    else if (freq == uploader.Uploader.Code.FREQ_433)
+                    {
+                        S8.DataSource = Range(414000, 100, 454000);
+                        RS8.DataSource = Range(414000, 100, 454000);
+
+                        S9.DataSource = Range(414000, 100, 454000);
+                        RS9.DataSource = Range(414000, 100, 454000);
+                    }
+
+
+
 
                 RSSI.Text = doCommand(comPort, "ATI7").Trim();
 
@@ -447,7 +497,7 @@ S13: MANCHESTER=0
 
                         if (values.Length == 3)
                         {
-                            Control[] controls = this.Controls.Find(values[0].Trim(), false);
+                            Control[] controls = this.Controls.Find(values[0].Trim(), true);
 
                             if (controls.Length > 0)
                             {
@@ -465,7 +515,7 @@ S13: MANCHESTER=0
                 }
 
                 // remote
-                foreach (Control ctl in this.Controls)
+                foreach (Control ctl in groupBox2.Controls)
                 {
                     if (ctl.Name.StartsWith("RS") && ctl.Name != "RSSI")
                         ctl.ResetText();
@@ -488,7 +538,7 @@ S13: MANCHESTER=0
 
                         if (values.Length == 3)
                         {
-                            Control[] controls = this.Controls.Find("R" + values[0].Trim(), false);
+                            Control[] controls = this.Controls.Find("R" + values[0].Trim(), true);
 
                             if (controls.Length == 0)
                                 continue;
@@ -503,12 +553,12 @@ S13: MANCHESTER=0
                             }
                             else if (controls[0].GetType() == typeof(ComboBox))
                             {
-                                ((ComboBox)controls[0]).SelectedText = values[2].Trim();
+                                ((ComboBox)controls[0]).Text = values[2].Trim();
                             }
                         }
                         else
                         {
-                            Console.WriteLine("Odd config line :" + item);
+                            log.Info("Odd config line :" + item);
                         }
                     }
                 }
@@ -529,6 +579,8 @@ S13: MANCHESTER=0
             }
 
             comPort.Close();
+
+            BUT_Syncoptions.Enabled = true;
 
             BUT_savesettings.Enabled = true;
         }
@@ -552,7 +604,7 @@ S13: MANCHESTER=0
             return sb.ToString();
         }
 
-        string doCommand(ArdupilotMega.Comms.ICommsSerial comPort, string cmd, int level = 0)
+        public string doCommand(ArdupilotMega.Comms.ICommsSerial comPort, string cmd, int level = 0)
         {
             if (!comPort.IsOpen)
                 return "";
@@ -565,7 +617,7 @@ S13: MANCHESTER=0
             // ignore all existing data
             comPort.DiscardInBuffer();
             lbl_status.Text = "Doing Command " + cmd;
-            Console.WriteLine("Doing Command " + cmd);
+            log.Info("Doing Command " + cmd);
             // write command
             comPort.Write(cmd + "\r\n");
             // read echoed line or existing data
@@ -575,7 +627,7 @@ S13: MANCHESTER=0
                 temp = Serial_ReadLine(comPort);
             }
             catch { temp = comPort.ReadExisting(); }
-            Console.WriteLine("cmd " + cmd + " echo " + temp);
+            log.Info("cmd " + cmd + " echo " + temp);
             // delay for command
             Sleep(500);
             // get responce
@@ -595,7 +647,7 @@ S13: MANCHESTER=0
                 }
             }
 
-            Console.WriteLine("responce " + level + " " + ans.Replace('\0', ' '));
+            log.Info("responce " + level + " " + ans.Replace('\0', ' '));
 
             // try again
             if (ans == "" && level == 0)
@@ -604,7 +656,7 @@ S13: MANCHESTER=0
             return ans;
         }
 
-        bool doConnect(ArdupilotMega.Comms.ICommsSerial comPort)
+        public bool doConnect(ArdupilotMega.Comms.ICommsSerial comPort)
         {
             // clear buffer
             comPort.DiscardInBuffer();
@@ -617,9 +669,9 @@ S13: MANCHESTER=0
             // wait
             Sleep(1100);
             // check for config responce "OK"
-            Console.WriteLine("Connect btr " + comPort.BytesToRead + " baud " + comPort.BaudRate);
+            log.Info("Connect btr " + comPort.BytesToRead + " baud " + comPort.BaudRate);
             string conn = comPort.ReadExisting();
-            Console.WriteLine("Connect first responce " + conn.Replace('\0', ' ') + " " + conn.Length);
+            log.Info("Connect first responce " + conn.Replace('\0', ' ') + " " + conn.Length);
             if (conn.Contains("OK"))
             {
                 //return true;
@@ -630,11 +682,17 @@ S13: MANCHESTER=0
                 comPort.Write("\r\n");
             }
 
+
+
+            doCommand(comPort, "AT&T");
+
             string version = doCommand(comPort, "ATI");
 
-            Console.Write("Connect Version: " + version.Trim() + "\n");
+            log.Info("Connect Version: " + version.Trim() + "\n");
 
-            if (version.Contains("on HM-TRP"))
+            Regex regex = new Regex(@"SiK\s+(.*)\s+on\s+(.*)");
+
+            if (regex.IsMatch(version))
             {
                 return true;
             }
@@ -642,34 +700,20 @@ S13: MANCHESTER=0
             return false;
         }
 
-        private void BUT_syncS2_Click(object sender, EventArgs e)
+        private void BUT_Syncoptions_Click(object sender, EventArgs e)
         {
             RS2.Text = S2.Text;
-        }
-
-        private void BUT_syncS3_Click(object sender, EventArgs e)
-        {
             RS3.Text = S3.Text;
-        }
-
-        private void BUT_syncS5_Click(object sender, EventArgs e)
-        {
             RS5.Checked = S5.Checked;
-        }
-
-        private void BUT_syncS8_Click(object sender, EventArgs e)
-        {
             RS8.Text = S8.Text;
-        }
-
-        private void BUT_syncS9_Click(object sender, EventArgs e)
-        {
             RS9.Text = S9.Text;
+            RS10.Text = S10.Text;
         }
 
-        private void BUT_syncS10_Click(object sender, EventArgs e)
+        private void CHK_advanced_CheckedChanged(object sender, EventArgs e)
         {
-            RS10.Text = S10.Text;
+            SPLIT_local.Panel2Collapsed = !CHK_advanced.Checked;
+            SPLIT_remote.Panel2Collapsed = !CHK_advanced.Checked;
         }
     }
 }

@@ -59,7 +59,7 @@ namespace ArdupilotMega
         {
             SharpKml.Dom.AltitudeMode altmode = SharpKml.Dom.AltitudeMode.Absolute;
 
-            if (MainV2.cs.firmware == MainV2.Firmwares.ArduPlane)
+            if (MainV2.cs.firmware == MainV2.Firmwares.ArduPlane || MainV2.cs.firmware == MainV2.Firmwares.ArduRover)
             {
                 altmode = SharpKml.Dom.AltitudeMode.Absolute;
             }
@@ -439,6 +439,8 @@ namespace ArdupilotMega
 
                     Application.DoEvents();
 
+                    mine.setAPType();
+
                     writeGPX(logfile);
                     writeKML(logfile + ".kml");
 
@@ -815,10 +817,10 @@ namespace ArdupilotMega
             string code = @"
 
         public double stage(object inp) {
-            return getAltAboveHome((MAVLink.mavlink_gps_raw_t) inp);
+            return getAltAboveHome((MAVLink09.mavlink_gps_raw_t) inp);
         }
 
-        public double getAltAboveHome(MAVLink.mavlink_gps_raw_t gps)
+        public double getAltAboveHome(MAVLink09.mavlink_gps_raw_t gps)
         {
             if (customforusenumber == -1 && gps.fix_type != 2)
                 customforusenumber = gps.alt;
@@ -1153,6 +1155,59 @@ namespace ArdupilotMega
             ThemeManager.ApplyThemeTo(selectform);
 
             return selectform;
+        }
+
+        private void BUT_convertcsv_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog1 = new OpenFileDialog();
+            openFileDialog1.Filter = "*.tlog|*.tlog";
+            openFileDialog1.FilterIndex = 2;
+            openFileDialog1.RestoreDirectory = true;
+            openFileDialog1.Multiselect = true;
+            try
+            {
+                openFileDialog1.InitialDirectory = Path.GetDirectoryName(Application.ExecutablePath) + Path.DirectorySeparatorChar + @"logs" + Path.DirectorySeparatorChar;
+            }
+            catch { } // incase dir doesnt exist
+
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                foreach (string logfile in openFileDialog1.FileNames)
+                {
+
+                    MAVLink mine = new MAVLink();
+                    mine.logplaybackfile = new BinaryReader(File.Open(logfile, FileMode.Open, FileAccess.Read, FileShare.Read));
+                    mine.logreadmode = true;
+
+                    mine.packets.Initialize(); // clear
+
+                    StreamWriter sw = new StreamWriter(Path.GetDirectoryName(logfile) + Path.DirectorySeparatorChar + Path.GetFileNameWithoutExtension(logfile) + ".csv");
+
+                    while (mine.logplaybackfile.BaseStream.Position < mine.logplaybackfile.BaseStream.Length)
+                    {
+                        // bar moves to 100 % in this step
+                        progressBar1.Value = (int)((float)mine.logplaybackfile.BaseStream.Position / (float)mine.logplaybackfile.BaseStream.Length * 100.0f / 1.0f);
+
+                        progressBar1.Refresh();
+                        //Application.DoEvents();
+
+                        byte[] packet = mine.readPacket();
+                        string text = "";
+                        mine.DebugPacket(packet, ref text,true,",");
+
+                        sw.Write(mine.lastlogread + "," + text);
+                    }
+
+                    sw.Close();
+
+                    progressBar1.Value = 100;
+
+                    mine.logreadmode = false;
+                    mine.logplaybackfile.Close();
+                    mine.logplaybackfile = null;
+
+                }
+            }
         }
     }
 }

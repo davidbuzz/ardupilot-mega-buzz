@@ -39,13 +39,14 @@
             this.BUTactiondo = new ArdupilotMega.Controls.MyButton();
             this.tabGauges = new System.Windows.Forms.TabPage();
             this.Gvspeed = new AGaugeApp.AGauge();
-            this.Gheading = new AGaugeApp.AGauge();
+            this.Gheading = new ArdupilotMega.Controls.HSI();
             this.Galt = new AGaugeApp.AGauge();
             this.Gspeed = new AGaugeApp.AGauge();
             this.tabStatus = new System.Windows.Forms.TabPage();
             this.tabTLogs = new System.Windows.Forms.TabPage();
+            this.lbl_playbackspeed = new ArdupilotMega.Controls.MyLabel();
             this.lbl_logpercent = new ArdupilotMega.Controls.MyLabel();
-            this.NUM_playbackspeed = new System.Windows.Forms.NumericUpDown();
+            this.NUM_playbackspeed = new ArdupilotMega.Controls.MyTrackBar();
             this.BUT_log2kml = new ArdupilotMega.Controls.MyButton();
             this.tracklog = new System.Windows.Forms.TrackBar();
             this.BUT_playlog = new ArdupilotMega.Controls.MyButton();
@@ -545,145 +546,11 @@
             this.Gheading.BackColor = System.Drawing.Color.Transparent;
             this.Gheading.BackgroundImage = global::ArdupilotMega.Properties.Resources.Gaugebg;
             resources.ApplyResources(this.Gheading, "Gheading");
-            this.Gheading.BaseArcColor = System.Drawing.Color.Transparent;
-            this.Gheading.BaseArcRadius = 60;
-            this.Gheading.BaseArcStart = 270;
-            this.Gheading.BaseArcSweep = 360;
-            this.Gheading.BaseArcWidth = 2;
-            this.Gheading.basesize = new System.Drawing.Size(150, 150);
-            this.Gheading.Cap_Idx = ((byte)(0));
-            this.Gheading.CapColor = System.Drawing.Color.White;
-            this.Gheading.CapColors = new System.Drawing.Color[] {
-        System.Drawing.Color.White,
-        System.Drawing.Color.Black,
-        System.Drawing.Color.Black,
-        System.Drawing.Color.Black,
-        System.Drawing.Color.Black};
-            this.Gheading.CapPosition = new System.Drawing.Point(55, 85);
-            this.Gheading.CapsPosition = new System.Drawing.Point[] {
-        new System.Drawing.Point(55, 85),
-        new System.Drawing.Point(40, 67),
-        new System.Drawing.Point(10, 10),
-        new System.Drawing.Point(10, 10),
-        new System.Drawing.Point(10, 10)};
-            this.Gheading.CapsText = new string[] {
-        "Heading",
-        "",
-        "",
-        "",
-        ""};
-            this.Gheading.CapText = "Heading";
-            this.Gheading.Center = new System.Drawing.Point(75, 75);
-            this.Gheading.DataBindings.Add(new System.Windows.Forms.Binding("Value0", this.bindingSource1, "yaw", true));
-            this.Gheading.DataBindings.Add(new System.Windows.Forms.Binding("Value1", this.bindingSource1, "nav_bearing", true));
-            this.Gheading.MaxValue = 359F;
-            this.Gheading.MinValue = 0F;
+            this.Gheading.DataBindings.Add(new System.Windows.Forms.Binding("Heading", this.bindingSource1, "yaw", true));
+            this.Gheading.DataBindings.Add(new System.Windows.Forms.Binding("NavHeading", this.bindingSource1, "nav_bearing", true));
+            this.Gheading.Heading = 0;
             this.Gheading.Name = "Gheading";
-            this.Gheading.Need_Idx = ((byte)(3));
-            this.Gheading.NeedleColor1 = AGaugeApp.AGauge.NeedleColorEnum.Gray;
-            this.Gheading.NeedleColor2 = System.Drawing.Color.White;
-            this.Gheading.NeedleEnabled = false;
-            this.Gheading.NeedleRadius = 80;
-            this.Gheading.NeedlesColor1 = new AGaugeApp.AGauge.NeedleColorEnum[] {
-        AGaugeApp.AGauge.NeedleColorEnum.Gray,
-        AGaugeApp.AGauge.NeedleColorEnum.Red,
-        AGaugeApp.AGauge.NeedleColorEnum.Gray,
-        AGaugeApp.AGauge.NeedleColorEnum.Gray};
-            this.Gheading.NeedlesColor2 = new System.Drawing.Color[] {
-        System.Drawing.Color.White,
-        System.Drawing.Color.White,
-        System.Drawing.Color.White,
-        System.Drawing.Color.White};
-            this.Gheading.NeedlesEnabled = new bool[] {
-        true,
-        true,
-        false,
-        false};
-            this.Gheading.NeedlesRadius = new int[] {
-        60,
-        60,
-        80,
-        80};
-            this.Gheading.NeedlesType = new int[] {
-        0,
-        0,
-        0,
-        0};
-            this.Gheading.NeedlesWidth = new int[] {
-        2,
-        2,
-        2,
-        2};
-            this.Gheading.NeedleType = 0;
-            this.Gheading.NeedleWidth = 2;
-            this.Gheading.Range_Idx = ((byte)(0));
-            this.Gheading.RangeColor = System.Drawing.Color.LightGreen;
-            this.Gheading.RangeEnabled = false;
-            this.Gheading.RangeEndValue = 360F;
-            this.Gheading.RangeInnerRadius = 1;
-            this.Gheading.RangeOuterRadius = 60;
-            this.Gheading.RangesColor = new System.Drawing.Color[] {
-        System.Drawing.Color.LightGreen,
-        System.Drawing.Color.Red,
-        System.Drawing.Color.Orange,
-        System.Drawing.SystemColors.Control,
-        System.Drawing.SystemColors.Control};
-            this.Gheading.RangesEnabled = new bool[] {
-        false,
-        false,
-        false,
-        false,
-        false};
-            this.Gheading.RangesEndValue = new float[] {
-        360F,
-        200F,
-        150F,
-        0F,
-        0F};
-            this.Gheading.RangesInnerRadius = new int[] {
-        1,
-        1,
-        1,
-        70,
-        70};
-            this.Gheading.RangesOuterRadius = new int[] {
-        60,
-        60,
-        60,
-        80,
-        80};
-            this.Gheading.RangesStartValue = new float[] {
-        0F,
-        150F,
-        75F,
-        0F,
-        0F};
-            this.Gheading.RangeStartValue = 0F;
-            this.Gheading.ScaleLinesInterColor = System.Drawing.Color.White;
-            this.Gheading.ScaleLinesInterInnerRadius = 52;
-            this.Gheading.ScaleLinesInterOuterRadius = 60;
-            this.Gheading.ScaleLinesInterWidth = 1;
-            this.Gheading.ScaleLinesMajorColor = System.Drawing.Color.White;
-            this.Gheading.ScaleLinesMajorInnerRadius = 50;
-            this.Gheading.ScaleLinesMajorOuterRadius = 60;
-            this.Gheading.ScaleLinesMajorStepValue = 45F;
-            this.Gheading.ScaleLinesMajorWidth = 2;
-            this.Gheading.ScaleLinesMinorColor = System.Drawing.Color.White;
-            this.Gheading.ScaleLinesMinorInnerRadius = 55;
-            this.Gheading.ScaleLinesMinorNumOf = 9;
-            this.Gheading.ScaleLinesMinorOuterRadius = 60;
-            this.Gheading.ScaleLinesMinorWidth = 1;
-            this.Gheading.ScaleNumbersColor = System.Drawing.Color.White;
-            this.Gheading.ScaleNumbersFormat = null;
-            this.Gheading.ScaleNumbersRadius = 42;
-            this.Gheading.ScaleNumbersRotation = 45;
-            this.Gheading.ScaleNumbersStartScaleLine = 1;
-            this.Gheading.ScaleNumbersStepScaleLines = 1;
-            this.Gheading.Value = 0F;
-            this.Gheading.Value0 = 0F;
-            this.Gheading.Value1 = 0F;
-            this.Gheading.Value2 = 0F;
-            this.Gheading.Value3 = 0F;
+            this.Gheading.NavHeading = 0;
             // 
             // Galt
             // 
@@ -986,6 +853,7 @@
             // 
             // tabTLogs
             // 
+            this.tabTLogs.Controls.Add(this.lbl_playbackspeed);
             this.tabTLogs.Controls.Add(this.lbl_logpercent);
             this.tabTLogs.Controls.Add(this.NUM_playbackspeed);
             this.tabTLogs.Controls.Add(this.BUT_log2kml);
@@ -996,6 +864,12 @@
             this.tabTLogs.Name = "tabTLogs";
             this.tabTLogs.UseVisualStyleBackColor = true;
             // 
+            // lbl_playbackspeed
+            // 
+            resources.ApplyResources(this.lbl_playbackspeed, "lbl_playbackspeed");
+            this.lbl_playbackspeed.Name = "lbl_playbackspeed";
+            this.lbl_playbackspeed.resize = false;
+            // 
             // lbl_logpercent
             // 
             resources.ApplyResources(this.lbl_logpercent, "lbl_logpercent");
@@ -1004,30 +878,14 @@
             // 
             // NUM_playbackspeed
             // 
-            this.NUM_playbackspeed.DecimalPlaces = 1;
-            this.NUM_playbackspeed.Increment = new decimal(new int[] {
-            1,
-            0,
-            0,
-            65536});
             resources.ApplyResources(this.NUM_playbackspeed, "NUM_playbackspeed");
-            this.NUM_playbackspeed.Maximum = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
-            this.NUM_playbackspeed.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            65536});
+            this.NUM_playbackspeed.LargeChange = 1;
+            this.NUM_playbackspeed.Maximum = 10D;
+            this.NUM_playbackspeed.Minimum = 0.01D;
             this.NUM_playbackspeed.Name = "NUM_playbackspeed";
             this.toolTip1.SetToolTip(this.NUM_playbackspeed, resources.GetString("NUM_playbackspeed.ToolTip"));
-            this.NUM_playbackspeed.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
+            this.NUM_playbackspeed.Value = 1D;
+            this.NUM_playbackspeed.Scroll += new System.EventHandler(this.NUM_playbackspeed_Scroll);
             // 
             // BUT_log2kml
             // 
@@ -1038,8 +896,8 @@
             // 
             // tracklog
             // 
-            this.tracklog.BackColor = System.Drawing.SystemColors.Control;
             resources.ApplyResources(this.tracklog, "tracklog");
+            this.tracklog.BackColor = System.Drawing.SystemColors.Control;
             this.tracklog.Maximum = 100;
             this.tracklog.Name = "tracklog";
             this.tracklog.Scroll += new System.EventHandler(this.tracklog_Scroll);
@@ -1329,7 +1187,6 @@
         private System.Windows.Forms.TrackBar tracklog;
         private ArdupilotMega.Controls.MyButton BUT_playlog;
         private ArdupilotMega.Controls.MyButton BUT_loadtelem;
-        private AGaugeApp.AGauge Gheading;
         private AGaugeApp.AGauge Galt;
         private AGaugeApp.AGauge Gspeed;
         private AGaugeApp.AGauge Gvspeed;
@@ -1360,7 +1217,7 @@
         private ArdupilotMega.Controls.MyLabel lbl_winddir;
         private ArdupilotMega.Controls.MyButton BUT_joystick;
         private System.Windows.Forms.ToolTip toolTip1;
-        private System.Windows.Forms.NumericUpDown NUM_playbackspeed;
+        private ArdupilotMega.Controls.MyTrackBar NUM_playbackspeed;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip2;
         private System.Windows.Forms.ToolStripMenuItem recordHudToAVIToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem stopRecordToolStripMenuItem;
@@ -1370,5 +1227,7 @@
         private ArdupilotMega.Controls.MyButton BUT_script;
         private ArdupilotMega.Controls.MyLabel lbl_hdop;
         private ArdupilotMega.Controls.MyLabel lbl_sats;
+        private Controls.HSI Gheading;
+        private Controls.MyLabel lbl_playbackspeed;
     }
 }

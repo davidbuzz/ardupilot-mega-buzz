@@ -455,7 +455,7 @@ namespace ArdupilotMega.GCSViews
                 if (port.connectAP())
                 {
                     log.Info("starting");
-                    lbl_status.Text = "Uploading " + FLASH.Length + " bytes to APM";
+                    lbl_status.Text = "Uploading " + FLASH.Length + " bytes to APM Board: "+board;
                     progress.Value = 0;
                     this.Refresh();
 
@@ -686,6 +686,16 @@ namespace ArdupilotMega.GCSViews
         private void pictureBoxACHHil_Click(object sender, EventArgs e)
         {
             findfirmware("AC2-HELHIL-");
+        }
+
+        private void pictureBoxAPHil_MouseEnter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void pictureBoxAPHil_MouseLeave(object sender, EventArgs e)
+        {
+
         }
     }
 }

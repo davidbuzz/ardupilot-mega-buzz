@@ -16,7 +16,7 @@ namespace ArdupilotMega.Controls
     public partial class ConfigPanel : BackStageViewContentPanel
     {
         /// <summary>
-        /// store tempory pending changes
+        /// store temp pending changes
         /// </summary>
         Hashtable _changed = new Hashtable();
         // store linked param options
@@ -35,6 +35,8 @@ namespace ArdupilotMega.Controls
             // process hashdefines and update display
             foreach (string value in MainV2.comPort.param.Keys)
             {
+                if (value == null) // older ap vesion have a null param
+                    continue;
                 Control[] text = this.Controls.Find(value, true);
                 foreach (Control ctl in text)
                 {

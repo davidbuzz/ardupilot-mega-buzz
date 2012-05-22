@@ -22,7 +22,7 @@ namespace ArdupilotMega.GCSViews
     public partial class Simulation : MyUserControl
     {
         private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        MAVLink comPort = MainV2.comPort;
+        IMAVLink comPort = MainV2.comPort;
         UdpClient XplanesSEND;
         UdpClient MavLink;
         Socket SimulatorRECV;
@@ -721,7 +721,7 @@ namespace ArdupilotMega.GCSViews
         /// <param name="data">Packet</param>
         /// <param name="receviedbytes">Length</param>
         /// <param name="comPort">Com Port</param>
-        private void RECVprocess(byte[] data, int receviedbytes, ArdupilotMega.MAVLink comPort)
+        private void RECVprocess(byte[] data, int receviedbytes, ArdupilotMega.IMAVLink comPort)
         {
 #if MAVLINK10
             ArdupilotMega.MAVLink.mavlink_hil_state_t hilstate = new ArdupilotMega.MAVLink.mavlink_hil_state_t();
@@ -1210,11 +1210,22 @@ namespace ArdupilotMega.GCSViews
 
             TimeSpan gpsspan = DateTime.Now - lastgpsupdate;
 
+            // add gps delay
             if (gpsspan.TotalMilliseconds >= GPS_rate)
             {
                 lastgpsupdate = DateTime.Now;
-                oldgps = gps;
-                //comPort.sendPacket(gps);
+
+                // save current fix = 3
+                gpsbuffer[gpsbufferindex % gpsbuffer.Length] = gps;
+
+                //                Console.WriteLine((gpsbufferindex % gpsbuffer.Length) + " " + ((gpsbufferindex + (gpsbuffer.Length - 1)) % gpsbuffer.Length));
+
+                // return buffer index + 5 = (3 + 5) = 8 % 6 = 2
+                oldgps = gpsbuffer[(gpsbufferindex + (gpsbuffer.Length - 1)) % gpsbuffer.Length];
+
+                //comPort.sendPacket(oldgps);
+
+                gpsbufferindex++;
             }
 
 
@@ -1226,8 +1237,8 @@ namespace ArdupilotMega.GCSViews
             hilstate.roll = att.roll;
             hilstate.rollspeed = att.rollspeed;
             hilstate.time_usec = gps.time_usec;
-            hilstate.vx = (short)(gps.vel * Math.Sin(oldgps.cog / 100.0 * deg2rad));
-            hilstate.vy = (short)(gps.vel * Math.Cos(oldgps.cog / 100.0 * deg2rad));
+            hilstate.vx = (short)(gps.vel * Math.Sin(gps.cog / 100.0 * deg2rad));
+            hilstate.vy = (short)(gps.vel * Math.Cos(gps.cog / 100.0 * deg2rad));
             hilstate.vz = 0;
             hilstate.xacc = imu.xacc;
             hilstate.yacc = imu.yacc;
@@ -1236,6 +1247,8 @@ namespace ArdupilotMega.GCSViews
             hilstate.zacc = imu.zacc;
 
             comPort.sendPacket(hilstate);
+
+//            comPort.sendPacket(oldgps);
 
             comPort.sendPacket(asp);
 			
@@ -1266,6 +1279,7 @@ namespace ArdupilotMega.GCSViews
 
             TimeSpan gpsspan = DateTime.Now - lastgpsupdate;
 
+            // add gps delay
             if (gpsspan.TotalMilliseconds >= GPS_rate)
             {
                 lastgpsupdate = DateTime.Now;

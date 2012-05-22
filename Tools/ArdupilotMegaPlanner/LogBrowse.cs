@@ -153,6 +153,9 @@ namespace ArdupilotMega
             {
                 string option = dataGridView1[0, e.RowIndex].EditedFormattedValue.ToString();
 
+                if (option.StartsWith("PID-"))
+                    option = "PID-1";
+
                 using (XmlReader reader = XmlReader.Create(Path.GetDirectoryName(Application.ExecutablePath) + Path.DirectorySeparatorChar + "dataflashlog.xml"))
                 {
                     reader.Read();
@@ -160,6 +163,10 @@ namespace ArdupilotMega
                     if (MainV2.cs.firmware == MainV2.Firmwares.ArduPlane)
                     {
                         reader.ReadToFollowing("APM");
+                    }
+                    else if (MainV2.cs.firmware == MainV2.Firmwares.ArduRover)
+                    {
+                        reader.ReadToFollowing("APRover");
                     }
                     else
                     {

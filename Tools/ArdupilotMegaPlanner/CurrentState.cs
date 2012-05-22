@@ -220,6 +220,9 @@ namespace ArdupilotMega
             {
                 float dist = DistToMAV;
 
+                if (dist < 5)
+                    return 0;
+
                 float altdiff = (float)(alt - HomeLocation.Alt);
 
                 float angle = (float)Math.Atan(altdiff / dist) * rad2deg;
@@ -245,6 +248,9 @@ namespace ArdupilotMega
                 //bearing = bearing - 180;//absolut return direction
                 //if (bearing < 0) bearing += 360;//normalization
 
+                if (DistToMAV < 5)
+                    return 0;
+
                 return (float)bearing;
             }
         }
@@ -262,10 +268,42 @@ namespace ArdupilotMega
         public float remnoise { get; set; }
         public ushort rxerrors { get; set; }
         public ushort fixedp { get; set; }
+        private float _localsnrdb = 0;
+        private float _remotesnrdb = 0;
+        private DateTime lastrssi = DateTime.Now;
+        private DateTime lastremrssi = DateTime.Now;
+        public float localsnrdb { get { if (lastrssi.AddSeconds(1) > DateTime.Now) { return _localsnrdb; } lastrssi = DateTime.Now; _localsnrdb = ((rssi - noise) / 1.9f) * 0.5f + _localsnrdb * 0.5f; return _localsnrdb; } }
+        public float remotesnrdb { get { if (lastremrssi.AddSeconds(1) > DateTime.Now) { return _remotesnrdb; } lastremrssi = DateTime.Now; _remotesnrdb = ((remrssi - remnoise) / 1.9f) * 0.5f + _remotesnrdb * 0.5f; return _remotesnrdb; } }
+        public float DistRSSIRemain {
+            get
+            {
+                float work = 0;
+                if (localsnrdb > remotesnrdb)
+                {
+                    // remote
+                    // minus fade margin
+                    work = remotesnrdb - 5;
+                }
+                else
+                {
+                    // local
+                    // minus fade margin
+                    work = localsnrdb - 5;
+                }
+
+                {
+                    work = DistToMAV * (float)Math.Pow(2.0, work / 6.0);
+                }
+
+                return work;
+            }
+        }
 
         // stats
         public ushort packetdropremote { get; set; }
         public ushort linkqualitygcs { get; set; }
+        public ushort hwvoltage { get; set; }
+        public ushort i2cerrors { get; set; }
 
         // requested stream rates
         public byte rateattitude { get; set; }
@@ -282,7 +320,7 @@ namespace ArdupilotMega
         {
             mode = "";
             messages = new List<string>();
-            rateattitude = 3;
+            rateattitude = 10;
             rateposition = 3;
             ratestatus = 3;
             ratesensors = 3;
@@ -307,7 +345,7 @@ namespace ArdupilotMega
             UpdateCurrentSettings(bs, false, MainV2.comPort);
         }
         */
-        public void UpdateCurrentSettings(System.Windows.Forms.BindingSource bs, bool updatenow, MAVLink mavinterface)
+        public void UpdateCurrentSettings(System.Windows.Forms.BindingSource bs, bool updatenow, IMAVLink mavinterface)
         {
             if (DateTime.Now > lastupdate.AddMilliseconds(19) || updatenow) // 50 hz
             {
@@ -343,7 +381,7 @@ namespace ArdupilotMega
 
                 byte[] bytearray = mavinterface.packets[MAVLink.MAVLINK_MSG_ID_RC_CHANNELS_SCALED];
 
-                if (bytearray != null) // hil
+                if (bytearray != null) // hil mavlink 0.9
                 {
                     var hil = bytearray.ByteArrayToStructure<MAVLink.mavlink_rc_channels_scaled_t>(6);
 
@@ -358,6 +396,33 @@ namespace ArdupilotMega
 
                     //MAVLink.packets[MAVLink.MAVLINK_MSG_ID_RC_CHANNELS_SCALED] = null;
                 }
+
+                bytearray = mavinterface.packets[MAVLink.MAVLINK_MSG_ID_HIL_CONTROLS];
+
+                if (bytearray != null) // hil mavlink 0.9 and 1.0
+                {
+                    var hil = bytearray.ByteArrayToStructure<MAVLink.mavlink_hil_controls_t>(6);
+
+                    hilch1 = (int)(hil.roll_ailerons * 10000);
+                    hilch2 = (int)(hil.pitch_elevator * 10000);
+                    hilch3 = (int)(hil.throttle * 10000);
+                    hilch4 = (int)(hil.yaw_rudder * 10000);
+
+                    //MAVLink.packets[MAVLink.MAVLINK_MSG_ID_HIL_CONTROLS] = null;
+                }
+
+                bytearray = mavinterface.packets[MAVLink.MAVLINK_MSG_ID_HWSTATUS];
+
+                if (bytearray != null)
+                {
+                    var hwstatus = bytearray.ByteArrayToStructure<MAVLink.mavlink_hwstatus_t>(6);
+
+                    hwvoltage = hwstatus.Vcc;
+                    i2cerrors = hwstatus.I2Cerr;
+
+                    //MAVLink.packets[MAVLink.MAVLINK_MSG_ID_HWSTATUS] = null;
+                }
+                
 
                 bytearray = mavinterface.packets[MAVLink.MAVLINK_MSG_ID_NAV_CONTROLLER_OUTPUT];
 
@@ -853,7 +918,7 @@ namespace ArdupilotMega
 
                     //climbrate = vfr.climb;
 
-                    if ((DateTime.Now - lastalt).TotalSeconds >= 0.1 && oldalt != alt)
+                    if ((DateTime.Now - lastalt).TotalSeconds >= 0.2 && oldalt != alt)
                     {
                         climbrate = (alt - oldalt) / (float)(DateTime.Now - lastalt).TotalSeconds;
                         verticalspeed = (alt - oldalt) / (float)(DateTime.Now - lastalt).TotalSeconds;

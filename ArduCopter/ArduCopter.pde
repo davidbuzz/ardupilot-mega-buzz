@@ -1,6 +1,6 @@
 /// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
-#define THISFIRMWARE "ArduCopter V2.5.4"
+#define THISFIRMWARE "ArduCopter V2.5.5"
 /*
 ArduCopter Version 2.5
 Lead author:	Jason Short
@@ -411,6 +411,12 @@ static byte 	old_control_mode = STABILIZE;
 	#else
 		MOTOR_CLASS	motors(CONFIG_APM_HARDWARE, &APM_RC, &g.rc_1, &g.rc_2, &g.rc_3, &g.rc_4, &g.heli_servo_1, &g.heli_servo_2, &g.heli_servo_3, &g.heli_servo_4);
 	#endif
+#elif FRAME_CONFIG == TRI_FRAME  // tri constructor requires additional rc_7 argument to allow tail servo reversing
+	#if INSTANT_PWM == 1
+		MOTOR_CLASS	motors(CONFIG_APM_HARDWARE, &APM_RC, &g.rc_1, &g.rc_2, &g.rc_3, &g.rc_4, &g.rc_7, AP_MOTORS_SPEED_INSTANT_PWM);   // this hardware definition is slightly bad because it assumes APM_HARDWARE_APM2 == AP_MOTORS_APM2
+	#else
+		MOTOR_CLASS	motors(CONFIG_APM_HARDWARE, &APM_RC, &g.rc_1, &g.rc_2, &g.rc_3, &g.rc_4, &g.rc_7);
+	#endif
 #else
 	#if INSTANT_PWM == 1
 		MOTOR_CLASS	motors(CONFIG_APM_HARDWARE, &APM_RC, &g.rc_1, &g.rc_2, &g.rc_3, &g.rc_4, AP_MOTORS_SPEED_INSTANT_PWM);   // this hardware definition is slightly bad because it assumes APM_HARDWARE_APM2 == AP_MOTORS_APM2
@@ -561,9 +567,6 @@ int32_t pitch_axis;
 // Filters
 AverageFilterInt32_Size3 roll_rate_d_filter;	// filtered acceleration
 AverageFilterInt32_Size3 pitch_rate_d_filter;	// filtered pitch acceleration
-
-AverageFilterInt16_Size2 lat_rate_d_filter;		// for filtering D term
-AverageFilterInt16_Size2 lon_rate_d_filter;		// for filtering D term
 
 // Barometer filter
 AverageFilterInt32_Size5 baro_filter;	// filtered pitch acceleration
@@ -828,11 +831,8 @@ static uint32_t condition_start;
 // IMU variables
 ////////////////////////////////////////////////////////////////////////////////
 // Integration time for the gyros (DCM algorithm)
-// Updated with th efast loop
+// Updated with the fast loop
 static float G_Dt		= 0.02;
-// The rotated accelerometer values
-// Used by Z accel control, updated at 10hz
-Vector3f accels_rot;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Performance monitoring
@@ -841,7 +841,7 @@ Vector3f accels_rot;
 static int16_t 			perf_mon_counter;
 // The number of GPS fixes we have had
 static int16_t			gps_fix_count;
-// gps_watchdog check for bad reads and if we miss 12 in a row, we stop navigating
+// gps_watchdog checks for bad reads and if we miss 12 in a row, we stop navigating
 // by lowering nav_lat and navlon to 0 gradually
 static byte				gps_watchdog;
 
@@ -869,7 +869,8 @@ static int16_t			superslow_loopCounter;
 static uint32_t 		loiter_timer;
 // disarms the copter while in Acro or Stabilize mode after 30 seconds of no flight
 static uint8_t 			auto_disarming_counter;
-
+// prevents duplicate GPS messages from entering system
+static uint32_t			last_gps_time;
 
 // Tracks if GPS is enabled based on statup routine
 // If we do not detect GPS at startup, we stop trying and assume GPS is not connected
@@ -913,6 +914,10 @@ void loop()
 		// Execute the fast loop
 		// ---------------------
 		fast_loop();
+	} else {
+	#ifdef DESKTOP_BUILD
+		usleep(1000);
+	#endif
 	}
 
 	// port manipulation for external timing of main loops
@@ -929,15 +934,9 @@ void loop()
 		// --------------------------------------------------------------------
 		update_trig();
 
-		// update our velocity estimate based on IMU at 50hz
-		// -------------------------------------------------
-		//estimate_velocity();
-
 		// check for new GPS messages
 		// --------------------------
-		if(!g.retro_loiter && GPS_enabled){
-			update_GPS();
-		}
+		update_GPS();
 
 		// perform 10hz tasks
 		// ------------------
@@ -968,7 +967,7 @@ void loop()
 //  PORTK |= B01000000;
 //	PORTK &= B10111111;
 
-// Main loop
+// Main loop - 100hz
 static void fast_loop()
 {
     // try to send any deferred messages if the serial port now has
@@ -980,6 +979,7 @@ static void fast_loop()
 	read_radio();
 
 	// IMU DCM Algorithm
+	// --------------------
 	read_AHRS();
 
 	// custom code/exceptions for flight modes
@@ -1009,10 +1009,6 @@ static void medium_loop()
 		case 0:
 			medium_loopCounter++;
 
-			if(g.retro_loiter && GPS_enabled){
-				update_GPS();
-			}
-
 			#if HIL_MODE != HIL_MODE_ATTITUDE					// don't execute in HIL mode
 				if(g.compass_enabled){
 					if (compass.read()) {
@@ -1037,42 +1033,21 @@ static void medium_loop()
 		case 1:
 			medium_loopCounter++;
 
-			// Auto control modes:
+			// calculate the copter's desired bearing and WP distance
+			// ------------------------------------------------------
 			if(nav_ok){
 				// clear nav flag
 				nav_ok = false;
 
-				// calculate the copter's desired bearing and WP distance
-				// ------------------------------------------------------
-				if(navigate()){
+				// calculate distance, angles to target
+				navigate();
 
-					// this calculates the velocity for Loiter
-					// only called when there is new data
-					// ----------------------------------
-					if(g.retro_loiter){
-						calc_GPS_velocity();
-					} else {
-						calc_XY_velocity();
-					}
+				// update flight control system
+				update_navigation();
 
-					// If we have optFlow enabled we can grab a more accurate speed
-					// here and override the speed from the GPS
-					// ----------------------------------------
-					//#ifdef OPTFLOW_ENABLED
-					//if(g.optflow_enabled && current_loc.alt < 500){
-					//	// optflow wont be enabled on 1280's
-					//	x_GPS_speed 	= optflow.x_cm;
-					//	y_GPS_speed 	= optflow.y_cm;
-					//}
-					//#endif
-
-					// control mode specific updates
-					// -----------------------------
-					update_navigation();
-
-					if (g.log_bitmask & MASK_LOG_NTUN && motors.armed()){
-						Log_Write_Nav_Tuning();
-					}
+				// update log
+				if (g.log_bitmask & MASK_LOG_NTUN && motors.armed()){
+					Log_Write_Nav_Tuning();
 				}
 			}
 			break;
@@ -1172,29 +1147,29 @@ static void fifty_hz_loop()
 	// Read Sonar
 	// ----------
     # if CONFIG_SONAR == ENABLED
-	if(g.sonar_enabled){
-		sonar_alt = sonar.read();
-	}
+		if(g.sonar_enabled){
+			sonar_alt = sonar.read();
+		}
     #endif
 
 	// syncronise optical flow reads with altitude reads
 	#ifdef OPTFLOW_ENABLED
-	if(g.optflow_enabled){
-		update_optical_flow();
-	}
+		if(g.optflow_enabled){
+			update_optical_flow();
+		}
 	#endif
 
-	// agmatthews - USERHOOKS
+
 	#ifdef USERHOOK_50HZLOOP
-	  USERHOOK_50HZLOOP
+		USERHOOK_50HZLOOP
 	#endif
+
 
 	#if HIL_MODE != HIL_MODE_DISABLED && FRAME_CONFIG != HELI_FRAME
 		// HIL for a copter needs very fast update of the servo values
 		gcs_send_message(MSG_RADIO_OUT);
 	#endif
 
-	camera_stabilization();
 
 	# if HIL_MODE == HIL_MODE_DISABLED
 		if (g.log_bitmask & MASK_LOG_ATTITUDE_FAST && motors.armed())
@@ -1203,6 +1178,9 @@ static void fifty_hz_loop()
 		if (g.log_bitmask & MASK_LOG_RAW && motors.armed())
 			Log_Write_Raw();
 	#endif
+
+
+	camera_stabilization();
 
 	// kick the GCS to process uplink data
 	gcs_update();
@@ -1304,7 +1282,7 @@ static void super_slow_loop()
 	#endif
 
 	/*
-	Serial.printf("alt %d, next.alt %d, alt_err: %d, cruise: %d, Alt_I:%1.2f, wp_dist %d, tar_bear %d, home_d %d, homebear %d\n",
+	//Serial.printf("alt %d, next.alt %d, alt_err: %d, cruise: %d, Alt_I:%1.2f, wp_dist %d, tar_bear %d, home_d %d, homebear %d\n",
 					current_loc.alt,
 					next_WP.alt,
 					altitude_error,
@@ -1356,6 +1334,7 @@ static void update_optical_flow(void)
 }
 #endif
 
+// called at 50hz
 static void update_GPS(void)
 {
 	// A counter that is used to grab at least 10 reads before commiting the Home location
@@ -1364,10 +1343,6 @@ static void update_GPS(void)
 	g_gps->update();
 	update_GPS_light();
 
-	//current_loc.lng =   377697000;		// Lon * 10 * *7
-	//current_loc.lat = -1224318000;		// Lat * 10 * *7
-	//current_loc.alt = 100;				// alt * 10 * *7
-	//return;
 	if(gps_watchdog < 30){
 		gps_watchdog++;
 	}else{
@@ -1378,61 +1353,72 @@ static void update_GPS(void)
 	}
 
     if (g_gps->new_data && g_gps->fix) {
-
 		// clear new data flag
-    	g_gps->new_data = false;
+		g_gps->new_data = false;
 
-		gps_watchdog = 0;
+    	// check for duiplicate GPS messages
+		if(last_gps_time != g_gps->time){
 
-		// OK to run the nav routines
-		nav_ok = true;
+	    	// look for broken GPS
+			// ---------------
+			gps_watchdog = 0;
 
-		// for performance
-		// ---------------
-		gps_fix_count++;
+			// OK to run the nav routines
+			// ---------------
+			nav_ok = true;
 
-		// used to calculate speed in X and Y, iterms
-		// ------------------------------------------
-		dTnav 				= (float)(millis() - nav_loopTimer)/ 1000.0;
-		nav_loopTimer 		= millis();
+			// for performance monitoring
+			// --------------------------
+			gps_fix_count++;
 
-		// prevent runup from bad GPS
-		// --------------------------
-		dTnav = min(dTnav, 1.0);
+			// used to calculate speed in X and Y, iterms
+			// ------------------------------------------
+			dTnav 				= (float)(millis() - nav_loopTimer)/ 1000.0;
+			nav_loopTimer 		= millis();
 
-		if(ground_start_count > 1){
-			ground_start_count--;
+			// prevent runup from bad GPS
+			// --------------------------
+			dTnav = min(dTnav, 1.0);
 
-		} else if (ground_start_count == 1) {
+			if(ground_start_count > 1){
+				ground_start_count--;
 
-			// We countdown N number of good GPS fixes
-			// so that the altitude is more accurate
-			// -------------------------------------
-			if (current_loc.lat == 0) {
-				ground_start_count = 5;
+			} else if (ground_start_count == 1) {
 
-			}else{
-				if (g.compass_enabled) {
-					// Set compass declination automatically
-					compass.set_initial_location(g_gps->latitude, g_gps->longitude);
+				// We countdown N number of good GPS fixes
+				// so that the altitude is more accurate
+				// -------------------------------------
+				if (current_loc.lat == 0) {
+					ground_start_count = 5;
+
+				}else{
+					if (g.compass_enabled) {
+						// Set compass declination automatically
+						compass.set_initial_location(g_gps->latitude, g_gps->longitude);
+					}
+					// save home to eeprom (we must have a good fix to have reached this point)
+					init_home();
+					ground_start_count = 0;
 				}
-				// save home to eeprom (we must have a good fix to have reached this point)
-				init_home();
-				ground_start_count = 0;
 			}
+
+			current_loc.lng = g_gps->longitude;	// Lon * 10 * *7
+			current_loc.lat = g_gps->latitude;	// Lat * 10 * *7
+
+			calc_XY_velocity();
+
+			if (g.log_bitmask & MASK_LOG_GPS && motors.armed()){
+				Log_Write_GPS();
+			}
+
+			#if HIL_MODE == HIL_MODE_ATTITUDE					// only execute in HIL mode
+				//update_altitude();
+				alt_sensor_flag = true;
+			#endif
 		}
 
-		current_loc.lng = g_gps->longitude;	// Lon * 10 * *7
-		current_loc.lat = g_gps->latitude;	// Lat * 10 * *7
-
-		if (g.log_bitmask & MASK_LOG_GPS && motors.armed()){
-			Log_Write_GPS();
-		}
-
-		#if HIL_MODE == HIL_MODE_ATTITUDE					// only execute in HIL mode
-			//update_altitude();
-			alt_sensor_flag = true;
-		#endif
+		// save GPS time so we don't get duplicate reads
+		last_gps_time = g_gps->time;
 	}
 }
 
@@ -1602,7 +1588,7 @@ void update_simple_mode(void)
 
 #define THROTTLE_FILTER_SIZE 2
 
-// 50 hz update rate, not 250
+// 50 hz update rate
 // controls all throttle behavior
 void update_throttle_mode(void)
 {
@@ -1709,7 +1695,7 @@ void update_throttle_mode(void)
 				}
 
 				// 10hz, 			don't run up i term
-				if( motors.auto_armed() == true ){
+				if(motors.auto_armed() == true){
 
 					// how far off are we
 					altitude_error = get_altitude_error();
@@ -2268,6 +2254,7 @@ static void update_nav_wp()
 		int16_t speed = calc_desired_speed(g.waypoint_speed_max, slow_wp);
 		// use error as the desired rate towards the target
 		calc_nav_rate(speed);
+
 		// rotate pitch and roll to the copter frame of reference
 		calc_loiter_pitch_roll();
 

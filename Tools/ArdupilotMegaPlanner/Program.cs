@@ -31,8 +31,6 @@ namespace ArdupilotMega
 
             Application.Idle += Application_Idle;
 
-            //CodeGen.runCode("Sin(0.55)");
-
             int wt = 0, ct = 0;
             ThreadPool.GetMaxThreads(out wt, out ct);
             log.Info("Max Threads: " + wt);
@@ -42,6 +40,23 @@ namespace ArdupilotMega
             //MessageBox.Show("NOTE: This version may break advanced mission scripting");
 
             //Common.linearRegression();
+
+            //Console.WriteLine(srtm.getAltitude(-35.115676879882812, 117.94178754638671,20));
+
+
+            PointLatLngAlt plla = new PointLatLngAlt(54.0359, 5.4253, 0, "");
+            PointLatLngAlt plla2 = new PointLatLngAlt(54.3838, 3.0412, 0, "");
+
+            Console.WriteLine(plla.GetDistance(plla2));
+            Console.WriteLine(plla.GetDistance2(plla2));
+
+
+
+            if (System.Diagnostics.Debugger.IsAttached)
+            {
+                // testing
+             //   Utilities.ParameterMetaDataParser.GetParameterInformation();
+            }
 
             try
             {

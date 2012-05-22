@@ -97,6 +97,60 @@ namespace ArdupilotMega
         }
     }
 
+    public class GMapMarkerRover : GMapMarker
+    {
+        const float rad2deg = (float)(180 / Math.PI);
+        const float deg2rad = (float)(1.0 / rad2deg);
+
+        static readonly System.Drawing.Size SizeSt = new System.Drawing.Size(global::ArdupilotMega.Properties.Resources.rover.Width, global::ArdupilotMega.Properties.Resources.rover.Height);
+        float heading = 0;
+        float cog = -1;
+        float target = -1;
+        float nav_bearing = -1;
+        public GMapControl MainMap;
+
+        public GMapMarkerRover(PointLatLng p, float heading, float cog, float nav_bearing, float target, GMapControl map)
+            : base(p)
+        {
+            this.heading = heading;
+            this.cog = cog;
+            this.target = target;
+            this.nav_bearing = nav_bearing;
+            Size = SizeSt;
+            MainMap = map;
+        }
+
+        public override void OnRender(Graphics g)
+        {
+            Matrix temp = g.Transform;
+            g.TranslateTransform(LocalPosition.X, LocalPosition.Y);
+
+            g.RotateTransform(-MainMap.Bearing);
+
+            int length = 500;
+            // anti NaN
+            try
+            {
+                g.DrawLine(new Pen(Color.Red, 2), 0.0f, 0.0f, (float)Math.Cos((heading - 90) * deg2rad) * length, (float)Math.Sin((heading - 90) * deg2rad) * length);
+            }
+            catch { }
+            g.DrawLine(new Pen(Color.Green, 2), 0.0f, 0.0f, (float)Math.Cos((nav_bearing - 90) * deg2rad) * length, (float)Math.Sin((nav_bearing - 90) * deg2rad) * length);
+            g.DrawLine(new Pen(Color.Black, 2), 0.0f, 0.0f, (float)Math.Cos((cog - 90) * deg2rad) * length, (float)Math.Sin((cog - 90) * deg2rad) * length);
+            g.DrawLine(new Pen(Color.Orange, 2), 0.0f, 0.0f, (float)Math.Cos((target - 90) * deg2rad) * length, (float)Math.Sin((target - 90) * deg2rad) * length);
+            // anti NaN
+
+            try
+            {
+                g.RotateTransform(heading);
+            }
+            catch { }
+            g.DrawImageUnscaled(global::ArdupilotMega.Properties.Resources.rover, global::ArdupilotMega.Properties.Resources.rover.Width / -2, global::ArdupilotMega.Properties.Resources.rover.Height / -2);
+
+            g.Transform = temp;
+        }
+    }
+
+
     public class GMapMarkerPlane : GMapMarker
     {
         const float rad2deg = (float)(180 / Math.PI);
@@ -149,7 +203,7 @@ namespace ArdupilotMega
 
                 float alpha = ((desired_lead_dist * (float)m2pixelwidth) / MainV2.cs.radius) * rad2deg;
 
-                if (MainV2.cs.radius < 0)
+                if (MainV2.cs.radius < -1)
                 {
                     // fixme 
 
@@ -161,7 +215,7 @@ namespace ArdupilotMega
 
                 }
 
-                else
+                else if (MainV2.cs.radius > 1)
                 {
                     // correct
 
@@ -241,6 +295,9 @@ namespace ArdupilotMega
         public string Tag = "";
         public Color color = Color.White;
 
+        const float rad2deg = (float)(180 / Math.PI);
+        const float deg2rad = (float)(1.0 / rad2deg);
+
         public PointLatLngAlt(double lat, double lng, double alt, string tag)
         {
             this.Lat = lat;
@@ -304,6 +361,11 @@ namespace ArdupilotMega
             return (int)((Lat + Lng + Alt) * 100);
         }
 
+        public override string ToString()
+        {
+            return Lat + "," + Lng + "," + Alt;
+        }
+
         /// <summary>
         /// Calc Distance in M
         /// </summary>
@@ -319,7 +381,24 @@ namespace ArdupilotMega
             double num6 = num3 - d;
             double num7 = Math.Pow(Math.Sin(num6 / 2.0), 2.0) + ((Math.Cos(d) * Math.Cos(num3)) * Math.Pow(Math.Sin(num5 / 2.0), 2.0));
             double num8 = 2.0 * Math.Atan2(Math.Sqrt(num7), Math.Sqrt(1.0 - num7));
-            return (6378.137 * num8) * 1000; // M
+            return (6371 * num8) * 1000.0; // M
+        }
+
+        public double GetDistance2(PointLatLngAlt p2)
+        {
+            //http://www.movable-type.co.uk/scripts/latlong.html
+            var R = 6371; // 6371 km
+            var dLat = (p2.Lat - Lat) * deg2rad;
+            var dLon = (p2.Lng - Lng) * deg2rad;
+            var lat1 = Lat * deg2rad;
+            var lat2 = p2.Lat * deg2rad;
+
+            var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                    Math.Sin(dLon / 2) * Math.Sin(dLon / 2) * Math.Cos(lat1) * Math.Cos(lat2);
+            var c = 2.0 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+            var d = R * c * 1000.0; // M
+
+            return d;
         }
     }
 
@@ -370,6 +449,33 @@ namespace ArdupilotMega
             LOITER = 12,
             [DisplayText("Guided")]
             GUIDED = 15
+        }
+
+        public enum aprovermodes
+        {
+            [DisplayText("Manual")]
+            MANUAL = 0,
+            [DisplayText("Circle")]
+            CIRCLE = 1,
+            [DisplayText("Learning")]
+            LEARNING = 2,
+            [DisplayText("FBW A")]
+            FLY_BY_WIRE_A = 5,
+            [DisplayText("FBW B")]
+            FLY_BY_WIRE_B = 6,
+            [DisplayText("Auto")]
+            AUTO = 10,
+            [DisplayText("RTL")]
+            RTL = 11,
+            [DisplayText("Loiter")]
+            LOITER = 12,
+            [DisplayText("Guided")]
+            GUIDED = 15,
+            HEADALT = 17,
+            SARSEC = 18,
+            SARGRID = 19,
+            THERMAL = 20,
+            LAND = 21
         }
 
         public enum ac2modes
@@ -447,7 +553,7 @@ namespace ArdupilotMega
             // altitude controller
             CH6_THR_HOLD_KP = 14,
             CH6_Z_GAIN = 15,
-            CH6_DAMP = 16,
+            //CH6_DAMP = 16,
 
             // optical flow controller
             CH6_OPTFLOW_KP = 17,
@@ -464,7 +570,6 @@ namespace ArdupilotMega
             CH6_LOITER_RATE_KI = 28,
             CH6_STABILIZE_KD = 29
         }
-
 
         public static void linearRegression()
         {
@@ -502,148 +607,6 @@ namespace ArdupilotMega
             //Console.ReadLine();
         }
        
-		#if MAVLINK10
-		
-        public static bool translateMode(string modein, ref MAVLink.mavlink_set_mode_t mode)
-        {
-            //MAVLink.mavlink_set_mode_t mode = new MAVLink.mavlink_set_mode_t();
-            mode.target_system = MainV2.comPort.sysid;
-
-            try
-            {
-                if (Common.getModes() == typeof(Common.apmmodes))
-                {
-                    switch (EnumTranslator.GetValue<Common.apmmodes>(modein))
-                    {
-                        case (int)Common.apmmodes.MANUAL:
-                        case (int)Common.apmmodes.CIRCLE:
-                        case (int)Common.apmmodes.STABILIZE:
-                        case (int)Common.apmmodes.AUTO:
-                        case (int)Common.apmmodes.RTL:
-                        case (int)Common.apmmodes.LOITER:
-                        case (int)Common.apmmodes.FLY_BY_WIRE_A:
-                        case (int)Common.apmmodes.FLY_BY_WIRE_B:
-                            mode.base_mode = (byte)MAVLink.MAV_MODE_FLAG.CUSTOM_MODE_ENABLED;
-                            mode.custom_mode = (uint)(int)Enum.Parse(Common.getModes(), modein);
-                            break;
-                        default:
-                            MessageBox.Show("No Mode Changed " +  modein);
-                            return false;
-                    }
-                }
-                else if (Common.getModes() == typeof(Common.ac2modes))
-                {
-                    switch (EnumTranslator.GetValue<Common.ac2modes>(modein))
-                    {
-                        case (int)Common.ac2modes.STABILIZE:
-                        case (int)Common.ac2modes.AUTO:
-                        case (int)Common.ac2modes.RTL:
-                        case (int)Common.ac2modes.LOITER:
-                        case (int)Common.ac2modes.ACRO:
-                        case (int)Common.ac2modes.ALT_HOLD:
-                        case (int)Common.ac2modes.CIRCLE:
-                        case (int)Common.ac2modes.POSITION:
-                            mode.base_mode = (byte)MAVLink.MAV_MODE_FLAG.CUSTOM_MODE_ENABLED;
-                            mode.custom_mode = (uint)(int)Enum.Parse(Common.getModes(), modein);
-                            break;
-                        default:
-                            MessageBox.Show("No Mode Changed " +  modein);
-                            return false;
-                    }
-                }
-            }
-            catch { System.Windows.Forms.MessageBox.Show("Failed to find Mode"); return false; }
-
-            return true;
-        }
-		
-#else
-        public static bool translateMode(string modein, ref  MAVLink.mavlink_set_nav_mode_t navmode, ref MAVLink.mavlink_set_mode_t mode)
-        {
-
-            //MAVLink.mavlink_set_nav_mode_t navmode = new MAVLink.mavlink_set_nav_mode_t();
-            navmode.target = MainV2.comPort.sysid;
-            navmode.nav_mode = 255;
-
-            //MAVLink.mavlink_set_mode_t mode = new MAVLink.mavlink_set_mode_t();
-            mode.target = MainV2.comPort.sysid;
-
-            try
-            {
-                if (Common.getModes() == typeof(Common.apmmodes))
-                {
-                    switch (EnumTranslator.GetValue<Common.apmmodes>(modein))
-                    {
-                        case (int)Common.apmmodes.MANUAL:
-                            mode.mode = (byte)MAVLink.MAV_MODE.MAV_MODE_MANUAL;
-                            break;
-                        case (int)Common.apmmodes.GUIDED:
-                            mode.mode = (byte)MAVLink.MAV_MODE.MAV_MODE_GUIDED;
-                            break;
-                        case (int)Common.apmmodes.STABILIZE:
-                            mode.mode = (byte)MAVLink.MAV_MODE.MAV_MODE_TEST1;
-                            break;
-                        // AUTO MODES
-                        case (int)Common.apmmodes.AUTO:
-                            navmode.nav_mode = (byte)MAVLink.MAV_NAV.MAV_NAV_WAYPOINT;
-                            mode.mode = (byte)MAVLink.MAV_MODE.MAV_MODE_AUTO;
-                            break;
-                        case (int)Common.apmmodes.RTL:
-                            navmode.nav_mode = (byte)MAVLink.MAV_NAV.MAV_NAV_RETURNING;
-                            mode.mode = (byte)MAVLink.MAV_MODE.MAV_MODE_AUTO;
-                            break;
-                        case (int)Common.apmmodes.LOITER:
-                            navmode.nav_mode = (byte)MAVLink.MAV_NAV.MAV_NAV_LOITER;
-                            mode.mode = (byte)MAVLink.MAV_MODE.MAV_MODE_AUTO;
-                            break;
-                        // FBW
-                        case (int)Common.apmmodes.FLY_BY_WIRE_A:
-                            navmode.nav_mode = (byte)1;
-                            mode.mode = (byte)MAVLink.MAV_MODE.MAV_MODE_TEST2;
-                            break;
-                        case (int)Common.apmmodes.FLY_BY_WIRE_B:
-                            navmode.nav_mode = (byte)2;
-                            mode.mode = (byte)MAVLink.MAV_MODE.MAV_MODE_TEST2;
-                            break;
-                        default:
-                            CustomMessageBox.Show("No Mode Changed " + modein);
-                            return false;
-                    }
-                }
-                else if (Common.getModes() == typeof(Common.ac2modes))
-                {
-                    switch (EnumTranslator.GetValue<Common.ac2modes>(modein))
-                    {
-                        case (int)Common.ac2modes.GUIDED:
-                            mode.mode = (byte)MAVLink.MAV_MODE.MAV_MODE_GUIDED;
-                            break;
-                        case (int)Common.ac2modes.STABILIZE:
-                            mode.mode = (byte)MAVLink.MAV_MODE.MAV_MODE_MANUAL;
-                            break;
-                        // AUTO MODES
-                        case (int)Common.ac2modes.AUTO:
-                            navmode.nav_mode = (byte)MAVLink.MAV_NAV.MAV_NAV_WAYPOINT;
-                            mode.mode = (byte)MAVLink.MAV_MODE.MAV_MODE_AUTO;
-                            break;
-                        case (int)Common.ac2modes.RTL:
-                            navmode.nav_mode = (byte)MAVLink.MAV_NAV.MAV_NAV_RETURNING;
-                            mode.mode = (byte)MAVLink.MAV_MODE.MAV_MODE_AUTO;
-                            break;
-                        case (int)Common.ac2modes.LOITER:
-                            navmode.nav_mode = (byte)MAVLink.MAV_NAV.MAV_NAV_LOITER;
-                            mode.mode = (byte)MAVLink.MAV_MODE.MAV_MODE_AUTO;
-                            break;
-                        default:
-                            CustomMessageBox.Show("No Mode Changed " +  modein);
-                            return false;
-                    }
-                }
-            }
-            catch { System.Windows.Forms.CustomMessageBox.Show("Failed to find Mode"); return false; }
-
-            return true;
-        }		
-		#endif
 
 
         
@@ -710,6 +673,10 @@ namespace ArdupilotMega
             {
                 return typeof(ac2modes);
             }
+            else if (MainV2.cs.firmware == MainV2.Firmwares.ArduRover)
+            {
+                return typeof(aprovermodes);
+            }
 
             return null;
         }
@@ -724,6 +691,11 @@ namespace ArdupilotMega
             else if (MainV2.cs.firmware == MainV2.Firmwares.ArduCopter2)
             {
                 var flightModes = EnumTranslator.Translate<ac2modes>();
+                return flightModes.ToList();
+            }
+            else if (MainV2.cs.firmware == MainV2.Firmwares.ArduRover)
+            {
+                var flightModes = EnumTranslator.Translate<aprovermodes>();
                 return flightModes.ToList();
             }
 

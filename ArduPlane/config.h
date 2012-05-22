@@ -81,6 +81,12 @@
 # endif
 #endif
 
+// use this to enable telemetry on UART2. This is used
+// when you have setup the solder bridge on an APM2 to enable UART2
+#ifndef TELEMETRY_UART2
+# define TELEMETRY_UART2 DISABLED
+#endif
+
 //////////////////////////////////////////////////////////////////////////////
 // LED and IO Pins
 //
@@ -111,6 +117,11 @@
 #define TELEMETRY_ON_SERIAL0 1  //always, because of MUX
 # define USB_MUX_PIN 23
 #define SERIAL3_INIT 0   // not needed at present. 
+#if TELEMETRY_UART2 == ENABLED
+# define USB_MUX_PIN -1
+#else
+# define USB_MUX_PIN 23
+#endif
 # define BATTERY_PIN_1	  1
 # define CURRENT_PIN_1	  2
 #endif

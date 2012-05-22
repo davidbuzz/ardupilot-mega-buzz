@@ -34,10 +34,22 @@ namespace ArdupilotMega.Utilities
                objXmlTextWriter.Formatting = Formatting.Indented;
                objXmlTextWriter.WriteStartDocument();
 
+               objXmlTextWriter.WriteStartElement("Params");
+
                foreach (string parameterLocation in parameterLocations)
                {
+                   string element = "none";
+
+                   if (parameterLocation.ToLower().Contains("arducopter")) {
+                       element = MainV2.Firmwares.ArduCopter2.ToString();
+                   } else if (parameterLocation.ToLower().Contains("arduplane")) {
+                       element = MainV2.Firmwares.ArduPlane.ToString();
+                   } else if (parameterLocation.ToLower().Contains("rover")) {
+                       element = MainV2.Firmwares.ArduRover.ToString();
+                   }
+
                   // Write the start element for this parameter location
-                  objXmlTextWriter.WriteStartElement(parameterLocation.ToLower().Contains("arducopter") ? MainV2.Firmwares.ArduCopter2.ToString() : MainV2.Firmwares.ArduPlane.ToString());
+                  objXmlTextWriter.WriteStartElement(element);
 
                   // Read and parse the content.
                   string dataFromAddress = ReadDataFromAddress(parameterLocation);
@@ -48,6 +60,8 @@ namespace ArdupilotMega.Utilities
                   objXmlTextWriter.WriteEndElement();
 
                }
+
+               objXmlTextWriter.WriteEndElement();
                
                // Clear the stream
                objXmlTextWriter.WriteEndDocument();
@@ -177,9 +191,9 @@ namespace ArdupilotMega.Utilities
             {
                // This is the end index for a substring to search for parameter attributes
                // If we are on the last index in our collection, we will search to the end of the file
-               var stopIdx = (i == indicies.Count - 1) ? fileContents.Length : indicies[i + 1];
+               var stopIdx = (i == indicies.Count - 1) ? fileContents.Length : indicies[i + 1] + 1;
 
-               string subStringToSearch = fileContents.Substring(indicies[i], (stopIdx - indicies[i]));
+                string subStringToSearch = fileContents.Substring(indicies[i], (stopIdx - indicies[i]));
                if(!String.IsNullOrEmpty(subStringToSearch))
                {
                   var metaIndicies = new List<int>();
@@ -204,7 +218,7 @@ namespace ArdupilotMega.Utilities
                            {
                               // This is the end index for a substring to search for parameter attributes
                               // If we are on the last index in our collection, we will search to the end of the file
-                              var stopMetaIdx = (x == metaIndicies.Count - 1) ? subStringToSearch.Length : metaIndicies[x + 1];
+                              var stopMetaIdx = (x == metaIndicies.Count - 1) ? subStringToSearch.Length : metaIndicies[x + 1] + 1;
 
                               // This meta param string
                               var metaString = subStringToSearch.Substring(metaIndicies[x], (stopMetaIdx - metaIndicies[x]));
@@ -242,13 +256,13 @@ namespace ArdupilotMega.Utilities
       private static void GetIndexOfMarkers(ref List<int> indicies, string inspectThis, string delimeter, int prevIdx)
       {
          // Find the index of the start of a parameter comment
-         int idx = inspectThis.IndexOf(delimeter, StringComparison.InvariantCultureIgnoreCase);
+         int idx = inspectThis.IndexOf(delimeter, prevIdx, StringComparison.InvariantCultureIgnoreCase);
 
          // If we can't find one we stop here
          if(idx != -1)
          {
             // Add the index we found
-            indicies.Add(idx + prevIdx);
+            indicies.Add(idx);
             
             // Move the index after the parameter delimeter
             int newIdx = idx + delimeter.Length;
@@ -257,7 +271,7 @@ namespace ArdupilotMega.Utilities
             if(newIdx < inspectThis.Length)
             {
                // Recursively search for the next index
-               GetIndexOfMarkers(ref indicies, inspectThis.Substring(newIdx, (inspectThis.Length - newIdx)), delimeter, idx + prevIdx);
+                GetIndexOfMarkers(ref indicies, inspectThis, delimeter, newIdx);
             }
          }
       }
