@@ -1,4 +1,4 @@
-
+#include <stdio.h>
 #include <limits.h>
 #include <stdarg.h>
 
@@ -43,14 +43,14 @@ void PX4ConsoleDriver::println_P(const prog_char_t *s) {
 void PX4ConsoleDriver::printf(const char *fmt, ...) {
         va_list ap;
         va_start(ap, fmt);
-//        vprintf((AP_HAL::Print*)this, 0, fmt, ap);
+        ::vprintf(fmt, ap);
         va_end(ap);
 }
 
 void PX4ConsoleDriver::_printf_P(const prog_char *fmt, ...) {
         va_list ap;
         va_start(ap, fmt);
-//        vprintf((AP_HAL::Print*)this, 1, fmt, ap);
+        ::vprintf(fmt, ap);
         va_end(ap);
 }
 
