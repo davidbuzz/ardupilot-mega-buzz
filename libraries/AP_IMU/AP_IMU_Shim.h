@@ -12,15 +12,6 @@
 
 #define AP_IMU_SHIM_UPDATE_MICROS 10000     // 10000 micrxos = 10 ms = 100hz
 
-void delay(long unsigned int ms) { 
-	 usleep(ms*1000); 
-}
-
-long unsigned int micros() { 
-	// should return number of microseconds since boot. TODO 
-	return 234567;
-}
-
 class AP_IMU_Shim : public IMU
 {
 public:
