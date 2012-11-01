@@ -92,7 +92,7 @@ void delay(long unsigned msec)
 	delayMicroseconds(msec*1000);
 }
 
-
+typedef uint8_t byte;
 
 // Libraries
 //#include <FastSerial.h>
@@ -144,6 +144,9 @@ void delay(long unsigned msec)
 #include "defines.h"
 #include "Parameters.h"
 #include "GCS.h"
+
+
+#include "Log.pde"
 
 #include <AP_Declination.h> // ArduPilot Mega Declination Helper Library
 
