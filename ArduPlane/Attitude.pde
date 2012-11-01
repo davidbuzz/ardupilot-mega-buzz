@@ -430,8 +430,8 @@ static void set_servos(void)
         // FIXME: use target_airspeed in both FBW_B and g.airspeed_enabled cases - Doug?
         if (control_mode == FLY_BY_WIRE_B) {
             flapSpeedSource = target_airspeed_cm * 0.01;
-        } else if (airspeed.use()) {
-            flapSpeedSource = g.airspeed_cruise_cm * 0.01;
+      //  } else if (airspeed.use()) {
+      //      flapSpeedSource = g.airspeed_cruise_cm * 0.01;
         } else {
             flapSpeedSource = g.throttle_cruise;
         }
@@ -483,5 +483,6 @@ static void demo_servos(byte i) {
 // return true if we should use airspeed for altitude/throttle control
 static bool alt_control_airspeed(void)
 {
-    return airspeed.use() && g.alt_control_algorithm == ALT_CONTROL_DEFAULT;
+    //return airspeed.use() && g.alt_control_algorithm == ALT_CONTROL_DEFAULT;
+    return false;
 }
