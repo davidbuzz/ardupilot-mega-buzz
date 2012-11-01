@@ -36,6 +36,64 @@
 
 #include <math.h>
 
+
+
+//#include "WProgram.h"
+#include <unistd.h>
+//#include <stdio.h>
+//#include <string.h>
+//#include "avr/pgmspace.h"
+//#include <BetterStream.h>
+#include <sys/time.h>
+#include <signal.h>
+//#include "desktop.h"
+
+struct desktop_info {
+//	bool slider; // slider switch state, True means CLI mode
+	struct timeval sketch_start_time;
+//	bool quadcopter; // use quadcopter outputs
+//	unsigned framerate;
+//	float initial_height;
+//	bool console_mode;
+};
+
+// the state of the desktop simulation
+struct desktop_info desktop_state;
+
+
+long unsigned int millis(void)
+{
+	struct timeval tp;
+	gettimeofday(&tp,NULL);
+	return 1.0e3*((tp.tv_sec + (tp.tv_usec*1.0e-6)) - 
+		      (desktop_state.sketch_start_time.tv_sec +
+		       (desktop_state.sketch_start_time.tv_usec*1.0e-6)));
+}
+
+long unsigned int micros(void)
+{
+	struct timeval tp;
+	gettimeofday(&tp,NULL);
+	return 1.0e6*((tp.tv_sec + (tp.tv_usec*1.0e-6)) - 
+		      (desktop_state.sketch_start_time.tv_sec +
+		       (desktop_state.sketch_start_time.tv_usec*1.0e-6)));
+}
+
+void delayMicroseconds(unsigned usec)
+{
+	uint32_t start = micros();
+	while (micros() - start < usec) {
+		usleep(usec - (micros() - start));
+	}
+}
+
+void delay(long unsigned msec)
+{
+	delayMicroseconds(msec*1000);
+}
+
+
+
 // Libraries
 //#include <FastSerial.h>
 #include <AP_Common.h>
@@ -88,6 +146,8 @@
 #include "GCS.h"
 
 #include <AP_Declination.h> // ArduPilot Mega Declination Helper Library
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Serial ports
@@ -204,7 +264,7 @@ static AP_Baro_BMP085          barometer(true);
 static AP_Baro_MS5611 barometer;
   #endif
 
-//static AP_Compass_HMC5843 compass;
+static AP_Compass_HMC5843 compass;
  #endif
 
 // real GPS selection
@@ -702,6 +762,8 @@ AP_Mount camera_mount2(&current_loc, g_gps, &ahrs, 1);
 ////////////////////////////////////////////////////////////////////////////////
 
 void setup() {
+  	gettimeofday(&desktop_state.sketch_start_time, NULL);
+
     memcheck_init();
     init_ardupilot();
 }
@@ -886,9 +948,9 @@ static void medium_loop()
         // Read Airspeed
         // -------------
 #if HIL_MODE != HIL_MODE_ATTITUDE
-        if (airspeed.enabled()) {
-            read_airspeed();
-        }
+       // if (airspeed.enabled()) {
+       //     read_airspeed();
+       // }
 #endif
 
         read_receiver_rssi();
