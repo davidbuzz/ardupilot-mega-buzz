@@ -288,7 +288,7 @@ GCS_MAVLINK gcs3;
 //
 
 #if CONFIG_PITOT_SOURCE == PITOT_SOURCE_ADC
-AP_AnalogSource_ADC pitot_analog_source( &adc,
+AP_ADC_AnalogSource pitot_analog_source( &adc,
                                          CONFIG_PITOT_SOURCE_ADC_CHANNEL, 1.0);
 #elif CONFIG_PITOT_SOURCE == PITOT_SOURCE_ANALOG_PIN
 AP_AnalogSource_Arduino pitot_analog_source(CONFIG_PITOT_SOURCE_ANALOG_PIN, 4.0);
