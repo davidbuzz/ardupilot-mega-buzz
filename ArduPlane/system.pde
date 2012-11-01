@@ -208,7 +208,7 @@ static void init_ardupilot()
     pinMode(A_LED_PIN, OUTPUT);                         // GPS status LED
     pinMode(B_LED_PIN, OUTPUT);                         // GPS status LED
 #if CONFIG_RELAY == ENABLED
-    DDRL |= B00000100;                                          // Set Port L, pin 2 to output for the relay
+   // DDRL |= B00000100;                                          // Set Port L, pin 2 to output for the relay
 #endif
 
 #if FENCE_TRIGGERED_PIN > 0
@@ -437,13 +437,13 @@ static void startup_IMU_ground(bool force_accel_level)
     //-----------------------------
     init_barometer();
 
-    if (airspeed.enabled()) {
+    //if (airspeed.enabled()) {
         // initialize airspeed sensor
         // --------------------------
-        zero_airspeed();
-    } else {
+    //    zero_airspeed();
+    //} else {
         gcs_send_text_P(SEVERITY_LOW,PSTR("NO airspeed"));
-    }
+    //}
 
 #endif
     digitalWrite(B_LED_PIN, LED_ON);                    // Set LED B high to indicate IMU ready
