@@ -106,7 +106,7 @@ class GCS_MAVLINK : public GCS_Class
 public:
     GCS_MAVLINK();
     void        update(void);
-    void        init(AP_HAL::Stream *port);
+    void        init(AP_HAL::BetterStream *port);
     void        send_message(enum ap_message id);
     void        send_text(gcs_severity severity, const char *str);
 //    void        send_text(gcs_severity severity, const prog_char_t *str);
