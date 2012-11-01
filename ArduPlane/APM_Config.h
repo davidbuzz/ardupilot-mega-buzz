@@ -17,6 +17,10 @@
 
 //#define HIL_MODE            HIL_MODE_DISABLED
 
+
+#define LOGGING_ENABLED DISABLED
+#define CLI_ENABLED DISABLED
+
 /*
  *  // HIL_MODE SELECTION
  *  //
