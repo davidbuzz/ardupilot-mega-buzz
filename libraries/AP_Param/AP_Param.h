@@ -16,8 +16,19 @@
 #include <string.h>
 #include <stdint.h>
 
+#include <AP_Progmem.h>
+
+
+
+#if defined(__AVR__) 
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
+#elif defined(PX4FMU_BUILD)
+//#include "PX4pgmspace.h"
+#include "PX4eeprom.h"
+#else
+#error "this build type is unknown"
+#endif
 
 #define AP_MAX_NAME_SIZE 15
 #define AP_NESTED_GROUPS_ENABLED
