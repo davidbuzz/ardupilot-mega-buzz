@@ -50,14 +50,15 @@
 //#include <AP_Semaphore.h>   // for removing conflict between optical flow and dataflash on SPI3 bus
 #include <DataFlash.h>      // ArduPilot Mega Flash Memory Library
 #include <AP_ADC.h>         // ArduPilot Mega Analog to Digital Converter Library
-//#include <AP_AnalogSource.h> // ArduPilot Mega polymorphic analog getter
+#include <AP_ADC_AnalogSource.h> // ArduPilot Mega polymorphic analog getter
 #include <AP_PeriodicProcess.h> // ArduPilot Mega TimerProcess
-//#include <AP_Baro.h>        // ArduPilot barometer library
-//#include <AP_Compass.h>     // ArduPilot Mega Magnetometer Library
+#include <AP_Baro.h>        // ArduPilot barometer library
+#include <AP_Compass.h>     // ArduPilot Mega Magnetometer Library
 #include <AP_Math.h>        // ArduPilot Mega Vector/Matrix math Library
 #include <AP_InertialSensor.h> // Inertial Sensor (uncalibrated IMU) Library
 #include <AP_IMU.h>         // ArduPilot Mega IMU Library
-//#include <AP_AHRS.h>         // ArduPilot Mega DCM Library
+#include <AP_Airspeed.h> 
+#include <AP_AHRS.h>         // ArduPilot Mega DCM Library
 #include <PID.h>            // PID library
 #include <RC_Channel.h>     // RC Channel Library
 //#include <AP_RangeFinder.h>     // Range finder library
@@ -381,7 +382,7 @@ static bool GPS_light;
 // This is used to scale GPS values for EEPROM storage
 // 10^7 times Decimal GPS means 1 == 1cm
 // This approximation makes calculations integer and it's easy to read
-static const float t7                        = 10000000.0;
+static constexpr float t7                        = 10000000.0;
 // We use atan2 and other trig techniques to calaculate angles
 // A counter used to count down valid gps fixes to allow the gps estimate to settle
 // before recording our home position (and executing a ground start if we booted with an air start)
