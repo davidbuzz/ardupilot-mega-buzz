@@ -8,7 +8,13 @@
 
 #include "IMU.h"
 
+#include <unistd.h>
+
 #define AP_IMU_SHIM_UPDATE_MICROS 10000     // 10000 micrxos = 10 ms = 100hz
+
+void delay(int ms) { 
+	 usleep(ms*1000); 
+}
 
 class AP_IMU_Shim : public IMU
 {
