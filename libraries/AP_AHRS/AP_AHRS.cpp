@@ -11,7 +11,7 @@
 
 
 // table of user settable parameters
-const AP_Param::GroupInfo AP_AHRS::var_info[] PROGMEM = {
+const AP_Param::GroupInfo AP_AHRS::var_info[] = {
 	// index 0 and 1 are for old parameters that are no longer used
 
     // @Param: GPS_GAIN

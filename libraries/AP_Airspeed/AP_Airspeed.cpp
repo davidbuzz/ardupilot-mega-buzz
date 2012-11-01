@@ -17,7 +17,7 @@
 extern const AP_HAL::HAL& hal;
 
 // table of user settable parameters
-const AP_Param::GroupInfo AP_Airspeed::var_info[] PROGMEM = {
+const AP_Param::GroupInfo AP_Airspeed::var_info[] = {
 
     // @Param: ENABLE
     // @DisplayName: Airspeed enable

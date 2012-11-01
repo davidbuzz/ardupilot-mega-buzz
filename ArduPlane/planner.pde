@@ -8,7 +8,7 @@ static int8_t   planner_gcs(uint8_t argc,               const Menu::arg *argv);
 // and stores them in Flash memory, not RAM.
 // User enters the string in the console to call the functions on the right.
 // See class Menu in AP_Common for implementation details
-static const struct Menu::command planner_menu_commands[] PROGMEM = {
+static const struct Menu::command planner_menu_commands[] = {
     {"gcs",         planner_gcs},
 };
 

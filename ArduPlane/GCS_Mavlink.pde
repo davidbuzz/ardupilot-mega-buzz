@@ -712,7 +712,7 @@ void mavlink_send_text(mavlink_channel_t chan, gcs_severity severity, const char
     }
 }
 
-const AP_Param::GroupInfo GCS_MAVLINK::var_info[] PROGMEM = {
+const AP_Param::GroupInfo GCS_MAVLINK::var_info[]  = {
     AP_GROUPINFO("RAW_SENS", 0, GCS_MAVLINK, streamRateRawSensors,     0),
     AP_GROUPINFO("EXT_STAT", 1, GCS_MAVLINK, streamRateExtendedStatus, 0),
     AP_GROUPINFO("RC_CHAN",  2, GCS_MAVLINK, streamRateRCChannels,     0),

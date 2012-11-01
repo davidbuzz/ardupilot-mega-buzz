@@ -29,7 +29,7 @@ static int8_t   test_logging(uint8_t argc,              const Menu::arg *argv);
 // and stores them in Flash memory, not RAM.
 // User enters the string in the console to call the functions on the right.
 // See class Menu in AP_Common for implementation details
-static const struct Menu::command test_menu_commands[] PROGMEM = {
+static const struct Menu::command test_menu_commands[]  = {
     {"pwm",                         test_radio_pwm},
     {"radio",                       test_radio},
     {"passthru",            test_passthru},

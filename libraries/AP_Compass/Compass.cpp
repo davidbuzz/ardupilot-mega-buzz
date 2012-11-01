@@ -5,7 +5,7 @@
 #define deg2radians(deg) ((deg)*DEG_TO_RAD)
 #define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
 
-const AP_Param::GroupInfo Compass::var_info[] PROGMEM = {
+const AP_Param::GroupInfo Compass::var_info[]  = {
     // index 0 was used for the old orientation matrix
     AP_GROUPINFO("OFS",    1, Compass, _offset, 0),
     AP_GROUPINFO("DEC",    2, Compass, _declination, 0),

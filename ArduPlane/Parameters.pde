@@ -13,7 +13,7 @@
 #define GGROUP(v, name, class) { AP_PARAM_GROUP, name, Parameters::k_param_ ## v, &g.v, {group_info : class::var_info} }
 #define GOBJECT(v, name, class) { AP_PARAM_GROUP, name, Parameters::k_param_ ## v, &v, {group_info : class::var_info} }
 
-const AP_Param::Info var_info[] PROGMEM = {
+const AP_Param::Info var_info[] = {
     GSCALAR(format_version,         "FORMAT_VERSION", 0),
     GSCALAR(software_type,          "SYSID_SW_TYPE",  Parameters::k_software_type),
     GSCALAR(sysid_this_mav,         "SYSID_THISMAV",  MAV_SYSTEM_ID),

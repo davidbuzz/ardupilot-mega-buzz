@@ -14,7 +14,7 @@ static int8_t   setup_declination               (uint8_t argc, const Menu::arg *
 static int8_t   setup_batt_monitor              (uint8_t argc, const Menu::arg *argv);
 
 // Command/function table for the setup menu
-static const struct Menu::command setup_menu_commands[] PROGMEM = {
+static const struct Menu::command setup_menu_commands[] = {
     // command			function called
     // =======          ===============
     {"reset",                       setup_factory},
