@@ -94,6 +94,16 @@ void delay(long unsigned msec)
 
 typedef uint8_t byte;
 
+
+#define min(a,b) ((a)<(b)?(a):(b))
+#define max(a,b) ((a)>(b)?(a):(b))
+#define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
+//#define round(x)     ((x)>=0?(long)((x)+0.5):(long)((x)-0.5))
+//#define radians(deg) ((deg)*DEG_TO_RAD)
+//#define degrees(rad) ((rad)*RAD_TO_DEG)
+//#define sq(x) ((x)*(x))
+
+
 // Libraries
 //#include <FastSerial.h>
 #include <AP_Common.h>
@@ -103,7 +113,7 @@ typedef uint8_t byte;
 #include <Arduino_Mega_ISR_Registry.h>
 #include <APM_RC.h>         // ArduPilot Mega RC Library
 #include <AP_GPS.h>         // ArduPilot GPS library
-//#include <I2C.h>                        // Wayne Truchsess I2C lib
+#include <I2C.h>                        // Wayne Truchsess I2C lib
 //#include <SPI.h>                        // Arduino SPI lib
 //#include <AP_Semaphore.h>   // for removing conflict between optical flow and dataflash on SPI3 bus
 #include <DataFlash.h>      // ArduPilot Mega Flash Memory Library
@@ -146,7 +156,7 @@ typedef uint8_t byte;
 #include "GCS.h"
 
 
-#include "Log.pde"
+//#include "Log.pde"
 
 #include <AP_Declination.h> // ArduPilot Mega Declination Helper Library
 
@@ -261,7 +271,7 @@ SITL sitl;
    # if CONFIG_APM_HARDWARE == APM_HARDWARE_APM2
 static AP_Baro_BMP085          barometer(true);
    # else
-//static AP_Baro_BMP085          barometer(false);
+static AP_Baro_BMP085          barometer(false);
    # endif
   #elif CONFIG_BARO == AP_BARO_MS5611
 static AP_Baro_MS5611 barometer;
