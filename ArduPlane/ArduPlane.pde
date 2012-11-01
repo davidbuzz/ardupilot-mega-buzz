@@ -80,7 +80,7 @@
 
 #include <GCS_MAVLink.h>    // MAVLink GCS definitions
 
-//#include <AP_Mount.h>           // Camera/Antenna mount
+#include <AP_Mount.h>           // Camera/Antenna mount
 
 // Local modules
 #include "defines.h"
