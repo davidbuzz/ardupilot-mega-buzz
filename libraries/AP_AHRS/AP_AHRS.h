@@ -20,9 +20,13 @@
 
 #if defined(ARDUINO) && ARDUINO >= 100
  #include "Arduino.h"
+#elif defined(PX4FMU_BUILD)
+ #include "Arduino.h"  // the empty one!  
 #else
  #include "WProgram.h"
 #endif
+
+
 
 class AP_AHRS
 {
@@ -182,7 +186,7 @@ protected:
     float _gyro_drift_limit;
 
     // acceleration due to gravity in m/s/s
-    static const float _gravity = 9.80665;
+    static constexpr float _gravity = 9.80665;
 };
 
 #include <AP_AHRS_DCM.h>

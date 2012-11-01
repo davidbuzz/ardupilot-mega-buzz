@@ -14,7 +14,7 @@
 #define HEADING_UNKNOWN -9999             // Initial value to detect that compass correction is not initialized
 
 // max rate of gyro drift in gyro_LSB_units/s (16.4LSB = 1deg/s)
-static const float _MPU6000_gyro_drift_rate = 0.5; // This correspond to 0.03 degrees/s/s;
+static constexpr float _MPU6000_gyro_drift_rate = 0.5; // This correspond to 0.03 degrees/s/s;
 
 class AP_AHRS_MPU6000 : public AP_AHRS
 {

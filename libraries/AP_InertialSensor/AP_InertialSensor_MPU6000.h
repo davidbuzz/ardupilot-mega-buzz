@@ -68,8 +68,8 @@ private:
 
     float                       _temp_to_celsius( uint16_t );
 
-    static const float          _accel_scale;
-    static const float          _gyro_scale;
+    static constexpr float          _accel_scale;
+    static constexpr float          _gyro_scale;
 
     static const uint8_t        _gyro_data_index[3];
     static const int8_t         _gyro_data_sign[3];
