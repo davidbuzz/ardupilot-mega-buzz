@@ -12,7 +12,7 @@
 
 #define AP_IMU_SHIM_UPDATE_MICROS 10000     // 10000 micrxos = 10 ms = 100hz
 
-void delay(int ms) { 
+void delay(long unsigned int ms) { 
 	 usleep(ms*1000); 
 }
 
