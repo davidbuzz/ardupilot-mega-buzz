@@ -44,7 +44,7 @@
 #include <AP_Param.h>
 #include <Arduino_Mega_ISR_Registry.h>
 #include <APM_RC.h>         // ArduPilot Mega RC Library
-//#include <AP_GPS.h>         // ArduPilot GPS library
+#include <AP_GPS.h>         // ArduPilot GPS library
 //#include <I2C.h>                        // Wayne Truchsess I2C lib
 //#include <SPI.h>                        // Arduino SPI lib
 //#include <AP_Semaphore.h>   // for removing conflict between optical flow and dataflash on SPI3 bus
@@ -54,9 +54,9 @@
 #include <AP_PeriodicProcess.h> // ArduPilot Mega TimerProcess
 //#include <AP_Baro.h>        // ArduPilot barometer library
 //#include <AP_Compass.h>     // ArduPilot Mega Magnetometer Library
-//#include <AP_Math.h>        // ArduPilot Mega Vector/Matrix math Library
-//#include <AP_InertialSensor.h> // Inertial Sensor (uncalibrated IMU) Library
-//#include <AP_IMU.h>         // ArduPilot Mega IMU Library
+#include <AP_Math.h>        // ArduPilot Mega Vector/Matrix math Library
+#include <AP_InertialSensor.h> // Inertial Sensor (uncalibrated IMU) Library
+#include <AP_IMU.h>         // ArduPilot Mega IMU Library
 //#include <AP_AHRS.h>         // ArduPilot Mega DCM Library
 #include <PID.h>            // PID library
 #include <RC_Channel.h>     // RC Channel Library
@@ -96,13 +96,14 @@
 // so there is not much of a penalty to defining ports that we don't
 // use.
 //
-FastSerialPort0(Serial);        // FTDI/console
-FastSerialPort1(Serial1);       // GPS port
+
+//FastSerialPort0(Serial);        // FTDI/console
+//FastSerialPort1(Serial1);       // GPS port
 #if TELEMETRY_UART2 == ENABLED
 // solder bridge set to enable UART2 instead of USB MUX
-FastSerialPort2(Serial3);
+//FastSerialPort2(Serial3);
 #else
-FastSerialPort3(Serial3);        // Telemetry port for APM1
+//FastSerialPort3(Serial3);        // Telemetry port for APM1
 #endif
 
 // this sets up the parameter table, and sets the default values. This
@@ -136,12 +137,14 @@ APM_RC_APM1 APM_RC;
 ////////////////////////////////////////////////////////////////////////////////
 // Dataflash
 ////////////////////////////////////////////////////////////////////////////////
-#if CONFIG_APM_HARDWARE == APM_HARDWARE_APM2
-DataFlash_APM2 DataFlash;
-#else
-DataFlash_APM1 DataFlash;
-#endif
+//#if CONFIG_APM_HARDWARE == APM_HARDWARE_APM2
+//DataFlash_APM2 DataFlash;
+//#else
+//DataFlash_APM1 DataFlash;
+//#endif
 
+//hal.dataflash->init(NULL);
+//hal.dataflash->erase_all();
 
 ////////////////////////////////////////////////////////////////////////////////
 // Parameters
@@ -171,7 +174,7 @@ static void update_events(void);
 //
 
 // All GPS access should be through this pointer.
-static GPS         *g_gps;
+//static GPS         *g_gps;
 
 // flight modes convenience array
 static AP_Int8          *flight_modes = &g.flight_mode1;
@@ -194,17 +197,18 @@ SITL sitl;
    # if CONFIG_APM_HARDWARE == APM_HARDWARE_APM2
 static AP_Baro_BMP085          barometer(true);
    # else
-static AP_Baro_BMP085          barometer(false);
+//static AP_Baro_BMP085          barometer(false);
    # endif
   #elif CONFIG_BARO == AP_BARO_MS5611
 static AP_Baro_MS5611 barometer;
   #endif
 
-static AP_Compass_HMC5843 compass;
+//static AP_Compass_HMC5843 compass;
  #endif
 
 // real GPS selection
  #if   GPS_PROTOCOL == GPS_PROTOCOL_AUTO
+/*
 AP_GPS_Auto     g_gps_driver(&Serial1, &g_gps);
 
  #elif GPS_PROTOCOL == GPS_PROTOCOL_NMEA
@@ -223,6 +227,7 @@ AP_GPS_MTK      g_gps_driver(&Serial1);
 AP_GPS_MTK16    g_gps_driver(&Serial1);
 
  #elif GPS_PROTOCOL == GPS_PROTOCOL_NONE
+*/
 AP_GPS_None     g_gps_driver(NULL);
 
  #else
