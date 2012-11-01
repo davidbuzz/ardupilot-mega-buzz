@@ -110,8 +110,8 @@ private:
 
     // Gyro and Accelerometer calibration criteria
     //
-    static const float          _accel_total_cal_change = 4.0;
-    static const float          _accel_max_cal_offset = 250.0;
+    static constexpr float          _accel_total_cal_change = 4.0;
+    static constexpr float          _accel_max_cal_offset = 250.0;
 
 };
 
