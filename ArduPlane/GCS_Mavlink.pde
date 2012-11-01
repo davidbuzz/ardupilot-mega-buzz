@@ -22,7 +22,7 @@ void gcs_send_text_fmt(const prog_char_t *fmt, ...);
  *  pattern below when adding any new messages
  */
 
-static NOINLINE void send_heartbeat(mavlink_channel_t chan)
+static  void send_heartbeat(mavlink_channel_t chan)
 {
     uint8_t base_mode = MAV_MODE_FLAG_CUSTOM_MODE_ENABLED;
     uint8_t system_status = MAV_STATE_ACTIVE;
@@ -94,7 +94,7 @@ static NOINLINE void send_heartbeat(mavlink_channel_t chan)
         system_status);
 }
 
-static NOINLINE void send_attitude(mavlink_channel_t chan)
+static  void send_attitude(mavlink_channel_t chan)
 {
     Vector3f omega = ahrs.get_gyro();
     mavlink_msg_attitude_send(
@@ -109,14 +109,14 @@ static NOINLINE void send_attitude(mavlink_channel_t chan)
 }
 
 #if GEOFENCE_ENABLED == ENABLED
-static NOINLINE void send_fence_status(mavlink_channel_t chan)
+static  void send_fence_status(mavlink_channel_t chan)
 {
     geofence_send_status(chan);
 }
 #endif
 
 
-static NOINLINE void send_extended_status1(mavlink_channel_t chan, uint16_t packet_drops)
+static  void send_extended_status1(mavlink_channel_t chan, uint16_t packet_drops)
 {
     uint32_t control_sensors_present = 0;
     uint32_t control_sensors_enabled;
@@ -222,13 +222,13 @@ static NOINLINE void send_extended_status1(mavlink_channel_t chan, uint16_t pack
 
 }
 
-static void NOINLINE send_meminfo(mavlink_channel_t chan)
+static void  send_meminfo(mavlink_channel_t chan)
 {
     extern unsigned __brkval;
     mavlink_msg_meminfo_send(chan, __brkval, memcheck_available_memory());
 }
 
-static void NOINLINE send_location(mavlink_channel_t chan)
+static void  send_location(mavlink_channel_t chan)
 {
     Matrix3f rot = ahrs.get_dcm_matrix(); // neglecting angle of attack for now
     mavlink_msg_global_position_int_send(
@@ -244,7 +244,7 @@ static void NOINLINE send_location(mavlink_channel_t chan)
         ahrs.yaw_sensor);
 }
 
-static void NOINLINE send_nav_controller_output(mavlink_channel_t chan)
+static void  send_nav_controller_output(mavlink_channel_t chan)
 {
     int16_t bearing = (hold_course==-1 ? nav_bearing_cd : hold_course) / 100;
     mavlink_msg_nav_controller_output_send(
@@ -259,7 +259,7 @@ static void NOINLINE send_nav_controller_output(mavlink_channel_t chan)
         crosstrack_error);
 }
 
-static void NOINLINE send_gps_raw(mavlink_channel_t chan)
+static void  send_gps_raw(mavlink_channel_t chan)
 {
     uint8_t fix = g_gps->status();
     if (fix == GPS::GPS_OK) {
@@ -398,7 +398,7 @@ static void NOINLINE send_raw_imu3(mavlink_channel_t chan)
                                     imu.ax(), imu.ay(), imu.az());
 }
 
-static void NOINLINE send_ahrs(mavlink_channel_t chan)
+static void  send_ahrs(mavlink_channel_t chan)
 {
     Vector3f omega_I = ahrs.get_gyro_drift();
     mavlink_msg_ahrs_send(
@@ -416,13 +416,13 @@ static void NOINLINE send_ahrs(mavlink_channel_t chan)
 
 #ifdef DESKTOP_BUILD
 // report simulator state
-static void NOINLINE send_simstate(mavlink_channel_t chan)
+static void  send_simstate(mavlink_channel_t chan)
 {
     sitl.simstate_send(chan);
 }
 #endif
 
-static void NOINLINE send_hwstatus(mavlink_channel_t chan)
+static void  send_hwstatus(mavlink_channel_t chan)
 {
     mavlink_msg_hwstatus_send(
         chan,
@@ -434,7 +434,7 @@ static void NOINLINE send_hwstatus(mavlink_channel_t chan)
 #endif
 }
 
-static void NOINLINE send_wind(mavlink_channel_t chan)
+static void  send_wind(mavlink_channel_t chan)
 {
     Vector3f wind = ahrs.wind_estimate();
     mavlink_msg_wind_send(
@@ -444,14 +444,14 @@ static void NOINLINE send_wind(mavlink_channel_t chan)
         wind.z);
 }
 
-static void NOINLINE send_current_waypoint(mavlink_channel_t chan)
+static void  send_current_waypoint(mavlink_channel_t chan)
 {
     mavlink_msg_mission_current_send(
         chan,
         g.command_index);
 }
 
-static void NOINLINE send_statustext(mavlink_channel_t chan)
+static void  send_statustext(mavlink_channel_t chan)
 {
     mavlink_statustext_t *s = (chan == MAVLINK_COMM_0?&gcs0.pending_status:&gcs3.pending_status);
     mavlink_msg_statustext_send(
