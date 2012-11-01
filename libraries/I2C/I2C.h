@@ -34,9 +34,13 @@
 #include <inttypes.h>
 #if defined(ARDUINO) && ARDUINO >= 100
  #include "Arduino.h"
+#elif defined(PX4FMU_BUILD)
+ #include "Arduino.h" 
 #else
  #include "WProgram.h"
 #endif
+
+
 
 #ifndef I2C_h
  #define I2C_h
@@ -71,8 +75,8 @@ public:
     void            begin();
     void            end();
     void            timeOut(uint16_t);
-    void            setSpeed(boolean);
-    void            pullup(boolean);
+    void            setSpeed(bool);
+    void            pullup(bool);
     ///////carry over from Wire library////////
     uint8_t         returnStatusWire;
     uint8_t         beginTransmission(uint8_t);
@@ -103,7 +107,7 @@ private:
     uint8_t                 start();
     uint8_t                 sendAddress(uint8_t);
     uint8_t                 sendByte(uint8_t);
-    uint8_t                 receiveByte(boolean);
+    uint8_t                 receiveByte(bool);
     uint8_t                 stop();
     void                    lockUp();
     uint8_t                 returnStatus;
