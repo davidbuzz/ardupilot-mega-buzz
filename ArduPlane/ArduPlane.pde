@@ -67,7 +67,7 @@
 #include <LowPassFilter.h>      // LowPassFilter class (inherits from Filter class)
 #include <AP_Relay.h>       // APM relay
 #include <AP_Camera.h>          // Photo or video camera
-//#include <AP_Airspeed.h>
+#include <AP_Airspeed.h>
 #include <memcheck.h>
 
 // optional new controller library
@@ -492,7 +492,7 @@ static float current_total1;
 ////////////////////////////////////////////////////////////////////////////////
 // Airspeed Sensors
 ////////////////////////////////////////////////////////////////////////////////
-AP_Airspeed airspeed(&pitot_analog_source);
+AP_Airspeed airspeed();   // TODO re-link to &pitot_analog_source
 
 ////////////////////////////////////////////////////////////////////////////////
 // Altitude Sensor variables
