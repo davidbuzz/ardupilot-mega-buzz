@@ -734,7 +734,7 @@ GCS_MAVLINK::GCS_MAVLINK() :
 }
 
 void
-GCS_MAVLINK::init(FastSerial * port)
+GCS_MAVLINK::init(AP_HAL::Stream * port)
 {
     GCS_Class::init(port);
     if (port == &Serial) {
