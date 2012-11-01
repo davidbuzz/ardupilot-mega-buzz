@@ -16,6 +16,11 @@ void delay(long unsigned int ms) {
 	 usleep(ms*1000); 
 }
 
+long unsigned int micros() { 
+	// should return number of microseconds since boot. TODO 
+	return 234567;
+}
+
 class AP_IMU_Shim : public IMU
 {
 public:
