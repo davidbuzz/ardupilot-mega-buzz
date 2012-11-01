@@ -336,9 +336,10 @@ static void NOINLINE send_radio_out(mavlink_channel_t chan)
 static void NOINLINE send_vfr_hud(mavlink_channel_t chan)
 {
     float aspeed;
-    if (airspeed.enabled()) {
-        aspeed = airspeed.get_airspeed();
-    } else if (!ahrs.airspeed_estimate(&aspeed)) {
+    //if (airspeed.enabled()) {
+    //    aspeed = airspeed.get_airspeed();
+    //} else 
+    if (!ahrs.airspeed_estimate(&aspeed)) {
         aspeed = 0;
     }
     mavlink_msg_vfr_hud_send(
@@ -734,16 +735,16 @@ GCS_MAVLINK::GCS_MAVLINK() :
 }
 
 void
-GCS_MAVLINK::init(AP_HAL::Stream * port)
+GCS_MAVLINK::init(AP_HAL::BetterStream * port)
 {
     GCS_Class::init(port);
-    if (port == &Serial) {
-        mavlink_comm_0_port = port;
-        chan = MAVLINK_COMM_0;
-    }else{
-        mavlink_comm_1_port = port;
-        chan = MAVLINK_COMM_1;
-    }
+    //if (port == &Serial) {
+    //    mavlink_comm_0_port = port;
+    //    chan = MAVLINK_COMM_0;
+    //}else{
+    //    mavlink_comm_1_port = port;
+    //    chan = MAVLINK_COMM_1;
+   // }
     _queued_parameter = NULL;
 }
 
@@ -910,7 +911,8 @@ GCS_MAVLINK::send_text(gcs_severity severity, const char *str)
     mavlink_send_text(chan,severity,str);
 }
 
-void
+
+/* void
 GCS_MAVLINK::send_text(gcs_severity severity, const prog_char_t *str)
 {
     mavlink_statustext_t m;
@@ -921,6 +923,7 @@ GCS_MAVLINK::send_text(gcs_severity severity, const prog_char_t *str)
     if (i < sizeof(m.text)) m.text[i] = 0;
     mavlink_send_text(chan, severity, (const char *)m.text);
 }
+*/
 
 void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
 {
@@ -1038,9 +1041,9 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
                 startup_IMU_ground(true);
             } else if (packet.param3 == 1) {
                 init_barometer();
-                if (airspeed.enabled()) {
-                    zero_airspeed();
-                }
+                //if (airspeed.enabled()) {
+                //    zero_airspeed();
+                //}
             }
             if (packet.param4 == 1) {
                 trim_radio();
