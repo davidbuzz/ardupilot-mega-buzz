@@ -7,10 +7,10 @@
 #ifndef __GCS_H
 #define __GCS_H
 
-#include <FastSerial.h>
+//#include <FastSerial.h>
 #include <AP_Common.h>
-#include <GPS.h>
-#include <Stream.h>
+//#include <GPS.h>
+//#include <Stream.h>
 #include <stdint.h>
 
 ///
@@ -40,7 +40,7 @@ public:
     ///
     /// @param	port		The stream over which messages are exchanged.
     ///
-    void        init(FastSerial *port) {
+    void        init(AP_HAL::Stream *port) {
         _port = port;
         initialised = true;
     }
@@ -76,8 +76,8 @@ public:
     /// @param	severity	A value describing the importance of the message.
     /// @param	str			The text to be sent.
     ///
-    void        send_text(gcs_severity severity, const prog_char_t *str) {
-    }
+   // void        send_text(gcs_severity severity, const prog_char_t *str) {
+   // }
 
     // send streams which match frequency range
     void            data_stream_send(void);
@@ -87,7 +87,7 @@ public:
 
 protected:
     /// The stream we are communicating over
-    FastSerial *      _port;
+    AP_HAL::Stream *      _port;
 };
 
 //
@@ -106,10 +106,10 @@ class GCS_MAVLINK : public GCS_Class
 public:
     GCS_MAVLINK();
     void        update(void);
-    void        init(FastSerial *port);
+    void        init(AP_HAL::Stream *port);
     void        send_message(enum ap_message id);
     void        send_text(gcs_severity severity, const char *str);
-    void        send_text(gcs_severity severity, const prog_char_t *str);
+//    void        send_text(gcs_severity severity, const prog_char_t *str);
     void        data_stream_send(void);
     void        queued_param_send();
     void        queued_waypoint_send();
