@@ -18,48 +18,60 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // AVR runtime
-#include <avr/io.h>
-#include <avr/eeprom.h>
-#include <avr/pgmspace.h>
-#include <avr/wdt.h>
+//#include <avr/io.h>
+//#include <avr/eeprom.h>
+//#include <avr/pgmspace.h>
+//#include <avr/wdt.h>
+
+#include <nuttx/config.h>
+#include <stdio.h>
+#include <errno.h>
+
+#include <AP_HAL.h>
+#include <AP_HAL_PX4.h>
+
+//const AP_HAL::HAL& hal = AP_HAL_PX4_Instance;
+
+#include <AP_Progmem.h>
+
 #include <math.h>
 
 // Libraries
-#include <FastSerial.h>
+//#include <FastSerial.h>
 #include <AP_Common.h>
 #include <AP_Progmem.h>
 #include <AP_Menu.h>
 #include <AP_Param.h>
 #include <Arduino_Mega_ISR_Registry.h>
 #include <APM_RC.h>         // ArduPilot Mega RC Library
-#include <AP_GPS.h>         // ArduPilot GPS library
-#include <I2C.h>                        // Wayne Truchsess I2C lib
-#include <SPI.h>                        // Arduino SPI lib
-#include <AP_Semaphore.h>   // for removing conflict between optical flow and dataflash on SPI3 bus
+//#include <AP_GPS.h>         // ArduPilot GPS library
+//#include <I2C.h>                        // Wayne Truchsess I2C lib
+//#include <SPI.h>                        // Arduino SPI lib
+//#include <AP_Semaphore.h>   // for removing conflict between optical flow and dataflash on SPI3 bus
 #include <DataFlash.h>      // ArduPilot Mega Flash Memory Library
 #include <AP_ADC.h>         // ArduPilot Mega Analog to Digital Converter Library
-#include <AP_AnalogSource.h> // ArduPilot Mega polymorphic analog getter
+//#include <AP_AnalogSource.h> // ArduPilot Mega polymorphic analog getter
 #include <AP_PeriodicProcess.h> // ArduPilot Mega TimerProcess
-#include <AP_Baro.h>        // ArduPilot barometer library
-#include <AP_Compass.h>     // ArduPilot Mega Magnetometer Library
-#include <AP_Math.h>        // ArduPilot Mega Vector/Matrix math Library
-#include <AP_InertialSensor.h> // Inertial Sensor (uncalibrated IMU) Library
-#include <AP_IMU.h>         // ArduPilot Mega IMU Library
-#include <AP_AHRS.h>         // ArduPilot Mega DCM Library
+//#include <AP_Baro.h>        // ArduPilot barometer library
+//#include <AP_Compass.h>     // ArduPilot Mega Magnetometer Library
+//#include <AP_Math.h>        // ArduPilot Mega Vector/Matrix math Library
+//#include <AP_InertialSensor.h> // Inertial Sensor (uncalibrated IMU) Library
+//#include <AP_IMU.h>         // ArduPilot Mega IMU Library
+//#include <AP_AHRS.h>         // ArduPilot Mega DCM Library
 #include <PID.h>            // PID library
 #include <RC_Channel.h>     // RC Channel Library
-#include <AP_RangeFinder.h>     // Range finder library
+//#include <AP_RangeFinder.h>     // Range finder library
 #include <Filter.h>                     // Filter library
 #include <ModeFilter.h>         // Mode Filter from Filter library
 #include <LowPassFilter.h>      // LowPassFilter class (inherits from Filter class)
 #include <AP_Relay.h>       // APM relay
 #include <AP_Camera.h>          // Photo or video camera
-#include <AP_Airspeed.h>
+//#include <AP_Airspeed.h>
 #include <memcheck.h>
 
 // optional new controller library
 #if APM_CONTROL == ENABLED
-#include <APM_Control.h>
+//#include <APM_Control.h>
 #endif
 
 // Configuration
@@ -67,7 +79,7 @@
 
 #include <GCS_MAVLink.h>    // MAVLink GCS definitions
 
-#include <AP_Mount.h>           // Camera/Antenna mount
+//#include <AP_Mount.h>           // Camera/Antenna mount
 
 // Local modules
 #include "defines.h"
