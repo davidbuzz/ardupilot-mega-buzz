@@ -11,10 +11,10 @@ static bool mavlink_active;
 
 // prototype this for use inside the GCS class
 void gcs_send_text_fmt(const prog_char_t *fmt, ...);
-void gcs_send_text_fmt(const char *fmt, ...);
+//void gcs_send_text_fmt(const char *fmt, ...);
 
 static void gcs_send_text_P(gcs_severity severity, const prog_char_t *str);
-static void gcs_send_text_P(gcs_severity severity, const char *str);
+//static void gcs_send_text_P(gcs_severity severity, const char *str);
 
 //bool telemetry_delayed(mavlink_channel_t chan);
 
@@ -2130,6 +2130,7 @@ static void gcs_send_text_P(gcs_severity severity, const prog_char_t *str)
     }
 }
 
+/* 
 static void gcs_send_text_P(gcs_severity severity, const char *str)
 {
     gcs0.send_text(severity, str);
@@ -2137,6 +2138,7 @@ static void gcs_send_text_P(gcs_severity severity, const char *str)
         gcs3.send_text(severity, str);
     }
 }
+*/
 
 /*
  *  send a low priority formatted message to the GCS
@@ -2164,6 +2166,7 @@ void gcs_send_text_fmt(const prog_char_t *fmt, ...)
     }
 }
 
+/* 
 void gcs_send_text_fmt(const char *fmt, ...)
 {
     char fmtstr[40];
@@ -2184,4 +2187,5 @@ void gcs_send_text_fmt(const char *fmt, ...)
         mavlink_send_message(MAVLINK_COMM_1, MSG_STATUSTEXT, 0);
     }
 }
+*/
 
