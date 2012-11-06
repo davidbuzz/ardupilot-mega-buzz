@@ -2,7 +2,7 @@
 
 static void init_barometer(void)
 {
-    barometer.calibrate(mavlink_delay);
+   // barometer.calibrate(mavlink_delay);
     ahrs.set_barometer(&barometer);
     gcs_send_text_P(SEVERITY_LOW, PSTR("barometer calibration complete"));
 }
@@ -22,13 +22,13 @@ static int32_t read_barometer(void)
 // in M/S * 100
 static void read_airspeed(void)
 {
-    airspeed.read();
+    //airspeed.read();
     calc_airspeed_errors();
 }
 
 static void zero_airspeed(void)
 {
-    airspeed.calibrate(mavlink_delay);
+   // airspeed.calibrate(mavlink_delay);
     gcs_send_text_P(SEVERITY_LOW,PSTR("zero airspeed calibrated"));
 }
 
@@ -40,16 +40,16 @@ static void read_battery(void)
     }
 
     if(g.battery_monitoring == 3 || g.battery_monitoring == 4) {
-        static AP_AnalogSource_Arduino batt_volt_pin(g.battery_volt_pin);
+   //     static AP_AnalogSource_Arduino batt_volt_pin(g.battery_volt_pin);
         // this copes with changing the pin at runtime
-        batt_volt_pin.set_pin(g.battery_volt_pin);
-        battery_voltage1 = BATTERY_VOLTAGE(batt_volt_pin.read_average());
+   //     batt_volt_pin.set_pin(g.battery_volt_pin);
+   //     battery_voltage1 = BATTERY_VOLTAGE(batt_volt_pin.read_average());
     }
     if(g.battery_monitoring == 4) {
-        static AP_AnalogSource_Arduino batt_curr_pin(g.battery_curr_pin);
+    //    static AP_AnalogSource_Arduino batt_curr_pin(g.battery_curr_pin);
         // this copes with changing the pin at runtime
-        batt_curr_pin.set_pin(g.battery_curr_pin);
-        current_amps1    = CURRENT_AMPS(batt_curr_pin.read_average());
+    //    batt_curr_pin.set_pin(g.battery_curr_pin);
+    //    current_amps1    = CURRENT_AMPS(batt_curr_pin.read_average());
         current_total1   += current_amps1 * (float)delta_ms_medium_loop * 0.0002778;                                    // .0002778 is 1/3600 (conversion to hours)
     }
 
