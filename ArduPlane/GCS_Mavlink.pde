@@ -16,6 +16,7 @@ void gcs_send_text_fmt(const char *fmt, ...);
 static void gcs_send_text_P(gcs_severity severity, const prog_char_t *str);
 static void gcs_send_text_P(gcs_severity severity, const char *str);
 
+//bool telemetry_delayed(mavlink_channel_t chan);
 
 /*
  *  !!NOTE!!
@@ -466,7 +467,8 @@ static void  send_statustext(mavlink_channel_t chan)
 }
 
 // are we still delaying telemetry to try to avoid Xbee bricking?
-static bool telemetry_delayed(mavlink_channel_t chan)
+/* 
+bool telemetry_delayed(mavlink_channel_t chan)
 {
     uint32_t tnow = millis() >> 10;
     if (tnow > g.telem_delay) {
@@ -489,6 +491,7 @@ static bool telemetry_delayed(mavlink_channel_t chan)
     return true;
 #endif
 }
+*/
 
 
 // try to send a message, return false if it won't fit in the serial tx buffer
@@ -496,9 +499,9 @@ static bool mavlink_try_send_message(mavlink_channel_t chan, enum ap_message id,
 {
     int16_t payload_space = comm_get_txspace(chan) - MAVLINK_NUM_NON_PAYLOAD_BYTES;
 
-    if (telemetry_delayed(chan)) {
-        return false;
-    }
+  //  if (telemetry_delayed(chan)) {
+  //      return false;
+  //  }
 
     switch (id) {
     case MSG_HEARTBEAT:
@@ -702,9 +705,9 @@ static void mavlink_send_message(mavlink_channel_t chan, enum ap_message id, uin
 
 void mavlink_send_text(mavlink_channel_t chan, gcs_severity severity, const char *str)
 {
-    if (telemetry_delayed(chan)) {
-        return;
-    }
+  //  if (telemetry_delayed(chan)) {
+  //      return;
+  //  }
 
     if (severity == SEVERITY_LOW) {
         // send via the deferred queuing system
