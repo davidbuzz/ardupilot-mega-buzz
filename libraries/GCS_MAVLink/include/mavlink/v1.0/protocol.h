@@ -80,19 +80,19 @@ static inline uint16_t mavlink_msg_get_send_buffer_length(const mavlink_message_
 }
 
 #if MAVLINK_NEED_BYTE_SWAP
-static inline void byte_swap_2(char *dst, const char *src)
+static inline void uint8_t_swap_2(char *dst, const char *src)
 {
 	dst[0] = src[1];
 	dst[1] = src[0];
 }
-static inline void byte_swap_4(char *dst, const char *src)
+static inline void uint8_t_swap_4(char *dst, const char *src)
 {
 	dst[0] = src[3];
 	dst[1] = src[2];
 	dst[2] = src[1];
 	dst[3] = src[0];
 }
-static inline void byte_swap_8(char *dst, const char *src)
+static inline void uint8_t_swap_8(char *dst, const char *src)
 {
 	dst[0] = src[7];
 	dst[1] = src[6];
@@ -104,19 +104,19 @@ static inline void byte_swap_8(char *dst, const char *src)
 	dst[7] = src[0];
 }
 #elif !MAVLINK_ALIGNED_FIELDS
-static inline void byte_copy_2(char *dst, const char *src)
+static inline void uint8_t_copy_2(char *dst, const char *src)
 {
 	dst[0] = src[0];
 	dst[1] = src[1];
 }
-static inline void byte_copy_4(char *dst, const char *src)
+static inline void uint8_t_copy_4(char *dst, const char *src)
 {
 	dst[0] = src[0];
 	dst[1] = src[1];
 	dst[2] = src[2];
 	dst[3] = src[3];
 }
-static inline void byte_copy_8(char *dst, const char *src)
+static inline void uint8_t_copy_8(char *dst, const char *src)
 {
 	memcpy(dst, src, 8);
 }
@@ -127,23 +127,23 @@ static inline void byte_copy_8(char *dst, const char *src)
 #define _mav_put_char(buf, wire_offset, b)    buf[wire_offset] = b
 
 #if MAVLINK_NEED_BYTE_SWAP
-#define _mav_put_uint16_t(buf, wire_offset, b) byte_swap_2(&buf[wire_offset], (const char *)&b)
-#define _mav_put_int16_t(buf, wire_offset, b)  byte_swap_2(&buf[wire_offset], (const char *)&b)
-#define _mav_put_uint32_t(buf, wire_offset, b) byte_swap_4(&buf[wire_offset], (const char *)&b)
-#define _mav_put_int32_t(buf, wire_offset, b)  byte_swap_4(&buf[wire_offset], (const char *)&b)
-#define _mav_put_uint64_t(buf, wire_offset, b) byte_swap_8(&buf[wire_offset], (const char *)&b)
-#define _mav_put_int64_t(buf, wire_offset, b)  byte_swap_8(&buf[wire_offset], (const char *)&b)
-#define _mav_put_float(buf, wire_offset, b)    byte_swap_4(&buf[wire_offset], (const char *)&b)
-#define _mav_put_double(buf, wire_offset, b)   byte_swap_8(&buf[wire_offset], (const char *)&b)
+#define _mav_put_uint16_t(buf, wire_offset, b) uint8_t_swap_2(&buf[wire_offset], (const char *)&b)
+#define _mav_put_int16_t(buf, wire_offset, b)  uint8_t_swap_2(&buf[wire_offset], (const char *)&b)
+#define _mav_put_uint32_t(buf, wire_offset, b) uint8_t_swap_4(&buf[wire_offset], (const char *)&b)
+#define _mav_put_int32_t(buf, wire_offset, b)  uint8_t_swap_4(&buf[wire_offset], (const char *)&b)
+#define _mav_put_uint64_t(buf, wire_offset, b) uint8_t_swap_8(&buf[wire_offset], (const char *)&b)
+#define _mav_put_int64_t(buf, wire_offset, b)  uint8_t_swap_8(&buf[wire_offset], (const char *)&b)
+#define _mav_put_float(buf, wire_offset, b)    uint8_t_swap_4(&buf[wire_offset], (const char *)&b)
+#define _mav_put_double(buf, wire_offset, b)   uint8_t_swap_8(&buf[wire_offset], (const char *)&b)
 #elif !MAVLINK_ALIGNED_FIELDS
-#define _mav_put_uint16_t(buf, wire_offset, b) byte_copy_2(&buf[wire_offset], (const char *)&b)
-#define _mav_put_int16_t(buf, wire_offset, b)  byte_copy_2(&buf[wire_offset], (const char *)&b)
-#define _mav_put_uint32_t(buf, wire_offset, b) byte_copy_4(&buf[wire_offset], (const char *)&b)
-#define _mav_put_int32_t(buf, wire_offset, b)  byte_copy_4(&buf[wire_offset], (const char *)&b)
-#define _mav_put_uint64_t(buf, wire_offset, b) byte_copy_8(&buf[wire_offset], (const char *)&b)
-#define _mav_put_int64_t(buf, wire_offset, b)  byte_copy_8(&buf[wire_offset], (const char *)&b)
-#define _mav_put_float(buf, wire_offset, b)    byte_copy_4(&buf[wire_offset], (const char *)&b)
-#define _mav_put_double(buf, wire_offset, b)   byte_copy_8(&buf[wire_offset], (const char *)&b)
+#define _mav_put_uint16_t(buf, wire_offset, b) uint8_t_copy_2(&buf[wire_offset], (const char *)&b)
+#define _mav_put_int16_t(buf, wire_offset, b)  uint8_t_copy_2(&buf[wire_offset], (const char *)&b)
+#define _mav_put_uint32_t(buf, wire_offset, b) uint8_t_copy_4(&buf[wire_offset], (const char *)&b)
+#define _mav_put_int32_t(buf, wire_offset, b)  uint8_t_copy_4(&buf[wire_offset], (const char *)&b)
+#define _mav_put_uint64_t(buf, wire_offset, b) uint8_t_copy_8(&buf[wire_offset], (const char *)&b)
+#define _mav_put_int64_t(buf, wire_offset, b)  uint8_t_copy_8(&buf[wire_offset], (const char *)&b)
+#define _mav_put_float(buf, wire_offset, b)    uint8_t_copy_4(&buf[wire_offset], (const char *)&b)
+#define _mav_put_double(buf, wire_offset, b)   uint8_t_copy_8(&buf[wire_offset], (const char *)&b)
 #else
 #define _mav_put_uint16_t(buf, wire_offset, b) *(uint16_t *)&buf[wire_offset] = b
 #define _mav_put_int16_t(buf, wire_offset, b)  *(int16_t *)&buf[wire_offset] = b
@@ -231,7 +231,7 @@ _MAV_PUT_ARRAY(double,   d)
 #if MAVLINK_NEED_BYTE_SWAP
 #define _MAV_MSG_RETURN_TYPE(TYPE, SIZE) \
 static inline TYPE _MAV_RETURN_## TYPE(const mavlink_message_t *msg, uint8_t ofs) \
-{ TYPE r; byte_swap_## SIZE((char*)&r, &_MAV_PAYLOAD(msg)[ofs]); return r; }
+{ TYPE r; uint8_t_swap_## SIZE((char*)&r, &_MAV_PAYLOAD(msg)[ofs]); return r; }
 
 _MAV_MSG_RETURN_TYPE(uint16_t, 2)
 _MAV_MSG_RETURN_TYPE(int16_t,  2)
@@ -245,7 +245,7 @@ _MAV_MSG_RETURN_TYPE(double,   8)
 #elif !MAVLINK_ALIGNED_FIELDS
 #define _MAV_MSG_RETURN_TYPE(TYPE, SIZE) \
 static inline TYPE _MAV_RETURN_## TYPE(const mavlink_message_t *msg, uint8_t ofs) \
-{ TYPE r; byte_copy_## SIZE((char*)&r, &_MAV_PAYLOAD(msg)[ofs]); return r; }
+{ TYPE r; uint8_t_copy_## SIZE((char*)&r, &_MAV_PAYLOAD(msg)[ofs]); return r; }
 
 _MAV_MSG_RETURN_TYPE(uint16_t, 2)
 _MAV_MSG_RETURN_TYPE(int16_t,  2)

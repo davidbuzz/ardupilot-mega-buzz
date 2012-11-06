@@ -121,7 +121,7 @@ void APM2Dataflash::_page_to_buffer(uint8_t buffer_num, uint16_t page_addr) {
         _transfer((uint8_t)(page_addr >> 6));
         _transfer((uint8_t)(page_addr << 2));
     }
-    /* finally send one dont care byte */
+    /* finally send one dont care uint8_t */
     _transfer(0x00);
 
     _cs_inactive();
@@ -145,7 +145,7 @@ void APM2Dataflash::_buffer_to_page(uint8_t buffer_num, uint16_t page_addr, bool
         _transfer((uint8_t)(page_addr >> 6));
         _transfer((uint8_t)(page_addr << 2));
     }
-    /* finally send one dont care byte */
+    /* finally send one dont care uint8_t */
     _transfer(0x00);
 
     _cs_inactive();
@@ -166,7 +166,7 @@ void APM2Dataflash::_page_erase(uint16_t page_addr) {
         _transfer( page_addr << 2 );
     }
 
-    /* finally send one dont care byte */
+    /* finally send one dont care uint8_t */
     _transfer(0x00);
     _cs_inactive();
     _wait_ready();
@@ -184,7 +184,7 @@ void APM2Dataflash::_block_erase(uint16_t block_addr) {
         _transfer( block_addr >> 6 );
         _transfer( block_addr << 2 );
     }
-    /* finally send one dont care byte */
+    /* finally send one dont care uint8_t */
     _transfer(0x00);
     _cs_inactive();
     _wait_ready();
@@ -236,7 +236,7 @@ uint8_t APM2Dataflash::_buffer_read(uint8_t buffer_num, uint16_t page_addr) {
     _transfer((uint8_t)(page_addr & 0xFF));
     /* Don't care */
     _transfer(0);
-    /* Read data byte */
+    /* Read data uint8_t */
     uint8_t res = _transfer(0);
     _cs_inactive();
     LOGD("_buffer_read num: %d pageaddr: %d result: %d\r\n",
@@ -247,7 +247,7 @@ uint8_t APM2Dataflash::_buffer_read(uint8_t buffer_num, uint16_t page_addr) {
 inline uint8_t APM2Dataflash::_read_status_reg() {
     _cs_active();
     _transfer(DF_STATUS_REGISTER_READ);
-    /* Read the first byte of the result */
+    /* Read the first uint8_t of the result */
     uint8_t res = _transfer(0);
     _cs_inactive();
     return res;

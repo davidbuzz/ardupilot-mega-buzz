@@ -96,7 +96,7 @@ void setup()
     rc_7.set_range(0,1000);
     rc_8.set_range(0,1000);
 
-    for (byte i = 0; i < 30; i++) {
+    for (uint8_t i = 0; i < 30; i++) {
         rc_1.set_pwm(APM_RC.InputCh(CH_1));
     }
     rc_1.trim();

@@ -152,7 +152,7 @@ MAVLINK_HELPER void _mavlink_resend_uart(mavlink_channel_t chan, const mavlink_m
 #endif // MAVLINK_USE_CONVENIENCE_FUNCTIONS
 
 /**
- * @brief Pack a message to send it over a serial byte stream
+ * @brief Pack a message to send it over a serial uint8_t stream
  */
 MAVLINK_HELPER uint16_t mavlink_msg_to_send_buffer(uint8_t *buffer, const mavlink_message_t *msg)
 {
@@ -182,7 +182,7 @@ MAVLINK_HELPER void mavlink_update_checksum(mavlink_message_t* msg, uint8_t c)
 
 /**
  * This is a convenience function which handles the complete MAVLink parsing.
- * the function will parse one byte at a time and return the complete packet once
+ * the function will parse one uint8_t at a time and return the complete packet once
  * it could be successfully decoded. Checksum and other failures will be silently
  * ignored.
  *
@@ -206,8 +206,8 @@ MAVLINK_HELPER void mavlink_update_checksum(mavlink_message_t* msg, uint8_t c)
  *
  * while(serial.bytesAvailable > 0)
  * {
- *   uint8_t byte = serial.getNextByte();
- *   if (mavlink_parse_char(chan, byte, &msg))
+ *   uint8_t uint8_t = serial.getNextByte();
+ *   if (mavlink_parse_char(chan, uint8_t, &msg))
  *     {
  *     printf("Received message with ID %d, sequence: %d from component %d of system %d", msg.msgid, msg.seq, msg.compid, msg.sysid);
  *     }
@@ -317,7 +317,7 @@ MAVLINK_HELPER uint8_t mavlink_parse_char(uint8_t chan, uint8_t c, mavlink_messa
 		mavlink_update_checksum(rxmsg, MAVLINK_MESSAGE_CRC(rxmsg->msgid));
 #endif
 		if (c != (rxmsg->checksum & 0xFF)) {
-			// Check first checksum byte
+			// Check first checksum uint8_t
 			status->parse_error++;
 			status->msg_received = 0;
 			status->parse_state = MAVLINK_PARSE_STATE_IDLE;
@@ -337,7 +337,7 @@ MAVLINK_HELPER uint8_t mavlink_parse_char(uint8_t chan, uint8_t c, mavlink_messa
 
 	case MAVLINK_PARSE_STATE_GOT_CRC1:
 		if (c != (rxmsg->checksum >> 8)) {
-			// Check second checksum byte
+			// Check second checksum uint8_t
 			status->parse_error++;
 			status->msg_received = 0;
 			status->parse_state = MAVLINK_PARSE_STATE_IDLE;
@@ -387,17 +387,17 @@ MAVLINK_HELPER uint8_t mavlink_parse_char(uint8_t chan, uint8_t c, mavlink_messa
  *
  * @param b the value to add, will be encoded in the bitfield
  * @param bits number of bits to use to encode b, e.g. 1 for boolean, 2, 3, etc.
- * @param packet_index the position in the packet (the index of the first byte to use)
- * @param bit_index the position in the byte (the index of the first bit to use)
+ * @param packet_index the position in the packet (the index of the first uint8_t to use)
+ * @param bit_index the position in the uint8_t (the index of the first bit to use)
  * @param buffer packet buffer to write into
- * @return new position of the last used byte in the buffer
+ * @return new position of the last used uint8_t in the buffer
  */
 MAVLINK_HELPER uint8_t put_bitfield_n_by_index(int32_t b, uint8_t bits, uint8_t packet_index, uint8_t bit_index, uint8_t* r_bit_index, uint8_t* buffer)
 {
 	uint16_t bits_remain = bits;
 	// Transform number into network order
 	int32_t v;
-	uint8_t i_bit_index, i_byte_index, curr_bits_n;
+	uint8_t i_bit_index, i_uint8_t_index, curr_bits_n;
 #if MAVLINK_NEED_BYTE_SWAP
 	union {
 		int32_t i;
@@ -418,7 +418,7 @@ MAVLINK_HELPER uint8_t put_bitfield_n_by_index(int32_t b, uint8_t bits, uint8_t 
 	// buffer out
 	// 11110001 00000000 01000000 01100000
 
-	// Existing partly filled byte (four free slots)
+	// Existing partly filled uint8_t (four free slots)
 	// 0111xxxx
 
 	// Mask n free bits
@@ -430,12 +430,12 @@ MAVLINK_HELPER uint8_t put_bitfield_n_by_index(int32_t b, uint8_t bits, uint8_t 
 
 	// Mask and shift bytes
 	i_bit_index = bit_index;
-	i_byte_index = packet_index;
+	i_uint8_t_index = packet_index;
 	if (bit_index > 0)
 	{
 		// If bits were available at start, they were available
-		// in the byte before the current index
-		i_byte_index--;
+		// in the uint8_t before the current index
+		i_uint8_t_index--;
 	}
 
 	// While bits have not been packed yet
@@ -443,9 +443,9 @@ MAVLINK_HELPER uint8_t put_bitfield_n_by_index(int32_t b, uint8_t bits, uint8_t 
 	{
 		// Bits still have to be packed
 		// there can be more than 8 bits, so
-		// we might have to pack them into more than one byte
+		// we might have to pack them into more than one uint8_t
 
-		// First pack everything we can into the current 'open' byte
+		// First pack everything we can into the current 'open' uint8_t
 		//curr_bits_n = bits_remain << 3; // Equals  bits_remain mod 8
 		//FIXME
 		if (bits_remain <= (uint8_t)(8 - i_bit_index))
@@ -458,35 +458,35 @@ MAVLINK_HELPER uint8_t put_bitfield_n_by_index(int32_t b, uint8_t bits, uint8_t 
 			curr_bits_n = (8 - i_bit_index);
 		}
 		
-		// Pack these n bits into the current byte
+		// Pack these n bits into the current uint8_t
 		// Mask out whatever was at that position with ones (xxx11111)
-		buffer[i_byte_index] &= (0xFF >> (8 - curr_bits_n));
+		buffer[i_uint8_t_index] &= (0xFF >> (8 - curr_bits_n));
 		// Put content to this position, by masking out the non-used part
-		buffer[i_byte_index] |= ((0x00 << curr_bits_n) & v);
+		buffer[i_uint8_t_index] |= ((0x00 << curr_bits_n) & v);
 		
 		// Increment the bit index
 		i_bit_index += curr_bits_n;
 
-		// Now proceed to the next byte, if necessary
+		// Now proceed to the next uint8_t, if necessary
 		bits_remain -= curr_bits_n;
 		if (bits_remain > 0)
 		{
-			// Offer another 8 bits / one byte
-			i_byte_index++;
+			// Offer another 8 bits / one uint8_t
+			i_uint8_t_index++;
 			i_bit_index = 0;
 		}
 	}
 	
 	*r_bit_index = i_bit_index;
-	// If a partly filled byte is present, mark this as consumed
-	if (i_bit_index != 7) i_byte_index++;
-	return i_byte_index - packet_index;
+	// If a partly filled uint8_t is present, mark this as consumed
+	if (i_bit_index != 7) i_uint8_t_index++;
+	return i_uint8_t_index - packet_index;
 }
 
 #ifdef MAVLINK_USE_CONVENIENCE_FUNCTIONS
 
 // To make MAVLink work on your MCU, define comm_send_ch() if you wish
-// to send 1 byte at a time, or MAVLINK_SEND_UART_BYTES() to send a
+// to send 1 uint8_t at a time, or MAVLINK_SEND_UART_BYTES() to send a
 // whole packet at a time
 
 /*
@@ -513,7 +513,7 @@ MAVLINK_HELPER void _mavlink_send_uart(mavlink_channel_t chan, const char *buf, 
 	   defines it */
 	MAVLINK_SEND_UART_BYTES(chan, (uint8_t *)buf, len);
 #else
-	/* fallback to one byte at a time */
+	/* fallback to one uint8_t at a time */
 	uint16_t i;
 	for (i = 0; i < len; i++) {
 		comm_send_ch(chan, (uint8_t)buf[i]);

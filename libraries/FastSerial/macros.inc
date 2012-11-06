@@ -323,11 +323,11 @@
    LPM_R0_ZPLUS_INIT is used before the loop to initialize RAMPZ
    for future devices with RAMPZ:Z auto-increment - [e]lpm r0, Z+.
 
-   LPM_R0_ZPLUS_NEXT is used inside the loop to load a byte from
+   LPM_R0_ZPLUS_NEXT is used inside the loop to load a uint8_t from
    the program memory at [RAMPZ:]Z to R0, and increment [RAMPZ:]Z.
 
    The argument in both macros is a register that contains the
-   high byte (bits 23-16) of the address, bits 15-0 should be in
+   high uint8_t (bits 23-16) of the address, bits 15-0 should be in
    the Z (r31:r30) register.  It can be any register except for:
    r0, r1 (__zero_reg__ - assumed to always contain 0), r30, r31.
  */

@@ -101,7 +101,7 @@ typedef unsigned int word;
 #define bit(b) (1UL << (b))
 
 typedef uint8_t boolean;
-typedef uint8_t byte;
+typedef uint8_t uint8_t;
 
 void init(void);
 

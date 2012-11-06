@@ -918,7 +918,7 @@ GCS_MAVLINK::send_text(gcs_severity severity, const prog_char_t *str)
     mavlink_statustext_t m;
     uint8_t i;
     for (i=0; i<sizeof(m.text); i++) {
-        m.text[i] = pgm_read_byte((const prog_char *)(str++));
+        m.text[i] = pgm_read_uint8_t((const prog_char *)(str++));
     }
     if (i < sizeof(m.text)) m.text[i] = 0;
     mavlink_send_text(chan, severity, (const char *)m.text);
@@ -2129,7 +2129,7 @@ void gcs_send_text_fmt(const prog_char_t *fmt, ...)
     va_list ap;
     uint8_t i;
     for (i=0; i<sizeof(fmtstr)-1; i++) {
-        fmtstr[i] = pgm_read_byte((const prog_char *)(fmt++));
+        fmtstr[i] = pgm_read_uint8_t((const prog_char *)(fmt++));
         if (fmtstr[i] == 0) break;
     }
     fmtstr[i] = 0;

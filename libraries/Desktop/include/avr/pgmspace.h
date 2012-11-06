@@ -35,8 +35,8 @@ extern size_t strlen_P (PGM_P);
 extern char *strncpy_P(char *dest, PGM_P src, size_t n);
 extern void *memcpy_P(void *dest, PGM_P src, size_t n);
 
-static inline uint8_t pgm_read_byte(PGM_P s) { return (uint8_t)*s; }
-	static inline uint8_t pgm_read_byte_far(const void *s) { return *(const uint8_t *)s; }
+static inline uint8_t pgm_read_uint8_t(PGM_P s) { return (uint8_t)*s; }
+	static inline uint8_t pgm_read_uint8_t_far(const void *s) { return *(const uint8_t *)s; }
 static inline uint16_t pgm_read_word(const void *s) { return *(const uint16_t *)s; }
 static inline uint32_t pgm_read_dword(const void *s) { return *(const uint32_t *)s; }
 static inline float    pgm_read_float(const void *s) { return *(const float *)s; }
@@ -44,7 +44,7 @@ static inline float    pgm_read_float(const void *s) { return *(const float *)s;
 #define GETBYTE(flag, mask, pnt)        ({      \
        unsigned char __c;                       \
        __c = ((flag) & (mask))                  \
-             ? pgm_read_byte(pnt) : *pnt;       \
+             ? pgm_read_uint8_t(pnt) : *pnt;       \
        pnt++;                                   \
        __c;                                     \
 })

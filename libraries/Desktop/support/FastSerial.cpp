@@ -276,7 +276,7 @@ int FastSerial::available(void)
 			return num_ready;
 		}
 #endif
-		return 1; // best we can do is say 1 byte available
+		return 1; // best we can do is say 1 uint8_t available
 	}
 	return 0;
 }

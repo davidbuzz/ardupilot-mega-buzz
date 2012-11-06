@@ -54,7 +54,7 @@ int AVRConsoleDriver::backend_write(const uint8_t *data, int len) {
 // BetterStream method implementations /////////////////////////////////////////
 void AVRConsoleDriver::print_P(const prog_char_t *s) {
         char    c;
-        while ('\0' != (c = pgm_read_byte((const prog_char *)s++)))
+        while ('\0' != (c = pgm_read_uint8_t((const prog_char *)s++)))
                 write(c);
 }
 

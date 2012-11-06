@@ -19,7 +19,7 @@
 #include <avr/pgmspace.h>
 #include <math.h>
 
-// 1 byte - 4 bits for value + 1 bit for sign + 3 bits for repeats => 8 bits
+// 1 uint8_t - 4 bits for value + 1 bit for sign + 3 bits for repeats => 8 bits
 struct row_value {
 
     // Offset has a max value of 15
@@ -71,7 +71,7 @@ static const uint8_t declination_keys[2][37] PROGMEM = \
     {39,38,33,35,37,35,37,36,39,34,41,42,42,28,39,40,43,51,50,39,37,34,44,51,49,48,55} \
 };
 
-// 1056 total values @ 1 byte each = 1056 bytes
+// 1056 total values @ 1 uint8_t each = 1056 bytes
 static const row_value declination_values[] PROGMEM = \
 { \
     {0,0,4},{1,1,0},{0,0,2},{1,1,0},{0,0,2},{1,1,3},{2,1,1},{3,1,3},{4,1,1},{3,1,1},{2,1,1},{3,1,0},{2,1,0},{1,1,0},{2,1,1},{1,1,0},{2,1,0},{3,1,4},{4,1,1},{3,1,0},{4,1,0},{3,1,2},{2,1,2},{1,1,1},{0,0,0},{1,0,1},{3,0,0},{4,0,0},{6,0,0},{8,0,0},{11,0,0},{13,0,1},{10,0,0},{9,0,0},{7,0,0},{5,0,0},{4,0,0},{2,0,0},{1,0,2}, \
@@ -103,7 +103,7 @@ static const row_value declination_values[] PROGMEM = \
     {0,0,0},{3,0,5},{2,0,1},{1,0,0},{0,0,0},{1,1,0},{2,1,0},{5,1,0},{8,1,0},{12,1,0},{14,1,0},{13,1,0},{9,1,0},{6,1,0},{3,1,0},{1,1,0},{0,0,0},{2,0,0},{1,0,0},{3,0,0},{2,0,0},{3,0,0},{4,0,0},{3,0,1},{4,0,0},{3,0,0},{4,0,1},{3,0,0},{4,0,0},{3,0,2},{4,0,0},{3,0,1},{4,0,0},{3,0,0},{2,0,0},{3,0,0},{2,0,2},{0,0,1},{1,1,0},{2,1,0},{4,1,0},{5,1,0},{7,1,0},{8,1,0},{6,1,1},{5,1,0},{3,1,0},{1,1,1},{1,0,1},{2,0,0},{3,0,0},{2,0,0},{3,0,1},{2,0,0},{3,0,0}, \
 };
 
-#define PGM_UINT8(p) (uint8_t)pgm_read_byte_far(p)
+#define PGM_UINT8(p) (uint8_t)pgm_read_uint8_t_far(p)
 
 float
 AP_Declination::get_declination(float lat, float lon)

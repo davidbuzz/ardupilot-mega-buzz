@@ -41,7 +41,7 @@
    It differs from others of `xtoa_fast' family:
        * srt[] will NOT 0 terminated.
        * Sequence of digits is inverted.
-       * It returns pointer to first byte after a string.
+       * It returns pointer to first uint8_t after a string.
        * Only `XTOA_UPPER' flag is operated.
    Notes:
        * base: check only 8 and 16, all others are treated as 10.

@@ -65,7 +65,7 @@ void CommonDataflash::finish_write() {
     _buffer_num = (_buffer_num == 1) ? 2 : 1; 
 }
 
-void CommonDataflash::write_byte(uint8_t data) {
+void CommonDataflash::write_uint8_t(uint8_t data) {
     if (_stop_write) return;
     _buffer_write( _buffer_num, _buffer_idx, data );
     _buffer_idx++;
@@ -97,15 +97,15 @@ void CommonDataflash::write_byte(uint8_t data) {
 }
 
 void CommonDataflash::write_word(uint16_t data) {
-    write_byte( data >> 8 ); /* high byte */
-    write_byte( data & 0xFF ); /* low byte */
+    write_uint8_t( data >> 8 ); /* high uint8_t */
+    write_uint8_t( data & 0xFF ); /* low uint8_t */
 }
 
 void CommonDataflash::write_dword(uint32_t data) {
-    write_byte( data >> 24 ); /* high byte */
-    write_byte( data >> 16 );
-    write_byte( data >> 8 );
-    write_byte( data & 0xFF ); /* low byte */
+    write_uint8_t( data >> 24 ); /* high uint8_t */
+    write_uint8_t( data >> 16 );
+    write_uint8_t( data >> 8 );
+    write_uint8_t( data & 0xFF ); /* low uint8_t */
 }
 
 void CommonDataflash::start_read(int16_t page) {
@@ -124,7 +124,7 @@ void CommonDataflash::start_read(int16_t page) {
     _file_page = (_file_page << 8 ) | _buffer_read(_read_buffer_num, 3);
 }
 
-uint8_t CommonDataflash::read_byte() {
+uint8_t CommonDataflash::read_uint8_t() {
     _wait_ready();
     uint8_t result = _buffer_read( _read_buffer_num, _read_buffer_idx);
     _read_buffer_idx++;
@@ -150,16 +150,16 @@ uint8_t CommonDataflash::read_byte() {
 }
 
 uint16_t CommonDataflash::read_word() {
-    uint16_t result = read_byte(); /* High byte */
-    result = (result << 8) | read_byte(); /* Low byte */
+    uint16_t result = read_uint8_t(); /* High uint8_t */
+    result = (result << 8) | read_uint8_t(); /* Low uint8_t */
     return result;
 }
 
 uint32_t CommonDataflash::read_dword() {
-    uint32_t result = read_byte(); /* High byte */
-    result = (result << 8) | read_byte();
-    result = (result << 8) | read_byte();
-    result = (result << 8) | read_byte(); /* Low byte */
+    uint32_t result = read_uint8_t(); /* High uint8_t */
+    result = (result << 8) | read_uint8_t();
+    result = (result << 8) | read_uint8_t();
+    result = (result << 8) | read_uint8_t(); /* Low uint8_t */
     return result;
 }
 

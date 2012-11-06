@@ -54,15 +54,15 @@ AP_OpticalFlow::update(uint32_t now)
 }
 
 // reads a value from the sensor (will be sensor specific)
-byte
-AP_OpticalFlow::read_register(byte address)
+uint8_t
+AP_OpticalFlow::read_register(uint8_t address)
 {
     return 0;
 }
 
 // writes a value to one of the sensor's register (will be sensor specific)
 void
-AP_OpticalFlow::write_register(byte address, byte value)
+AP_OpticalFlow::write_register(uint8_t address, uint8_t value)
 {
 }
 

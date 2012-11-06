@@ -360,13 +360,13 @@ private:
 	/**
 	 * Extended header structure
 	 * =========================
-	 *   byte 0 - target_system
-	 *   byte 1 - target_component
-	 *   byte 2 - extended message id (type code)
+	 *   uint8_t 0 - target_system
+	 *   uint8_t 1 - target_component
+	 *   uint8_t 2 - extended message id (type code)
 	 *   bytes 3-6 - extended payload size in bytes
-	 *   byte 7-8 - stream ID
-	 *   byte 9-12 - fragment offset
-	 *   byte 13 - fragment flags (bit 0 - 1=more fragments, 0=last fragment)
+	 *   uint8_t 7-8 - stream ID
+	 *   uint8_t 9-12 - fragment offset
+	 *   uint8_t 13 - fragment flags (bit 0 - 1=more fragments, 0=last fragment)
 	 */
 
 	const int kExtendedPayloadMaxSize;

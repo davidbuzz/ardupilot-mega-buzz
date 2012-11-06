@@ -105,8 +105,8 @@ void print_pwm()
 
 
 
-byte buf_len = 0;
-byte out_buffer[32];
+uint8_t buf_len = 0;
+uint8_t out_buffer[32];
 
 void output_Xplane(void)
 {
@@ -120,8 +120,8 @@ void output_Xplane(void)
     output_int((int)nav.bearing_error);                                         //  5	bytes 10,11
     output_int((int)nav.altitude_error);                                //  6	bytes 12,13
     output_int(0);                                                                              //  7	bytes 14,15
-    output_byte(1);                                                                             //  8	bytes 16
-    output_byte(1);                                                                             //  9	bytes 17
+    output_uint8_t(1);                                                                             //  8	bytes 16
+    output_uint8_t(1);                                                                             //  9	bytes 17
 
     // print out the buffer and checksum
     // ---------------------------------
@@ -134,16 +134,16 @@ void output_int(int value)
     out_buffer[buf_len++]   = value & 0xff;
     out_buffer[buf_len++]   = (value >> 8) & 0xff;
 }
-void output_byte(byte value)
+void output_uint8_t(uint8_t value)
 {
     out_buffer[buf_len++]   = value;
 }
 
 void print_buffer()
 {
-    byte ck_a = 0;
-    byte ck_b = 0;
-    for (byte i = 0; i < buf_len; i++) {
+    uint8_t ck_a = 0;
+    uint8_t ck_b = 0;
+    for (uint8_t i = 0; i < buf_len; i++) {
         Serial.print (out_buffer[i]);
     }
     Serial.print('\r');

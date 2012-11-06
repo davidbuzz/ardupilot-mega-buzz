@@ -72,7 +72,7 @@ void setup()
 void loop()
 {
     int i, tmp_int;
-    byte tmp_byte1, tmp_byte2;
+    uint8_t tmp_uint8_t1, tmp_uint8_t2;
     long tmp_long;
 
     Serial.println("Start reading page 1...");
@@ -81,12 +81,12 @@ void loop()
 
     for (i = 0; i < 40; i++) {          // Read 200 packets...
 
-        tmp_byte1 = DataFlash.ReadByte();
-        tmp_byte2 = DataFlash.ReadByte();
+        tmp_uint8_t1 = DataFlash.ReadByte();
+        tmp_uint8_t2 = DataFlash.ReadByte();
 
         Serial.print("PACKET:");
 
-        if ((tmp_byte1 == HEAD_BYTE1) && (tmp_byte1 == HEAD_BYTE1)) {
+        if ((tmp_uint8_t1 == HEAD_BYTE1) && (tmp_uint8_t1 == HEAD_BYTE1)) {
             // Read 4 ints...
             tmp_int = DataFlash.ReadInt();
             Serial.print(tmp_int);
@@ -110,8 +110,8 @@ void loop()
             Serial.print(";");
 
             // Read the checksum...
-            tmp_byte1 = DataFlash.ReadByte();
-            tmp_byte2 = DataFlash.ReadByte();
+            tmp_uint8_t1 = DataFlash.ReadByte();
+            tmp_uint8_t2 = DataFlash.ReadByte();
         }
         Serial.println();
     }

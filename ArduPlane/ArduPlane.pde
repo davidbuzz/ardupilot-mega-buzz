@@ -92,7 +92,7 @@ void delay(long unsigned msec)
 	delayMicroseconds(msec*1000);
 }
 
-typedef uint8_t byte;
+//typedef uint8_t uint8_t;
 
 #define HIGH 0x1
 #define LOW  0x0
@@ -170,6 +170,7 @@ void pinMode(uint8_t, uint8_t) {
 
 #include "binary.h"
 
+//#include "system.pde"
 
 //#include "Log.pde"
 
@@ -418,10 +419,10 @@ static bool usb_connected;
 ////////////////////////////////////////////////////////////////////////////////
 // This is the state of the flight control system
 // There are multiple states defined such as MANUAL, FBW-A, AUTO
-byte control_mode        = INITIALISING;
+uint8_t control_mode        = INITIALISING;
 // Used to maintain the state of the previous control switch position
 // This is set to -1 when we need to re-read the switch
-byte oldSwitchPosition;
+uint8_t oldSwitchPosition;
 // This is used to enable the inverted flight feature
 bool inverted_flight     = false;
 // These are trim values used for elevon control
@@ -448,7 +449,7 @@ static int16_t failsafe;
 static bool ch3_failsafe;
 // A timer used to help recovery from unusual attitudes.  If we enter an unusual attitude
 // while in autonomous flight this variable is used  to hold roll at 0 for a recovery period
-static byte crash_timer;
+static uint8_t crash_timer;
 // A timer used to track how long since we have received the last GCS heartbeat or rc override message
 static uint32_t rc_override_fs_timer = 0;
 
@@ -474,7 +475,7 @@ static constexpr float t7                        = 10000000.0;
 // We use atan2 and other trig techniques to calaculate angles
 // A counter used to count down valid gps fixes to allow the gps estimate to settle
 // before recording our home position (and executing a ground start if we booted with an air start)
-static byte ground_start_count      = 5;
+static uint8_t ground_start_count      = 5;
 // Used to compute a speed estimate from the first valid gps fixes to decide if we are
 // on the ground or in the air.  Used to decide if a ground start is appropriate if we
 // booted with an air start.
@@ -508,12 +509,12 @@ static int32_t hold_course                   = -1;              // deg * 100 dir
 
 // There may be two active commands in Auto mode.
 // This indicates the active navigation command by index number
-static byte nav_command_index;
+static uint8_t nav_command_index;
 // This indicates the active non-navigation command by index number
-static byte non_nav_command_index;
+static uint8_t non_nav_command_index;
 // This is the command type (eg navigate to waypoint) of the active navigation command
-static byte nav_command_ID          = NO_COMMAND;
-static byte non_nav_command_ID      = NO_COMMAND;
+static uint8_t nav_command_ID          = NO_COMMAND;
+static uint8_t non_nav_command_ID      = NO_COMMAND;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Airspeed
@@ -752,16 +753,16 @@ static uint16_t mainLoop_count;
 static uint32_t medium_loopTimer_ms;
 
 // Counters for branching from main control loop to slower loops
-static byte medium_loopCounter;
+static uint8_t medium_loopCounter;
 // Number of milliseconds used in last medium loop cycle
 static uint8_t delta_ms_medium_loop;
 
 // Counters for branching from medium control loop to slower loops
-static byte slow_loopCounter;
+static uint8_t slow_loopCounter;
 // Counter to trigger execution of very low rate processes
-static byte superslow_loopCounter;
+static uint8_t superslow_loopCounter;
 // Counter to trigger execution of 1 Hz processes
-static byte counter_one_herz;
+static uint8_t counter_one_herz;
 
 // % MCU cycles used
 static float load;

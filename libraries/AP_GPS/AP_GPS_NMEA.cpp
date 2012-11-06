@@ -373,7 +373,7 @@ bool AP_GPS_NMEA::_term_complete()
 #define hexdigit(x) ((x)>9?'A'+(x):'0'+(x))
 
 /*
-  detect a NMEA GPS. Adds one byte, and returns true if the stream
+  detect a NMEA GPS. Adds one uint8_t, and returns true if the stream
   matches a NMEA string
  */
 bool

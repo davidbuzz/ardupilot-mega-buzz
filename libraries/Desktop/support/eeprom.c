@@ -15,7 +15,7 @@ static void eeprom_open(void)
 	}
 }
 
-void eeprom_write_byte(uint8_t *p, uint8_t value)
+void eeprom_write_uint8_t(uint8_t *p, uint8_t value)
 {
 	intptr_t ofs = (intptr_t)p;
 	assert(ofs < 4096);
@@ -40,7 +40,7 @@ void eeprom_write_dword(uint32_t *p, uint32_t value)
 	pwrite(eeprom_fd, &value, 4, ofs);
 }
 
-uint8_t eeprom_read_byte(const uint8_t *p)
+uint8_t eeprom_read_uint8_t(const uint8_t *p)
 {
 	intptr_t ofs = (intptr_t)p;
 	uint8_t value;

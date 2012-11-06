@@ -17,10 +17,10 @@ void DataFlash_Class::StartWrite(int16_t PageAdr)
     WaitReady();
 
     // We are starting a new page - write FileNumber and FilePage
-    BufferWrite(df_BufferNum,0,df_FileNumber>>8);   // High byte
-    BufferWrite(df_BufferNum,1,df_FileNumber&0xFF); // Low byte
-    BufferWrite(df_BufferNum,2,df_FilePage>>8);   // High byte
-    BufferWrite(df_BufferNum,3,df_FilePage&0xFF); // Low byte
+    BufferWrite(df_BufferNum,0,df_FileNumber>>8);   // High uint8_t
+    BufferWrite(df_BufferNum,1,df_FileNumber&0xFF); // Low uint8_t
+    BufferWrite(df_BufferNum,2,df_FilePage>>8);   // High uint8_t
+    BufferWrite(df_BufferNum,3,df_FilePage&0xFF); // Low uint8_t
 }
 
 void DataFlash_Class::FinishWrite(void)
@@ -70,27 +70,27 @@ void DataFlash_Class::WriteByte(uint8_t data)
                 df_BufferNum=1;
 
             // We are starting a new page - write FileNumber and FilePage
-            BufferWrite(df_BufferNum,0,df_FileNumber>>8);   // High byte
-            BufferWrite(df_BufferNum,1,df_FileNumber&0xFF); // Low byte
+            BufferWrite(df_BufferNum,0,df_FileNumber>>8);   // High uint8_t
+            BufferWrite(df_BufferNum,1,df_FileNumber&0xFF); // Low uint8_t
             df_FilePage++;
-            BufferWrite(df_BufferNum,2,df_FilePage>>8);   // High byte
-            BufferWrite(df_BufferNum,3,df_FilePage&0xFF); // Low byte
+            BufferWrite(df_BufferNum,2,df_FilePage>>8);   // High uint8_t
+            BufferWrite(df_BufferNum,3,df_FilePage&0xFF); // Low uint8_t
         }
     }
 }
 
 void DataFlash_Class::WriteInt(int16_t data)
 {
-    WriteByte(data>>8);   // High byte
-    WriteByte(data&0xFF); // Low byte
+    WriteByte(data>>8);   // High uint8_t
+    WriteByte(data&0xFF); // Low uint8_t
 }
 
 void DataFlash_Class::WriteLong(int32_t data)
 {
-    WriteByte(data>>24);   // First byte
+    WriteByte(data>>24);   // First uint8_t
     WriteByte(data>>16);
     WriteByte(data>>8);
-    WriteByte(data&0xFF);  // Last byte
+    WriteByte(data&0xFF);  // Last uint8_t
 }
 
 // Get the last page written to
@@ -116,12 +116,12 @@ void DataFlash_Class::StartRead(int16_t PageAdr)
     df_Read_PageAdr++;
 
     // We are starting a new page - read FileNumber and FilePage
-    df_FileNumber = BufferRead(df_Read_BufferNum,0);   // High byte
+    df_FileNumber = BufferRead(df_Read_BufferNum,0);   // High uint8_t
 //Serial.print(df_FileNumber, DEC);	Serial.print("\t");
-    df_FileNumber = (df_FileNumber<<8) | BufferRead(df_Read_BufferNum,1); // Low byte
+    df_FileNumber = (df_FileNumber<<8) | BufferRead(df_Read_BufferNum,1); // Low uint8_t
 //Serial.println(df_FileNumber, DEC);	Serial.print("\t");
-    df_FilePage = BufferRead(df_Read_BufferNum,2);   // High byte
-    df_FilePage = (df_FilePage<<8) | BufferRead(df_Read_BufferNum,3); // Low byte
+    df_FilePage = BufferRead(df_Read_BufferNum,2);   // High uint8_t
+    df_FilePage = (df_FilePage<<8) | BufferRead(df_Read_BufferNum,3); // Low uint8_t
 }
 
 uint8_t DataFlash_Class::ReadByte()
@@ -142,10 +142,10 @@ uint8_t DataFlash_Class::ReadByte()
         }
 
         // We are starting a new page - read FileNumber and FilePage
-        df_FileNumber = BufferRead(df_Read_BufferNum,0);           // High byte
-        df_FileNumber = (df_FileNumber<<8) | BufferRead(df_Read_BufferNum,1);         // Low byte
-        df_FilePage = BufferRead(df_Read_BufferNum,2);           // High byte
-        df_FilePage = (df_FilePage<<8) | BufferRead(df_Read_BufferNum,3);         // Low byte
+        df_FileNumber = BufferRead(df_Read_BufferNum,0);           // High uint8_t
+        df_FileNumber = (df_FileNumber<<8) | BufferRead(df_Read_BufferNum,1);         // Low uint8_t
+        df_FilePage = BufferRead(df_Read_BufferNum,2);           // High uint8_t
+        df_FilePage = (df_FilePage<<8) | BufferRead(df_Read_BufferNum,3);         // Low uint8_t
     }
     return result;
 }
@@ -154,8 +154,8 @@ int16_t DataFlash_Class::ReadInt()
 {
     uint16_t result;
 
-    result = ReadByte();               // High byte
-    result = (result<<8) | ReadByte(); // Low byte
+    result = ReadByte();               // High uint8_t
+    result = (result<<8) | ReadByte(); // Low uint8_t
     return (int16_t)result;
 }
 
@@ -163,10 +163,10 @@ int32_t DataFlash_Class::ReadLong()
 {
     uint32_t result;
 
-    result = ReadByte();               // First byte
+    result = ReadByte();               // First uint8_t
     result = (result<<8) | ReadByte();
     result = (result<<8) | ReadByte();
-    result = (result<<8) | ReadByte(); // Last byte
+    result = (result<<8) | ReadByte(); // Last uint8_t
     return (int32_t)result;
 }
 

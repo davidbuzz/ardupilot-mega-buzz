@@ -2,7 +2,7 @@
 
 //Function that will read the radio data, limit servos and trigger a failsafe
 // ----------------------------------------------------------------------------
-static byte failsafeCounter = 0;                // we wait a second to take over the throttle and send the plane circling
+static uint8_t failsafeCounter = 0;                // we wait a second to take over the throttle and send the plane circling
 
 
 extern RC_Channel* rc_ch[NUM_CHANNELS];

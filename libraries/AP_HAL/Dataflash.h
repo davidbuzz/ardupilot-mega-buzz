@@ -30,12 +30,12 @@ public:
 
     virtual void start_write(int16_t page) = 0;
     virtual void finish_write() = 0;
-    virtual void write_byte(uint8_t data) = 0;
+    virtual void write_uint8_t(uint8_t data) = 0;
     virtual void write_word(uint16_t data) = 0;
     virtual void write_dword(uint32_t data) = 0;
 
     virtual void start_read(int16_t page) = 0;
-    virtual uint8_t read_byte() = 0;
+    virtual uint8_t read_uint8_t() = 0;
     virtual uint16_t read_word() = 0;
     virtual uint32_t read_dword() = 0;
 

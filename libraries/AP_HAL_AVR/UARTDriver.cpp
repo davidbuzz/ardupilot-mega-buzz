@@ -183,7 +183,7 @@ size_t AVRUARTDriver::write(uint8_t c) {
 	// wait for room in the tx buffer
 	i = (_txBuffer->head + 1) & _txBuffer->mask;
 
-	// if the port is set into non-blocking mode, then drop the byte
+	// if the port is set into non-blocking mode, then drop the uint8_t
 	// if there isn't enough room for it in the transmit buffer
 	if (_nonblocking_writes && i == _txBuffer->tail) {
 		return 0;
@@ -192,7 +192,7 @@ size_t AVRUARTDriver::write(uint8_t c) {
 	while (i == _txBuffer->tail)
 		;
 
-	// add byte to the buffer
+	// add uint8_t to the buffer
 	_txBuffer->bytes[_txBuffer->head] = c;
 	_txBuffer->head = i;
 
@@ -218,7 +218,7 @@ bool AVRUARTDriver::_allocBuffer(Buffer *buffer, unsigned int size)
 
 	// Compute the power of 2 greater or equal to the requested buffer size
 	// and then a mask to simplify wrapping operations.  Using __builtin_clz
-	// would seem to make sense, but it uses a 256(!) byte table.
+	// would seem to make sense, but it uses a 256(!) uint8_t table.
 	// Note that we ignore requests for more than BUFFER_MAX space.
 	for (shift = 1; (1U << shift) < min(_max_buffer_size, size); shift++)
 		;
@@ -257,7 +257,7 @@ void AVRUARTDriver::_freeBuffer(Buffer *buffer)
 // BetterStream method implementations /////////////////////////////////////////
 void AVRUARTDriver::print_P(const prog_char_t *s) {
         char    c;
-        while ('\0' != (c = pgm_read_byte((const prog_char *)s++)))
+        while ('\0' != (c = pgm_read_uint8_t((const prog_char *)s++)))
                 write(c);
 }
 

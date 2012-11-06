@@ -26,7 +26,7 @@ extern "C" {
  **/
 static inline void crc_accumulate(uint8_t data, uint16_t *crcAccum)
 {
-        /*Accumulate one byte of data into the CRC*/
+        /*Accumulate one uint8_t of data into the CRC*/
         uint8_t tmp;
 
         tmp = data ^ (uint8_t)(*crcAccum &0xff);
@@ -46,10 +46,10 @@ static inline void crc_init(uint16_t* crcAccum)
 
 
 /**
- * @brief Calculates the X.25 checksum on a byte buffer
+ * @brief Calculates the X.25 checksum on a uint8_t buffer
  *
- * @param  pBuffer buffer containing the byte array to hash
- * @param  length  length of the byte array
+ * @param  pBuffer buffer containing the uint8_t array to hash
+ * @param  length  length of the uint8_t array
  * @return the checksum over the buffer bytes
  **/
 static inline uint16_t crc_calculate(const uint8_t* pBuffer, uint16_t length)

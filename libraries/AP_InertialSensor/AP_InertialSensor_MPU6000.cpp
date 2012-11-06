@@ -14,19 +14,19 @@ extern const AP_HAL::HAL& hal;
 #define MPUREG_X_FINE_GAIN                              0x03
 #define MPUREG_Y_FINE_GAIN                              0x04
 #define MPUREG_Z_FINE_GAIN                              0x05
-#define MPUREG_XA_OFFS_H                                0x06    // X axis accelerometer offset (high byte)
-#define MPUREG_XA_OFFS_L                                0x07    // X axis accelerometer offset (low byte)
-#define MPUREG_YA_OFFS_H                                0x08    // Y axis accelerometer offset (high byte)
-#define MPUREG_YA_OFFS_L                                0x09    // Y axis accelerometer offset (low byte)
-#define MPUREG_ZA_OFFS_H                                0x0A    // Z axis accelerometer offset (high byte)
-#define MPUREG_ZA_OFFS_L                                0x0B    // Z axis accelerometer offset (low byte)
+#define MPUREG_XA_OFFS_H                                0x06    // X axis accelerometer offset (high uint8_t)
+#define MPUREG_XA_OFFS_L                                0x07    // X axis accelerometer offset (low uint8_t)
+#define MPUREG_YA_OFFS_H                                0x08    // Y axis accelerometer offset (high uint8_t)
+#define MPUREG_YA_OFFS_L                                0x09    // Y axis accelerometer offset (low uint8_t)
+#define MPUREG_ZA_OFFS_H                                0x0A    // Z axis accelerometer offset (high uint8_t)
+#define MPUREG_ZA_OFFS_L                                0x0B    // Z axis accelerometer offset (low uint8_t)
 #define MPUREG_PRODUCT_ID                               0x0C    // Product ID Register
-#define MPUREG_XG_OFFS_USRH                     0x13    // X axis gyro offset (high byte)
-#define MPUREG_XG_OFFS_USRL                     0x14    // X axis gyro offset (low byte)
-#define MPUREG_YG_OFFS_USRH                     0x15    // Y axis gyro offset (high byte)
-#define MPUREG_YG_OFFS_USRL                     0x16    // Y axis gyro offset (low byte)
-#define MPUREG_ZG_OFFS_USRH                     0x17    // Z axis gyro offset (high byte)
-#define MPUREG_ZG_OFFS_USRL                     0x18    // Z axis gyro offset (low byte)
+#define MPUREG_XG_OFFS_USRH                     0x13    // X axis gyro offset (high uint8_t)
+#define MPUREG_XG_OFFS_USRL                     0x14    // X axis gyro offset (low uint8_t)
+#define MPUREG_YG_OFFS_USRH                     0x15    // Y axis gyro offset (high uint8_t)
+#define MPUREG_YG_OFFS_USRL                     0x16    // Y axis gyro offset (low uint8_t)
+#define MPUREG_ZG_OFFS_USRH                     0x17    // Z axis gyro offset (high uint8_t)
+#define MPUREG_ZG_OFFS_USRL                     0x18    // Z axis gyro offset (low uint8_t)
 #define MPUREG_SMPLRT_DIV                               0x19    // sample rate.  Fsample= 1Khz/(<this value>+1) = 200Hz
 #       define MPUREG_SMPLRT_1000HZ                             0x00
 #       define MPUREG_SMPLRT_500HZ                              0x01
@@ -193,8 +193,8 @@ static uint8_t _product_id;
 
 // DMP related static variables
 bool AP_InertialSensor_MPU6000::_dmp_initialised = false;
-uint8_t AP_InertialSensor_MPU6000::_fifoCountH;                 // high byte of number of elements in fifo buffer
-uint8_t AP_InertialSensor_MPU6000::_fifoCountL;                 // low byte of number of elements in fifo buffer
+uint8_t AP_InertialSensor_MPU6000::_fifoCountH;                 // high uint8_t of number of elements in fifo buffer
+uint8_t AP_InertialSensor_MPU6000::_fifoCountL;                 // low uint8_t of number of elements in fifo buffer
 Quaternion AP_InertialSensor_MPU6000::quaternion;                       // holds the 4 quaternions representing attitude taken directly from the DMP
 
 AP_InertialSensor_MPU6000::AP_InertialSensor_MPU6000()
@@ -330,10 +330,10 @@ uint32_t AP_InertialSensor_MPU6000::sample_time()
 
 static int16_t spi_transfer_16(void)
 {
-    uint8_t byte_H, byte_L;
-    byte_H = hal.spi->transfer(0);
-    byte_L = hal.spi->transfer(0);
-    return (((int16_t)byte_H)<<8) | byte_L;
+    uint8_t uint8_t_H, uint8_t_L;
+    uint8_t_H = hal.spi->transfer(0);
+    uint8_t_L = hal.spi->transfer(0);
+    return (((int16_t)uint8_t_H)<<8) | uint8_t_L;
 }
 
 /*
@@ -564,7 +564,7 @@ void AP_InertialSensor_MPU6000::set_accel_offsets(int16_t offsetX, int16_t offse
 
 // dmp_register_write - method to write to dmp's registers
 //    the dmp is logically separated from the main mpu6000.  To write a block of memory to the DMP's memory you
-//    write the "bank" and starting address into two of the main MPU's registers, then write the data one byte
+//    write the "bank" and starting address into two of the main MPU's registers, then write the data one uint8_t
 //    at a time into the MPUREG_MEM_R_W register
 void AP_InertialSensor_MPU6000::dmp_register_write(uint8_t bank, uint8_t address, uint8_t num_bytes, uint8_t data[])
 {
@@ -756,7 +756,7 @@ void AP_InertialSensor_MPU6000::dmp_set_accel_calibration()
     dmp_register_write(0x00, 0x6C, 0x02, regs);                 //D_0_108 inv_set_accel_calibration
 }
 
-// dmp_apply_endian_accel - set byte order of accelerometer values?
+// dmp_apply_endian_accel - set uint8_t order of accelerometer values?
 void AP_InertialSensor_MPU6000::dmp_apply_endian_accel()
 {
     uint8_t regs[4];
@@ -894,8 +894,8 @@ void AP_InertialSensor_MPU6000::dmp_load_mem()
             hal.gpio->write(MPU6000_CS_PIN, 0 );
             hal.spi->transfer(MPUREG_MEM_R_W);
             for(int k = 0; k < 16; k++) {
-                uint8_t byteToSend = pgm_read_byte((const prog_char *)&(dmpMem[i][j][k]));
-                hal.spi->transfer((uint8_t) byteToSend);
+                uint8_t uint8_tToSend = pgm_read_uint8_t((const prog_char *)&(dmpMem[i][j][k]));
+                hal.spi->transfer((uint8_t) uint8_tToSend);
             }
             hal.gpio->write(MPU6000_CS_PIN, 1);
         }
@@ -908,8 +908,8 @@ void AP_InertialSensor_MPU6000::dmp_load_mem()
         hal.gpio->write(MPU6000_CS_PIN, 0 );
         hal.spi->transfer(MPUREG_MEM_R_W);
         for(int k = 0; k < 16; k++) {
-            uint8_t byteToSend = pgm_read_byte((const prog_char *)&(dmpMem[7][j][k]));
-            hal.spi->transfer((uint8_t) byteToSend);
+            uint8_t uint8_tToSend = pgm_read_uint8_t((const prog_char *)&(dmpMem[7][j][k]));
+            hal.spi->transfer((uint8_t) uint8_tToSend);
         }
         hal.gpio->write(MPU6000_CS_PIN, 1);
     }
@@ -918,8 +918,8 @@ void AP_InertialSensor_MPU6000::dmp_load_mem()
     hal.gpio->write(MPU6000_CS_PIN, 0 );
     hal.spi->transfer(MPUREG_MEM_R_W);
     for(int k = 0; k < 9; k++) {
-        uint8_t byteToSend = pgm_read_byte((const prog_char *)&(dmpMem[7][8][k]));
-        hal.spi->transfer((uint8_t) byteToSend);
+        uint8_t uint8_tToSend = pgm_read_uint8_t((const prog_char *)&(dmpMem[7][8][k]));
+        hal.spi->transfer((uint8_t) uint8_tToSend);
     }
     hal.gpio->write(MPU6000_CS_PIN, 1);
 }

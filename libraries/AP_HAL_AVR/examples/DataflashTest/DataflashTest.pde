@@ -18,14 +18,14 @@ void single_page_readwrite() {
     
     hal.console->println("Writing simple sequence to page 1");
     hal.dataflash->start_write(1);
-    hal.dataflash->write_byte(1);
-    hal.dataflash->write_byte(2);
-    hal.dataflash->write_byte(3);
-    hal.dataflash->write_byte(4);
-    hal.dataflash->write_byte(5);
+    hal.dataflash->write_uint8_t(1);
+    hal.dataflash->write_uint8_t(2);
+    hal.dataflash->write_uint8_t(3);
+    hal.dataflash->write_uint8_t(4);
+    hal.dataflash->write_uint8_t(5);
     /* Fill up the rest of the page with garbage */
     for (int i = 0; i < 600; i++) {
-        hal.dataflash->write_byte(0x77);
+        hal.dataflash->write_uint8_t(0x77);
     }
     hal.dataflash->finish_write();
     hal.scheduler->delay(100);
@@ -35,13 +35,13 @@ void single_page_readwrite() {
 void readback_page(int i) {
     hal.console->printf_P(PSTR("Reading back sequence from page %d\r\n"), i);
     hal.dataflash->start_read(i);
-    uint8_t v1 = hal.dataflash->read_byte();
-    uint8_t v2 = hal.dataflash->read_byte();
-    uint8_t v3 = hal.dataflash->read_byte();
-    uint8_t v4 = hal.dataflash->read_byte();
-    uint8_t v5 = hal.dataflash->read_byte();
-    uint8_t v6 = hal.dataflash->read_byte();
-    uint8_t v7 = hal.dataflash->read_byte();
+    uint8_t v1 = hal.dataflash->read_uint8_t();
+    uint8_t v2 = hal.dataflash->read_uint8_t();
+    uint8_t v3 = hal.dataflash->read_uint8_t();
+    uint8_t v4 = hal.dataflash->read_uint8_t();
+    uint8_t v5 = hal.dataflash->read_uint8_t();
+    uint8_t v6 = hal.dataflash->read_uint8_t();
+    uint8_t v7 = hal.dataflash->read_uint8_t();
     hal.console->printf_P(PSTR("vals on page %d: %d %d %d %d %d 0x%x 0x%x\r\n"),
             i, (int) v1, (int) v2, (int) v3, (int) v4, (int) v5,
             (int) v6, (int) v7);
@@ -49,14 +49,14 @@ void readback_page(int i) {
 void two_page_readwrite() {
     hal.console->println("Writing simple sequence to page 1");
     hal.dataflash->start_write(1);
-    hal.dataflash->write_byte(1);
-    hal.dataflash->write_byte(2);
-    hal.dataflash->write_byte(3);
-    hal.dataflash->write_byte(4);
-    hal.dataflash->write_byte(5);
+    hal.dataflash->write_uint8_t(1);
+    hal.dataflash->write_uint8_t(2);
+    hal.dataflash->write_uint8_t(3);
+    hal.dataflash->write_uint8_t(4);
+    hal.dataflash->write_uint8_t(5);
     /* Fill up the rest of the page with garbage */
     for (int i = 0; i < 6; i++) {
-        hal.dataflash->write_byte(0x77);
+        hal.dataflash->write_uint8_t(0x77);
     }
     hal.dataflash->finish_write();
 
@@ -65,14 +65,14 @@ void two_page_readwrite() {
 
     hal.console->println("Writing simple sequence to page 2");
     hal.dataflash->start_write(2);
-    hal.dataflash->write_byte(21);
-    hal.dataflash->write_byte(22);
-    hal.dataflash->write_byte(23);
-    hal.dataflash->write_byte(24);
-    hal.dataflash->write_byte(25);
+    hal.dataflash->write_uint8_t(21);
+    hal.dataflash->write_uint8_t(22);
+    hal.dataflash->write_uint8_t(23);
+    hal.dataflash->write_uint8_t(24);
+    hal.dataflash->write_uint8_t(25);
     /* Fill up the rest of the page with garbage */
     for (int i = 0; i < 6; i++) {
-        hal.dataflash->write_byte(0x77);
+        hal.dataflash->write_uint8_t(0x77);
     }
     hal.dataflash->finish_write();
 
@@ -80,9 +80,9 @@ void two_page_readwrite() {
     readback_page(1);
     readback_page(2);
     hal.dataflash->start_write(3);
-    hal.dataflash->write_byte(99);
-    hal.dataflash->write_byte(99);
-    hal.dataflash->write_byte(99);
+    hal.dataflash->write_uint8_t(99);
+    hal.dataflash->write_uint8_t(99);
+    hal.dataflash->write_uint8_t(99);
     hal.dataflash->finish_write();
     /* NOTE: getting rid of the above finish_write
     fixup the upcoming reads: fetching page 1, 2 will work! and three is a
@@ -105,16 +105,16 @@ void longtest_write() {
     for (int i = 0; i < 40; i++) {
         // Write 1000 packets...
         // We write packets of binary data... (without worry about nothing more)
-        hal.dataflash->write_byte(0xA3);
-        hal.dataflash->write_byte(0x95);
+        hal.dataflash->write_uint8_t(0xA3);
+        hal.dataflash->write_uint8_t(0x95);
         hal.dataflash->write_word(2000 + i);
         hal.dataflash->write_word(2001 + i);
         hal.dataflash->write_word(2002 + i);
         hal.dataflash->write_word(2003 + i);
         hal.dataflash->write_dword((int32_t)i * 5000);
         hal.dataflash->write_dword((int32_t)i * 16268);
-        hal.dataflash->write_byte(0xA2);// 2 bytes of checksum (example)
-        hal.dataflash->write_byte(0x4E);
+        hal.dataflash->write_uint8_t(0xA2);// 2 bytes of checksum (example)
+        hal.dataflash->write_uint8_t(0x4E);
         hal.scheduler->delay(10);
     }
     hal.scheduler->delay(100);
@@ -122,7 +122,7 @@ void longtest_write() {
 
 void longtest_readback()
 {
-    uint8_t tmp_byte1, tmp_byte2;
+    uint8_t tmp_uint8_t1, tmp_uint8_t2;
     long tmp_long;
 
     hal.console->println("Start reading page 1...");
@@ -130,8 +130,8 @@ void longtest_readback()
     hal.dataflash->start_read(1);      // We start reading from page 1
     for (int i = 0; i < 40; i++) {          // Read 200 packets...
 
-        uint8_t sync1 = hal.dataflash->read_byte();
-        uint8_t sync2 = hal.dataflash->read_byte();
+        uint8_t sync1 = hal.dataflash->read_uint8_t();
+        uint8_t sync2 = hal.dataflash->read_uint8_t();
 
         // Read 4 ints...
         int16_t w1 = hal.dataflash->read_word();
@@ -144,8 +144,8 @@ void longtest_readback()
         int32_t l2 = hal.dataflash->read_dword();
 
         // Read the checksum...
-        int8_t cs1 = hal.dataflash->read_byte();
-        int8_t cs2 = hal.dataflash->read_byte();
+        int8_t cs1 = hal.dataflash->read_uint8_t();
+        int8_t cs2 = hal.dataflash->read_uint8_t();
 
         hal.console->printf_P(PSTR("sync 0x%x 0x%x ints %d %d %d %d, "
                 "longs %d %d, cksm %d %d\r\n"),

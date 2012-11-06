@@ -118,12 +118,12 @@ AP_GPS_IMU::read(void)
                 break;
 
             case 7:
-                GPS_ck_a = data;         // First checksum byte
+                GPS_ck_a = data;         // First checksum uint8_t
                 step++;
                 break;
 
             case 8:
-                GPS_ck_b = data;         // Second checksum byte
+                GPS_ck_b = data;         // Second checksum uint8_t
 
                 // We end the IMU/GPS read...
                 // Verify the received checksum with the generated checksum..

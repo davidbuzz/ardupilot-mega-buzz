@@ -51,14 +51,14 @@ bool DataFlash_APM1::CardInserted(void)
 }
 
 // Read the status register
-byte DataFlash_APM1::ReadStatusReg()
+uint8_t DataFlash_APM1::ReadStatusReg()
 {
 	return 0;
 }
 
 // Read the status of the DataFlash
 inline
-byte DataFlash_APM1::ReadStatus()
+uint8_t DataFlash_APM1::ReadStatus()
 {
 	return 1;
 }

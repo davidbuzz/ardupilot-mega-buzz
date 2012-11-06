@@ -246,7 +246,7 @@ void vprintf (AP_HAL::Print *s, unsigned char in_progmem, const char *fmt, va_li
                                 p = PSTR("inf");
                                 if (vtype & FTOA_NAN)
                                         p = PSTR("nan");
-                                while ( (ndigs = pgm_read_byte((const prog_char *)p)) != 0) {
+                                while ( (ndigs = pgm_read_uint8_t((const prog_char *)p)) != 0) {
                                         if (flags & FL_FLTUPP)
                                                 ndigs += 'I' - 'i';
                                         s->write(ndigs);

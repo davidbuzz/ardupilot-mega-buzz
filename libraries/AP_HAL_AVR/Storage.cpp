@@ -4,8 +4,8 @@
 #include "Storage.h"
 using namespace AP_HAL_AVR;
 
-uint8_t AVREEPROMStorage::read_byte(const uint8_t   *p) {
-    return eeprom_read_byte(p);
+uint8_t AVREEPROMStorage::read_uint8_t(const uint8_t   *p) {
+    return eeprom_read_uint8_t(p);
 }
 
 uint16_t AVREEPROMStorage::read_word(const uint16_t  *p) {
@@ -20,8 +20,8 @@ void AVREEPROMStorage::read_block(void *dst, const void *src, size_t n) {
     eeprom_read_block(dst,src,n);
 }
 
-void AVREEPROMStorage::write_byte(uint8_t   *p, uint8_t value) {
-    eeprom_write_byte(p,value);
+void AVREEPROMStorage::write_uint8_t(uint8_t   *p, uint8_t value) {
+    eeprom_write_uint8_t(p,value);
 }
 
 void AVREEPROMStorage::write_word(uint16_t  *p, uint16_t value) {

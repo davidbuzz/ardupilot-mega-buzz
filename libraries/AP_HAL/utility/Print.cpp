@@ -173,7 +173,7 @@ size_t Print::println(double num, int digits)
 // Private Methods /////////////////////////////////////////////////////////////
 
 size_t Print::printNumber(unsigned long n, uint8_t base) {
-  char buf[8 * sizeof(long) + 1]; // Assumes 8-bit chars plus zero byte.
+  char buf[8 * sizeof(long) + 1]; // Assumes 8-bit chars plus zero uint8_t.
   char *str = &buf[sizeof(buf) - 1];
 
   *str = '\0';

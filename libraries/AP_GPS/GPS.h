@@ -166,7 +166,7 @@ protected:
     /// perform an endian swap on a long
     ///
     /// @param	bytes		pointer to a buffer containing bytes representing a
-    ///						long in the wrong byte order
+    ///						long in the wrong uint8_t order
     /// @returns			endian-swapped value
     ///
     int32_t                             _swapl(const void *bytes);
@@ -174,7 +174,7 @@ protected:
     /// perform an endian swap on an int
     ///
     /// @param	bytes		pointer to a buffer containing bytes representing an
-    ///						int in the wrong byte order
+    ///						int in the wrong uint8_t order
     ///	@returns			endian-swapped value
     int16_t                             _swapi(const void *bytes);
 

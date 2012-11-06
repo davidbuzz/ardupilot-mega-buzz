@@ -79,7 +79,7 @@
 
     /* Multiplication of mantisses	*/
 #define	exp_sv	r17
-#define	mlt_1	r19	/* lowest result byte	*/
+#define	mlt_1	r19	/* lowest result uint8_t	*/
 #define mlt_2	r14
 #define	mlt_3	r15
 #define	mlt_4	r20
@@ -88,7 +88,7 @@
 #define	mlt_7	r29
 
     /* Conversion to string	*/
-#define	pwr_2	r1	/* lowest byte of 'powr10' element	*/
+#define	pwr_2	r1	/* lowest uint8_t of 'powr10' element	*/
 #define	pwr_3	r17
 #define	pwr_4	r19
 #define	pwr_5	r22
@@ -152,7 +152,7 @@ __ftoa_engine:
 	subi	flag, -FTOA_INF		; FTOA_NAN
 5:	subi	flag, -FTOA_INF
 6:
-  ; write flags byte
+  ; write flags uint8_t
 	st	X+, flag
   ; hidden bit
 	cpi	val_hhi, 1
@@ -172,7 +172,7 @@ __ftoa_engine:
    At the begin:
 	val_hlo .. val_lo  - input value mantisse
 	val_hhi            - input value exponent
-	X                  - second byte address (string begin)
+	X                  - second uint8_t address (string begin)
    At the end:
 	mlt_7 .. mlt_2     - multiplication result
 	exp10              - decimal exponent
@@ -190,7 +190,7 @@ __ftoa_engine:
 	clr	ZH
 	subi	ZL, lo8(-(.L_base10))
 	sbci	ZH, hi8(-(.L_base10))
-  ; highest mantissa byte  (mult. shifting prepare)
+  ; highest mantissa uint8_t  (mult. shifting prepare)
 	clr	val_hhi
   ; result initializ.
 	clr	mlt_1
@@ -199,7 +199,7 @@ __ftoa_engine:
 	X_movw	mlt_4, mlt_2
 	X_movw	mlt_6, mlt_2
 
-  ; multiply to 1-st table byte
+  ; multiply to 1-st table uint8_t
 #if  AVR_ENH_LPM
 	lpm	r0, Z+
 #else
@@ -224,7 +224,7 @@ __ftoa_engine:
 	lsr	r0
 	brne	10b
 
-  ; second table byte
+  ; second table uint8_t
 #if  AVR_ENH_LPM
 	lpm	r0, Z+		; C flag is stay 1
 #else
@@ -235,7 +235,7 @@ __ftoa_engine:
 	ror	r0
   ; addition
 12:	brcc	13f
-	add	mlt_2, val_hi		; val_hi is the least byte now
+	add	mlt_2, val_hi		; val_hi is the least uint8_t now
 	adc	mlt_3, val_hlo
 	adc	mlt_4, val_hhi
 	adc	mlt_5, val_lo
@@ -249,7 +249,7 @@ __ftoa_engine:
 	lsr	r0
 	brne	12b
 
-  ; 3-t table byte
+  ; 3-t table uint8_t
 #if  AVR_ENH_LPM
 	lpm	r0, Z+		; C flag is stay 1
 #else
@@ -260,7 +260,7 @@ __ftoa_engine:
 	ror	r0
   ; addition
 14:	brcc	15f
-	add	mlt_3, val_hlo		; val_hlo is the least byte now
+	add	mlt_3, val_hlo		; val_hlo is the least uint8_t now
 	adc	mlt_4, val_hhi
 	adc	mlt_5, val_lo
 	adc	mlt_6, val_hi
@@ -274,7 +274,7 @@ __ftoa_engine:
 	lsr	r0
 	brne	14b
 
-  ; 4-t table byte
+  ; 4-t table uint8_t
 #if  AVR_ENH_LPM
 	lpm	r0, Z+		; C flag is stay 1
 #else
@@ -283,7 +283,7 @@ __ftoa_engine:
 	ror	r0
   ; addition
 16:	brcc	17f
-	add	mlt_4, val_hhi		; val_hhi is the least byte now
+	add	mlt_4, val_hhi		; val_hhi is the least uint8_t now
 	adc	mlt_5, val_lo
 	adc	mlt_6, val_hi
 	adc	mlt_7, val_hlo
@@ -333,7 +333,7 @@ __ftoa_engine:
       digit		- conversion process
 
    At the end:
-      X			- end of buffer (nonfilled byte)
+      X			- end of buffer (nonfilled uint8_t)
       exp10		- corrected dec. exponent
       mlt_7 .. mlt_2	- remainder
       pwr_7 .. pwr_2	- last powr10[] element
@@ -462,7 +462,7 @@ __ftoa_engine:
 	pop	r29
   ; return
 	clr	r25
-	sbrc	exp10, 7		; high byte
+	sbrc	exp10, 7		; high uint8_t
 	com	r25
 	ret
 
@@ -475,57 +475,57 @@ __ftoa_engine:
 
     .type .L_powr10, "object"
 .L_powr10:
-	.byte	0, 64, 122, 16, 243, 90	; 100000000000000
-	.byte	0, 160, 114, 78, 24, 9	; 10000000000000
-	.byte	0, 16, 165, 212, 232, 0	; 1000000000000
-	.byte	0, 232, 118, 72, 23, 0	; 100000000000
-	.byte	0, 228, 11, 84, 2, 0	; 10000000000
-	.byte	0, 202, 154, 59, 0, 0	; 1000000000
-	.byte	0, 225, 245, 5, 0, 0	; 100000000
-	.byte	128, 150, 152, 0, 0, 0	; 10000000
-	.byte	64, 66, 15, 0, 0, 0	; 1000000
-	.byte	160, 134, 1, 0, 0, 0	; 100000
-	.byte	16, 39, 0, 0, 0, 0	; 10000
-	.byte	232, 3, 0, 0, 0, 0	; 1000
-	.byte	100, 0, 0, 0, 0, 0	; 100
-	.byte	10, 0, 0, 0, 0, 0	; 10
-	.byte	1, 0, 0, 0, 0, 0	; 1
+	.uint8_t	0, 64, 122, 16, 243, 90	; 100000000000000
+	.uint8_t	0, 160, 114, 78, 24, 9	; 10000000000000
+	.uint8_t	0, 16, 165, 212, 232, 0	; 1000000000000
+	.uint8_t	0, 232, 118, 72, 23, 0	; 100000000000
+	.uint8_t	0, 228, 11, 84, 2, 0	; 10000000000
+	.uint8_t	0, 202, 154, 59, 0, 0	; 1000000000
+	.uint8_t	0, 225, 245, 5, 0, 0	; 100000000
+	.uint8_t	128, 150, 152, 0, 0, 0	; 10000000
+	.uint8_t	64, 66, 15, 0, 0, 0	; 1000000
+	.uint8_t	160, 134, 1, 0, 0, 0	; 100000
+	.uint8_t	16, 39, 0, 0, 0, 0	; 10000
+	.uint8_t	232, 3, 0, 0, 0, 0	; 1000
+	.uint8_t	100, 0, 0, 0, 0, 0	; 100
+	.uint8_t	10, 0, 0, 0, 0, 0	; 10
+	.uint8_t	1, 0, 0, 0, 0, 0	; 1
     .size .L_powr10, . - .L_powr10
 
     .type	.L_base10, "object"
 .L_base10:
-	.byte	44, 118, 216, 136, -36	; 2295887404
-	.byte	103, 79, 8, 35, -33	; 587747175
-	.byte	193, 223, 174, 89, -31	; 1504632769
-	.byte	177, 183, 150, 229, -29	; 3851859889
-	.byte	228, 83, 198, 58, -26	; 986076132
-	.byte	81, 153, 118, 150, -24	; 2524354897
-	.byte	230, 194, 132, 38, -21	; 646234854
-	.byte	137, 140, 155, 98, -19	; 1654361225
-	.byte	64, 124, 111, 252, -17	; 4235164736
-	.byte	188, 156, 159, 64, -14	; 1084202172
-	.byte	186, 165, 111, 165, -12	; 2775557562
-	.byte	144, 5, 90, 42, -9	; 710542736
-	.byte	92, 147, 107, 108, -7	; 1818989404
-	.byte	103, 109, 193, 27, -4	; 465661287
-	.byte	224, 228, 13, 71, -2	; 1192092896
-	.byte	245, 32, 230, 181, 0	; 3051757813
-	.byte	208, 237, 144, 46, 3	; 781250000
-	.byte	0, 148, 53, 119, 5	; 2000000000
-	.byte	0, 128, 132, 30, 8	; 512000000
-	.byte	0, 0, 32, 78, 10	; 1310720000
-	.byte	0, 0, 0, 200, 12	; 3355443200
-	.byte	51, 51, 51, 51, 15	; 858993459
-	.byte	152, 110, 18, 131, 17	; 2199023256
-	.byte	65, 239, 141, 33, 20	; 562949953
-	.byte	137, 59, 230, 85, 22	; 1441151881
-	.byte	207, 254, 230, 219, 24	; 3689348815
-	.byte	209, 132, 75, 56, 27	; 944473297
-	.byte	247, 124, 29, 144, 29	; 2417851639
-	.byte	164, 187, 228, 36, 32	; 618970020
-	.byte	50, 132, 114, 94, 34	; 1584563250
-	.byte	129, 0, 201, 241, 36	; 4056481921
-	.byte	236, 161, 229, 61, 39	; 1038459372
+	.uint8_t	44, 118, 216, 136, -36	; 2295887404
+	.uint8_t	103, 79, 8, 35, -33	; 587747175
+	.uint8_t	193, 223, 174, 89, -31	; 1504632769
+	.uint8_t	177, 183, 150, 229, -29	; 3851859889
+	.uint8_t	228, 83, 198, 58, -26	; 986076132
+	.uint8_t	81, 153, 118, 150, -24	; 2524354897
+	.uint8_t	230, 194, 132, 38, -21	; 646234854
+	.uint8_t	137, 140, 155, 98, -19	; 1654361225
+	.uint8_t	64, 124, 111, 252, -17	; 4235164736
+	.uint8_t	188, 156, 159, 64, -14	; 1084202172
+	.uint8_t	186, 165, 111, 165, -12	; 2775557562
+	.uint8_t	144, 5, 90, 42, -9	; 710542736
+	.uint8_t	92, 147, 107, 108, -7	; 1818989404
+	.uint8_t	103, 109, 193, 27, -4	; 465661287
+	.uint8_t	224, 228, 13, 71, -2	; 1192092896
+	.uint8_t	245, 32, 230, 181, 0	; 3051757813
+	.uint8_t	208, 237, 144, 46, 3	; 781250000
+	.uint8_t	0, 148, 53, 119, 5	; 2000000000
+	.uint8_t	0, 128, 132, 30, 8	; 512000000
+	.uint8_t	0, 0, 32, 78, 10	; 1310720000
+	.uint8_t	0, 0, 0, 200, 12	; 3355443200
+	.uint8_t	51, 51, 51, 51, 15	; 858993459
+	.uint8_t	152, 110, 18, 131, 17	; 2199023256
+	.uint8_t	65, 239, 141, 33, 20	; 562949953
+	.uint8_t	137, 59, 230, 85, 22	; 1441151881
+	.uint8_t	207, 254, 230, 219, 24	; 3689348815
+	.uint8_t	209, 132, 75, 56, 27	; 944473297
+	.uint8_t	247, 124, 29, 144, 29	; 2417851639
+	.uint8_t	164, 187, 228, 36, 32	; 618970020
+	.uint8_t	50, 132, 114, 94, 34	; 1584563250
+	.uint8_t	129, 0, 201, 241, 36	; 4056481921
+	.uint8_t	236, 161, 229, 61, 39	; 1038459372
     .size .L_base10, . - .L_base10
 
 	.end

@@ -51,8 +51,8 @@ public:
         _sensor = NULL;
     };
     virtual bool                    init(bool initCommAPI, AP_PeriodicProcess *scheduler, AP_Semaphore* spi_semaphore = NULL, AP_Semaphore* spi3_semaphore = NULL); // parameter controls whether I2C/SPI interface is initialised (set to false if other devices are on the I2C/SPI bus and have already initialised the interface)
-    virtual byte                    read_register(byte address);
-    virtual void                    write_register(byte address, byte value);
+    virtual uint8_t                    read_register(uint8_t address);
+    virtual void                    write_register(uint8_t address, uint8_t value);
     virtual void                    set_orientation(enum Rotation rotation); // Rotation vector to transform sensor readings to the body frame.
     virtual void                    set_field_of_view(const float fov) { field_of_view = fov; update_conversion_factors(); };   // sets field of view of sensor
     static void                     read(uint32_t now);   // called by timer process to read sensor data from all attached sensors

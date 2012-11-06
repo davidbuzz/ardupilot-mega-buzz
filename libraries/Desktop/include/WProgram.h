@@ -15,7 +15,7 @@ extern "C" {
 #include <unistd.h>
 #include <stdint.h>
 
-typedef uint8_t byte;
+typedef uint8_t uint8_t;
 
 void delay(unsigned long msec);
 char *itoa(int __val, char *__s, int __radix);

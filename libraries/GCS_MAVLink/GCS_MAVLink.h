@@ -30,7 +30,7 @@ extern AP_HAL::BetterStream	*mavlink_comm_1_port;
 /// MAVLink system definition
 extern mavlink_system_t mavlink_system;
 
-/// Send a byte to the nominated MAVLink channel
+/// Send a uint8_t to the nominated MAVLink channel
 ///
 /// @param chan		Channel to send to
 /// @param ch		Byte to send
@@ -49,7 +49,7 @@ static inline void comm_send_ch(mavlink_channel_t chan, uint8_t ch)
 	}
 }
 
-/// Read a byte from the nominated MAVLink channel
+/// Read a uint8_t from the nominated MAVLink channel
 ///
 /// @param chan		Channel to receive on
 /// @returns		Byte read

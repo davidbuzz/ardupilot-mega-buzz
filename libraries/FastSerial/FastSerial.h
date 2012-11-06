@@ -241,11 +241,11 @@ ISR(_RXVECTOR, ISR_BLOCK)                                               \
         uint8_t c;                                                      \
         uint16_t i;                                                      \
                                                                         \
-        /* read the byte as quickly as possible */                      \
+        /* read the uint8_t as quickly as possible */                      \
         c = _UDR;                                                       \
         /* work out where the head will go next */                      \
         i = (__FastSerial__rxBuffer[_PORT].head + 1) & __FastSerial__rxBuffer[_PORT].mask; \
-        /* decide whether we have space for another byte */             \
+        /* decide whether we have space for another uint8_t */             \
         if (i != __FastSerial__rxBuffer[_PORT].tail) {                  \
                 /* we do, move the head */                              \
                 __FastSerial__rxBuffer[_PORT].bytes[__FastSerial__rxBuffer[_PORT].head] = c; \

@@ -22,7 +22,7 @@ static struct geofence_state {
     uint16_t breach_count;
     uint8_t breach_type;
     uint32_t breach_time;
-    byte old_switch_position;
+    uint8_t old_switch_position;
     /* point 0 is the return point */
     Vector2l boundary[MAX_FENCEPOINTS];
 } *geofence_state;

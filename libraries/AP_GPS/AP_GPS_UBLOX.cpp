@@ -72,7 +72,7 @@ AP_GPS_UBLOX::read(void)
     numc = _port->available();
     for (int16_t i = 0; i < numc; i++) {        // Process bytes received
 
-        // read the next byte
+        // read the next uint8_t
         data = _port->read();
 
         switch(_step) {
@@ -80,8 +80,8 @@ AP_GPS_UBLOX::read(void)
         // Message preamble detection
         //
         // If we fail to match any of the expected bytes, we reset
-        // the state machine and re-consider the failed byte as
-        // the first byte of the preamble.  This improves our
+        // the state machine and re-consider the failed uint8_t as
+        // the first uint8_t of the preamble.  This improves our
         // chances of recovering from a mismatch and makes it less
         // likely that we will be fooled by the preamble appearing
         // as data in some other message.
@@ -115,17 +115,17 @@ AP_GPS_UBLOX::read(void)
             break;
         case 3:
             _step++;
-            _ck_b += (_ck_a += data);                   // checksum byte
+            _ck_b += (_ck_a += data);                   // checksum uint8_t
             _msg_id = data;
             break;
         case 4:
             _step++;
-            _ck_b += (_ck_a += data);                   // checksum byte
-            _payload_length = data;                             // payload length low byte
+            _ck_b += (_ck_a += data);                   // checksum uint8_t
+            _payload_length = data;                             // payload length low uint8_t
             break;
         case 5:
             _step++;
-            _ck_b += (_ck_a += data);                   // checksum byte
+            _ck_b += (_ck_a += data);                   // checksum uint8_t
 
             _payload_length += (uint16_t)(data<<8);
             if (_payload_length > 512) {
@@ -140,7 +140,7 @@ AP_GPS_UBLOX::read(void)
         // Receive message data
         //
         case 6:
-            _ck_b += (_ck_a += data);                   // checksum byte
+            _ck_b += (_ck_a += data);                   // checksum uint8_t
             if (_payload_counter < sizeof(_buffer)) {
                 _buffer.bytes[_payload_counter] = data;
             }
@@ -362,7 +362,7 @@ AP_GPS_UBLOX::_configure_gps(void)
 
 
 /*
-  detect a Ublox GPS. Adds one byte, and returns true if the stream
+  detect a Ublox GPS. Adds one uint8_t, and returns true if the stream
   matches a UBlox
  */
 bool

@@ -11,7 +11,7 @@ uint8_t fibs[12] = { 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144 };
 void test_erase() {
     hal.console->printf_P(PSTR("erasing... "));
     for(int i = 0; i < 100; i++) {
-        hal.storage->write_byte((uint8_t*)i, 0);
+        hal.storage->write_uint8_t((uint8_t*)i, 0);
     }
     hal.console->printf_P(PSTR(" done.\r\n"));
 }

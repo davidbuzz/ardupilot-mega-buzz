@@ -74,30 +74,30 @@ uint8_t AP_Baro_MS5611::_spi_read(uint8_t reg)
 
 uint16_t AP_Baro_MS5611::_spi_read_16bits(uint8_t reg)
 {
-    uint8_t byteH, byteL;
+    uint8_t uint8_tH, uint8_tL;
     uint16_t return_value;
     uint8_t addr = reg; // | 0x80; // Set most significant bit
     hal.gpio->write(MS5611_CS, 0);
     hal.spi->transfer(addr); // discarded
-    byteH = hal.spi->transfer(0);
-    byteL = hal.spi->transfer(0);
+    uint8_tH = hal.spi->transfer(0);
+    uint8_tL = hal.spi->transfer(0);
     hal.gpio->write(MS5611_CS, 1);
-    return_value = ((uint16_t)byteH<<8) | (byteL);
+    return_value = ((uint16_t)uint8_tH<<8) | (uint8_tL);
     return return_value;
 }
 
 uint32_t AP_Baro_MS5611::_spi_read_adc()
 {
-    uint8_t byteH,byteM,byteL;
+    uint8_t uint8_tH,uint8_tM,uint8_tL;
     uint32_t return_value;
     uint8_t addr = 0x00;
     hal.gpio->write(MS5611_CS, 0);
     hal.spi->transfer(addr); // discarded
-    byteH = hal.spi->transfer(0);
-    byteM = hal.spi->transfer(0);
-    byteL = hal.spi->transfer(0);
+    uint8_tH = hal.spi->transfer(0);
+    uint8_tM = hal.spi->transfer(0);
+    uint8_tL = hal.spi->transfer(0);
     hal.gpio->write(MS5611_CS, 1);
-    return_value = (((uint32_t)byteH)<<16) | (((uint32_t)byteM)<<8) | (byteL);
+    return_value = (((uint32_t)uint8_tH)<<16) | (((uint32_t)uint8_tM)<<8) | (uint8_tL);
     return return_value;
 }
 

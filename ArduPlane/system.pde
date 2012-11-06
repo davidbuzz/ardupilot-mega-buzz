@@ -318,7 +318,7 @@ static void startup_ground(void)
     gcs_send_text_P(SEVERITY_LOW,PSTR("\n\n Ready to FLY."));
 }
 
-static void set_mode(byte mode)
+static void set_mode(uint8_t mode)
 {
     if(control_mode == mode) {
         // don't switch modes if we are already in the correct mode.

@@ -188,7 +188,7 @@ setup_radio(uint8_t argc, const Menu::arg *argv)
 static int8_t
 setup_flightmodes(uint8_t argc, const Menu::arg *argv)
 {
-    byte switchPosition, mode = 0;
+    uint8_t switchPosition, mode = 0;
 
     hal.uart0->printf_P(PSTR("\nMove RC toggle switch to each position to edit, move aileron stick to select modes."));
     print_hit_enter();
@@ -517,7 +517,7 @@ print_radio_values()
 }
 
 static void
-print_switch(byte p, byte m)
+print_switch(uint8_t p, uint8_t m)
 {
     hal.uart0->printf_P(PSTR("Pos %d: "),p);
     print_flight_mode(m);
@@ -576,10 +576,10 @@ radio_input_switch(void)
 
 static void zero_eeprom(void)
 {
-    byte b = 0;
+    uint8_t b = 0;
     hal.uart0->printf_P(PSTR("\nErasing EEPROM\n"));
     for (intptr_t i = 0; i < EEPROM_MAX_ADDR; i++) {
-        eeprom_write_byte((uint8_t *) i, b);
+        eeprom_write_uint8_t((uint8_t *) i, b);
     }
     hal.uart0->printf_P(PSTR("done\n"));
 }

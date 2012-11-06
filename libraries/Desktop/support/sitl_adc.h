@@ -53,7 +53,7 @@ struct ADC_UDR2 {
 	}
 
 	/*
-	  read from UDR2 fetches a byte from the channel
+	  read from UDR2 fetches a uint8_t from the channel
 	 */
 	operator int() {
 		uint8_t ret;

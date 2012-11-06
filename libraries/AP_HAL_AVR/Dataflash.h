@@ -27,12 +27,12 @@ public:
 
     void start_write(int16_t page);
     void finish_write();
-    void write_byte(uint8_t data);
+    void write_uint8_t(uint8_t data);
     void write_word(uint16_t data);
     void write_dword(uint32_t data);
 
     void start_read(int16_t page);
-    uint8_t read_byte();
+    uint8_t read_uint8_t();
     uint16_t read_word();
     uint32_t read_dword();
 

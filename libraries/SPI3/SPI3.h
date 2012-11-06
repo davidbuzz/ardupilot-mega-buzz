@@ -53,7 +53,7 @@ public:
 
     static void begin();
     static void end();
-    static uint8_t transfer(byte data);
+    static uint8_t transfer(uint8_t data);
 
     // SPI Configuration methods
     static void setBitOrder(uint8_t bitOrder);

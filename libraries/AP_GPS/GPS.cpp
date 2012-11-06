@@ -90,13 +90,13 @@ GPS::_error(const char *msg)
 void GPS::_write_progstr_block(AP_HAL::UARTDriver *_fs, const prog_char *pstr, uint8_t size)
 {
     while (size--) {
-        _fs->write(pgm_read_byte(pstr++));
+        _fs->write(pgm_read_uint8_t(pstr++));
     }
 }
 
 /*
   a prog_char block queue, used to send out config commands to a GPS
-  in 16 byte chunks. This saves us having to have a 128 byte GPS send
+  in 16 uint8_t chunks. This saves us having to have a 128 uint8_t GPS send
   buffer, while allowing us to avoid a long delay in sending GPS init
   strings while waiting for the GPS auto detection to happen
  */

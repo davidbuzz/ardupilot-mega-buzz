@@ -62,7 +62,7 @@ AP_GPS_SIRF::read(void)
     numc = _port->available();
     while(numc--) {
 
-        // read the next byte
+        // read the next uint8_t
         data = _port->read();
 
         switch(_step) {
@@ -70,8 +70,8 @@ AP_GPS_SIRF::read(void)
         // Message preamble detection
         //
         // If we fail to match any of the expected bytes, we reset
-        // the state machine and re-consider the failed byte as
-        // the first byte of the preamble.  This improves our
+        // the state machine and re-consider the failed uint8_t as
+        // the first uint8_t of the preamble.  This improves our
         // chances of recovering from a mismatch and makes it less
         // likely that we will be fooled by the preamble appearing
         // as data in some other message.

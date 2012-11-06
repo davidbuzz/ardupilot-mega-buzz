@@ -63,7 +63,7 @@ void APM1Dataflash::read_mfg_id() {
     _mfg = hal.spi->transfer(0xFF);
     _device = hal.spi->transfer(0xFF);
     _device = (_device << 8) | hal.spi->transfer(0xFF);
-    /* fourth byte is dont care */
+    /* fourth uint8_t is dont care */
     hal.spi->transfer(0xFF);
     _cs_inactive();
 }
@@ -91,7 +91,7 @@ void APM1Dataflash::_page_to_buffer(uint8_t buffer_num, uint16_t page_addr) {
         hal.spi->transfer( page_addr >> 6 );
         hal.spi->transfer( page_addr << 2 );
     }
-    /* finally send one dont care byte */
+    /* finally send one dont care uint8_t */
     hal.spi->transfer(0x00);
 
     _cs_inactive();
@@ -113,7 +113,7 @@ void APM1Dataflash::_buffer_to_page(uint8_t buffer_num, uint16_t page_addr, bool
         hal.spi->transfer( page_addr >> 6 );
         hal.spi->transfer( page_addr << 2 );
     }
-    /* finally send one dont care byte */
+    /* finally send one dont care uint8_t */
     hal.spi->transfer(0x00);
 
     _cs_inactive();
@@ -134,7 +134,7 @@ void APM1Dataflash::_page_erase(uint16_t page_addr) {
         hal.spi->transfer( page_addr << 2 );
     }
 
-    /* finally send one dont care byte */
+    /* finally send one dont care uint8_t */
     hal.spi->transfer(0x00);
     _cs_inactive();
     _wait_ready();
@@ -151,7 +151,7 @@ void APM1Dataflash::_block_erase(uint16_t block_addr) {
         hal.spi->transfer( block_addr >> 6 );
         hal.spi->transfer( block_addr << 2 );
     }
-    /* finally send one dont care byte */
+    /* finally send one dont care uint8_t */
     hal.spi->transfer(0x00);
     _cs_inactive();
     _wait_ready();
@@ -201,7 +201,7 @@ uint8_t APM1Dataflash::_buffer_read(uint8_t buffer_num, uint16_t page_addr) {
     hal.spi->transfer((uint8_t)(page_addr & 0xFF));
     /* Don't care */
     hal.spi->transfer(0);
-    /* Read data byte */
+    /* Read data uint8_t */
     uint8_t res = hal.spi->transfer(0);
     _cs_inactive();
     return res;
@@ -210,7 +210,7 @@ uint8_t APM1Dataflash::_buffer_read(uint8_t buffer_num, uint16_t page_addr) {
 inline uint8_t APM1Dataflash::_read_status_reg() {
     _cs_active();
     hal.spi->transfer(DF_STATUS_REGISTER_READ);
-    /* Read the first byte of the result */
+    /* Read the first uint8_t of the result */
     uint8_t res = hal.spi->transfer(0);
     _cs_inactive();
     return res;

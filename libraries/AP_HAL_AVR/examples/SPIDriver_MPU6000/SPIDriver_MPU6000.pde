@@ -38,10 +38,10 @@ static uint8_t register_read(uint8_t reg) {
 }
 
 static uint16_t spi_read_16(void) {
-    uint8_t byte_h, byte_l;
-    byte_h = hal.spi->transfer(0);
-    byte_l = hal.spi->transfer(0);
-    return (((int16_t) byte_h)<< 8) | byte_l;
+    uint8_t uint8_t_h, uint8_t_l;
+    uint8_t_h = hal.spi->transfer(0);
+    uint8_t_l = hal.spi->transfer(0);
+    return (((int16_t) uint8_t_h)<< 8) | uint8_t_l;
 }
 
 

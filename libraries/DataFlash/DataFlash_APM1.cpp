@@ -18,7 +18,7 @@
  *       Methods:
  *               Init() : Library initialization (SPI initialization)
  *               StartWrite(page) : Start a write session. page=start page.
- *               WriteByte(data) : Write a byte
+ *               WriteByte(data) : Write a uint8_t
  *               WriteInt(data) :  Write an integer (2 bytes)
  *               WriteLong(data) : Write a long (4 bytes)
  *               StartRead(page) : Start a read on (page)
@@ -161,9 +161,9 @@ bool DataFlash_APM1::CardInserted(void)
 }
 
 // Read the status register
-byte DataFlash_APM1::ReadStatusReg()
+uint8_t DataFlash_APM1::ReadStatusReg()
 {
-    byte tmp;
+    uint8_t tmp;
 
     dataflash_CS_active();   // activate dataflash command decoder
 
@@ -178,7 +178,7 @@ byte DataFlash_APM1::ReadStatusReg()
 
 // Read the status of the DataFlash
 inline
-byte DataFlash_APM1::ReadStatus()
+uint8_t DataFlash_APM1::ReadStatus()
 {
     return(ReadStatusReg()&0x80); // We only want to extract the READY/BUSY bit
 }
@@ -263,14 +263,14 @@ void DataFlash_APM1::BufferWrite (unsigned char BufferNum, uint16_t IntPageAdr, 
     SPI_transfer(0x00);                          //don't cares
     SPI_transfer((unsigned char)(IntPageAdr>>8)); //upper part of internal buffer address
     SPI_transfer((unsigned char)(IntPageAdr));   //lower part of internal buffer address
-    SPI_transfer(Data);                          //write data byte
+    SPI_transfer(Data);                          //write data uint8_t
 
     dataflash_CS_inactive(); // disable dataflash command decoder
 }
 
 unsigned char DataFlash_APM1::BufferRead (unsigned char BufferNum, uint16_t IntPageAdr)
 {
-    byte tmp;
+    uint8_t tmp;
 
     dataflash_CS_active();   // activate dataflash command decoder
 
@@ -282,7 +282,7 @@ unsigned char DataFlash_APM1::BufferRead (unsigned char BufferNum, uint16_t IntP
     SPI_transfer((unsigned char)(IntPageAdr>>8)); //upper part of internal buffer address
     SPI_transfer((unsigned char)(IntPageAdr));   //lower part of internal buffer address
     SPI_transfer(0x00);                          //don't cares
-    tmp = SPI_transfer(0x00);                    //read data byte
+    tmp = SPI_transfer(0x00);                    //read data uint8_t
 
     dataflash_CS_inactive(); // deactivate dataflash command decoder
 

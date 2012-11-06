@@ -8,7 +8,7 @@
 #define MAVLINK_MAX_PAYLOAD_LEN 255 ///< Maximum payload length
 #endif
 
-#define MAVLINK_CORE_HEADER_LEN 5 ///< Length of core header (of the comm. layer): message length (1 byte) + message sequence (1 byte) + message system id (1 byte) + message component id (1 byte) + message type id (1 byte)
+#define MAVLINK_CORE_HEADER_LEN 5 ///< Length of core header (of the comm. layer): message length (1 uint8_t) + message sequence (1 uint8_t) + message system id (1 uint8_t) + message component id (1 uint8_t) + message type id (1 uint8_t)
 #define MAVLINK_NUM_HEADER_BYTES (MAVLINK_CORE_HEADER_LEN + 1) ///< Length of all header bytes, including core and checksum
 #define MAVLINK_NUM_CHECKSUM_BYTES 2
 #define MAVLINK_NUM_NON_PAYLOAD_BYTES (MAVLINK_NUM_HEADER_BYTES + MAVLINK_NUM_CHECKSUM_BYTES)

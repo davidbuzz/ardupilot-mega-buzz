@@ -149,21 +149,21 @@ uint8_t I2C::beginTransmission(int address)
     return(beginTransmission((uint8_t) address));
 }
 
-uint8_t I2C::send(uint8_t databyte)
+uint8_t I2C::send(uint8_t datauint8_t)
 {
     if(returnStatusWire)
     {
         return(returnStatusWire);
     }
     returnStatus = 0;
-    returnStatus = sendByte(databyte);
+    returnStatus = sendByte(datauint8_t);
     returnStatusWire = returnStatus;
     return(returnStatus);
 }
 
-uint8_t I2C::send(int databyte)
+uint8_t I2C::send(int datauint8_t)
 {
-    return(send((uint8_t) databyte));
+    return(send((uint8_t) datauint8_t));
 }
 
 uint8_t I2C::endTransmission()
@@ -229,7 +229,7 @@ uint8_t I2C::write(int address, int registerAddress)
     return(write((uint8_t) address, (uint8_t) registerAddress));
 }
 
-uint8_t I2C::write(uint8_t address, uint8_t registerAddress, uint8_t databyte)
+uint8_t I2C::write(uint8_t address, uint8_t registerAddress, uint8_t datauint8_t)
 {
     returnStatus = 0;
     returnStatus = start();
@@ -238,15 +238,15 @@ uint8_t I2C::write(uint8_t address, uint8_t registerAddress, uint8_t databyte)
     if(returnStatus) {return(returnStatus); }
     returnStatus = sendByte(registerAddress);
     if(returnStatus) {return(returnStatus); }
-    returnStatus = sendByte(databyte);
+    returnStatus = sendByte(datauint8_t);
     if(returnStatus) {return(returnStatus); }
     returnStatus = stop();
     return(returnStatus);
 }
 
-uint8_t I2C::write(int address, int registerAddress, int databyte)
+uint8_t I2C::write(int address, int registerAddress, int datauint8_t)
 {
-    return(write((uint8_t) address, (uint8_t) registerAddress, (uint8_t) databyte));
+    return(write((uint8_t) address, (uint8_t) registerAddress, (uint8_t) datauint8_t));
 }
 
 uint8_t I2C::write(uint8_t address, uint8_t registerAddress, char *databytes)

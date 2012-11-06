@@ -18,7 +18,7 @@
  *       Methods:
  *               Init() : Library initialization (SPI initialization)
  *               StartWrite(page) : Start a write session. page=start page.
- *               WriteByte(data) : Write a byte
+ *               WriteByte(data) : Write a uint8_t
  *               WriteInt(data) :  Write an integer (2 bytes)
  *               WriteLong(data) : Write a long (4 bytes)
  *               StartRead(page) : Start a read on (page)
@@ -210,9 +210,9 @@ bool DataFlash_APM2::CardInserted()
 }
 
 // Read the status register
-byte DataFlash_APM2::ReadStatusReg()
+uint8_t DataFlash_APM2::ReadStatusReg()
 {
-    byte tmp;
+    uint8_t tmp;
 
     // activate dataflash command decoder
     CS_active();
@@ -229,7 +229,7 @@ byte DataFlash_APM2::ReadStatusReg()
 
 // Read the status of the DataFlash
 inline
-byte DataFlash_APM2::ReadStatus()
+uint8_t DataFlash_APM2::ReadStatus()
 {
     return(ReadStatusReg()&0x80);      // We only want to extract the READY/BUSY bit
 }
@@ -319,7 +319,7 @@ void DataFlash_APM2::BufferWrite (unsigned char BufferNum, uint16_t IntPageAdr, 
     SPI_transfer(0x00);                                                                 // don't care
     SPI_transfer((unsigned char)(IntPageAdr>>8));       // upper part of internal buffer address
     SPI_transfer((unsigned char)(IntPageAdr));                  // lower part of internal buffer address
-    SPI_transfer(Data);                                                                 // write data byte
+    SPI_transfer(Data);                                                                 // write data uint8_t
 
     // release SPI bus for use by other sensors
     CS_inactive();
@@ -327,7 +327,7 @@ void DataFlash_APM2::BufferWrite (unsigned char BufferNum, uint16_t IntPageAdr, 
 
 unsigned char DataFlash_APM2::BufferRead (unsigned char BufferNum, uint16_t IntPageAdr)
 {
-    byte tmp;
+    uint8_t tmp;
 
     // activate dataflash command decoder
     CS_active();
@@ -341,7 +341,7 @@ unsigned char DataFlash_APM2::BufferRead (unsigned char BufferNum, uint16_t IntP
     SPI_transfer((unsigned char)(IntPageAdr>>8));       //upper part of internal buffer address
     SPI_transfer((unsigned char)(IntPageAdr));                  //lower part of internal buffer address
     SPI_transfer(0x00);                                                                 //don't cares
-    tmp = SPI_transfer(0x00);                                                   //read data byte
+    tmp = SPI_transfer(0x00);                                                   //read data uint8_t
 
     // release SPI bus for use by other sensors
     CS_inactive();

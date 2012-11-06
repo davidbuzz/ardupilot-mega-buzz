@@ -107,8 +107,8 @@ public:
     static void                 dmp_load_mem();                 // Load initial memory values into DMP memory banks
 
     static uint8_t              _received_packet[DMP_FIFO_BUFFER_SIZE]; // FIFO packet buffer
-    static uint8_t              _fifoCountH;                    // high byte of number of elements in fifo buffer
-    static uint8_t              _fifoCountL;                    // low byte of number of elements in fifo buffer
+    static uint8_t              _fifoCountH;                    // high uint8_t of number of elements in fifo buffer
+    static uint8_t              _fifoCountL;                    // low uint8_t of number of elements in fifo buffer
 
     static bool                 _dmp_initialised;
 };

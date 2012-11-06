@@ -31,7 +31,7 @@ extern const AP_HAL::HAL &hal;
 #endif
 
 // some useful progmem macros
-#define PGM_UINT8(addr) pgm_read_byte((const prog_char *)addr)
+#define PGM_UINT8(addr) pgm_read_uint8_t((const prog_char *)addr)
 #define PGM_UINT16(addr) pgm_read_word((const uint16_t *)addr)
 #define PGM_FLOAT(addr) pgm_read_float((const float *)addr)
 #define PGM_POINTER(addr) pgm_read_pointer((const void *)addr)
@@ -67,15 +67,15 @@ uint8_t AP_Param::_num_vars;
 // storage and naming information about all types that can be saved
 const AP_Param::Info *AP_Param::_var_info;
 
-// write to EEPROM, checking each byte to avoid writing
+// write to EEPROM, checking each uint8_t to avoid writing
 // bytes that are already correct
 void AP_Param::eeprom_write_check(const void *ptr, uint16_t ofs, uint8_t size)
 {
     const uint8_t *b = (const uint8_t *)ptr;
     while (size--) {
-        uint8_t v = eeprom_read_byte((const uint8_t *)(uintptr_t)ofs);
+        uint8_t v = eeprom_read_uint8_t((const uint8_t *)(uintptr_t)ofs);
         if (v != *b) {
-            eeprom_write_byte((uint8_t *)(uintptr_t)ofs, *b);
+            eeprom_write_uint8_t((uint8_t *)(uintptr_t)ofs, *b);
         }
         b++;
         ofs++;

@@ -246,8 +246,8 @@ static void Log_Write_Performance()
  #endif
 
 // Write a command processing packet. Total length : 19 bytes
-//void Log_Write_Cmd(byte num, byte id, byte p1, int32_t alt, int32_t lat, int32_t lng)
-static void Log_Write_Cmd(byte num, struct Location *wp)
+//void Log_Write_Cmd(uint8_t num, uint8_t id, uint8_t p1, int32_t alt, int32_t lat, int32_t lng)
+static void Log_Write_Cmd(uint8_t num, struct Location *wp)
 {
     DataFlash.WriteByte(HEAD_BYTE1);
     DataFlash.WriteByte(HEAD_BYTE2);
@@ -261,7 +261,7 @@ static void Log_Write_Cmd(byte num, struct Location *wp)
     DataFlash.WriteByte(END_BYTE);
 }
 
-static void Log_Write_Startup(byte type)
+static void Log_Write_Startup(uint8_t type)
 {
     DataFlash.WriteByte(HEAD_BYTE1);
     DataFlash.WriteByte(HEAD_BYTE2);
@@ -320,7 +320,7 @@ static void Log_Write_Nav_Tuning()
 }
 
 // Write a mode packet. Total length : 5 bytes
-static void Log_Write_Mode(byte mode)
+static void Log_Write_Mode(uint8_t mode)
 {
     DataFlash.WriteByte(HEAD_BYTE1);
     DataFlash.WriteByte(HEAD_BYTE2);
@@ -331,7 +331,7 @@ static void Log_Write_Mode(byte mode)
 
 // Write an GPS packet. Total length : 30 bytes
 static void Log_Write_GPS(      int32_t log_Time, int32_t log_Lattitude, int32_t log_Longitude, int32_t log_gps_alt, int32_t log_mix_alt,
-                                int32_t log_Ground_Speed, int32_t log_Ground_Course, byte log_Fix, byte log_NumSats)
+                                int32_t log_Ground_Speed, int32_t log_Ground_Course, uint8_t log_Fix, uint8_t log_NumSats)
 {
     DataFlash.WriteByte(HEAD_BYTE1);
     DataFlash.WriteByte(HEAD_BYTE2);
@@ -452,7 +452,7 @@ static void Log_Read_Performance()
 // Read a command processing packet
 static void Log_Read_Cmd()
 {
-    byte logvarb;
+    uint8_t logvarb;
     int32_t logvarl;
 
     hal.uart0->printf_P(PSTR("CMD:"));
@@ -471,11 +471,11 @@ static void Log_Read_Cmd()
 
 static void Log_Read_Startup()
 {
-    byte logbyte = DataFlash.ReadByte();
+    uint8_t loguint8_t = DataFlash.ReadByte();
 
-    if (logbyte == TYPE_AIRSTART_MSG)
+    if (loguint8_t == TYPE_AIRSTART_MSG)
         hal.uart0->printf_P(PSTR("AIR START - "));
-    else if (logbyte == TYPE_GROUNDSTART_MSG)
+    else if (loguint8_t == TYPE_GROUNDSTART_MSG)
         hal.uart0->printf_P(PSTR("GROUND START - "));
     else
         hal.uart0->printf_P(PSTR("UNKNOWN STARTUP - "));
@@ -506,7 +506,7 @@ static void Log_Read_Mode()
 static void Log_Read_GPS()
 {
     int32_t l[7];
-    byte b[2];
+    uint8_t b[2];
     int16_t i;
     l[0] = DataFlash.ReadLong();
     b[0] = DataFlash.ReadByte();
@@ -564,8 +564,8 @@ static void Log_Read(int16_t start_page, int16_t end_page)
 // Read the DataFlash log memory : Packet Parser
 static int16_t Log_Read_Process(int16_t start_page, int16_t end_page)
 {
-    byte data;
-    byte log_step = 0;
+    uint8_t data;
+    uint8_t log_step = 0;
     int16_t page = start_page;
     int16_t packet_count = 0;
 
@@ -576,11 +576,11 @@ static int16_t Log_Read_Process(int16_t start_page, int16_t end_page)
                             switch(log_step)     // This is a state machine to read the packets
                             {
                             case 0:
-                                if(data == HEAD_BYTE1)  // Head byte 1
+                                if(data == HEAD_BYTE1)  // Head uint8_t 1
                                     log_step++;
                                 break;
                             case 1:
-                                if(data == HEAD_BYTE2)  // Head byte 2
+                                if(data == HEAD_BYTE2)  // Head uint8_t 2
                                     log_step++;
                                 else
                                     log_step = 0;
@@ -648,18 +648,18 @@ static int16_t Log_Read_Process(int16_t start_page, int16_t end_page)
 #else // LOGGING_ENABLED
 
 // dummy functions
-static void Log_Write_Mode(byte mode) {
+static void Log_Write_Mode(uint8_t mode) {
 }
-static void Log_Write_Startup(byte type) {
+static void Log_Write_Startup(uint8_t type) {
 }
-static void Log_Write_Cmd(byte num, struct Location *wp) {
+static void Log_Write_Cmd(uint8_t num, struct Location *wp) {
 }
 static void Log_Write_Current() {
 }
 static void Log_Write_Nav_Tuning() {
 }
 static void Log_Write_GPS(      int32_t log_Time, int32_t log_Lattitude, int32_t log_Longitude, int32_t log_gps_alt, int32_t log_mix_alt,
-                                int32_t log_Ground_Speed, int32_t log_Ground_Course, byte log_Fix, byte log_NumSats) {
+                                int32_t log_Ground_Speed, int32_t log_Ground_Course, uint8_t log_Fix, uint8_t log_NumSats) {
 }
 static void Log_Write_Performance() {
 }

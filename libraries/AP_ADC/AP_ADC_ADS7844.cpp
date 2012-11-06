@@ -108,8 +108,8 @@ void AP_ADC_ADS7844::read(uint32_t tnow)
     for (ch = 0; ch < 8; ch++) {
         uint16_t v;
 
-        v = ADC_SPI_transfer(0) << 8;                    // Read first byte
-        v |= ADC_SPI_transfer(adc_cmd[ch + 1]);          // Read second byte and send next command
+        v = ADC_SPI_transfer(0) << 8;                    // Read first uint8_t
+        v |= ADC_SPI_transfer(adc_cmd[ch + 1]);          // Read second uint8_t and send next command
 
         if (v & 0x8007) {
             // this is a 12-bit ADC, shifted by 3 bits.

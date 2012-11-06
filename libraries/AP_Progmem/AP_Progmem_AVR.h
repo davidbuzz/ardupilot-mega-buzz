@@ -65,7 +65,7 @@ static inline uintptr_t pgm_read_pointer(const void *s)
         } u;
         uint8_t        i;
         for (i=0; i< sizeof(uintptr_t); i++) {
-            u.a[i] = pgm_read_byte(i + (const prog_char *)s);
+            u.a[i] = pgm_read_uint8_t(i + (const prog_char *)s);
         }
         return u.p;
     }

@@ -67,7 +67,7 @@ AP_GPS_MTK::read(void)
     numc = _port->available();
     for (int16_t i = 0; i < numc; i++) {        // Process bytes received
 
-        // read the next byte
+        // read the next uint8_t
         data = _port->read();
 
 restart:
@@ -77,7 +77,7 @@ restart:
         //
         // If we fail to match any of the expected bytes, we
         // reset the state machine and re-consider the failed
-        // byte as the first byte of the preamble.  This
+        // uint8_t as the first uint8_t of the preamble.  This
         // improves our chances of recovering from a mismatch
         // and makes it less likely that we will be fooled by
         // the preamble appearing as data in some other message.

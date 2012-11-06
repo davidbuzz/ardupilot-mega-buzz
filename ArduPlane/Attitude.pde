@@ -464,7 +464,7 @@ static void set_servos(void)
 #endif
 }
 
-static void demo_servos(byte i) {
+static void demo_servos(uint8_t i) {
 
     while(i > 0) {
         gcs_send_text_P(SEVERITY_LOW,PSTR("Demo Servos!"));

@@ -37,7 +37,7 @@ union NumericIntType
 {
     int16_t intValue;
     uint16_t uintValue;
-    uint8_t byteValue[2];
+    uint8_t uint8_tValue[2];
 };
 
 // Constructors ////////////////////////////////////////////////////////////////
@@ -158,7 +158,7 @@ AP_OpticalFlow_ADNS3080::backup_spi_settings()
 void
 AP_OpticalFlow_ADNS3080::restore_spi_settings()
 {
-    byte temp;
+    uint8_t temp;
 
     if( _spi_bus == ADNS3080_SPIBUS_1 ) {
         // split off the two bits we need to write
@@ -178,8 +178,8 @@ AP_OpticalFlow_ADNS3080::restore_spi_settings()
 }
 
 // Read a register from the sensor
-byte
-AP_OpticalFlow_ADNS3080::read_register(byte address)
+uint8_t
+AP_OpticalFlow_ADNS3080::read_register(uint8_t address)
 {
     uint8_t result = 0;
     uint8_t junk = 0;
@@ -200,11 +200,11 @@ AP_OpticalFlow_ADNS3080::read_register(byte address)
     if( _spi_bus == ADNS3080_SPIBUS_1 ) {
         junk = SPI.transfer(address);   // send the device the register you want to read:
         delayMicroseconds(50);          // small delay
-        result = SPI.transfer(0x00);    // send a value of 0 to read the first byte returned:
+        result = SPI.transfer(0x00);    // send a value of 0 to read the first uint8_t returned:
     }else if( _spi_bus == ADNS3080_SPIBUS_3 ) {
         junk = SPI3.transfer(address);   // send the device the register you want to read:
         delayMicroseconds(50);          // small delay
-        result = SPI3.transfer(0x00);    // send a value of 0 to read the first byte returned:
+        result = SPI3.transfer(0x00);    // send a value of 0 to read the first uint8_t returned:
     }
 
     // take the chip select high to de-select:
@@ -222,9 +222,9 @@ AP_OpticalFlow_ADNS3080::read_register(byte address)
 
 // write a value to one of the sensor's registers
 void
-AP_OpticalFlow_ADNS3080::write_register(byte address, byte value)
+AP_OpticalFlow_ADNS3080::write_register(uint8_t address, uint8_t value)
 {
-    byte junk = 0;
+    uint8_t junk = 0;
 
     // get spi semaphore if required
     if( _spi_semaphore != NULL ) {
@@ -277,7 +277,7 @@ AP_OpticalFlow_ADNS3080::reset()
 void
 AP_OpticalFlow_ADNS3080::update(uint32_t now)
 {
-    byte motion_reg;
+    uint8_t motion_reg;
     surface_quality = (uint16_t)read_register(ADNS3080_SQUAL);
     delayMicroseconds(50);      // small delay
 
@@ -302,7 +302,7 @@ AP_OpticalFlow_ADNS3080::update(uint32_t now)
 void
 AP_OpticalFlow_ADNS3080::disable_serial_pullup()
 {
-    byte regVal = read_register(ADNS3080_EXTENDED_CONFIG);
+    uint8_t regVal = read_register(ADNS3080_EXTENDED_CONFIG);
     regVal = (regVal | ADNS3080_SERIALNPU_OFF);
     delayMicroseconds(50);      // small delay
     write_register(ADNS3080_EXTENDED_CONFIG, regVal);
@@ -319,7 +319,7 @@ AP_OpticalFlow_ADNS3080::get_led_always_on()
 void
 AP_OpticalFlow_ADNS3080::set_led_always_on( bool alwaysOn )
 {
-    byte regVal = read_register(ADNS3080_CONFIGURATION_BITS);
+    uint8_t regVal = read_register(ADNS3080_CONFIGURATION_BITS);
     regVal = (regVal & 0xbf) | (alwaysOn << 6);
     delayMicroseconds(50);      // small delay
     write_register(ADNS3080_CONFIGURATION_BITS, regVal);
@@ -339,7 +339,7 @@ AP_OpticalFlow_ADNS3080::get_resolution()
 void
 AP_OpticalFlow_ADNS3080::set_resolution(uint16_t resolution)
 {
-    byte regVal = read_register(ADNS3080_CONFIGURATION_BITS);
+    uint8_t regVal = read_register(ADNS3080_CONFIGURATION_BITS);
 
     if( resolution == ADNS3080_RESOLUTION_400 ) {
         regVal &= ~0x10;
@@ -360,7 +360,7 @@ AP_OpticalFlow_ADNS3080::set_resolution(uint16_t resolution)
 bool
 AP_OpticalFlow_ADNS3080::get_frame_rate_auto()
 {
-    byte regVal = read_register(ADNS3080_EXTENDED_CONFIG);
+    uint8_t regVal = read_register(ADNS3080_EXTENDED_CONFIG);
     if( (regVal & 0x01) != 0 ) {
         return false;
     }else{
@@ -372,7 +372,7 @@ AP_OpticalFlow_ADNS3080::get_frame_rate_auto()
 void
 AP_OpticalFlow_ADNS3080::set_frame_rate_auto(bool auto_frame_rate)
 {
-    byte regVal = read_register(ADNS3080_EXTENDED_CONFIG);
+    uint8_t regVal = read_register(ADNS3080_EXTENDED_CONFIG);
     delayMicroseconds(50);      // small delay
     if( auto_frame_rate == true ) {
         // set specific frame period
@@ -395,9 +395,9 @@ uint16_t
 AP_OpticalFlow_ADNS3080::get_frame_period()
 {
     NumericIntType aNum;
-    aNum.byteValue[1] = read_register(ADNS3080_FRAME_PERIOD_UPPER);
+    aNum.uint8_tValue[1] = read_register(ADNS3080_FRAME_PERIOD_UPPER);
     delayMicroseconds(50);      // small delay
-    aNum.byteValue[0] = read_register(ADNS3080_FRAME_PERIOD_LOWER);
+    aNum.uint8_tValue[0] = read_register(ADNS3080_FRAME_PERIOD_LOWER);
     return aNum.uintValue;
 }
 
@@ -413,9 +413,9 @@ AP_OpticalFlow_ADNS3080::set_frame_period(uint16_t period)
     delayMicroseconds(50);      // small delay
 
     // set specific frame period
-    write_register(ADNS3080_FRAME_PERIOD_MAX_BOUND_LOWER,aNum.byteValue[0]);
+    write_register(ADNS3080_FRAME_PERIOD_MAX_BOUND_LOWER,aNum.uint8_tValue[0]);
     delayMicroseconds(50);      // small delay
-    write_register(ADNS3080_FRAME_PERIOD_MAX_BOUND_UPPER,aNum.byteValue[1]);
+    write_register(ADNS3080_FRAME_PERIOD_MAX_BOUND_UPPER,aNum.uint8_tValue[1]);
 
 }
 
@@ -476,9 +476,9 @@ uint16_t
 AP_OpticalFlow_ADNS3080::get_shutter_speed()
 {
     NumericIntType aNum;
-    aNum.byteValue[1] = read_register(ADNS3080_SHUTTER_UPPER);
+    aNum.uint8_tValue[1] = read_register(ADNS3080_SHUTTER_UPPER);
     delayMicroseconds(50);      // small delay
-    aNum.byteValue[0] = read_register(ADNS3080_SHUTTER_LOWER);
+    aNum.uint8_tValue[0] = read_register(ADNS3080_SHUTTER_LOWER);
     return aNum.uintValue;
 }
 
@@ -495,22 +495,22 @@ AP_OpticalFlow_ADNS3080::set_shutter_speed(uint16_t shutter_speed)
     delayMicroseconds(50);      // small delay
 
     // set specific shutter speed
-    write_register(ADNS3080_SHUTTER_MAX_BOUND_LOWER,aNum.byteValue[0]);
+    write_register(ADNS3080_SHUTTER_MAX_BOUND_LOWER,aNum.uint8_tValue[0]);
     delayMicroseconds(50);      // small delay
-    write_register(ADNS3080_SHUTTER_MAX_BOUND_UPPER,aNum.byteValue[1]);
+    write_register(ADNS3080_SHUTTER_MAX_BOUND_UPPER,aNum.uint8_tValue[1]);
     delayMicroseconds(50);      // small delay
 
     // larger delay
     delay(50);
 
     // need to update frame period to cause shutter value to take effect
-    aNum.byteValue[1] = read_register(ADNS3080_FRAME_PERIOD_UPPER);
+    aNum.uint8_tValue[1] = read_register(ADNS3080_FRAME_PERIOD_UPPER);
     delayMicroseconds(50);      // small delay
-    aNum.byteValue[0] = read_register(ADNS3080_FRAME_PERIOD_LOWER);
+    aNum.uint8_tValue[0] = read_register(ADNS3080_FRAME_PERIOD_LOWER);
     delayMicroseconds(50);      // small delay
-    write_register(ADNS3080_FRAME_PERIOD_MAX_BOUND_LOWER,aNum.byteValue[0]);
+    write_register(ADNS3080_FRAME_PERIOD_MAX_BOUND_LOWER,aNum.uint8_tValue[0]);
     delayMicroseconds(50);      // small delay
-    write_register(ADNS3080_FRAME_PERIOD_MAX_BOUND_UPPER,aNum.byteValue[1]);
+    write_register(ADNS3080_FRAME_PERIOD_MAX_BOUND_UPPER,aNum.uint8_tValue[1]);
     delayMicroseconds(50);      // small delay
 }
 

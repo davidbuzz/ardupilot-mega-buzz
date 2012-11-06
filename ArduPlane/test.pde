@@ -89,7 +89,7 @@ test_eedump(uint8_t argc, const Menu::arg *argv)
     for (i = 0; i < EEPROM_MAX_ADDR; i += 16) {
         hal.uart0->printf_P(PSTR("%04x:"), i);
         for (j = 0; j < 16; j++)
-            hal.uart0->printf_P(PSTR(" %02x"), eeprom_read_byte((const uint8_t *)(i + j)));
+            hal.uart0->printf_P(PSTR(" %02x"), eeprom_read_uint8_t((const uint8_t *)(i + j)));
         hal.uart0->println();
     }
     return(0);
@@ -193,7 +193,7 @@ test_radio(uint8_t argc, const Menu::arg *argv)
 static int8_t
 test_failsafe(uint8_t argc, const Menu::arg *argv)
 {
-    byte fail_test;
+    uint8_t fail_test;
     print_hit_enter();
     for(int16_t i = 0; i < 50; i++) {
         delay(20);
@@ -320,7 +320,7 @@ test_wp(uint8_t argc, const Menu::arg *argv)
     hal.uart0->printf_P(PSTR("Hit radius: %d\n"), (int)g.waypoint_radius);
     hal.uart0->printf_P(PSTR("Loiter radius: %d\n\n"), (int)g.loiter_radius);
 
-    for(byte i = 0; i <= g.command_total; i++) {
+    for(uint8_t i = 0; i <= g.command_total; i++) {
         struct Location temp = get_cmd_with_index(i);
         test_wp_print(&temp, i);
     }
@@ -329,7 +329,7 @@ test_wp(uint8_t argc, const Menu::arg *argv)
 }
 
 static void
-test_wp_print(struct Location *cmd, byte wp_index)
+test_wp_print(struct Location *cmd, uint8_t wp_index)
 {
     hal.uart0->printf_P(PSTR("command #: %d id:%d options:%d p1:%d p2:%ld p3:%ld p4:%ld \n"),
                     (int)wp_index,
@@ -372,7 +372,7 @@ test_modeswitch(uint8_t argc, const Menu::arg *argv)
 
     while(1) {
         delay(20);
-        byte switchPosition = readSwitch();
+        uint8_t switchPosition = readSwitch();
         if (oldSwitchPosition != switchPosition) {
             hal.uart0->printf_P(PSTR("Position %d\n"),  (int)switchPosition);
             oldSwitchPosition = switchPosition;
