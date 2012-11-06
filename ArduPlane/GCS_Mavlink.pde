@@ -494,6 +494,7 @@ bool telemetry_delayed(mavlink_channel_t chan)
 */
 
 
+/* 
 // try to send a message, return false if it won't fit in the serial tx buffer
 static bool mavlink_try_send_message(mavlink_channel_t chan, enum ap_message id, uint16_t packet_drops)
 {
@@ -642,6 +643,7 @@ static bool mavlink_try_send_message(mavlink_channel_t chan, enum ap_message id,
     }
     return true;
 }
+*/
 
 
 #define MAX_DEFERRED_MESSAGES MSG_RETRY_DEFERRED
@@ -659,11 +661,11 @@ static void mavlink_send_message(mavlink_channel_t chan, enum ap_message id, uin
 
     // see if we can send the deferred messages, if any
     while (q->num_deferred_messages != 0) {
-        if (!mavlink_try_send_message(chan,
-                                      q->deferred_messages[q->next_deferred_message],
-                                      packet_drops)) {
-            break;
-        }
+       // if (!mavlink_try_send_message(chan,
+       //                               q->deferred_messages[q->next_deferred_message],
+       //                               packet_drops)) {
+       //     break;
+       // }
         q->next_deferred_message++;
         if (q->next_deferred_message == MAX_DEFERRED_MESSAGES) {
             q->next_deferred_message = 0;
@@ -687,6 +689,7 @@ static void mavlink_send_message(mavlink_channel_t chan, enum ap_message id, uin
         }
     }
 
+		/* 
     if (q->num_deferred_messages != 0 ||
         !mavlink_try_send_message(chan, id, packet_drops)) {
         // can't send it now, so defer it
@@ -701,6 +704,7 @@ static void mavlink_send_message(mavlink_channel_t chan, enum ap_message id, uin
         q->deferred_messages[nextid] = id;
         q->num_deferred_messages++;
     }
+    */
 }
 
 void mavlink_send_text(mavlink_channel_t chan, gcs_severity severity, const char *str)
