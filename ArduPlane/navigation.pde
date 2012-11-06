@@ -62,7 +62,7 @@ void calc_distance_error()
 
 static void calc_airspeed_errors()
 {
-    float aspeed_cm = airspeed.get_airspeed_cm();
+    float aspeed_cm = 0;//airspeed.get_airspeed_cm();
 
     // Normal airspeed target
     target_airspeed_cm = g.airspeed_cruise_cm;
