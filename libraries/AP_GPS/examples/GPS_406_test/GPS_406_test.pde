@@ -23,7 +23,7 @@ void setup()
     tone(A6, 1000, 200);
 
     Serial.begin(38400, 16, 128);
-    Serial1.begin(57600, 128, 16);
+    hal.uart1->begin(57600, 128, 16);
     stderr = stdout;
     gps.print_errors = true;
 

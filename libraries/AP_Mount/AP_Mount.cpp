@@ -590,33 +590,33 @@ AP_Mount::stabilize()
  *  /// For testing and development. Called in the medium loop.
  *  void
  *  AP_Mount::debug_output()
- *  {   Serial3.print("current   -     ");
- *       Serial3.print("lat ");
- *       Serial3.print(_current_loc->lat);
- *       Serial3.print(",lon ");
- *       Serial3.print(_current_loc->lng);
- *       Serial3.print(",alt ");
- *       Serial3.println(_current_loc->alt);
+ *  {   hal.uart3->print("current   -     ");
+ *       hal.uart3->print("lat ");
+ *       hal.uart3->print(_current_loc->lat);
+ *       hal.uart3->print(",lon ");
+ *       hal.uart3->print(_current_loc->lng);
+ *       hal.uart3->print(",alt ");
+ *       hal.uart3->println(_current_loc->alt);
  *
- *       Serial3.print("gps       -     ");
- *       Serial3.print("lat ");
- *       Serial3.print(_gps->latitude);
- *       Serial3.print(",lon ");
- *       Serial3.print(_gps->longitude);
- *       Serial3.print(",alt ");
- *       Serial3.print(_gps->altitude);
- *       Serial3.println();
+ *       hal.uart3->print("gps       -     ");
+ *       hal.uart3->print("lat ");
+ *       hal.uart3->print(_gps->latitude);
+ *       hal.uart3->print(",lon ");
+ *       hal.uart3->print(_gps->longitude);
+ *       hal.uart3->print(",alt ");
+ *       hal.uart3->print(_gps->altitude);
+ *       hal.uart3->println();
  *
- *       Serial3.print("target   -      ");
- *       Serial3.print("lat ");
- *       Serial3.print(_target_GPS_location.lat);
- *       Serial3.print(",lon ");
- *       Serial3.print(_target_GPS_location.lng);
- *       Serial3.print(",alt ");
- *       Serial3.print(_target_GPS_location.alt);
- *       Serial3.print(" hdg to targ ");
- *       Serial3.print(degrees(_pan_control_angle));
- *       Serial3.println();
+ *       hal.uart3->print("target   -      ");
+ *       hal.uart3->print("lat ");
+ *       hal.uart3->print(_target_GPS_location.lat);
+ *       hal.uart3->print(",lon ");
+ *       hal.uart3->print(_target_GPS_location.lng);
+ *       hal.uart3->print(",alt ");
+ *       hal.uart3->print(_target_GPS_location.alt);
+ *       hal.uart3->print(" hdg to targ ");
+ *       hal.uart3->print(degrees(_pan_control_angle));
+ *       hal.uart3->println();
  *  }
  */
 /// saturate to the closest angle limit if outside of [min max] angle interval

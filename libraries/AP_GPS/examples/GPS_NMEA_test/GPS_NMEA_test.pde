@@ -37,13 +37,13 @@ const uint8_t sirf_to_nmea[] = { 0xa0, 0xa2, // preamble
 void setup()
 {
     Serial.begin(38400);
-    Serial1.begin(38400);
+    hal.uart1->begin(38400);
 
     // try to coerce a SiRF unit that's been traumatized by
     // AP_GPS_AUTO back into NMEA mode so that we can test
     // it.
     for (uint8_t i = 0; i < sizeof(sirf_to_nmea); i++)
-        Serial1.write(sirf_to_nmea[i]);
+        hal.uart1->write(sirf_to_nmea[i]);
 
     Serial.println("GPS NMEA library test");
     gps->init();

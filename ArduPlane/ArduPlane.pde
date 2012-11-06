@@ -942,13 +942,13 @@ static void medium_loop()
         }
 #endif
 /*{
- *  Serial.print(ahrs.roll_sensor, DEC);	Serial.printf_P(PSTR("\t"));
- *  Serial.print(ahrs.pitch_sensor, DEC);	Serial.printf_P(PSTR("\t"));
- *  Serial.print(ahrs.yaw_sensor, DEC);	Serial.printf_P(PSTR("\t"));
+ *  hal.uart0->print(ahrs.roll_sensor, DEC);	hal.uart0->printf_P(PSTR("\t"));
+ *  hal.uart0->print(ahrs.pitch_sensor, DEC);	hal.uart0->printf_P(PSTR("\t"));
+ *  hal.uart0->print(ahrs.yaw_sensor, DEC);	hal.uart0->printf_P(PSTR("\t"));
  *  Vector3f tempaccel = imu.get_accel();
- *  Serial.print(tempaccel.x, DEC);	Serial.printf_P(PSTR("\t"));
- *  Serial.print(tempaccel.y, DEC);	Serial.printf_P(PSTR("\t"));
- *  Serial.println(tempaccel.z, DEC);
+ *  hal.uart0->print(tempaccel.x, DEC);	hal.uart0->printf_P(PSTR("\t"));
+ *  hal.uart0->print(tempaccel.y, DEC);	hal.uart0->printf_P(PSTR("\t"));
+ *  hal.uart0->println(tempaccel.z, DEC);
  *  }*/
 
         break;

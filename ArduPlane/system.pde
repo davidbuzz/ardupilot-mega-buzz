@@ -19,7 +19,7 @@ static int8_t   planner_mode(uint8_t argc, const Menu::arg *argv);      // in pl
 // printf_P is a version of print_f that reads from flash memory
 static int8_t   main_menu_help(uint8_t argc, const Menu::arg *argv)
 {
-    Serial.printf_P(PSTR("Commands:\n"
+    hal.uart0->printf_P(PSTR("Commands:\n"
                          "  logs        log readback/setup mode\n"
                          "  setup       setup mode\n"
                          "  test        test mode\n"
@@ -81,14 +81,14 @@ static void init_ardupilot()
     // The console port buffers are defined to be sufficiently large to support
     // the MAVLink protocol efficiently
     //
-    Serial.begin(SERIAL0_BAUD, 128, SERIAL_BUFSIZE);
+    hal.uart0->begin(SERIAL0_BAUD, 128, SERIAL_BUFSIZE);
 
     // GPS serial port.
     //
     // standard gps running
-    Serial1.begin(38400, 256, 16);
+    hal.uart1->begin(38400, 256, 16);
 
-    Serial.printf_P(PSTR("\n\nInit " THISFIRMWARE
+    hal.uart0->printf_P(PSTR("\n\nInit " THISFIRMWARE
                          "\n\nFree RAM: %u\n"),
                     memcheck_available_memory());
 
@@ -133,11 +133,11 @@ static void init_ardupilot()
     if (!usb_connected) {
         // we are not connected via USB, re-init UART0 with right
         // baud rate
-        Serial.begin(map_baudrate(g.serial3_baud, SERIAL3_BAUD));
+        hal.uart0->begin(map_baudrate(g.serial3_baud, SERIAL3_BAUD));
     }
 #else
     // we have a 2nd serial port for telemetry
-    Serial3.begin(map_baudrate(g.serial3_baud, SERIAL3_BAUD), 128, SERIAL_BUFSIZE);
+    hal.uart3->begin(map_baudrate(g.serial3_baud, SERIAL3_BAUD), 128, SERIAL_BUFSIZE);
     gcs3.init(&Serial3);
 #endif
 
@@ -171,7 +171,7 @@ static void init_ardupilot()
     if (g.compass_enabled==true) {
         compass.set_orientation(MAG_ORIENTATION);                                                       // set compass's orientation on aircraft
         if (!compass.init() || !compass.read()) {
-            Serial.println_P(PSTR("Compass initialisation failed!"));
+            hal.uart0->println_P(PSTR("Compass initialisation failed!"));
             g.compass_enabled = false;
         } else {
             ahrs.set_compass(&compass);
@@ -222,7 +222,7 @@ static void init_ardupilot()
      */
     timer_scheduler.set_failsafe(failsafe_check);
 
-    Serial.printf_P(PSTR("\nPress ENTER 3 times to start interactive setup\n\n"));
+    hal.uart0->printf_P(PSTR("\nPress ENTER 3 times to start interactive setup\n\n"));
 
     if (ENABLE_AIR_START == 1) {
         // Perform an air start and get back to flying
@@ -310,9 +310,9 @@ static void startup_ground(void)
     // we don't want writes to the serial port to cause us to pause
     // mid-flight, so set the serial ports non-blocking once we are
     // ready to fly
-    Serial.set_blocking_writes(false);
+    hal.uart0->set_blocking_writes(false);
     if (gcs3.initialised) {
-        Serial3.set_blocking_writes(false);
+        hal.uart3->set_blocking_writes(false);
     }
 
     gcs_send_text_P(SEVERITY_LOW,PSTR("\n\n Ready to FLY."));
@@ -508,7 +508,7 @@ static uint32_t map_baudrate(int8_t rate, uint32_t default_baud)
     case 111:  return 111100;
     case 115:  return 115200;
     }
-    Serial.println_P(PSTR("Invalid SERIAL3_BAUD"));
+    hal.uart0->println_P(PSTR("Invalid SERIAL3_BAUD"));
     return default_baud;
 }
 
@@ -524,9 +524,9 @@ static void check_usb_mux(void)
     // the user has switched to/from the telemetry port
     usb_connected = usb_check;
     if (usb_connected) {
-        Serial.begin(SERIAL0_BAUD);
+        hal.uart0->begin(SERIAL0_BAUD);
     } else {
-        Serial.begin(map_baudrate(g.serial3_baud, SERIAL3_BAUD));
+        hal.uart0->begin(map_baudrate(g.serial3_baud, SERIAL3_BAUD));
     }
 }
 #endif
@@ -558,7 +558,7 @@ uint16_t board_voltage(void)
  */
 static void reboot_apm(void)
 {
-    Serial.println_P(PSTR("REBOOTING"));
+    hal.uart0->println_P(PSTR("REBOOTING"));
     delay(100);
     // see http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1250663814/
     // for the method
@@ -574,36 +574,36 @@ print_flight_mode(uint8_t mode)
 {
     switch (mode) {
     case MANUAL:
-        Serial.println_P(PSTR("Manual"));
+        hal.uart0->println_P(PSTR("Manual"));
         break;
     case CIRCLE:
-        Serial.println_P(PSTR("Circle"));
+        hal.uart0->println_P(PSTR("Circle"));
         break;
     case STABILIZE:
-        Serial.println_P(PSTR("Stabilize"));
+        hal.uart0->println_P(PSTR("Stabilize"));
         break;
     case FLY_BY_WIRE_A:
-        Serial.println_P(PSTR("FBW_A"));
+        hal.uart0->println_P(PSTR("FBW_A"));
         break;
     case FLY_BY_WIRE_B:
-        Serial.println_P(PSTR("FBW_B"));
+        hal.uart0->println_P(PSTR("FBW_B"));
         break;
     case AUTO:
-        Serial.println_P(PSTR("AUTO"));
+        hal.uart0->println_P(PSTR("AUTO"));
         break;
     case RTL:
-        Serial.println_P(PSTR("RTL"));
+        hal.uart0->println_P(PSTR("RTL"));
         break;
     case LOITER:
-        Serial.println_P(PSTR("Loiter"));
+        hal.uart0->println_P(PSTR("Loiter"));
         break;
     default:
-        Serial.println_P(PSTR("---"));
+        hal.uart0->println_P(PSTR("---"));
         break;
     }
 }
 
 static void print_comma(void)
 {
-    Serial.print_P(PSTR(","));
+    hal.uart0->print_P(PSTR(","));
 }

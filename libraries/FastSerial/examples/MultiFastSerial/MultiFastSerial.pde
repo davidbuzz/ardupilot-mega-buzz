@@ -46,9 +46,9 @@ void setup(void)
         // Set the speed for our replacement serial port.
         //
         Serial.begin(115200);
-        Serial1.begin(115200);
-        Serial2.begin(115200);
-        Serial3.begin(115200);
+        hal.uart1->begin(115200);
+        hal.uart2->begin(115200);
+        hal.uart3->begin(115200);
 
         do {
           Serial.print("hello serial0 millis: ");
@@ -56,19 +56,19 @@ void setup(void)
         } while (millis() < 1000);
         
         do {
-          Serial1.println("hello serial1");
+          hal.uart1->println("hello serial1");
           Serial.print("hello serial0 millis: ");
           Serial.println(millis(), DEC);
         } while (millis() < 2000);
 
         do {
-          Serial2.println("hello serial2");
+          hal.uart2->println("hello serial2");
           Serial.print("hello serial0 millis: ");
           Serial.println(millis(), DEC);
         } while (millis() < 3000);
 
         do {
-          Serial3.println("hello serial3");
+          hal.uart3->println("hello serial3");
           Serial.print("hello serial0 millis: ");
           Serial.println(millis(), DEC);
         } while (millis() < 4000);
@@ -87,15 +87,15 @@ loop(void)
     if (-1 != c)
         Serial.write(c);
 
-    c = Serial1.read();
+    c = hal.uart1->read();
     if (-1 != c)
-        Serial1.write(c);
+        hal.uart1->write(c);
 
-    c = Serial2.read();
+    c = hal.uart2->read();
     if (-1 != c)
-        Serial2.write(c);
+        hal.uart2->write(c);
     
-    c = Serial3.read();
+    c = hal.uart3->read();
     if (-1 != c)
-        Serial3.write(c);
+        hal.uart3->write(c);
 }
