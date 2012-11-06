@@ -11,6 +11,11 @@ static bool mavlink_active;
 
 // prototype this for use inside the GCS class
 void gcs_send_text_fmt(const prog_char_t *fmt, ...);
+void gcs_send_text_fmt(const char *fmt, ...);
+
+static void gcs_send_text_P(gcs_severity severity, const prog_char_t *str);
+static void gcs_send_text_P(gcs_severity severity, const char *str);
+
 
 /*
  *  !!NOTE!!
@@ -2118,6 +2123,14 @@ static void gcs_send_text_P(gcs_severity severity, const prog_char_t *str)
     }
 }
 
+static void gcs_send_text_P(gcs_severity severity, const char *str)
+{
+    gcs0.send_text(severity, str);
+    if (gcs3.initialised) {
+        gcs3.send_text(severity, str);
+    }
+}
+
 /*
  *  send a low priority formatted message to the GCS
  *  only one fits in the queue, so if you send more than one before the
@@ -2130,6 +2143,27 @@ void gcs_send_text_fmt(const prog_char_t *fmt, ...)
     uint8_t i;
     for (i=0; i<sizeof(fmtstr)-1; i++) {
         fmtstr[i] = pgm_read_uint8_t((const prog_char *)(fmt++));
+        if (fmtstr[i] == 0) break;
+    }
+    fmtstr[i] = 0;
+    gcs0.pending_status.severity = (uint8_t)SEVERITY_LOW;
+    va_start(ap, fmt);
+    vsnprintf((char *)gcs0.pending_status.text, sizeof(gcs0.pending_status.text), fmtstr, ap);
+    va_end(ap);
+    gcs3.pending_status = gcs0.pending_status;
+    mavlink_send_message(MAVLINK_COMM_0, MSG_STATUSTEXT, 0);
+    if (gcs3.initialised) {
+        mavlink_send_message(MAVLINK_COMM_1, MSG_STATUSTEXT, 0);
+    }
+}
+
+void gcs_send_text_fmt(const char *fmt, ...)
+{
+    char fmtstr[40];
+    va_list ap;
+    uint8_t i;
+    for (i=0; i<sizeof(fmtstr)-1; i++) {
+        fmtstr[i] = pgm_read_uint8_t((const *)(fmt++));
         if (fmtstr[i] == 0) break;
     }
     fmtstr[i] = 0;
