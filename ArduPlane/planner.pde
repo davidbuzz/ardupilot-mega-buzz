@@ -25,11 +25,11 @@ planner_mode(uint8_t argc, const Menu::arg *argv)
 static int8_t
 planner_gcs(uint8_t argc, const Menu::arg *argv)
 {
-    gcs0.init(&Serial);
+    //gcs0.init(&Serial);
 
 #if USB_MUX_PIN < 0
     // we don't have gcs3 if we have the USB mux setup
-    gcs3.init(&Serial3);
+    //gcs3.init(&Serial3);
 #endif
 
     int16_t loopcount = 0;
