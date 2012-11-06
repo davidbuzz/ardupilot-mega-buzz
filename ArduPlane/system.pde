@@ -101,8 +101,8 @@ static void init_ardupilot()
     // initially set a fast I2c speed, and drop it on first failures
     I2c.setSpeed(true);
 #endif
-    SPI.begin();
-    SPI.setClockDivider(SPI_CLOCK_DIV16); // 1MHZ SPI rate
+   /// SPI.begin();
+   // SPI.setClockDivider(SPI_CLOCK_DIV16); // 1MHZ SPI rate
     //
     // Initialize the ISR registry.
     //
@@ -115,7 +115,7 @@ static void init_ardupilot()
     timer_scheduler.init( &isr_registry );
 
     // initialise the analog port reader
-    AP_AnalogSource_Arduino::init_timer(&timer_scheduler);
+    //AP_AnalogSource_Arduino::init_timer(&timer_scheduler);
 
     //
     // Check the EEPROM format version before loading any parameters from EEPROM.
@@ -127,7 +127,7 @@ static void init_ardupilot()
     g.num_resets.set_and_save(g.num_resets+1);
 
     // init the GCS
-    gcs0.init(&Serial);
+    //gcs0.init(&Serial);
 
 #if USB_MUX_PIN > 0
     if (!usb_connected) {
@@ -138,7 +138,7 @@ static void init_ardupilot()
 #else
     // we have a 2nd serial port for telemetry
     hal.uart3->begin(map_baudrate(g.serial3_baud, SERIAL3_BAUD), 128, SERIAL_BUFSIZE);
-    gcs3.init(&Serial3);
+    //gcs3.init(&Serial3);
 #endif
 
     mavlink_system.sysid = g.sysid_this_mav;
@@ -160,13 +160,13 @@ static void init_ardupilot()
 #if HIL_MODE != HIL_MODE_ATTITUDE
 
  #if CONFIG_ADC == ENABLED
-    adc.Init(&timer_scheduler);      // APM ADC library initialization
+    //adc.Init(&timer_scheduler);      // APM ADC library initialization
  #endif
 
     // initialise the analog port reader
-    AP_AnalogSource_Arduino::init_timer(&timer_scheduler);
+    //AP_AnalogSource_Arduino::init_timer(&timer_scheduler);
 
-    barometer.init(&timer_scheduler);
+    //barometer.init(&timer_scheduler);
 
     if (g.compass_enabled==true) {
         compass.set_orientation(MAG_ORIENTATION);                                                       // set compass's orientation on aircraft
@@ -180,7 +180,7 @@ static void init_ardupilot()
 #endif
 
     // give AHRS the airspeed sensor
-    ahrs.set_airspeed(&airspeed);
+    //ahrs.set_airspeed(&airspeed);
 
 #if APM_CONTROL == ENABLED
     // the axis controllers need access to the AHRS system
@@ -200,7 +200,7 @@ static void init_ardupilot()
 
     rc_override_active = APM_RC.setHIL(rc_override);                    // Set initial values for no override
 
-    RC_Channel::set_apm_rc( &APM_RC ); // Provide reference to RC outputs.
+    //RC_Channel::set_apm_rc( &APM_RC ); // Provide reference to RC outputs.
     init_rc_in();               // sets up rc channels from radio
     init_rc_out();              // sets up the timer libs
 
@@ -547,8 +547,8 @@ void flash_leds(bool on)
  */
 uint16_t board_voltage(void)
 {
-    static AP_AnalogSource_Arduino vcc(ANALOG_PIN_VCC);
-    return vcc.read_vcc();
+    //static AP_AnalogSource_Arduino vcc(ANALOG_PIN_VCC);
+    return 5;//vcc.read_vcc();
 }
 
 
