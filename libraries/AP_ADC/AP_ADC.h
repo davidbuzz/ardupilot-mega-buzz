@@ -49,7 +49,9 @@ public:
 private:
 };
 
-#include "AP_ADC_ADS7844.h"
-#include "AP_ADC_HIL.h"
+//#include "AP_ADC_ADS7844.h"
+//#include "AP_ADC_HIL.h"
+#include "AP_ADC_PX4.h"
+
 
 #endif

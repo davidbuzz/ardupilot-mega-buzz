@@ -1,5 +1,5 @@
 
-#include "AP_AnalogSource_ADC.h"
+#include "AP_ADC_AnalogSource.h"
 
 float AP_ADC_AnalogSource::read() {
     float fullscale = _adc->Ch(_ch);
