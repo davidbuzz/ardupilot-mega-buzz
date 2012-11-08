@@ -38,7 +38,13 @@ static void init_rc_in()
     //set auxiliary ranges
 #if CONFIG_APM_HARDWARE == APM_HARDWARE_APM1
     update_aux_servo_function(&g.rc_5, &g.rc_6, &g.rc_7, &g.rc_8);
-#else
+#endif
+
+#if CONFIG_APM_HARDWARE == APM_HARDWARE_PX4
+    update_aux_servo_function(&g.rc_5, &g.rc_6, &g.rc_7, &g.rc_8);
+#endif
+
+#if CONFIG_APM_HARDWARE == APM_HARDWARE_APM2
     update_aux_servo_function(&g.rc_5, &g.rc_6, &g.rc_7, &g.rc_8, &g.rc_9, &g.rc_10, &g.rc_11);
 #endif
 }
@@ -64,10 +70,15 @@ static void init_rc_out()
     APM_RC.OutputCh(CH_7,   g.rc_7.radio_trim);
     APM_RC.OutputCh(CH_8,   g.rc_8.radio_trim);
 
-#if CONFIG_APM_HARDWARE != APM_HARDWARE_APM1
+#if CONFIG_APM_HARDWARE == APM_HARDWARE_APM2
     APM_RC.OutputCh(CH_9,   g.rc_9.radio_trim);
     APM_RC.OutputCh(CH_10,  g.rc_10.radio_trim);
     APM_RC.OutputCh(CH_11,  g.rc_11.radio_trim);
+#endif
+#if CONFIG_APM_HARDWARE == APM_HARDWARE_PX4
+//    APM_RC.OutputCh(CH_9,   g.rc_9.radio_trim);
+  //  APM_RC.OutputCh(CH_10,  g.rc_10.radio_trim);
+    //APM_RC.OutputCh(CH_11,  g.rc_11.radio_trim);
 #endif
 }
 
