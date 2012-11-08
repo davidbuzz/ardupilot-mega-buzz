@@ -20,20 +20,22 @@
  */
 #include "APM_RC_PX4.h"
 
-#//include <avr/interrupt.h>
-#//if defined(ARDUINO) && ARDUINO >= 100
- //#include "Arduino.h"
-#//else
- //#include "WProgram.h"
-#//endif
+/*
+#include <avr/interrupt.h>
+#if defined(ARDUINO) && ARDUINO >= 100
+ #include "Arduino.h"
+#else
+ #include "WProgram.h"
+#endif
 
-#//if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
- //# error Please check the Tools/Board menu to ensure you have selected Arduino Mega as your target.
-#//else
-if true
+#if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
+ # error Please check the Tools/Board menu to ensure you have selected Arduino Mega as your target.
+#else
+*/
+#if true
 
 // Variable definition for Input Capture interrupt
-volatile uint16_t APM_RC_PX4::_PWM_RAW[NUM_CHANNELS] = {2400,2400,2400,2400,2400,2400,2400,2400};
+volatile uint16_t APM_RC_PX4::_PWM_RAW[NUM_CHANNELS] = {2400,2400,2400,2400,2400,2400,2400,2400,2400,2400,2400};
 volatile uint8_t APM_RC_PX4::_radio_status=0;
 
 /****************************************************
@@ -47,12 +49,12 @@ void APM_RC_PX4::_timer4_capt_cb(void)
     uint16_t Pulse;
     uint16_t Pulse_Width;
 
-    Pulse=ICR4;
+   // Pulse=ICR4;
     if (Pulse<ICR4_old) {                     // Take care of the overflow of Timer4 (TOP=40000)
-        Pulse_Width=(Pulse + 40000)-ICR4_old; // Calculating pulse
+     //   Pulse_Width=(Pulse + 40000)-ICR4_old; // Calculating pulse
     }
     else {
-        Pulse_Width=Pulse-ICR4_old;           // Calculating pulse
+     //   Pulse_Width=Pulse-ICR4_old;           // Calculating pulse
     }
 
     if (Pulse_Width>8000) {                   // SYNC pulse?
@@ -139,6 +141,9 @@ void APM_RC_PX4::Init( Arduino_Mega_ISR_Registry * isr_reg )
     
     */
 }
+
+#define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
+
 
 void APM_RC_PX4::OutputCh(uint8_t ch, uint16_t pwm)
 {
