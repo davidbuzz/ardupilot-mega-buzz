@@ -340,5 +340,6 @@ static bool geofence_stickmixing(void) {
 static bool geofence_enabled(void) {
     return false;
 }
+static void set_fence_point_with_index(Vector2l &point, unsigned i) { } 
 
 #endif // GEOFENCE_ENABLED
