@@ -58,8 +58,9 @@ protected:
 
 
 
-#include "APM_RC_APM1.h"
-#include "APM_RC_APM2.h"
+//#include "APM_RC_APM1.h"  not for PX4
+//#include "APM_RC_APM2.h"
+#include "APM_RC_PX4.h"
 
 
 #endif
