@@ -60,7 +60,7 @@ void pinMode(uint8_t, uint8_t) {
 	
 }
 
-static inline uint8_t pgm_read_uint8_t(const prog_char * s) { return (uint8_t)*s; }
+static inline uint8_t pgm_read_uint8_t(const char * s) { return (uint8_t)*s; }
 
 
 #define min(a,b) ((a)<(b)?(a):(b))
