@@ -29,6 +29,25 @@
 #include <nuttx/config.h>
 #include <stdio.h>
 #include <errno.h>
+#include <math.h>
+
+#include <unistd.h>
+//#include <stdio.h>
+//#include <string.h>
+//#include "avr/pgmspace.h"
+//#include <BetterStream.h>
+#include <sys/time.h>
+#include <signal.h>
+//#include "desktop.h"
+
+// move a bunch of arduino core things out ot a header.  can't in-line them here 
+// or the preprocessor thinks we are the first line of actual code! 
+#include "not_atmel.h"
+
+
+//#include "pgmspace.h"
+#include <AP_Progmem.h>
+
 
 
 #include <AP_Math.h> // must be before AP_HAL*
@@ -45,28 +64,8 @@
 
 //const AP_HAL::HAL& hal = AP_HAL_PX4_Instance;
 
-#include <AP_Progmem.h>
-
-#include <math.h>
 
 
-
-//#include "pgmspace.h"
-
-
-
-#include <unistd.h>
-//#include <stdio.h>
-//#include <string.h>
-//#include "avr/pgmspace.h"
-//#include <BetterStream.h>
-#include <sys/time.h>
-#include <signal.h>
-//#include "desktop.h"
-
-// move a bunch of arduino core things out ot a header.  can't in-line them here 
-// or the preprocessor thinks we are the first line of actual code! 
-#include "not_atmel.h"
 
 // Libraries
 //#include <FastSerial.h>
@@ -234,9 +233,13 @@ static AP_Int8          *flight_modes = &g.flight_mode1;
 #if HIL_MODE == HIL_MODE_DISABLED
 
 // real sensors
- #if CONFIG_ADC == ENABLED
-static AP_ADC_ADS7844 adc;
- #endif
+// #if CONFIG_ADC == ENABLED
+// static AP_ADC_ADS7844 adc;
+// #endif
+ 
+#if CONFIG_APM_HARDWARE == APM_HARDWARE_PX4 
+  static AP_ADC_PX4 adc;
+#endif
 
  #ifdef DESKTOP_BUILD
 AP_Baro_BMP085_HIL barometer;
@@ -1029,9 +1032,14 @@ static void slow_loop()
 
 #if CONFIG_APM_HARDWARE == APM_HARDWARE_APM1
         update_aux_servo_function(&g.rc_5, &g.rc_6, &g.rc_7, &g.rc_8);
-#else
+#endif
+#if CONFIG_APM_HARDWARE == APM_HARDWARE_PX4
+        update_aux_servo_function(&g.rc_5, &g.rc_6, &g.rc_7, &g.rc_8);
+#endif        
+#if CONFIG_APM_HARDWARE == APM_HARDWARE_APM2
         update_aux_servo_function(&g.rc_5, &g.rc_6, &g.rc_7, &g.rc_8, &g.rc_9, &g.rc_10, &g.rc_11);
 #endif
+
         enable_aux_servos();
 
 #if MOUNT == ENABLED
