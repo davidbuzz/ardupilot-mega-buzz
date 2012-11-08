@@ -286,7 +286,7 @@ static void  send_gps_raw(mavlink_channel_t chan)
         g_gps->num_sats);
 }
 
-static void NOINLINE send_servo_out(mavlink_channel_t chan)
+static void  send_servo_out(mavlink_channel_t chan)
 {
     // normalized values scaled to -10000 to 10000
     // This is used for HIL.  Do not change without discussing with
@@ -306,7 +306,7 @@ static void NOINLINE send_servo_out(mavlink_channel_t chan)
         receiver_rssi);
 }
 
-static void NOINLINE send_radio_in(mavlink_channel_t chan)
+static void  send_radio_in(mavlink_channel_t chan)
 {
     mavlink_msg_rc_channels_raw_send(
         chan,
@@ -323,7 +323,7 @@ static void NOINLINE send_radio_in(mavlink_channel_t chan)
         receiver_rssi);
 }
 
-static void NOINLINE send_radio_out(mavlink_channel_t chan)
+static void  send_radio_out(mavlink_channel_t chan)
 {
     mavlink_msg_servo_output_raw_send(
         chan,
@@ -339,7 +339,7 @@ static void NOINLINE send_radio_out(mavlink_channel_t chan)
         APM_RC.OutputCh_current(7));
 }
 
-static void NOINLINE send_vfr_hud(mavlink_channel_t chan)
+static void  send_vfr_hud(mavlink_channel_t chan)
 {
     float aspeed;
     //if (airspeed.enabled()) {
@@ -359,7 +359,7 @@ static void NOINLINE send_vfr_hud(mavlink_channel_t chan)
 }
 
 #if HIL_MODE != HIL_MODE_ATTITUDE
-static void NOINLINE send_raw_imu1(mavlink_channel_t chan)
+static void  send_raw_imu1(mavlink_channel_t chan)
 {
     Vector3f accel = imu.get_accel();
     Vector3f gyro = imu.get_gyro();
@@ -378,7 +378,7 @@ static void NOINLINE send_raw_imu1(mavlink_channel_t chan)
         compass.mag_z);
 }
 
-static void NOINLINE send_raw_imu2(mavlink_channel_t chan)
+static void  send_raw_imu2(mavlink_channel_t chan)
 {
     int32_t pressure = barometer.get_pressure();
     mavlink_msg_scaled_pressure_send(
@@ -389,7 +389,7 @@ static void NOINLINE send_raw_imu2(mavlink_channel_t chan)
         barometer.get_temperature());
 }
 
-static void NOINLINE send_raw_imu3(mavlink_channel_t chan)
+static void  send_raw_imu3(mavlink_channel_t chan)
 {
     Vector3f mag_offsets = compass.get_offsets();
 
