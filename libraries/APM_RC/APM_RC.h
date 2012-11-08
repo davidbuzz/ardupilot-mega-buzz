@@ -22,7 +22,7 @@
 #define CH_11 10
 
 
-#define NUM_CHANNELS 8
+#define NUM_CHANNELS 11
 
 
 
