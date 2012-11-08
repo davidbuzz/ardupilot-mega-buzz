@@ -27,8 +27,18 @@
 #include <stdio.h>
 #include <errno.h>
 
+
+#include <AP_Math.h> // must be before AP_HAL*
+
 #include <AP_HAL.h>
 #include <AP_HAL_PX4.h>
+
+// Local modules
+#include "defines.h"
+
+#include <GCS_MAVLink.h>
+//#include "GCS.h"
+
 
 //const AP_HAL::HAL& hal = AP_HAL_PX4_Instance;
 
@@ -36,6 +46,10 @@
 
 #include <math.h>
 
+
+//#include "pgmspace.h"
+
+static inline uint8_t pgm_read_uint8_t(const prog_char * s) { return (uint8_t)*s; }
 
 
 //#include "WProgram.h"
@@ -92,6 +106,8 @@ void delay(long unsigned msec)
 	delayMicroseconds(msec*1000);
 }
 
+
+
 //typedef uint8_t uint8_t;
 
 #define HIGH 0x1
@@ -115,6 +131,7 @@ void pinMode(uint8_t, uint8_t) {
 //#define radians(deg) ((deg)*DEG_TO_RAD)
 //#define degrees(rad) ((rad)*RAD_TO_DEG)
 //#define sq(x) ((x)*(x))
+
 
 
 // Libraries
@@ -151,6 +168,11 @@ void pinMode(uint8_t, uint8_t) {
 #include <AP_Airspeed.h>
 #include <memcheck.h>
 
+
+//#include <PID.h>
+//#include <AP_PID.h>
+
+
 // optional new controller library
 #if APM_CONTROL == ENABLED
 //#include <APM_Control.h>
@@ -159,12 +181,11 @@ void pinMode(uint8_t, uint8_t) {
 // Configuration
 #include "config.h"
 
-#include <GCS_MAVLink.h>    // MAVLink GCS definitions
+//#include <GCS_MAVLink.h>    // MAVLink GCS definitions
 
 #include <AP_Mount.h>           // Camera/Antenna mount
 
-// Local modules
-#include "defines.h"
+
 #include "Parameters.h"
 #include "GCS.h"
 
