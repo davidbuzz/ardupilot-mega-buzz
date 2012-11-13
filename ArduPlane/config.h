@@ -109,6 +109,7 @@
 #define OBC_FAILSAFE DISABLED
 // as we use CONFIG_ADC only on APM1 and 2, not PX4
 #define CONFIG_ADC DISABLED
+#define CONFIG_IMU_TYPE CONFIG_IMU_MPU6000
 
 #endif
 

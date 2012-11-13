@@ -7,6 +7,7 @@
 #define AP_IMU_Shim_h
 
 #include "IMU.h"
+#include "not_atmel.h"
 
 #include <unistd.h>
 

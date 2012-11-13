@@ -10,7 +10,7 @@
  *       version.
  */
 
-#include <FastSerial.h>
+//#include <FastSerial.h>
 #include <AP_AHRS.h>
 
 /**************************************************/
