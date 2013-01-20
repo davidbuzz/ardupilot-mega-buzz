@@ -146,7 +146,7 @@ const AP_Param::Info var_info[] PROGMEM = {
 
     // @Param: RTL_ALT_FINAL
     // @DisplayName: RTL Final Altitude
-    // @Description: This is the altitude the vehicle will move to as the final stage of Returning to Launch or after completing a mission.  Set to -1 to disable, zero to land.
+    // @Description: This is the altitude the vehicle will move to as the final stage of Returning to Launch or after completing a mission.  Set to zero to land.
     // @Units: Centimeters
     // @Range: -1 1000
     // @Increment: 1
@@ -171,7 +171,7 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @Param: BATT_CURR_PIN
     // @DisplayName: Battery Current sensing pin
     // @Description: Setting this to 0 ~ 13 will enable battery current sensing on pins A0 ~ A13.
-    // @Values: -1:Disabled, 1:A1, 2:A2, 13:A13
+    // @Values: -1:Disabled, 1:A1, 2:A2, 12:A12
     // @User: Standard
     GSCALAR(battery_curr_pin,    "BATT_CURR_PIN",    BATTERY_CURR_PIN),
 
@@ -418,8 +418,9 @@ const AP_Param::Info var_info[] PROGMEM = {
     GSCALAR(radio_tuning_high, "TUNE_HIGH",         1000),
 
     // @Param: FRAME
-    // @DisplayName: Frame Orientation
-    // @Description: Controls motor mixing. Quad: 0=+ 1=X
+    // @DisplayName: Frame Orientation (+, X or V)
+    // @Description: Controls motor mixing for multicopters.  Not used for Tri or Traditional Helicopters.
+    // @Values: 0:Plus, 1:X, 2:V
     // @User: Standard
     // @Range: 0 32767
     GSCALAR(frame_orientation, "FRAME",             FRAME_ORIENTATION),
@@ -427,7 +428,7 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @Param: CH7_OPT
     // @DisplayName: Channel 7 option
     // @Description: Select which function if performed when CH7 is above 1800 pwm
-    // @Values: 0:Do Nothing, 2:Flip, 3:Simple Mode, 4:RTL, 5:Save Trim, 7:Save WP, 9:Camera Trigger
+    // @Values: 0:Do Nothing, 2:Flip, 3:Simple Mode, 4:RTL, 5:Save Trim, 7:Save WP, 9:Camera Trigger, 10:Sonar
     // @User: Standard
     GSCALAR(ch7_option, "CH7_OPT",                  CH7_OPTION),
 

@@ -17,7 +17,6 @@ static void process_nav_command()
         break;
 
     case MAV_CMD_NAV_LAND:              // 21 LAND to Waypoint
-        set_yaw_mode(YAW_HOLD);
         do_land();
         break;
 
@@ -230,7 +229,7 @@ static void do_RTL(void)
     wp_control = LOITER_MODE;
 
     // initial climb starts at current location
-    next_WP = current_loc;
+    set_next_WP(&current_loc);
 
     // override altitude to RTL altitude
     set_new_altitude(get_RTL_alt());
@@ -251,11 +250,14 @@ static void do_takeoff()
     // alt is always relative
     temp.alt = command_nav_queue.alt;
 
-    // prevent flips
-    reset_I_all();
-
     // Set our waypoint
     set_next_WP(&temp);
+
+    // set our yaw mode
+    set_yaw_mode(YAW_HOLD);
+
+    // prevent flips
+    reset_I_all();    
 }
 
 // do_nav_wp - initiate move to next waypoint
@@ -291,6 +293,9 @@ static void do_land()
     // hold at our current location
     set_next_WP(&current_loc);
     wp_control = LOITER_MODE;
+
+    // hold current heading
+    set_yaw_mode(YAW_HOLD);
 
     set_throttle_mode(THROTTLE_LAND);
 }
@@ -362,7 +367,7 @@ static bool verify_takeoff()
         return false;
     }
     // are we above our target altitude?
-    return (current_loc.alt > next_WP.alt);
+    return (alt_change_flag == REACHED_ALT);
 }
 
 // verify_land - returns true if landing has been completed
@@ -474,7 +479,7 @@ static bool verify_RTL()
 
         case RTL_STATE_INITIAL_CLIMB:
             // rely on verify_altitude function to update alt_change_flag when we've reached the target
-            if(alt_change_flag == REACHED_ALT) {
+            if(alt_change_flag == REACHED_ALT || alt_change_flag == DESCENDING) {
                 // Set navigation target to home
                 set_next_WP(&home);
 
@@ -819,7 +824,7 @@ static void do_repeat_servo()
         event_timer             = 0;
         event_value             = command_cond_queue.alt;
         event_repeat    = command_cond_queue.lat * 2;
-        event_delay             = command_cond_queue.lng * 500.0;         // /2 (half cycle time) * 1000 (convert to milliseconds)
+        event_delay             = command_cond_queue.lng * 500.0f;         // /2 (half cycle time) * 1000 (convert to milliseconds)
 
         switch(command_cond_queue.p1) {
         case CH_5:
@@ -843,7 +848,7 @@ static void do_repeat_relay()
 {
     event_id                = RELAY_TOGGLE;
     event_timer             = 0;
-    event_delay             = command_cond_queue.lat * 500.0;     // /2 (half cycle time) * 1000 (convert to milliseconds)
+    event_delay             = command_cond_queue.lat * 500.0f;     // /2 (half cycle time) * 1000 (convert to milliseconds)
     event_repeat    = command_cond_queue.alt * 2;
     update_events();
 }

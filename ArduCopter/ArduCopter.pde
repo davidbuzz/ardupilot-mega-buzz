@@ -1,6 +1,6 @@
 /// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
-#define THISFIRMWARE "ArduCopter V2.9-rc2"
+#define THISFIRMWARE "ArduCopter V2.9-dev"
 /*
  *  ArduCopter Version 2.9
  *  Lead author:	Jason Short
@@ -12,36 +12,37 @@
  *  License as published by the Free Software Foundation; either
  *  version 2.1 of the License, or (at your option) any later version.
  *
- *  Special Thanks for Contributors:
+ *  Special Thanks for Contributors (in alphabetical order by first name):
  *
- *  Hein Hollander      :Octo Support
- *  Dani Saez           :V Ocoto Support
- *  Max Levine			:Tri Support, Graphics
- *  Jose Julio			:Stabilization Control laws
- *  Randy MacKay		:Heli Support
- *  Jani Hiriven		:Testing feedback
- *  Andrew Tridgell		:Mavlink Support
- *  James Goppert		:Mavlink Support
- *  Doug Weibel			:Libraries
- *  Mike Smith			:Libraries, Coding support
- *  HappyKillmore		:Mavlink GCS
- *  Michael Oborne		:Mavlink GCS
- *  Jack Dunkle			:Alpha testing
- *  Christof Schmid		:Alpha testing
- *  Oliver				:Piezo support
- *  Guntars				:Arming safety suggestion
- *  Igor van Airde      :Control Law optimization
- *  Jean-Louis Naudin   :Auto Landing
- *  Sandro Benigno      :Camera support
- *  Olivier Adler       :PPM Encoder
- *  John Arne Birkeland	:PPM Encoder
  *  Adam M Rivera		:Auto Compass Declination
- *  Marco Robustini		:Alpha testing
+ *  Amilcar Lucas		:Camera mount library
+ *  Andrew Tridgell		:General development, Mavlink Support
  *  Angel Fernandez		:Alpha testing
+ *  Doug Weibel			:Libraries
+ *  Christof Schmid		:Alpha testing
+ *  Dani Saez           :V Octo Support
+ *  Gregory Fletcher	:Camera mount orientation math
+ *  Guntars				:Arming safety suggestion
+ *  HappyKillmore		:Mavlink GCS
+ *  Hein Hollander      :Octo Support
+ *  Igor van Airde      :Control Law optimization
+ *  Leonard Hall 		:Flight Dynamics, INAV throttle
+ *  Jonathan Challinger :Inertial Navigation
+ *  Jean-Louis Naudin   :Auto Landing
+ *  Max Levine			:Tri Support, Graphics
+ *  Jack Dunkle			:Alpha testing
+ *  James Goppert		:Mavlink Support
+ *  Jani Hiriven		:Testing feedback
+ *  John Arne Birkeland	:PPM Encoder
+ *  Jose Julio			:Stabilization Control laws
+ *  Randy Mackay		:General development and release
+ *  Marco Robustini		:Lead tester
+ *  Michael Oborne		:Mission Planner GCS
+ *  Mike Smith			:Libraries, Coding support
+ *  Oliver				:Piezo support
+ *  Olivier Adler       :PPM Encoder
  *  Robert Lefebvre		:Heli Support & LEDs
- *  Amilcar Lucas		:mount and camera configuration
- *  Gregory Fletcher	:mount orientation math
- *	Leonard Hall 		:Flight Dynamics
+ *  Sandro Benigno      :Camera support
  *
  *  And much more so PLEASE PM me on DIYDRONES to add your contribution to the List
  *
@@ -315,9 +316,8 @@ GCS_MAVLINK gcs3;
 // SONAR selection
 ////////////////////////////////////////////////////////////////////////////////
 //
-
+ModeFilterInt16_Size3 sonar_mode_filter(1);
 #if CONFIG_SONAR == ENABLED
-ModeFilterInt16_Size5 sonar_mode_filter(2);
 AP_HAL::AnalogSource *sonar_analog_source;
 AP_RangeFinder_MaxsonarXL *sonar;
 #endif
@@ -630,7 +630,7 @@ static int8_t CH7_wp_index;
 // Battery Sensors
 ////////////////////////////////////////////////////////////////////////////////
 // Battery Voltage of battery, initialized above threshold for filter
-static float battery_voltage1 = LOW_VOLTAGE * 1.05;
+static float battery_voltage1 = LOW_VOLTAGE * 1.05f;
 // refers to the instant amp draw – based on an Attopilot Current sensor
 static float current_amps1;
 // refers to the total amps drawn – based on an Attopilot Current sensor
@@ -640,6 +640,8 @@ static float current_total1;
 ////////////////////////////////////////////////////////////////////////////////
 // Altitude
 ////////////////////////////////////////////////////////////////////////////////
+// The (throttle) controller desired altitude in cm
+static float controller_desired_alt;
 // The cm we are off in altitude from next_WP.alt – Positive value means we are below the WP
 static int32_t altitude_error;
 // The cm/s we are moving up or down based on sensor data - Positive = UP
@@ -650,7 +652,7 @@ static int16_t climb_rate_error;
 static int16_t climb_rate;
 // The altitude as reported by Sonar in cm – Values are 20 to 700 generally.
 static int16_t sonar_alt;
-static bool sonar_alt_ok;   // true if we can trust the altitude from the sonar
+static uint8_t sonar_alt_health;   // true if we can trust the altitude from the sonar
 // The climb_rate as reported by sonar in cm/s
 static int16_t sonar_rate;
 // The altitude as reported by Baro in cm – Values can be quite high
@@ -1037,13 +1039,6 @@ void loop()
 // Main loop - 100hz
 static void fast_loop()
 {
-    // run low level rate controllers that only require IMU data
-    run_rate_controllers();
-
-    // write out the servo PWM values
-    // ------------------------------
-    set_servos_4();
-
     // IMU DCM Algorithm
     // --------------------
     read_AHRS();
@@ -1051,6 +1046,13 @@ static void fast_loop()
     // reads all of the necessary trig functions for cameras, throttle, etc.
     // --------------------------------------------------------------------
     update_trig();
+
+    // run low level rate controllers that only require IMU data
+    run_rate_controllers();
+
+    // write out the servo PWM values
+    // ------------------------------
+    set_servos_4();
 
     // Inertial Nav
     // --------------------
@@ -1739,11 +1741,11 @@ void update_simple_mode(void)
 
     if (simple_counter == 1) {
         // roll
-        simple_cos_x = sin(radians(90 - delta));
+        simple_cos_x = sinf(radians(90 - delta));
 
     }else if (simple_counter > 2) {
         // pitch
-        simple_sin_y = cos(radians(90 - delta));
+        simple_sin_y = cosf(radians(90 - delta));
         simple_counter = 0;
     }
 
@@ -1786,16 +1788,20 @@ bool set_throttle_mode( uint8_t new_throttle_mode )
             altitude_error = 0;                         // clear altitude error reported to GCS
             throttle_initialised = true;
             break;
+
         case THROTTLE_STABILIZED_RATE:
         case THROTTLE_DIRECT_ALT:
+            controller_desired_alt = current_loc.alt;   // reset controller desired altitude to current altitude
             throttle_initialised = true;
             break;
 
         case THROTTLE_HOLD:
         case THROTTLE_AUTO:
+            controller_desired_alt = current_loc.alt;   // reset controller desired altitude to current altitude
             set_new_altitude(current_loc.alt);          // by default hold the current altitude
-            if ( throttle_mode < THROTTLE_HOLD ) {      // reset the alt hold I terms if previous throttle mode was manual
+            if ( throttle_mode <= THROTTLE_MANUAL_TILT_COMPENSATED ) {      // reset the alt hold I terms if previous throttle mode was manual
                 reset_throttle_I();
+                set_accel_throttle_I_from_pilot_throttle();
             }
             throttle_initialised = true;
             break;
@@ -1803,19 +1809,12 @@ bool set_throttle_mode( uint8_t new_throttle_mode )
         case THROTTLE_LAND:
             set_land_complete(false);   // mark landing as incomplete
             land_detector = 0;          // A counter that goes up if our climb rate stalls out.
-            set_new_altitude(0);        // Set a new target altitude
-            throttle_initialised = true;
-            break;
-
-        case THROTTLE_SURFACE_TRACKING:
-            if( g.sonar_enabled ) {
-                set_new_altitude(current_loc.alt);          // by default hold the current altitude
-                if ( throttle_mode < THROTTLE_HOLD ) {      // reset the alt hold I terms if previous throttle mode was manual
-                    reset_throttle_I();
-                }
-                throttle_initialised = true;
+            controller_desired_alt = current_loc.alt;   // reset controller desired altitude to current altitude
+            // Set target altitude to LAND_START_ALT if we are high, below this altitude the get_throttle_rate_stabilized will take care of setting the next_WP.alt
+            if (current_loc.alt >= LAND_START_ALT) {
+                set_new_altitude(LAND_START_ALT);
             }
-            // To-Do: handle the case where the sonar is not enabled
+            throttle_initialised = true;
             break;
 
         default:
@@ -1954,38 +1953,32 @@ void update_throttle_mode(void)
             altitude_error = 0;             // clear altitude error reported to GCS - normally underlying alt hold controller updates altitude error reported to GCS
         }else{
             int32_t desired_alt = get_pilot_desired_direct_alt(g.rc_3.control_in);
-            get_throttle_althold(desired_alt, g.auto_velocity_z_min, g.auto_velocity_z_max);
+            get_throttle_althold_with_slew(desired_alt, g.auto_velocity_z_min, g.auto_velocity_z_max);
         }
         break;
 
     case THROTTLE_HOLD:
         // alt hold plus pilot input of climb rate
         pilot_climb_rate = get_pilot_desired_climb_rate(g.rc_3.control_in);
-        get_throttle_rate_stabilized(pilot_climb_rate);
-        break;
-
-    case THROTTLE_AUTO:
-        // auto pilot altitude controller with target altitude held in next_WP.alt
-        if(motors.auto_armed() == true) {
-            get_throttle_althold(next_WP.alt, g.auto_velocity_z_min, g.auto_velocity_z_max);
-        }
-        break;
-
-    case THROTTLE_LAND:
-        // landing throttle controller
-        get_throttle_land();
-        break;
-
-    case THROTTLE_SURFACE_TRACKING:
-        // surface tracking with sonar or other rangefinder plus pilot input of climb rate
-        pilot_climb_rate = get_pilot_desired_climb_rate(g.rc_3.control_in);
-        if( sonar_alt_ok ) {
+        if( sonar_alt_health >= SONAR_ALT_HEALTH_MAX ) {
             // if sonar is ok, use surface tracking
             get_throttle_surface_tracking(pilot_climb_rate);
         }else{
             // if no sonar fall back stabilize rate controller
             get_throttle_rate_stabilized(pilot_climb_rate);
         }
+        break;
+
+    case THROTTLE_AUTO:
+        // auto pilot altitude controller with target altitude held in next_WP.alt
+        if(motors.auto_armed() == true) {
+            get_throttle_althold_with_slew(next_WP.alt, g.auto_velocity_z_min, g.auto_velocity_z_max);
+        }
+        break;
+
+    case THROTTLE_LAND:
+        // landing throttle controller
+        get_throttle_land();
         break;
     }
 }
@@ -2139,7 +2132,7 @@ static void update_altitude_est()
 }
 
 static void tuning(){
-    tuning_value = (float)g.rc_6.control_in / 1000.0;
+    tuning_value = (float)g.rc_6.control_in / 1000.0f;
     g.rc_6.set_range(g.radio_tuning_low,g.radio_tuning_high);                   // 0 to 1
 
     switch(g.radio_tuning) {

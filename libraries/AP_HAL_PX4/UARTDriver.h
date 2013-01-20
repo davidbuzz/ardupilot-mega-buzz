@@ -29,12 +29,15 @@ public:
     int16_t available();
     int16_t txspace();
     int16_t read();
-    int16_t peek();
 
     /* PX4 implementations of Print virtual methods */
     size_t write(uint8_t c);
 
     bool _initialised;
+
+    void set_device_path(const char *path) {
+	    _devpath = path;
+    }
 
 private:
     const char *_devpath;

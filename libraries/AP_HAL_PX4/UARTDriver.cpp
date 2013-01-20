@@ -44,6 +44,8 @@ void PX4UARTDriver::begin(uint32_t b, uint16_t rxS, uint16_t txS)
 		struct termios t;
 		tcgetattr(_fd, &t);
 		cfsetspeed(&t, b);
+		// disable LF -> CR/LF
+		t.c_oflag &= ~ONLCR;
 		tcsetattr(_fd, TCSANOW, &t);
 	}
 }
@@ -125,10 +127,6 @@ int16_t PX4UARTDriver::read() {
 			return c;
 		}
 	}
-	return -1;
-}
-
-int16_t PX4UARTDriver::peek() { 
 	return -1;
 }
 

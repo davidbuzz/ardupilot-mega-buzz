@@ -14,7 +14,7 @@
  */
 
 // AVR LibC Includes
-#include <math.h>
+#include <AP_Math.h>
 #include <AP_HAL.h>
 
 #include "AP_Compass_HMC5843.h"
@@ -221,13 +221,13 @@ AP_Compass_HMC5843::init()
 
         float cal[3];
 
-        cal[0] = fabs(expected_x / (float)_mag_x);
-        cal[1] = fabs(expected_yz / (float)_mag_y);
-        cal[2] = fabs(expected_yz / (float)_mag_z);
+        cal[0] = fabsf(expected_x / (float)_mag_x);
+        cal[1] = fabsf(expected_yz / (float)_mag_y);
+        cal[2] = fabsf(expected_yz / (float)_mag_z);
 
-        if (cal[0] > 0.7 && cal[0] < 1.3 &&
-            cal[1] > 0.7 && cal[1] < 1.3 &&
-            cal[2] > 0.7 && cal[2] < 1.3) {
+        if (cal[0] > 0.7f && cal[0] < 1.3f &&
+            cal[1] > 0.7f && cal[1] < 1.3f &&
+            cal[2] > 0.7f && cal[2] < 1.3f) {
             good_count++;
             calibration[0] += cal[0];
             calibration[1] += cal[1];
@@ -322,7 +322,12 @@ bool AP_Compass_HMC5843::read()
     if (product_id == AP_COMPASS_TYPE_HMC5883L) {
         rot_mag.rotate(ROTATION_YAW_90);
     }
+
+    // add components orientation
     rot_mag.rotate(_orientation);
+
+    // add in board orientation
+    rot_mag.rotate(_board_orientation);
 
     rot_mag += _offset.get();
     mag_x = rot_mag.x;
