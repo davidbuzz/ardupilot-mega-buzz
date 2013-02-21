@@ -288,13 +288,18 @@ static void setup_wait_key(void)
 static int8_t
 setup_accel_scale(uint8_t argc, const Menu::arg *argv)
 {
+    float trim_roll, trim_pitch;
+
     cliSerial->println_P(PSTR("Initialising gyros"));
     ahrs.init();
     ins.init(AP_InertialSensor::COLD_START, 
              ins_sample_rate,
              flash_leds);
     AP_InertialSensor_UserInteractStream interact(hal.console);
-    ins.calibrate_accel(flash_leds, &interact);
+    if(ins.calibrate_accel(flash_leds, &interact, trim_roll, trim_pitch)) {
+        // reset ahrs's trim to suggested values from calibration routine
+        ahrs.set_trim(Vector3f(trim_roll, trim_pitch, 0));
+    }
     report_ins();
     return(0);
 }
@@ -1095,6 +1100,8 @@ static void print_enabled(bool b)
 static void
 init_esc()
 {
+    // reduce update rate to motors to 50Hz
+    motors.set_update_rate(50);
     motors.enable();
     motors.armed(true);
     while(1) {

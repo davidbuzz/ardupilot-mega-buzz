@@ -80,6 +80,7 @@
  # define MAG_ORIENTATION   ROTATION_NONE
  # define CONFIG_SONAR_SOURCE SONAR_SOURCE_ANALOG_PIN
  # define MAGNETOMETER ENABLED
+ # define SERIAL0_BAUD 57600
 #elif CONFIG_HAL_BOARD == HAL_BOARD_SMACCM
  # define CONFIG_IMU_TYPE   CONFIG_IMU_MPU6000
  # define CONFIG_BARO       AP_BARO_MS5611
@@ -607,9 +608,23 @@
 #define EARTH_FRAME     0
 #define BODY_FRAME      1
 
-// Stabilize Mode
-#ifndef STABILIZE_THROTTLE
- # define STABILIZE_THROTTLE		THROTTLE_MANUAL_TILT_COMPENSATED
+// Flight mode roll, pitch, yaw, throttle and navigation definitions
+
+// Acro Mode
+#ifndef ACRO_YAW
+ # define ACRO_YAW           	    YAW_ACRO
+#endif
+
+#ifndef ACRO_RP
+ # define ACRO_RP            	    ROLL_PITCH_ACRO
+#endif
+
+#ifndef ACRO_THR
+ # define ACRO_THR           	    THROTTLE_MANUAL
+#endif
+
+#ifndef ACRO_NAV
+ # define ACRO_NAV           	    NAV_NONE
 #endif
 
 // Alt Hold Mode
@@ -625,6 +640,10 @@
  # define ALT_HOLD_THR           	THROTTLE_HOLD
 #endif
 
+#ifndef ALT_HOLD_NAV
+ # define ALT_HOLD_NAV           	NAV_NONE
+#endif
+
 // AUTO Mode
 #ifndef AUTO_YAW
  # define AUTO_YAW                  YAW_LOOK_AT_NEXT_WP
@@ -636,6 +655,23 @@
 
 #ifndef AUTO_THR
  # define AUTO_THR                  THROTTLE_AUTO
+#endif
+
+// CIRCLE Mode
+#ifndef CIRCLE_YAW
+ # define CIRCLE_YAW             	YAW_LOOK_AT_LOCATION
+#endif
+
+#ifndef CIRCLE_RP
+ # define CIRCLE_RP                 ROLL_PITCH_AUTO
+#endif
+
+#ifndef CIRCLE_THR
+ # define CIRCLE_THR                THROTTLE_HOLD
+#endif
+
+#ifndef CIRCLE_NAV
+ # define CIRCLE_NAV           	    NAV_CIRCLE
 #endif
 
 // Guided Mode
@@ -651,17 +687,8 @@
  # define GUIDED_THR                THROTTLE_AUTO
 #endif
 
-// CIRCLE Mode
-#ifndef CIRCLE_YAW
- # define CIRCLE_YAW             	YAW_LOOK_AT_NEXT_WP
-#endif
-
-#ifndef CIRCLE_RP
- # define CIRCLE_RP                 ROLL_PITCH_AUTO
-#endif
-
-#ifndef CIRCLE_THR
- # define CIRCLE_THR                THROTTLE_HOLD
+#ifndef GUIDED_NAV
+ # define GUIDED_NAV           	    NAV_WP
 #endif
 
 // LOITER Mode
@@ -675,6 +702,27 @@
 
 #ifndef LOITER_THR
  # define LOITER_THR                THROTTLE_HOLD
+#endif
+
+#ifndef LOITER_NAV
+ # define LOITER_NAV                NAV_LOITER
+#endif
+
+// POSITION Mode
+#ifndef POSITION_YAW
+ # define POSITION_YAW             	YAW_HOLD
+#endif
+
+#ifndef POSITION_RP
+ # define POSITION_RP               ROLL_PITCH_AUTO
+#endif
+
+#ifndef POSITION_THR
+ # define POSITION_THR              THROTTLE_HOLD
+#endif
+
+#ifndef POSITION_NAV
+ # define POSITION_NAV              NAV_LOITER
 #endif
 
 
@@ -729,6 +777,10 @@
 
 #ifndef OF_LOITER_THR
  # define OF_LOITER_THR             THROTTLE_HOLD
+#endif
+
+#ifndef OF_LOITER_NAV
+ # define OF_LOITER_NAV             NAV_NONE
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -891,15 +943,6 @@
  # define LOITER_IMAX          		30             // degrees
 #endif
 
-// Loiter repositioning configuration (experimental)
-#ifndef LOITER_REPOSITIONING
- # define LOITER_REPOSITIONING      DISABLED
-#endif
-#ifndef LOITER_REPOSITION_RATE
- # define LOITER_REPOSITION_RATE   500.0f            // cm/s
-#endif
-
-
 //////////////////////////////////////////////////////////////////////////////
 // Loiter Navigation control gains
 //
@@ -960,6 +1003,10 @@
 //
 #ifndef THROTTLE_CRUISE
  # define THROTTLE_CRUISE       450            //
+#endif
+
+#ifndef THR_MID
+ # define THR_MID        500                            // Throttle output (0 ~ 1000) when throttle stick is in mid position
 #endif
 
 #ifndef ALT_HOLD_P
@@ -1090,8 +1137,8 @@
  # define LOG_CMD                       ENABLED
 #endif
 // current
-#ifndef LOG_CUR
- # define LOG_CUR                       DISABLED
+#ifndef LOG_CURRENT
+ # define LOG_CURRENT                   DISABLED
 #endif
 // quad motor PWMs
 #ifndef LOG_MOTORS
@@ -1127,7 +1174,7 @@
     LOGBIT(MODE)            | \
     LOGBIT(IMU)             | \
     LOGBIT(CMD)             | \
-    LOGBIT(CUR)             | \
+    LOGBIT(CURRENT)         | \
     LOGBIT(MOTORS)          | \
     LOGBIT(OPTFLOW)         | \
     LOGBIT(PID)             | \

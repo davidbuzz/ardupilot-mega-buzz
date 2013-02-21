@@ -25,12 +25,12 @@
 #define YAW_TOY                         7       // THOR This is the Yaw mode
 
 
-#define ROLL_PITCH_STABLE       0
-#define ROLL_PITCH_ACRO         1
-#define ROLL_PITCH_AUTO         2
-#define ROLL_PITCH_STABLE_OF    3
-#define ROLL_PITCH_TOY          4       // THOR This is the Roll and Pitch mode
-#define ROLL_PITCH_LOITER_PR    5
+#define ROLL_PITCH_STABLE           0
+#define ROLL_PITCH_ACRO             1
+#define ROLL_PITCH_AUTO             2
+#define ROLL_PITCH_STABLE_OF        3
+#define ROLL_PITCH_TOY              4       // THOR This is the Roll and Pitch mode
+#define ROLL_PITCH_LOITER_INAV      5       // pilot inputs the desired horizontal velocities
 
 #define THROTTLE_MANUAL                     0   // manual throttle mode - pilot input goes directly to motors
 #define THROTTLE_MANUAL_TILT_COMPENSATED    1   // mostly manual throttle but with some tilt compensation
@@ -194,11 +194,12 @@
 #define NO_COMMAND 0
 
 
-// Navigation modes held in wp_control variable
-#define LOITER_MODE 1
-#define WP_MODE 2
-#define CIRCLE_MODE 3
-#define NO_NAV_MODE 4
+// Navigation modes held in nav_mode variable
+#define NAV_NONE        0
+#define NAV_CIRCLE      1
+#define NAV_LOITER      2
+#define NAV_WP          3
+#define NAV_LOITER_INAV 4
 
 // Yaw override behaviours - used for setting yaw_override_behaviour
 #define YAW_OVERRIDE_BEHAVIOUR_AT_NEXT_WAYPOINT     0   // auto pilot takes back yaw control at next waypoint
@@ -307,7 +308,7 @@ enum gcs_severity {
 #define MASK_LOG_MODE                   (1<<6)
 #define MASK_LOG_IMU                    (1<<7)
 #define MASK_LOG_CMD                    (1<<8)
-#define MASK_LOG_CUR                    (1<<9)
+#define MASK_LOG_CURRENT                (1<<9)
 #define MASK_LOG_MOTORS                 (1<<10)
 #define MASK_LOG_OPTFLOW                (1<<11)
 #define MASK_LOG_PID                    (1<<12)

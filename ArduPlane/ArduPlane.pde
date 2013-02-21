@@ -1,6 +1,6 @@
 /// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
-#define THISFIRMWARE "ArduPlane V2.68"
+#define THISFIRMWARE "ArduPlane V2.70"
 /*
  *  Authors:    Doug Weibel, Jose Julio, Jordi Munoz, Jason Short, Andrew Tridgell, Randy Mackay, Pat Hickey, John Arne Birkeland, Olivier Adler, Amilcar Lucas, Gregory Fletcher
  *  Thanks to:  Chris Anderson, Michael Oborne, Paul Mather, Bill Premerlani, James Cohen, JB from rotorFX, Automatik, Fefenin, Peter Meister, Remzibi, Yury Smirnov, Sandro Benigno, Max Levine, Roberto Navoni, Lorenz Meier, Yury MonZon
@@ -136,95 +136,88 @@ static GPS         *g_gps;
 // flight modes convenience array
 static AP_Int8          *flight_modes = &g.flight_mode1;
 
-#if HIL_MODE == HIL_MODE_DISABLED
-
-// real sensors
- #if CONFIG_ADC == ENABLED
+#if CONFIG_ADC == ENABLED
 static AP_ADC_ADS7844 adc;
- #endif
-
- # if CONFIG_HAL_BOARD == HAL_BOARD_AVR_SITL
-AP_Baro_BMP085_HIL barometer;
-AP_Compass_HIL compass;
-AP_InertialSensor_Stub ins;
-SITL sitl;
- #else
-
-  #if CONFIG_BARO == AP_BARO_BMP085
-static AP_Baro_BMP085 barometer;
-  #elif CONFIG_BARO == AP_BARO_PX4
-static AP_Baro_PX4 barometer;
-  #elif CONFIG_BARO == AP_BARO_MS5611
-   #if CONFIG_MS5611_SERIAL == AP_BARO_MS5611_SPI
-static AP_Baro_MS5611 barometer(&AP_Baro_MS5611::spi);
-   #elif CONFIG_MS5611_SERIAL == AP_BARO_MS5611_I2C
-static AP_Baro_MS5611 barometer(&AP_Baro_MS5611::i2c);
-   #else
-    #error Unrecognized CONFIG_MS5611_SERIAL setting.
-   #endif
-  #endif
-
-#if CONFIG_HAL_BOARD == HAL_BOARD_PX4
-static AP_Compass_PX4 compass;
-#else
-static AP_Compass_HMC5843 compass;
 #endif
- #endif
 
-// real GPS selection
- #if   GPS_PROTOCOL == GPS_PROTOCOL_AUTO
+#if CONFIG_BARO == AP_BARO_BMP085
+static AP_Baro_BMP085 barometer;
+#elif CONFIG_BARO == AP_BARO_PX4
+static AP_Baro_PX4 barometer;
+#elif CONFIG_BARO == AP_BARO_HIL
+static AP_Baro_BMP085_HIL barometer;
+#elif CONFIG_BARO == AP_BARO_MS5611
+ #if CONFIG_MS5611_SERIAL == AP_BARO_MS5611_SPI
+ static AP_Baro_MS5611 barometer(&AP_Baro_MS5611::spi);
+ #elif CONFIG_MS5611_SERIAL == AP_BARO_MS5611_I2C
+ static AP_Baro_MS5611 barometer(&AP_Baro_MS5611::i2c);
+ #else
+ #error Unrecognized CONFIG_MS5611_SERIAL setting.
+ #endif
+#else
+ #error Unrecognized CONFIG_BARO setting
+#endif
+
+#if CONFIG_COMPASS == AP_COMPASS_PX4
+static AP_Compass_PX4 compass;
+#elif CONFIG_COMPASS == AP_COMPASS_HMC5843
+static AP_Compass_HMC5843 compass;
+#elif CONFIG_COMPASS == AP_COMPASS_HIL
+static AP_Compass_HIL compass;
+#else
+ #error Unrecognized CONFIG_COMPASS setting
+#endif
+
+// GPS selection
+#if   GPS_PROTOCOL == GPS_PROTOCOL_AUTO
 AP_GPS_Auto     g_gps_driver(&g_gps);
 
- #elif GPS_PROTOCOL == GPS_PROTOCOL_NMEA
-AP_GPS_NMEA     g_gps_driver();
+#elif GPS_PROTOCOL == GPS_PROTOCOL_NMEA
+AP_GPS_NMEA     g_gps_driver;
 
- #elif GPS_PROTOCOL == GPS_PROTOCOL_SIRF
-AP_GPS_SIRF     g_gps_driver();
+#elif GPS_PROTOCOL == GPS_PROTOCOL_SIRF
+AP_GPS_SIRF     g_gps_driver;
 
- #elif GPS_PROTOCOL == GPS_PROTOCOL_UBLOX
-AP_GPS_UBLOX    g_gps_driver();
+#elif GPS_PROTOCOL == GPS_PROTOCOL_UBLOX
+AP_GPS_UBLOX    g_gps_driver;
 
- #elif GPS_PROTOCOL == GPS_PROTOCOL_MTK
-AP_GPS_MTK      g_gps_driver();
+#elif GPS_PROTOCOL == GPS_PROTOCOL_MTK
+AP_GPS_MTK      g_gps_driver;
 
- #elif GPS_PROTOCOL == GPS_PROTOCOL_MTK19
-AP_GPS_MTK19    g_gps_driver();
+#elif GPS_PROTOCOL == GPS_PROTOCOL_MTK19
+AP_GPS_MTK19    g_gps_driver;
 
- #elif GPS_PROTOCOL == GPS_PROTOCOL_NONE
-AP_GPS_None     g_gps_driver();
+#elif GPS_PROTOCOL == GPS_PROTOCOL_NONE
+AP_GPS_None     g_gps_driver;
 
- #else
-  #error Unrecognised GPS_PROTOCOL setting.
- #endif // GPS PROTOCOL
-
- # if CONFIG_INS_TYPE == CONFIG_INS_MPU6000
-AP_InertialSensor_MPU6000 ins;
- # elif CONFIG_INS_TYPE == CONFIG_INS_PX4
-AP_InertialSensor_PX4 ins;
- # elif CONFIG_HAL_BOARD != HAL_BOARD_AVR_SITL
-AP_InertialSensor_Oilpan ins( &adc );
- #endif // CONFIG_INS_TYPE
-
-AP_AHRS_DCM ahrs(&ins, g_gps);
-
-#elif HIL_MODE == HIL_MODE_SENSORS
-// sensor emulators
-AP_Baro_BMP085_HIL barometer;
-AP_Compass_HIL compass;
-AP_GPS_HIL              g_gps_driver;
-AP_InertialSensor_Stub ins;
-AP_AHRS_DCM  ahrs(&ins, g_gps);
-
-#elif HIL_MODE == HIL_MODE_ATTITUDE
-AP_Baro_BMP085_HIL barometer;
-AP_Compass_HIL compass;
-AP_GPS_HIL              g_gps_driver;
-AP_InertialSensor_Stub ins;
-AP_AHRS_HIL   ahrs(&ins, g_gps);
+#elif GPS_PROTOCOL == GPS_PROTOCOL_HIL
+AP_GPS_HIL      g_gps_driver;
 
 #else
- #error Unrecognised HIL_MODE setting.
-#endif // HIL MODE
+  #error Unrecognised GPS_PROTOCOL setting.
+#endif // GPS PROTOCOL
+
+#if CONFIG_INS_TYPE == CONFIG_INS_MPU6000
+AP_InertialSensor_MPU6000 ins;
+#elif CONFIG_INS_TYPE == CONFIG_INS_PX4
+AP_InertialSensor_PX4 ins;
+#elif CONFIG_INS_TYPE == CONFIG_INS_STUB
+AP_InertialSensor_Stub ins;
+#elif CONFIG_INS_TYPE == CONFIG_INS_OILPAN
+AP_InertialSensor_Oilpan ins( &adc );
+#else
+  #error Unrecognised CONFIG_INS_TYPE setting.
+#endif // CONFIG_INS_TYPE
+
+#if HIL_MODE == HIL_MODE_ATTITUDE
+AP_AHRS_HIL ahrs(&ins, g_gps);
+#else
+AP_AHRS_DCM ahrs(&ins, g_gps);
+#endif
+
+#if CONFIG_HAL_BOARD == HAL_BOARD_AVR_SITL
+SITL sitl;
+#endif
 
 // Training mode
 static bool training_manual_roll;  // user has manual roll control
@@ -479,6 +472,9 @@ static int32_t old_target_bearing_cd;
 // Total desired rotation in a loiter.  Used for Loiter Turns commands.  Degrees
 static int32_t loiter_total;
 
+// Direction for loiter. 1 for clockwise, -1 for counter-clockwise
+static int8_t loiter_direction = 1;
+
 // The amount in degrees we have turned since recording old_target_bearing
 static int16_t loiter_delta;
 
@@ -505,10 +501,10 @@ static int32_t nav_pitch_cd;
 ////////////////////////////////////////////////////////////////////////////////
 // Distance between plane and next waypoint.  Meters
 // is not static because AP_Camera uses it
-int32_t wp_distance;
+uint32_t wp_distance;
 
 // Distance between previous and next waypoint.  Meters
-static int32_t wp_totalDistance;
+static uint32_t wp_totalDistance;
 
 // event control state
 enum event_type { 
@@ -595,7 +591,7 @@ static int32_t perf_mon_timer;
 // The maximum main loop execution time recorded in the current performance monitoring interval
 static int16_t G_Dt_max = 0;
 // The number of gps fixes recorded in the current performance monitoring interval
-static int16_t gps_fix_count = 0;
+static uint8_t gps_fix_count = 0;
 // A variable used by developers to track performanc metrics.
 // Currently used to record the number of GCS heartbeat messages received
 static int16_t pmTest1 = 0;
@@ -676,7 +672,7 @@ void setup() {
     pitot_analog_source = new AP_ADC_AnalogSource( &adc,
                                          CONFIG_PITOT_SOURCE_ADC_CHANNEL, 1.0);
 #elif CONFIG_PITOT_SOURCE == PITOT_SOURCE_ANALOG_PIN
-    pitot_analog_source = hal.analogin->channel(CONFIG_PITOT_SOURCE_ANALOG_PIN, 4.0);
+    pitot_analog_source = hal.analogin->channel(CONFIG_PITOT_SOURCE_ANALOG_PIN, CONFIG_PITOT_SCALING);
 #endif
     vcc_pin = hal.analogin->channel(ANALOG_INPUT_BOARD_VCC);
 
@@ -767,8 +763,8 @@ static void fast_loop()
     if (g.log_bitmask & MASK_LOG_ATTITUDE_FAST)
         Log_Write_Attitude();
 
-    if (g.log_bitmask & MASK_LOG_RAW)
-        Log_Write_Raw();
+    if (g.log_bitmask & MASK_LOG_IMU)
+        Log_Write_IMU();
 
     // inertial navigation
     // ------------------
@@ -968,7 +964,7 @@ static void slow_loop()
 
 static void one_second_loop()
 {
-    if (g.log_bitmask & MASK_LOG_CUR)
+    if (g.log_bitmask & MASK_LOG_CURRENT)
         Log_Write_Current();
 
     // send a heartbeat
@@ -1198,14 +1194,12 @@ static void update_current_flight_mode(void)
 
         case CIRCLE:
             // we have no GPS installed and have lost radio contact
-            // or we just want to fly around in a gentle circle w/o GPS
-            // ----------------------------------------------------
+            // or we just want to fly around in a gentle circle w/o GPS,
+            // holding altitude at the altitude we set when we
+            // switched into the mode
             nav_roll_cd  = g.roll_limit_cd / 3;
-            nav_pitch_cd = 0;
-
-            if (failsafe != FAILSAFE_NONE) {
-                g.channel_throttle.servo_out = g.throttle_cruise;
-            }
+            calc_nav_pitch();
+            calc_throttle();
             break;
 
         case MANUAL:

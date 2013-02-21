@@ -118,6 +118,9 @@ static void init_ardupilot()
 	
     load_parameters();
 
+    // after parameter load setup correct baud rate on uartA
+    hal.uartA->begin(map_baudrate(g.serial0_baud, SERIAL0_BAUD));
+
     // keep a record of how many resets have happened. This can be
     // used to detect in-flight resets
     g.num_resets.set_and_save(g.num_resets+1);
@@ -331,16 +334,13 @@ static void startup_ground(void)
 	gcs_send_text_P(SEVERITY_LOW,PSTR("\n\n Ready to drive."));
 }
 
-static void set_mode(uint8_t mode)
+static void set_mode(enum mode mode)
 {       
 
 	if(control_mode == mode){
 		// don't switch modes if we are already in the correct mode.
 		return;
 	}
-	if(g.auto_trim > 0 && control_mode == MANUAL)
-		trim_control_surfaces();
-
 	control_mode = mode;
     throttle_last = 0;
     throttle = 500;
@@ -349,7 +349,6 @@ static void set_mode(uint8_t mode)
 	{
 		case MANUAL:
 		case LEARNING:
-		case CIRCLE:
 			break;
 
 		case AUTO:
@@ -384,7 +383,7 @@ static void check_long_failsafe()
 		if(! rc_override_active && failsafe == FAILSAFE_SHORT && millis() - ch3_failsafe_timer > FAILSAFE_LONG_TIME) {
 			failsafe_long_on_event(FAILSAFE_LONG);
 		}
-		if(g.gcs_heartbeat_fs_enabled && millis() - rc_override_fs_timer > FAILSAFE_LONG_TIME) {
+		if (g.fs_gcs_enabled && millis() - rc_override_fs_timer > FAILSAFE_LONG_TIME) {
 			failsafe_long_on_event(FAILSAFE_GCS);
 		}
 	} else {
@@ -392,23 +391,6 @@ static void check_long_failsafe()
 		if(failsafe == FAILSAFE_GCS && millis() - rc_override_fs_timer < FAILSAFE_SHORT_TIME) failsafe = FAILSAFE_NONE;
 		if(failsafe == FAILSAFE_LONG && rc_override_active && millis() - rc_override_fs_timer < FAILSAFE_SHORT_TIME) failsafe = FAILSAFE_NONE;
 		if(failsafe == FAILSAFE_LONG && !rc_override_active && !ch3_failsafe) failsafe = FAILSAFE_NONE;
-	}
-}
-
-static void check_short_failsafe()
-{
-	// only act on changes
-	// -------------------
-	if(failsafe == FAILSAFE_NONE){
-		if(ch3_failsafe) {					// The condition is checked and the flag ch3_failsafe is set in radio.pde
-			failsafe_short_on_event(FAILSAFE_SHORT);
-		}
-	}
-
-	if(failsafe == FAILSAFE_SHORT){
-		if(!ch3_failsafe) {
-			failsafe_short_off_event();
-		}
 	}
 }
 
@@ -430,11 +412,12 @@ static void startup_INS_ground(bool force_accel_level)
 	ins.init(AP_InertialSensor::COLD_START, 
              ins_sample_rate, 
              flash_leds);
-    if (force_accel_level || g.manual_level == 0) {
+    if (force_accel_level) {
         // when MANUAL_LEVEL is set to 1 we don't do accelerometer
         // levelling on each boot, and instead rely on the user to do
         // it once via the ground station	
         ins.init_accel(flash_leds);
+        ahrs.set_trim(Vector3f(0, 0, 0));
 	}
     ahrs.reset();
 
@@ -544,7 +527,7 @@ uint16_t board_voltage(void)
 }
 
 static void
-print_flight_mode(uint8_t mode)
+print_mode(uint8_t mode)
 {
     switch (mode) {
     case MANUAL:

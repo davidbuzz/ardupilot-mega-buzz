@@ -456,7 +456,6 @@ test_ins(uint8_t argc, const Menu::arg *argv)
     return (0);
 #else
     Vector3f gyro, accel;
-    float temp;
     print_hit_enter();
     cliSerial->printf_P(PSTR("INS\n"));
     delay(1000);
@@ -472,14 +471,13 @@ test_ins(uint8_t argc, const Menu::arg *argv)
         ins.update();
         gyro = ins.get_gyro();
         accel = ins.get_accel();
-        temp = ins.temperature();
 
         float test = accel.length() / GRAVITY_MSS;
 
         cliSerial->printf_P(PSTR("a %7.4f %7.4f %7.4f g %7.4f %7.4f %7.4f t %74f | %7.4f\n"),
             accel.x, accel.y, accel.z,
             gyro.x, gyro.y, gyro.z,
-            temp, test);
+            test);
 
         delay(40);
         if(cliSerial->available() > 0) {
@@ -811,13 +809,13 @@ test_baro(uint8_t argc, const Menu::arg *argv)
         delay(100);
         int32_t alt = read_barometer();                 // calls barometer.read()
 
-        int32_t pres = barometer.get_pressure();
+        float pres = barometer.get_pressure();
         int16_t temp = barometer.get_temperature();
         int32_t raw_pres = barometer.get_raw_pressure();
         int32_t raw_temp = barometer.get_raw_temp();
-        cliSerial->printf_P(PSTR("alt: %ldcm, pres: %ldmbar, temp: %d/100degC,"
+        cliSerial->printf_P(PSTR("alt: %ldcm, pres: %fmbar, temp: %d/100degC,"
                              " raw pres: %ld, raw temp: %ld\n"),
-                        alt, pres,temp, raw_pres, raw_temp);
+                            (long)alt, pres, (int)temp, (long)raw_pres, (long)raw_temp);
         if(cliSerial->available() > 0) {
             return (0);
         }

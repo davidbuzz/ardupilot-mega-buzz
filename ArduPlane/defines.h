@@ -85,6 +85,9 @@ enum FlightMode {
 //--------------------
 #define MASK_OPTIONS_RELATIVE_ALT       (1<<0)          // 1 = Relative
                                                         // altitude
+#define MASK_OPTIONS_LOITER_DIRECTION   (1<<2)          // 0 = CW
+                                                        // 1 = CCW
+
 
 //repeating events
 #define NO_REPEAT 0
@@ -145,7 +148,7 @@ enum log_messages {
     LOG_CONTROL_TUNING_MSG,
     LOG_NAV_TUNING_MSG,
     LOG_PERFORMANCE_MSG,
-    LOG_RAW_MSG,
+    LOG_IMU_MSG,
     LOG_CMD_MSG,
     LOG_CURRENT_MSG,
     LOG_STARTUP_MSG,
@@ -161,9 +164,9 @@ enum log_messages {
 #define MASK_LOG_CTUN                   (1<<4)
 #define MASK_LOG_NTUN                   (1<<5)
 #define MASK_LOG_MODE                   (1<<6)
-#define MASK_LOG_RAW                    (1<<7)
+#define MASK_LOG_IMU                    (1<<7)
 #define MASK_LOG_CMD                    (1<<8)
-#define MASK_LOG_CUR                    (1<<9)
+#define MASK_LOG_CURRENT                (1<<9)
 
 // Waypoint Modes
 // ----------------
@@ -224,13 +227,22 @@ enum log_messages {
 // mark a function as not to be inlined
 #define NOINLINE __attribute__((noinline))
 
-#define CONFIG_INS_OILPAN 1
+// InertialSensor driver types
+#define CONFIG_INS_OILPAN  1
 #define CONFIG_INS_MPU6000 2
-#define CONFIG_INS_STUB 3
+#define CONFIG_INS_STUB    3
+#define CONFIG_INS_PX4     4
 
+// barometer driver types
 #define AP_BARO_BMP085   1
 #define AP_BARO_MS5611   2
 #define AP_BARO_PX4      3
+#define AP_BARO_HIL      4
+
+// compass driver types
+#define AP_COMPASS_HMC5843   1
+#define AP_COMPASS_PX4       2
+#define AP_COMPASS_HIL       3
 
 // altitude control algorithms
 enum {

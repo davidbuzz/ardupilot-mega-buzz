@@ -113,9 +113,9 @@ static void calc_bearing_error()
 
 static void calc_altitude_error()
 {
-    if(control_mode == AUTO && offset_altitude_cm != 0) {
+    if (control_mode == AUTO && offset_altitude_cm != 0) {
         // limit climb rates
-        target_altitude_cm = next_WP.alt - ((float)((wp_distance -30) * offset_altitude_cm) / (float)(wp_totalDistance - 30));
+        target_altitude_cm = next_WP.alt - (offset_altitude_cm*((float)(wp_distance-30) / (float)(wp_totalDistance-30)));
 
         // stay within a certain range
         if(prev_WP.alt > next_WP.alt) {
@@ -148,14 +148,14 @@ static void update_loiter()
 {
     float power;
 
-    if(wp_distance <= g.loiter_radius) {
+    if(wp_distance <= (uint32_t)max(g.loiter_radius,0)) {
         power = float(wp_distance) / float(g.loiter_radius);
         power = constrain(power, 0.5, 1);
-        nav_bearing_cd += 9000.0 * (2.0 + power);
-    } else if(wp_distance < (g.loiter_radius + LOITER_RANGE)) {
+        nav_bearing_cd += 9000.0 * (2.0 + power) * loiter_direction;
+    } else if(wp_distance < (uint32_t)max((g.loiter_radius + LOITER_RANGE),0)) {
         power = -((float)(wp_distance - g.loiter_radius - LOITER_RANGE) / LOITER_RANGE);
         power = constrain(power, 0.5, 1);                               //power = constrain(power, 0, 1);
-        nav_bearing_cd -= power * 9000;
+        nav_bearing_cd -= power * 9000 * loiter_direction;
     } else{
         update_crosstrack();
         loiter_time_ms = millis();                              // keep start time for loiter updating till we get within LOITER_RANGE of orbit
@@ -191,7 +191,7 @@ static void update_crosstrack(void)
     // Crosstrack Error
     // ----------------
     // If we are too far off or too close we don't do track following
-    if (wp_totalDistance >= g.crosstrack_min_distance && 
+    if (wp_totalDistance >= (uint32_t)max(g.crosstrack_min_distance,0) &&
         abs(wrap_180_cd(target_bearing_cd - crosstrack_bearing_cd)) < 4500) {
         // Meters we are off track line
         crosstrack_error = sinf(radians((target_bearing_cd - crosstrack_bearing_cd) * 0.01)) * wp_distance;               

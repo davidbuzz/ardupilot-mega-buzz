@@ -288,9 +288,9 @@ void init_rate_controllers()
 {
    // initalise low pass filters on rate controller inputs
    // 1st parameter is time_step, 2nd parameter is time_constant
-   rate_roll_filter.set_cutoff_frequency(0.01, 2.0);
-   rate_pitch_filter.set_cutoff_frequency(0.01, 2.0);
-   // rate_yaw_filter.set_cutoff_frequency(0.01, 2.0);
+   rate_roll_filter.set_cutoff_frequency(0.01f, 2.0f);
+   rate_pitch_filter.set_cutoff_frequency(0.01f, 2.0f);
+   // rate_yaw_filter.set_cutoff_frequency(0.01f, 2.0f);
    // other option for initialisation is rate_roll_filter.set_cutoff_frequency(<time_step>,<cutoff_freq>);
 }
 
@@ -592,8 +592,8 @@ get_of_roll(int32_t input_roll)
         // only stop roll if caller isn't modifying roll
         if( input_roll == 0 && current_loc.alt < 1500) {
             p = g.pid_optflow_roll.get_p(-tot_x_cm);
-            i = g.pid_optflow_roll.get_i(-tot_x_cm,1.0);              // we could use the last update time to calculate the time change
-            d = g.pid_optflow_roll.get_d(-tot_x_cm,1.0);
+            i = g.pid_optflow_roll.get_i(-tot_x_cm,1.0f);              // we could use the last update time to calculate the time change
+            d = g.pid_optflow_roll.get_d(-tot_x_cm,1.0f);
             new_roll = p+i+d;
         }else{
             g.pid_optflow_roll.reset_I();
@@ -645,8 +645,8 @@ get_of_pitch(int32_t input_pitch)
         // only stop roll if caller isn't modifying pitch
         if( input_pitch == 0 && current_loc.alt < 1500 ) {
             p = g.pid_optflow_pitch.get_p(tot_y_cm);
-            i = g.pid_optflow_pitch.get_i(tot_y_cm, 1.0);              // we could use the last update time to calculate the time change
-            d = g.pid_optflow_pitch.get_d(tot_y_cm, 1.0);
+            i = g.pid_optflow_pitch.get_i(tot_y_cm, 1.0f);              // we could use the last update time to calculate the time change
+            d = g.pid_optflow_pitch.get_d(tot_y_cm, 1.0f);
             new_pitch = p + i + d;
         }else{
             tot_y_cm = 0;
@@ -720,7 +720,7 @@ static void update_throttle_cruise(int16_t throttle)
 static int16_t get_angle_boost(int16_t throttle)
 {
     float angle_boost_factor = cos_pitch_x * cos_roll_x;
-    angle_boost_factor = 1.0 - constrain(angle_boost_factor, .5, 1.0);
+    angle_boost_factor = 1.0f - constrain(angle_boost_factor, .5f, 1.0f);
     int16_t throttle_above_mid = max(throttle - motors.throttle_mid,0);
 
     // to allow logging of angle boost
@@ -736,10 +736,9 @@ static int16_t get_angle_boost(int16_t throttle)
     float temp = cos_pitch_x * cos_roll_x;
     int16_t throttle_out;
 
-    temp = constrain(temp, .5, 1.0);
+    temp = constrain(temp, 0.5f, 1.0f);
     temp = constrain(9000-max(labs(roll_axis),labs(pitch_axis)), 0, 3000) / (3000 * temp);
     throttle_out = constrain((float)(throttle-g.throttle_min) * temp + g.throttle_min, g.throttle_min, 1000);
-    //Serial.printf("Thin:%4.2f  sincos:%4.2f  temp:%4.2f  roll_axis:%4.2f  Out:%4.2f   \n", 1.0*throttle, 1.0*cos_pitch_x * cos_roll_x, 1.0*temp, 1.0*roll_axis, 1.0*constrain((float)value * temp, 0, 1000));
 
     // to allow logging of angle boost
     angle_boost = throttle_out - throttle;
@@ -812,9 +811,9 @@ get_throttle_accel(int16_t z_target_accel)
     if( motors.reached_limit(AP_MOTOR_THROTTLE_LIMIT) ) {
         i = g.pid_throttle_accel.get_integrator();
     }else{
-        i = g.pid_throttle_accel.get_i(z_accel_error, .01);
+        i = g.pid_throttle_accel.get_i(z_accel_error, .01f);
     }
-    d = g.pid_throttle_accel.get_d(z_accel_error, .01);
+    d = g.pid_throttle_accel.get_d(z_accel_error, .01f);
 
     //
     // limit the rate
@@ -834,10 +833,41 @@ get_throttle_accel(int16_t z_target_accel)
     return output;
 }
 
+// get_pilot_desired_throttle - transform pilot's throttle input to make cruise throttle mid stick
+// used only for manual throttle modes
+// returns throttle output 0 to 1000
+#define THROTTLE_IN_MIDDLE 500          // the throttle mid point
+static int16_t get_pilot_desired_throttle(int16_t throttle_control)
+{
+    int16_t throttle_out;
+
+    // exit immediately in the simple cases
+    if( throttle_control == 0 || g.throttle_mid == 500) {
+        return throttle_control;
+    }
+
+    // ensure reasonable throttle values
+    throttle_control = constrain(throttle_control,0,1000);
+    g.throttle_mid = constrain(g.throttle_mid,300,700);
+
+    // check throttle is above, below or in the deadband
+    if (throttle_control < THROTTLE_IN_MIDDLE) {
+        // below the deadband
+        throttle_out = g.throttle_min + ((float)(throttle_control-g.throttle_min))*((float)(g.throttle_mid - g.throttle_min))/((float)(500-g.throttle_min));
+    }else if(throttle_control > THROTTLE_IN_MIDDLE) {
+        // above the deadband
+        throttle_out = g.throttle_mid + ((float)(throttle_control-500))*(float)(1000-g.throttle_mid)/500.0f;
+    }else{
+        // must be in the deadband
+        throttle_out = g.throttle_mid;
+    }
+
+    return throttle_out;
+}
+
 // get_pilot_desired_climb_rate - transform pilot's throttle input to
 // climb rate in cm/s.  we use radio_in instead of control_in to get the full range
 // without any deadzone at the bottom
-#define THROTTLE_IN_MIDDLE 500          // the throttle mid point
 #define THROTTLE_IN_DEADBAND 100        // the throttle input channel's deadband in PWM
 #define THROTTLE_IN_DEADBAND_TOP (THROTTLE_IN_MIDDLE+THROTTLE_IN_DEADBAND)  // top of the deadband
 #define THROTTLE_IN_DEADBAND_BOTTOM (THROTTLE_IN_MIDDLE-THROTTLE_IN_DEADBAND)  // bottom of the deadband
@@ -1025,7 +1055,7 @@ static void
 get_throttle_althold_with_slew(int16_t target_alt, int16_t min_climb_rate, int16_t max_climb_rate)
 {
     // limit target altitude change
-    controller_desired_alt += constrain(target_alt-controller_desired_alt, min_climb_rate*0.02, max_climb_rate*0.02);
+    controller_desired_alt += constrain(target_alt-controller_desired_alt, min_climb_rate*0.02f, max_climb_rate*0.02f);
 
     // do not let target altitude get too far from current altitude
     controller_desired_alt = constrain(controller_desired_alt,current_loc.alt-750,current_loc.alt+750);
@@ -1165,10 +1195,10 @@ static void reset_throttle_I(void)
     g.pid_throttle_accel.reset_I();
 }
 
-static void set_accel_throttle_I_from_pilot_throttle(void)
+static void set_accel_throttle_I_from_pilot_throttle(int16_t pilot_throttle)
 {
     // shift difference between pilot's throttle and hover throttle into accelerometer I
-    g.pid_throttle_accel.set_integrator(g.rc_3.control_in-g.throttle_cruise);
+    g.pid_throttle_accel.set_integrator(pilot_throttle-g.throttle_cruise);
 }
 
 static void reset_stability_I(void)

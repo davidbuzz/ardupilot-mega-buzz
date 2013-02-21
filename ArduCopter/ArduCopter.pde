@@ -1,6 +1,6 @@
 /// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
-#define THISFIRMWARE "ArduCopter V2.9-dev"
+#define THISFIRMWARE "ArduCopter V2.9.1-dev"
 /*
  *  ArduCopter Version 2.9
  *  Lead author:	Jason Short
@@ -510,9 +510,8 @@ union float_int {
 ////////////////////////////////////////////////////////////////////////////////
 // This is the angle from the copter to the "next_WP" location in degrees * 100
 static int32_t wp_bearing;
-// Status of the Waypoint tracking mode. Options include:
-// NO_NAV_MODE, WP_MODE, LOITER_MODE, CIRCLE_MODE
-static uint8_t wp_control;
+// navigation mode - options include NAV_NONE, NAV_LOITER, NAV_CIRCLE, NAV_WP
+static uint8_t nav_mode;
 // Register containing the index of the current navigation command in the mission script
 static int16_t command_nav_index;
 // Register containing the index of the previous navigation command in the mission script
@@ -545,9 +544,11 @@ static uint8_t rtl_state;
 static float cos_roll_x         = 1;
 static float cos_pitch_x        = 1;
 static float cos_yaw_x          = 1;
-static float sin_yaw_y;
-static float sin_roll;
-static float sin_pitch;
+static float sin_yaw_y          = 1;
+static float cos_yaw            = 1;
+static float sin_yaw            = 1;
+static float sin_roll           = 1;
+static float sin_pitch          = 1;
 
 ////////////////////////////////////////////////////////////////////////////////
 // SIMPLE Mode
@@ -616,6 +617,9 @@ static uint16_t loiter_time_max;
 static uint32_t loiter_time;
 // The synthetic location created to make the copter do circles around a WP
 static struct   Location circle_WP;
+// inertial nav loiter variables
+static float loiter_lat_from_home_cm;
+static float loiter_lon_from_home_cm;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -695,7 +699,7 @@ static int32_t home_bearing;
 static int32_t home_distance;
 // distance between plane and next_WP in cm
 // is not static because AP_Camera uses it
-int32_t wp_distance;
+uint32_t wp_distance;
 
 ////////////////////////////////////////////////////////////////////////////////
 // 3D Location vectors
@@ -1341,7 +1345,7 @@ static void super_slow_loop()
         Log_Write_Data(DATA_AP_STATE, ap.value);
     }
 
-    if (g.log_bitmask & MASK_LOG_CUR && motors.armed())
+    if (g.log_bitmask & MASK_LOG_CURRENT && motors.armed())
         Log_Write_Current();
 
     // this function disarms the copter if it has been sitting on the ground for any moment of time greater than 25 seconds
@@ -1418,7 +1422,7 @@ static void update_GPS(void)
                 // We countdown N number of good GPS fixes
                 // so that the altitude is more accurate
                 // -------------------------------------
-                if (current_loc.lat == 0) {
+                if (g_gps->latitude == 0) {
                     ground_start_count = 5;
 
                 }else{
@@ -1594,8 +1598,14 @@ bool set_roll_pitch_mode(uint8_t new_roll_pitch_mode)
         case ROLL_PITCH_AUTO:
         case ROLL_PITCH_STABLE_OF:
         case ROLL_PITCH_TOY:
-        case ROLL_PITCH_LOITER_PR:
             roll_pitch_initialised = true;
+            break;
+
+        case ROLL_PITCH_LOITER_INAV:
+            // require gps lock
+            if( ap.home_is_set ) {
+                roll_pitch_initialised = true;
+            }
             break;
     }
 
@@ -1701,14 +1711,24 @@ void update_roll_pitch_mode(void)
     case ROLL_PITCH_TOY:
         roll_pitch_toy();
         break;
-        
-    case ROLL_PITCH_LOITER_PR:
-    
-        // LOITER does not get SIMPLE mode ability
-        
-        nav_roll                += constrain(wrap_180(auto_roll  - nav_roll),  -g.auto_slew_rate.get(), g.auto_slew_rate.get());                 // 40 deg a second
-        nav_pitch               += constrain(wrap_180(auto_pitch - nav_pitch), -g.auto_slew_rate.get(), g.auto_slew_rate.get());                 // 40 deg a second
 
+    case ROLL_PITCH_LOITER_INAV:
+        // apply SIMPLE mode transform
+        if(ap.simple_mode && ap_system.new_radio_frame) {
+            update_simple_mode();
+        }
+        // copy user input for logging purposes
+        control_roll            = g.rc_1.control_in;
+        control_pitch           = g.rc_2.control_in;
+
+        // update loiter target from user controls - max velocity is 5.0 m/s
+        if( control_roll != 0 || control_pitch != 0 ) {
+            loiter_set_pos_from_velocity(-control_pitch/(2*4.5), control_roll/(2*4.5),0.01f);
+        }
+
+        // copy latest output from nav controller to stabilize controller
+        nav_roll    = auto_roll;
+        nav_pitch   = auto_pitch;
         get_stabilize_roll(nav_roll);
         get_stabilize_pitch(nav_pitch);
         break;
@@ -1757,6 +1777,20 @@ void update_simple_mode(void)
     g.rc_2.control_in = _pitch;
 }
 
+// update_super_simple_beading - adjusts simple bearing based on location
+// should be called after home_bearing has been updated
+void update_super_simple_beading()
+{
+    // are we in SIMPLE mode?
+    if(ap.simple_mode && g.super_simple) {
+        // get distance to home
+        if(home_distance > SUPER_SIMPLE_RADIUS) {        // 10m from home
+            // we reset the angular offset to be a vector from home to the quad
+            initial_simple_bearing = wrap_360(home_bearing+18000);
+        }
+    }
+}
+
 // set_throttle_mode - sets the throttle mode and initialises any variables as required
 bool set_throttle_mode( uint8_t new_throttle_mode )
 {
@@ -1801,7 +1835,7 @@ bool set_throttle_mode( uint8_t new_throttle_mode )
             set_new_altitude(current_loc.alt);          // by default hold the current altitude
             if ( throttle_mode <= THROTTLE_MANUAL_TILT_COMPENSATED ) {      // reset the alt hold I terms if previous throttle mode was manual
                 reset_throttle_I();
-                set_accel_throttle_I_from_pilot_throttle();
+                set_accel_throttle_I_from_pilot_throttle(get_pilot_desired_throttle(g.rc_3.control_in));
             }
             throttle_initialised = true;
             break;
@@ -1841,6 +1875,7 @@ bool set_throttle_mode( uint8_t new_throttle_mode )
 void update_throttle_mode(void)
 {
     int16_t pilot_climb_rate;
+    int16_t pilot_throttle_scaled;
 
     if(ap.do_flip)     // this is pretty bad but needed to flip in AP modes.
         return;
@@ -1868,19 +1903,20 @@ void update_throttle_mode(void)
             set_throttle_out(0, false);
         }else{
             // send pilot's output directly to motors
-            set_throttle_out(g.rc_3.control_in, false);
+            pilot_throttle_scaled = get_pilot_desired_throttle(g.rc_3.control_in);
+            set_throttle_out(pilot_throttle_scaled, false);
 
             // update estimate of throttle cruise
 			#if FRAME_CONFIG == HELI_FRAME
             update_throttle_cruise(motors.coll_out);
 			#else
-			update_throttle_cruise(g.rc_3.control_in);
+			update_throttle_cruise(pilot_throttle_scaled);
 			#endif  //HELI_FRAME
 
 
             // check if we've taken off yet
             if (!ap.takeoff_complete && motors.armed()) {
-                if (g.rc_3.control_in > g.throttle_cruise) {
+                if (pilot_throttle_scaled > g.throttle_cruise) {
                     // we must be in the air by now
                     set_takeoff_complete(true);
                 }
@@ -1893,17 +1929,18 @@ void update_throttle_mode(void)
         if (g.rc_3.control_in <= 0) {
             set_throttle_out(0, false); // no need for angle boost with zero throttle
         }else{
-            set_throttle_out(g.rc_3.control_in, true);
+            pilot_throttle_scaled = get_pilot_desired_throttle(g.rc_3.control_in);
+            set_throttle_out(pilot_throttle_scaled, true);
 
             // update estimate of throttle cruise
             #if FRAME_CONFIG == HELI_FRAME
             update_throttle_cruise(motors.coll_out);
 			#else
-			update_throttle_cruise(g.rc_3.control_in);
+			update_throttle_cruise(pilot_throttle_scaled);
 			#endif  //HELI_FRAME
 
             if (!ap.takeoff_complete && motors.armed()) {
-                if (g.rc_3.control_in > g.throttle_cruise) {
+                if (pilot_throttle_scaled > g.throttle_cruise) {
                     // we must be in the air by now
                     set_takeoff_complete(true);
                 }
@@ -2023,6 +2060,9 @@ static void update_trig(void){
     sin_pitch       = -temp.c.x;
     sin_roll        = temp.c.y / cos_pitch_x;
 
+    sin_yaw               = constrain(temp.b.x/cos_pitch_x, -1.0, 1.0);
+    cos_yaw               = constrain(temp.a.x/cos_pitch_x, -1.0, 1.0);
+
     //flat:
     // 0 ° = cos_yaw:  0.00, sin_yaw:  1.00,
     // 90° = cos_yaw:  1.00, sin_yaw:  0.00,
@@ -2057,8 +2097,10 @@ static void update_altitude()
     baro_rate			= constrain(baro_rate, -500, 500);
 
     // read in sonar altitude and calculate sonar rate
-    if(g.sonar_enabled) {
-        sonar_alt       = read_sonar();
+    sonar_alt           = read_sonar();
+    // start calculating the sonar_rate as soon as valid sonar readings start coming in so that we are ready when the sonar_alt_health becomes 3
+    // Note: post 2.9.1 release we will remove the sonar_rate variable completely
+    if(sonar_alt_health > 1) {
         sonar_rate      = (sonar_alt - old_sonar_alt) * 10;
         sonar_rate      = constrain(sonar_rate, -150, 150);
     }

@@ -33,9 +33,10 @@
 #define SONAR_SOURCE_ANALOG_PIN 2
 
 // CH 7 control
-#define CH7_DO_NOTHING   0
-#define CH7_SAVE_WP      1
-#define CH7_RTL          6
+enum ch7_option {
+    CH7_DO_NOTHING=0,
+    CH7_SAVE_WP=1
+};
 
 #define T6 1000000
 #define T7 10000000
@@ -66,15 +67,14 @@
 
 // Auto Pilot modes
 // ----------------
-#define MANUAL 0
-#define CIRCLE 1			 // When flying sans GPS, and we loose the radio, just circle
-#define LEARNING 2
-
-#define AUTO 10
-#define RTL 11
-#define GUIDED 15
-#define INITIALISING 16     // in startup routines
-#define HEADALT      17   // Lock the current heading and altitude
+enum mode {
+    MANUAL=0,
+	LEARNING=2,
+    AUTO=10,
+    RTL=11,
+    GUIDED=15,
+    INITIALISING=16
+};
 
 // Commands - Note that APM now uses a subset of the MAVLink protocol commands.  See enum MAV_CMD in the GCS_Mavlink library
 #define CMD_BLANK 0 // there is no command stored in the mem location requested
@@ -135,29 +135,29 @@ enum gcs_severity {
 //  Logging parameters
 #define LOG_INDEX_MSG			0xF0
 #define LOG_ATTITUDE_MSG		0x01
-#define LOG_GPS_MSG			0x02
+#define LOG_GPS_MSG			    0x02
 #define LOG_MODE_MSG			0X03
-#define LOG_CONTROL_TUNING_MSG	        0X04
+#define LOG_CONTROL_TUNING_MSG	0X04
 #define LOG_NAV_TUNING_MSG		0X05
 #define LOG_PERFORMANCE_MSG		0X06
-#define LOG_RAW_MSG			0x07
-#define LOG_CMD_MSG			0x08
+#define LOG_IMU_MSG			    0x07
+#define LOG_CMD_MSG			    0x08
 #define LOG_CURRENT_MSG 		0x09
 #define LOG_STARTUP_MSG 		0x0A
 #define TYPE_AIRSTART_MSG		0x00
-#define TYPE_GROUNDSTART_MSG	        0x01
+#define TYPE_GROUNDSTART_MSG	0x01
 #define MAX_NUM_LOGS			100
 
-#define MASK_LOG_ATTITUDE_FAST 	        (1<<0)
-#define MASK_LOG_ATTITUDE_MED 	        (1<<1)
+#define MASK_LOG_ATTITUDE_FAST 	(1<<0)
+#define MASK_LOG_ATTITUDE_MED 	(1<<1)
 #define MASK_LOG_GPS 			(1<<2)
 #define MASK_LOG_PM 			(1<<3)
 #define MASK_LOG_CTUN 			(1<<4)
 #define MASK_LOG_NTUN			(1<<5)
 #define MASK_LOG_MODE			(1<<6)
-#define MASK_LOG_RAW			(1<<7)
+#define MASK_LOG_IMU			(1<<7)
 #define MASK_LOG_CMD			(1<<8)
-#define MASK_LOG_CUR			(1<<9)
+#define MASK_LOG_CURRENT		(1<<9)
 
 // Waypoint Modes
 // ----------------

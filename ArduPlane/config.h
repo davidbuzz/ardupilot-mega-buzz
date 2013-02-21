@@ -99,7 +99,9 @@
  # define BATTERY_CURR_PIN      1      // Battery current on A1
  # define CONFIG_INS_TYPE CONFIG_INS_OILPAN
  # define CONFIG_PITOT_SOURCE PITOT_SOURCE_ADC
+ # define CONFIG_PITOT_SOURCE_ADC_CHANNEL 7
  # define CONFIG_BARO     AP_BARO_BMP085
+ # define CONFIG_COMPASS  AP_COMPASS_HMC5843
 #elif CONFIG_HAL_BOARD == HAL_BOARD_APM2
  # define A_LED_PIN        27
  # define B_LED_PIN        26
@@ -115,6 +117,8 @@
  # define BATTERY_CURR_PIN      2      // Battery current on A2
  # define CONFIG_INS_TYPE CONFIG_INS_MPU6000
  # define CONFIG_PITOT_SOURCE PITOT_SOURCE_ANALOG_PIN
+ # define CONFIG_PITOT_SOURCE_ANALOG_PIN 0
+ # define CONFIG_PITOT_SCALING 4.0
  # define MAG_ORIENTATION   AP_COMPASS_APM2_SHIELD
  # define MAGNETOMETER ENABLED
  # ifdef APM2_BETA_HARDWARE
@@ -123,6 +127,7 @@
  #  define CONFIG_BARO          AP_BARO_MS5611
  #  define CONFIG_MS5611_SERIAL AP_BARO_MS5611_SPI
  # endif
+ # define CONFIG_COMPASS  AP_COMPASS_HMC5843
 #elif CONFIG_HAL_BOARD == HAL_BOARD_AVR_SITL
  # define A_LED_PIN        27
  # define B_LED_PIN        26
@@ -133,20 +138,29 @@
  # define BATTERY_CURR_PIN      2      // Battery current on A2
  # define CONFIG_INS_TYPE CONFIG_INS_STUB
  # define CONFIG_PITOT_SOURCE PITOT_SOURCE_ANALOG_PIN
+ # define CONFIG_PITOT_SOURCE_ANALOG_PIN 0
+ # define CONFIG_PITOT_SCALING 4.0
  # define MAGNETOMETER ENABLED
+ # define CONFIG_BARO     AP_BARO_HIL
+ # define CONFIG_COMPASS  AP_COMPASS_HIL
 #elif CONFIG_HAL_BOARD == HAL_BOARD_PX4
  # define A_LED_PIN        27
  # define B_LED_PIN        26
  # define C_LED_PIN        25
  # define LED_ON           LOW
  # define LED_OFF          HIGH
+ # define USB_MUX_PIN -1
  # define BATTERY_VOLT_PIN      -1
  # define BATTERY_CURR_PIN      -1
  # define CONFIG_INS_TYPE CONFIG_INS_PX4
  # define CONFIG_PITOT_SOURCE PITOT_SOURCE_ANALOG_PIN
+ # define CONFIG_PITOT_SOURCE_ANALOG_PIN 11
+ # define CONFIG_PITOT_SCALING (4.0*5.0/3.3)
  # define MAGNETOMETER ENABLED
  # define MAG_ORIENTATION   ROTATION_NONE
  # define CONFIG_BARO AP_BARO_PX4
+ # define CONFIG_COMPASS  AP_COMPASS_PX4
+ # define SERIAL0_BAUD 115200
 #endif
 
 
@@ -161,28 +175,16 @@
  # endif
 #endif
 
-//////////////////////////////////////////////////////////////////////////////
-// Barometer
-//
-
 #ifndef CONFIG_BARO
- # define CONFIG_BARO AP_BARO_BMP085
+ # error "CONFIG_BARO not set"
+#endif
+
+#ifndef CONFIG_COMPASS
+ # error "CONFIG_COMPASS not set"
 #endif
 
 #ifndef CONFIG_PITOT_SOURCE
- # define CONFIG_PITOT_SOURCE PITOT_SOURCE_ADC
-#endif
-
-#if CONFIG_PITOT_SOURCE == PITOT_SOURCE_ADC
- # ifndef CONFIG_PITOT_SOURCE_ADC_CHANNEL
-  #  define CONFIG_PITOT_SOURCE_ADC_CHANNEL 7
- # endif
-#elif CONFIG_PITOT_SOURCE == PITOT_SOURCE_ANALOG_PIN
- # ifndef CONFIG_PITOT_SOURCE_ANALOG_PIN
-  #  define CONFIG_PITOT_SOURCE_ANALOG_PIN 0
- # endif
-#else
- # warning Invalid value for CONFIG_PITOT_SOURCE
+ # error "CONFIG_PITOT_SOURCE not set"
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -193,14 +195,22 @@
 #endif
 
 #if HIL_MODE != HIL_MODE_DISABLED       // we are in HIL mode
- # undef GPS_PROTOCOL
- # define GPS_PROTOCOL GPS_PROTOCOL_NONE
+ #undef GPS_PROTOCOL
+ #define GPS_PROTOCOL GPS_PROTOCOL_HIL
+ #undef CONFIG_BARO
+ #define CONFIG_BARO AP_BARO_HIL
+ #undef CONFIG_INS_TYPE
+ #define CONFIG_INS_TYPE CONFIG_INS_STUB
  #undef CONFIG_ADC
  #define CONFIG_ADC DISABLED
  #undef CONFIG_PITOT_SOURCE
  #define CONFIG_PITOT_SOURCE PITOT_SOURCE_ANALOG_PIN
  #undef CONFIG_PITOT_SOURCE_ANALOG_PIN
  #define CONFIG_PITOT_SOURCE_ANALOG_PIN -1
+ #undef CONFIG_PITOT_SCALING
+ #define CONFIG_PITOT_SCALING 4.0
+ #undef  CONFIG_COMPASS
+ #define CONFIG_COMPASS  AP_COMPASS_HIL
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -726,30 +736,30 @@
 #ifndef LOG_MODE
  # define LOG_MODE                               ENABLED
 #endif
-#ifndef LOG_RAW
- # define LOG_RAW                                DISABLED
+#ifndef LOG_IMU
+ # define LOG_IMU                                DISABLED
 #endif
 #ifndef LOG_CMD
  # define LOG_CMD                                ENABLED
 #endif
-#ifndef LOG_CUR
- # define LOG_CUR                        DISABLED
+#ifndef LOG_CURRENT
+ # define LOG_CURRENT                            DISABLED
 #endif
 
 // calculate the default log_bitmask
 #define LOGBIT(_s)      (LOG_ ## _s ? MASK_LOG_ ## _s : 0)
 
-#define DEFAULT_LOG_BITMASK \
-    LOGBIT(ATTITUDE_FAST)   | \
-    LOGBIT(ATTITUDE_MED)    | \
-    LOGBIT(GPS)                             | \
-    LOGBIT(PM)                              | \
-    LOGBIT(CTUN)                    | \
-    LOGBIT(NTUN)                    | \
-    LOGBIT(MODE)                    | \
-    LOGBIT(RAW)                             | \
-    LOGBIT(CMD)                             | \
-    LOGBIT(CUR)
+#define DEFAULT_LOG_BITMASK     \
+    LOGBIT(ATTITUDE_FAST)       | \
+    LOGBIT(ATTITUDE_MED)        | \
+    LOGBIT(GPS)                 | \
+    LOGBIT(PM)                  | \
+    LOGBIT(CTUN)                | \
+    LOGBIT(NTUN)                | \
+    LOGBIT(MODE)                | \
+    LOGBIT(IMU)                 | \
+    LOGBIT(CMD)                 | \
+    LOGBIT(CURRENT)
 
 
 //////////////////////////////////////////////////////////////////////////////
