@@ -660,7 +660,53 @@ void setup() {
     // this needs to be the first call, as it fills memory with
     // sentinel values
     memcheck_init();
+    
+    //hal.notify->BlinkM_Off();
+    
+    //hal.notify->set(0); // 0=POWERON
+    //hal.scheduler->delay(50);
+     hal.notify->notify(0); // RGB fast?
 
+    hal.scheduler->delay(5000);
+    
+    hal.notify->notify(1); // RGB fast?
+
+    hal.scheduler->delay(5000);
+
+    hal.notify->notify(2); // RGB fast?
+
+    hal.scheduler->delay(5000);
+    hal.notify->notify(3); // RGB fast?
+
+    hal.scheduler->delay(5000);
+    hal.notify->notify(4); // RGB fast?
+
+    hal.scheduler->delay(5000);
+        hal.notify->notify(5); // RGB fast?
+
+    hal.scheduler->delay(5000);
+     hal.notify->notify(6); // RGB fast?
+
+    hal.scheduler->delay(5000);
+    
+    hal.notify->notify(7); // RGB fast?
+
+    hal.scheduler->delay(5000);
+
+    hal.notify->notify(8); // RGB fast?
+
+    hal.scheduler->delay(5000);
+    hal.notify->notify(9); // RGB fast?
+
+    hal.scheduler->delay(5000);
+    hal.notify->notify(10); // RGB fast?
+
+    hal.scheduler->delay(5000);
+        hal.notify->notify(11); // RGB fast?
+
+    hal.scheduler->delay(5000);
+
+    
     cliSerial = hal.console;
 
     // load the default values of variables listed in var_info[]
@@ -681,6 +727,7 @@ void setup() {
     
     airspeed.init(pitot_analog_source);
     init_ardupilot();
+    
 }
 
 void loop()
