@@ -12,6 +12,7 @@
 #include "../AP_HAL/GPIO.h"
 #include "../AP_HAL/RCInput.h"
 #include "../AP_HAL/RCOutput.h"
+#include "../AP_HAL/Notify.h"
 
 class AP_HAL::HAL {
 public:
@@ -27,7 +28,8 @@ public:
         AP_HAL::RCInput*    _rcin,
         AP_HAL::RCOutput*   _rcout,
         AP_HAL::Scheduler*  _scheduler,
-        AP_HAL::Util*       _util)
+        AP_HAL::Util*       _util,
+        AP_HAL::Notify*       _notify)
         :
         uartA(_uartA),
         uartB(_uartB),
@@ -41,7 +43,8 @@ public:
         rcin(_rcin),
         rcout(_rcout),
         scheduler(_scheduler),
-        util(_util)
+        util(_util),
+        notify(_notify)
     {}
 
     virtual void init(int argc, char * const argv[]) const = 0;
@@ -59,6 +62,7 @@ public:
     AP_HAL::RCOutput*   rcout;
     AP_HAL::Scheduler*  scheduler;
     AP_HAL::Util*       util;
+    AP_HAL::Notify*       notify;
 };
 
 #endif // __AP_HAL_HAL_H__

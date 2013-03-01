@@ -27,6 +27,7 @@ namespace AP_HAL_AVR {
     class AVRSemaphore;
     class ISRRegistry;
     class AVRUtil;
+    class AVRNotify;
 }
 
 #endif //__AP_HAL_AVR_NAMESPACE_H__
