@@ -17,28 +17,61 @@
 
 #include "AP_HAL_Namespace.h"
 
-class AP_HAL::Notify {
+#define NOTIFY_MAX_OBJECTS      3
+
+class AP_HAL::Notify
+{
 public:
-    virtual void set(uint8_t val) = 0;
-    
-    virtual void setrgb(uint8_t r, uint8_t g, uint8_t b); 
-        
-    virtual void notify(uint8_t n); 
+    /// notify_type - bitmask of notification types
+    struct notify_type {
+        uint16_t gps            : 1;
+        uint16_t arm            : 1;
+        uint16_t initialising   : 1;
+    };
 
-   virtual void BlinkM_stopScript(uint8_t addr);
-   virtual void BlinkM_setFadeSpeed(uint8_t addr, uint8_t fadespeed);
-   virtual void BlinkM_setTimeAdjust(uint8_t addr, uint8_t adjust) ;
-   virtual void BlinkM_setRGB(uint8_t addr, uint8_t red, uint8_t grn, uint8_t blu);
-   virtual void BlinkM_fadeToRGB(uint8_t addr, uint8_t red, uint8_t grn, uint8_t blu);
-   
-   //virtual void BlinkM_RGBslow();
-   //virtual void BlinkM_RGBfast();
-   virtual void BlinkM_Off(); 
+    /// Constructor - child instances should create their own
+    Notify();
 
-   virtual void PlayScript(uint8_t id);
-   virtual void BlinkM_writeScriptLine(uint8_t lineno,uint8_t cmd,uint8_t r,uint8_t g,uint8_t b);
-   virtual void BlinkM_SetScriptLength(uint8_t length,uint8_t repeats);
-     
+    ///
+    /// external callers should call these methods to request notifcation updates to pilot
+    ///
+
+    /// GPS_state - update gps lock state to 0:no gps, 1:no lock, 2:2d Lock, 3:3dLock
+    static void GPS_state(uint8_t state);
+
+    /// arm_state - 0 = disarmed, 1 = disarmed+pre-arm-check failure, 2 = armed
+    static void arm_state(uint8_t state);
+
+    /// initialising - to indicate we should not move the vehicle
+    static void initialising(bool on_off);
+
+protected:
+
+    ///
+    /// child instances should implement these methods
+    ///
+
+    /// GPS_state - update gps lock state to 0:no gps, 1:no lock, 2:2d Lock, 3:3dLock
+    virtual void _GPS_state(uint8_t state) {};
+    /// arm_state - 0 = disarmed, 1 = disarmed+pre-arm-check failure, 2 = armed
+    virtual void _arm_state(uint8_t state) {};
+    /// _initialising - to indicate we should not move the vehicle
+    virtual void _initialising(bool on_off) {};
+
+    /// id of this instance - used as an index into the children and interests tables
+    uint8_t _id;
+
+    ///
+    /// methods that should not be overwritten
+    ///
+
+    /// set_interests - register notification types that this object supports
+    void set_interests(notify_type interests) { _interests[_id] = interests; }
+
+    /// table of all instantiated notify objects
+    static Notify* _children[NOTIFY_MAX_OBJECTS];
+    static notify_type _interests[NOTIFY_MAX_OBJECTS];
+    static uint8_t _num_children;
 };
 
 #endif // __AP_HAL_NOTIFY_H__
