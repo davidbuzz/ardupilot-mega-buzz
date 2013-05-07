@@ -27,6 +27,24 @@ public:
         uint16_t gps            : 1;
         uint16_t arm            : 1;
         uint16_t initialising   : 1;
+        	
+				uint16_t recent_brownout   : 1;
+				uint16_t low_battery   : 1;
+				uint16_t accel_calibration_failure   : 1;
+				uint16_t radio_calibration_failure   : 1;
+				uint16_t compass_calibration_failure   : 1;
+				uint16_t gyro_calibration_failure   : 1;
+					
+		    uint16_t fs_throttle   : 1;
+		    uint16_t fs_battery   : 1;
+		    uint16_t fs_gps   : 1;
+		    uint16_t fs_gcs   : 1;
+		    uint16_t fence_breach   : 1;
+		    uint16_t switch_aux1   : 1;
+		    uint16_t switch_aux2   : 1;
+		    uint16_t reached_waypoint   : 1;
+		    uint16_t flightmode   : 1;
+
     };
 
     /// Constructor - child instances should create their own
@@ -54,6 +72,17 @@ public:
     static void compass_calibration_failure();
     static void gyro_calibration_failure();
     
+    static void fs_throttle(bool uint8_t);     // 0 if throttle failsafe is cleared, 1 if activated
+    static void fs_battery(bool uint8_t);      // 1 if battery voltage is low or consumed amps close to battery capacity, 0 if cleared
+    static void fs_gps(bool uint8_t);          // 1 if we've lost gps lock and it is required for our current flightmode, 0 if cleared
+    static void fs_gcs(bool uint8_t);          // 1 if we've lost contact with the gcs and it is required for our current flightmode or pilot input method, 0 if cleared
+    static void fence_breach(bool uint8_t);    // fence type breached or 0 if cleared
+    static void switch_aux1(uint8_t state);     // 0 if aux switch is off, 1 if in middle, 2 if high
+    static void switch_aux2(uint8_t state);     // 0 if aux switch is off, 1 if in middle, 2 if high
+    static void reached_waypoint();             // called right after we reach a waypoint
+    static void flightmode(uint8_t mode);
+
+    
 protected:
 
     ///
@@ -75,6 +104,19 @@ protected:
     virtual void _radio_calibration_failure(){};
     virtual void _compass_calibration_failure() {};
     virtual void _gyro_calibration_failure() {};
+
+    // todo improve names here  - what are we really trying to tell the user?  
+    virtual void _fs_throttle(bool uint8_t){};     // 0 if throttle failsafe is cleared, 1 if activated
+    virtual void _fs_battery(bool uint8_t){};      // 1 if battery voltage is low or consumed amps close to battery capacity, 0 if cleared
+    virtual void _fs_gps(bool uint8_t){};          // 1 if we've lost gps lock and it is required for our current flightmode, 0 if cleared
+    virtual void _fs_gcs(bool uint8_t){};          // 1 if we've lost contact with the gcs and it is required for our current flightmode or pilot input method, 0 if cleared
+    virtual void _fence_breach(bool uint8_t){};    // fence type breached or 0 if cleared
+    virtual void _switch_aux1(uint8_t state){};     // 0 if aux switch is off, 1 if in middle, 2 if high
+    virtual void _switch_aux2(uint8_t state){};     // 0 if aux switch is off, 1 if in middle, 2 if high
+    virtual void _reached_waypoint(){};             // called right after we reach a waypoint
+    virtual void _flightmode(uint8_t mode){};
+
+
     
     /// id of this instance - used as an index into the children and interests tables
     uint8_t _id;

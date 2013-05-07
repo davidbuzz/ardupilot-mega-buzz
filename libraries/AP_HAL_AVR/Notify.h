@@ -33,6 +33,16 @@ protected:
 		// what other subsystems can we detect failure on ( and tell user about with POST code/s) 
 		// , or need to blink led for any other reason, or play/beep tones, or send a msg, or...? 
     
+    virtual void _fs_throttle(bool uint8_t);     // 0 if throttle failsafe is cleared, 1 if activated
+    virtual void _fs_battery(bool uint8_t);      // 1 if battery voltage is low or consumed amps close to battery capacity, 0 if cleared
+    virtual void _fs_gps(bool uint8_t);          // 1 if we've lost gps lock and it is required for our current flightmode, 0 if cleared
+    virtual void _fs_gcs(bool uint8_t);          // 1 if we've lost contact with the gcs and it is required for our current flightmode or pilot input method, 0 if cleared
+    virtual void _fence_breach(bool uint8_t);    // fence type breached or 0 if cleared
+    virtual void _switch_aux1(uint8_t state);     // 0 if aux switch is off, 1 if in middle, 2 if high
+    virtual void _switch_aux2(uint8_t state);     // 0 if aux switch is off, 1 if in middle, 2 if high
+    virtual void _reached_waypoint();             // called right after we reach a waypoint
+    virtual void _flightmode(uint8_t mode);
+
     
     
 private:

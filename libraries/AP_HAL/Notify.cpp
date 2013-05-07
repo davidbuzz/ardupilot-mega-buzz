@@ -99,3 +99,77 @@ void AP_HAL::Notify::gyro_calibration_failure() {
         }
     }
 }
+
+
+void AP_HAL::Notify::fs_throttle(bool uint8_t) {
+    // call children who support this notification
+    for(uint8_t i=0; i<_num_children; i++) {
+        if( _interests[i].fs_throttle ) {
+            _children[i]->_fs_throttle();
+        }
+    }
+}
+void AP_HAL::Notify::fs_battery(bool uint8_t) {
+    // call children who support this notification
+    for(uint8_t i=0; i<_num_children; i++) {
+        if( _interests[i].fs_battery ) {
+            _children[i]->_fs_battery();
+        }
+    }
+}
+void AP_HAL::Notify::fs_gps(bool uint8_t) {
+    // call children who support this notification
+    for(uint8_t i=0; i<_num_children; i++) {
+        if( _interests[i].fs_gps ) {
+            _children[i]->_fs_gps();
+        }
+    }
+}
+void AP_HAL::Notify::fs_gcs(bool uint8_t) {
+    // call children who support this notification
+    for(uint8_t i=0; i<_num_children; i++) {
+        if( _interests[i].fs_gcs ) {
+            _children[i]->_fs_gcs();
+        }
+    }
+}
+void AP_HAL::Notify::fence_breach(bool uint8_t) {
+    // call children who support this notification
+    for(uint8_t i=0; i<_num_children; i++) {
+        if( _interests[i].fence_breach ) {
+            _children[i]->_fence_breach();
+        }
+    }
+}
+void AP_HAL::Notify::switch_aux1(uint8_t state) {
+    // call children who support this notification
+    for(uint8_t i=0; i<_num_children; i++) {
+        if( _interests[i].switch_aux1 ) {
+            _children[i]->_switch_aux1();
+        }
+    }
+}
+void AP_HAL::Notify::switch_aux2(uint8_t state) {
+    // call children who support this notification
+    for(uint8_t i=0; i<_num_children; i++) {
+        if( _interests[i].switch_aux2 ) {
+            _children[i]->_switch_aux2();
+        }
+    }
+}
+void AP_HAL::Notify::reached_waypoint() {
+    // call children who support this notification
+    for(uint8_t i=0; i<_num_children; i++) {
+        if( _interests[i].reached_waypoint ) {
+            _children[i]->_reached_waypoint();
+        }
+    }
+}
+void AP_HAL::Notify::flightmode(uint8_t mode) {
+    // call children who support this notification
+    for(uint8_t i=0; i<_num_children; i++) {
+        if( _interests[i].flightmode ) {
+            _children[i]->_flightmode();
+        }
+    }
+}

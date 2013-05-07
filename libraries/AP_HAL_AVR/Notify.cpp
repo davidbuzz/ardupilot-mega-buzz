@@ -57,3 +57,31 @@ void AVRNotify::_compass_calibration_failure() {
 void AVRNotify::_gyro_calibration_failure() {
     // do something
 }
+
+void AVRNotify::_fs_throttle(bool uint8_t) {
+    // do something
+}
+void AVRNotify::_fs_battery(bool uint8_t) {
+    // do something
+}
+void AVRNotify::_fs_gps(bool uint8_t) {
+    // do something
+}
+void AVRNotify::_fs_gcs(bool uint8_t) {
+    // do something
+}
+void AVRNotify::_fence_breach(bool uint8_t) {
+    // do something
+}
+void AVRNotify::_switch_aux1(uint8_t state) {
+    // do something
+}
+void AVRNotify::_switch_aux2(uint8_t state) {
+    // do something
+}
+void AVRNotify::_reached_waypoint() {
+    // do something
+}
+void AVRNotify::_flightmode(uint8_t mode) {
+    // do something
+}
