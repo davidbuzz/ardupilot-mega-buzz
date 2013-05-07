@@ -45,6 +45,15 @@ public:
     /// initialising - to indicate we should not move the vehicle
     static void initialising(bool on_off);
 
+    // other things we can notify the user about, if the specific hardware supports it:   
+    // none of these are "clearable" by passing in a bool, as they should only be cleared by a reboot. 
+    static void recent_brownout();
+    static void low_battery();
+    static void accel_calibration_failure();
+    static void radio_calibration_failure();
+    static void compass_calibration_failure();
+    static void gyro_calibration_failure();
+    
 protected:
 
     ///
@@ -58,6 +67,15 @@ protected:
     /// _initialising - to indicate we should not move the vehicle
     virtual void _initialising(bool on_off) {};
 
+    // other things we can notify the user about, if the specific hardware supports it:   
+    // none of these are "clearable" by passing in a bool, as they should only be cleared by a reboot. 
+    virtual void _recent_brownout() {};
+    virtual void _low_battery() {};
+    virtual void _accel_calibration_failure() {};
+    virtual void _radio_calibration_failure(){};
+    virtual void _compass_calibration_failure() {};
+    virtual void _gyro_calibration_failure() {};
+    
     /// id of this instance - used as an index into the children and interests tables
     uint8_t _id;
 

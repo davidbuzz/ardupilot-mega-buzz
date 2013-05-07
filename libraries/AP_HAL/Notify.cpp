@@ -50,3 +50,52 @@ void AP_HAL::Notify::initialising(bool on_off) {
         }
     }
 }
+
+void AP_HAL::Notify::recent_brownout() {
+    // call children who support this notification
+    for(uint8_t i=0; i<_num_children; i++) {
+        if( _interests[i].recent_brownout ) {
+            _children[i]->_recent_brownout();
+        }
+    }
+}
+void AP_HAL::Notify::low_battery() {
+    // call children who support this notification
+    for(uint8_t i=0; i<_num_children; i++) {
+        if( _interests[i].low_battery ) {
+            _children[i]->_low_battery();
+        }
+    }
+}
+void AP_HAL::Notify::accel_calibration_failure() {
+    // call children who support this notification
+    for(uint8_t i=0; i<_num_children; i++) {
+        if( _interests[i].accel_calibration_failure ) {
+            _children[i]->_accel_calibration_failure();
+        }
+    }
+}
+void AP_HAL::Notify::radio_calibration_failure() {
+    // call children who support this notification
+    for(uint8_t i=0; i<_num_children; i++) {
+        if( _interests[i].radio_calibration_failure ) {
+            _children[i]->_radio_calibration_failure();
+        }
+    }
+}
+void AP_HAL::Notify::compass_calibration_failure() {
+    // call children who support this notification
+    for(uint8_t i=0; i<_num_children; i++) {
+        if( _interests[i].compass_calibration_failure ) {
+            _children[i]->_compass_calibration_failure();
+        }
+    }
+}
+void AP_HAL::Notify::gyro_calibration_failure() {
+    // call children who support this notification
+    for(uint8_t i=0; i<_num_children; i++) {
+        if( _interests[i].gyro_calibration_failure ) {
+            _children[i]->_gyro_calibration_failure();
+        }
+    }
+}
