@@ -56,11 +56,10 @@ static const struct Menu::command test_menu_commands[] PROGMEM = {
     {"airspeed",    test_airspeed},
     {"airpressure", test_pressure},
     {"compass",             test_mag},
-#elif HIL_MODE == HIL_MODE_SENSORS
+#else
     {"gps",                 test_gps},
     {"ins",                 test_ins},
     {"compass",             test_mag},
-#elif HIL_MODE == HIL_MODE_ATTITUDE
 #endif
     {"logging",             test_logging},
 #if CONFIG_HAL_BOARD == HAL_BOARD_PX4
@@ -145,7 +144,7 @@ test_passthru(uint8_t argc, const Menu::arg *argv)
             for(int16_t i = 0; i < 8; i++) {
                 cliSerial->print(hal.rcin->read(i));        // Print channel values
                 print_comma();
-                hal.rcout->write(i, hal.rcin->read(i)); // Copy input to Servos
+                servo_write(i, hal.rcin->read(i)); // Copy input to Servos
             }
             cliSerial->println();
         }
@@ -228,13 +227,15 @@ test_failsafe(uint8_t argc, const Menu::arg *argv)
 
         if(oldSwitchPosition != readSwitch()) {
             cliSerial->printf_P(PSTR("CONTROL MODE CHANGED: "));
-            print_flight_mode(readSwitch());
+            print_flight_mode(cliSerial, readSwitch());
+            cliSerial->println();
             fail_test++;
         }
 
         if(g.throttle_fs_enabled && g.channel_throttle.get_failsafe()) {
             cliSerial->printf_P(PSTR("THROTTLE FAILSAFE ACTIVATED: %d, "), (int)g.channel_throttle.radio_in);
-            print_flight_mode(readSwitch());
+            print_flight_mode(cliSerial, readSwitch());
+            cliSerial->println();
             fail_test++;
         }
 
@@ -334,7 +335,7 @@ test_wp(uint8_t argc, const Menu::arg *argv)
 }
 
 static void
-test_wp_print(struct Location *cmd, uint8_t wp_index)
+test_wp_print(const struct Location *cmd, uint8_t wp_index)
 {
     cliSerial->printf_P(PSTR("command #: %d id:%d options:%d p1:%d p2:%ld p3:%ld p4:%ld \n"),
                     (int)wp_index,
@@ -394,21 +395,7 @@ test_modeswitch(uint8_t argc, const Menu::arg *argv)
 static int8_t
 test_logging(uint8_t argc, const Menu::arg *argv)
 {
-    cliSerial->println_P(PSTR("Testing dataflash logging"));
-    if (!DataFlash.CardInserted()) {
-        cliSerial->println_P(PSTR("ERR: No dataflash inserted"));
-        return 0;
-    }
-    DataFlash.ReadManufacturerID();
-    cliSerial->printf_P(PSTR("Manufacturer: 0x%02x   Device: 0x%04x\n"),
-                    (unsigned)DataFlash.df_manufacturer,
-                    (unsigned)DataFlash.df_device);
-    cliSerial->printf_P(PSTR("NumPages: %u\n"),
-                    (unsigned)DataFlash.df_NumPages+1);
-    DataFlash.StartRead(DataFlash.df_NumPages+1);
-    cliSerial->printf_P(PSTR("Format version: %lx  Expected format version: %lx\n"),
-                    (unsigned long)DataFlash.ReadLong(),
-                    (unsigned long)DF_LOGGING_FORMAT);
+    DataFlash.ShowDeviceInfo(cliSerial);
     return 0;
 }
 
@@ -426,8 +413,6 @@ test_shell(uint8_t argc, const Menu::arg *argv)
 
 //-------------------------------------------------------------------------------------------
 // tests in this section are for real sensors or sensors that have been simulated
-
-#if HIL_MODE == HIL_MODE_DISABLED || HIL_MODE == HIL_MODE_SENSORS
 
  #if CONFIG_ADC == ENABLED
 static int8_t
@@ -457,7 +442,7 @@ test_gps(uint8_t argc, const Menu::arg *argv)
     delay(1000);
 
     while(1) {
-        delay(333);
+        delay(100);
 
         // Blink GPS LED if we don't have a fix
         // ------------------------------------
@@ -615,8 +600,6 @@ test_mag(uint8_t argc, const Menu::arg *argv)
     compass.save_offsets();
     return (0);
 }
-
-#endif // HIL_MODE == HIL_MODE_DISABLED || HIL_MODE == HIL_MODE_SENSORS
 
 //-------------------------------------------------------------------------------------------
 // real sensors that have not been simulated yet go here

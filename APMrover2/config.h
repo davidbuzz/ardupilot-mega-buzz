@@ -65,6 +65,7 @@
 //
 #if CONFIG_HAL_BOARD == HAL_BOARD_APM1
 # define CONFIG_INS_TYPE   CONFIG_INS_OILPAN
+# define CONFIG_COMPASS  AP_COMPASS_HMC5843
 # define A_LED_PIN        37
 # define B_LED_PIN        36
 # define C_LED_PIN        35
@@ -76,13 +77,14 @@
 # define CONFIG_RELAY     ENABLED
 # define BATTERY_PIN_1	  0
 # define CURRENT_PIN_1	  1
+# define CONFIG_SONAR_SOURCE SONAR_SOURCE_ADC
 #elif CONFIG_HAL_BOARD == HAL_BOARD_APM2
 # define CONFIG_INS_TYPE   CONFIG_INS_MPU6000
+# define CONFIG_COMPASS  AP_COMPASS_HMC5843
 # define CONFIG_PUSHBUTTON DISABLED
 # define CONFIG_RELAY      DISABLED
 # define MAG_ORIENTATION   AP_COMPASS_APM2_SHIELD
 # define CONFIG_SONAR_SOURCE SONAR_SOURCE_ANALOG_PIN
-# define MAGNETOMETER ENABLED
 # define A_LED_PIN        27
 # define B_LED_PIN        26
 # define C_LED_PIN        25
@@ -95,7 +97,8 @@
 # define BATTERY_PIN_1	  1
 # define CURRENT_PIN_1	  2
 #elif CONFIG_HAL_BOARD == HAL_BOARD_AVR_SITL
-# define CONFIG_INS_TYPE   CONFIG_INS_SITL
+# define CONFIG_INS_TYPE CONFIG_INS_STUB
+# define CONFIG_COMPASS  AP_COMPASS_HIL
 # define CONFIG_PUSHBUTTON DISABLED
 # define CONFIG_RELAY      DISABLED
 # define CONFIG_SONAR_SOURCE SONAR_SOURCE_ANALOG_PIN
@@ -112,7 +115,8 @@
 # define CURRENT_PIN_1	  2
 # define MAG_ORIENTATION  AP_COMPASS_COMPONENTS_DOWN_PINS_FORWARD
 #elif CONFIG_HAL_BOARD == HAL_BOARD_PX4
-# define CONFIG_INS_TYPE   CONFIG_INS_SITL
+# define CONFIG_INS_TYPE   CONFIG_INS_PX4
+# define CONFIG_COMPASS  AP_COMPASS_PX4
 # define CONFIG_PUSHBUTTON DISABLED
 # define CONFIG_RELAY      DISABLED
 # define CONFIG_SONAR_SOURCE SONAR_SOURCE_ANALOG_PIN
@@ -128,11 +132,6 @@
 # define BATTERY_PIN_1	  -1
 # define CURRENT_PIN_1	  -1
 # define MAG_ORIENTATION   ROTATION_NONE
-# define SERIAL0_BAUD 57600
-#endif
-
-#if CONFIG_HAL_BOARD == HAL_BOARD_AVR_SITL
-#define CONFIG_SONAR DISABLED
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -186,19 +185,22 @@
 # define SONAR_ENABLED DISABLED
 #endif
 
-#ifndef CONFIG_SONAR
-# define CONFIG_SONAR ENABLED
-#endif
-
-#ifndef SONAR_TRIGGER
-# define SONAR_TRIGGER       60        // trigger distance in cm
-#endif
-
 //////////////////////////////////////////////////////////////////////////////
 // HIL_MODE                                 OPTIONAL
 
 #ifndef HIL_MODE
 #define HIL_MODE	HIL_MODE_DISABLED
+#endif
+
+#if HIL_MODE != HIL_MODE_DISABLED       // we are in HIL mode
+ #undef GPS_PROTOCOL
+ #define GPS_PROTOCOL GPS_PROTOCOL_HIL
+ #undef CONFIG_INS_TYPE
+ #define CONFIG_INS_TYPE CONFIG_INS_STUB
+ #undef CONFIG_ADC
+ #define CONFIG_ADC DISABLED
+ #undef  CONFIG_COMPASS
+ #define CONFIG_COMPASS  AP_COMPASS_HIL
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -267,7 +269,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //  MAGNETOMETER
 #ifndef MAGNETOMETER
-# define MAGNETOMETER			DISABLED
+# define MAGNETOMETER			ENABLED
 #endif
 #ifndef MAG_ORIENTATION
 # define MAG_ORIENTATION		AP_COMPASS_COMPONENTS_DOWN_PINS_FORWARD
@@ -385,7 +387,7 @@
 # define THROTTLE_CRUISE		45
 #endif
 #ifndef THROTTLE_MAX
-# define THROTTLE_MAX			75
+# define THROTTLE_MAX			100
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -413,7 +415,7 @@
 # define XTRACK_GAIN          1 // deg/m
 #endif
 #ifndef XTRACK_ENTRY_ANGLE
-# define XTRACK_ENTRY_ANGLE   20 // deg
+# define XTRACK_ENTRY_ANGLE   50 // deg
 #endif
 # define XTRACK_GAIN_SCALED XTRACK_GAIN*100
 # define XTRACK_ENTRY_ANGLE_CENTIDEGREE XTRACK_ENTRY_ANGLE*100
@@ -425,51 +427,17 @@
 # define LOGGING_ENABLED		ENABLED
 #endif
 
-#ifndef LOG_ATTITUDE_FAST
-# define LOG_ATTITUDE_FAST		DISABLED
-#endif
-#ifndef LOG_ATTITUDE_MED
-# define LOG_ATTITUDE_MED 		ENABLED
-#endif
-#ifndef LOG_GPS
-# define LOG_GPS 				ENABLED
-#endif
-#ifndef LOG_PM
-# define LOG_PM 				DISABLED
-#endif
-#ifndef LOG_CTUN
-# define LOG_CTUN				ENABLED
-#endif
-#ifndef LOG_NTUN
-# define LOG_NTUN				DISABLED
-#endif
-#ifndef LOG_MODE
-# define LOG_MODE				ENABLED
-#endif
-#ifndef LOG_IMU
-# define LOG_IMU				DISABLED
-#endif
-#ifndef LOG_CMD
-# define LOG_CMD				ENABLED
-#endif
-#ifndef LOG_CURRENT
-# define LOG_CURRENT			DISABLED
-#endif
+#define DEFAULT_LOG_BITMASK     \
+    MASK_LOG_ATTITUDE_MED | \
+    MASK_LOG_GPS | \
+    MASK_LOG_PM | \
+    MASK_LOG_NTUN | \
+    MASK_LOG_MODE | \
+    MASK_LOG_CMD | \
+    MASK_LOG_SONAR | \
+    MASK_LOG_COMPASS | \
+    MASK_LOG_CURRENT
 
-// calculate the default log_bitmask
-#define LOGBIT(_s)	(LOG_##_s ? MASK_LOG_##_s : 0)
-
-#define DEFAULT_LOG_BITMASK \
-		LOGBIT(ATTITUDE_FAST)	| \
-		LOGBIT(ATTITUDE_MED)	| \
-		LOGBIT(GPS)				| \
-		LOGBIT(PM)				| \
-		LOGBIT(CTUN)			| \
-		LOGBIT(NTUN)			| \
-		LOGBIT(MODE)			| \
-		LOGBIT(IMU)				| \
-		LOGBIT(CMD)				| \
-		LOGBIT(CURRENT)
 
 
 //////////////////////////////////////////////////////////////////////////////

@@ -24,7 +24,7 @@ static int8_t   test_wp_nav(uint8_t argc,               const Menu::arg *argv);
 static int8_t   test_tuning(uint8_t argc,               const Menu::arg *argv);
 static int8_t   test_relay(uint8_t argc,                const Menu::arg *argv);
 static int8_t   test_wp(uint8_t argc,                   const Menu::arg *argv);
-#if HIL_MODE != HIL_MODE_ATTITUDE
+#if HIL_MODE != HIL_MODE_ATTITUDE && HIL_MODE != HIL_MODE_SENSORS
 static int8_t   test_baro(uint8_t argc,                 const Menu::arg *argv);
 static int8_t   test_sonar(uint8_t argc,                const Menu::arg *argv);
 #endif
@@ -33,11 +33,11 @@ static int8_t   test_optflow(uint8_t argc,              const Menu::arg *argv);
 static int8_t   test_logging(uint8_t argc,              const Menu::arg *argv);
 //static int8_t	test_xbee(uint8_t argc,         const Menu::arg *argv);
 static int8_t   test_eedump(uint8_t argc,               const Menu::arg *argv);
-static int8_t   test_rawgps(uint8_t argc,               const Menu::arg *argv);
+//static int8_t   test_rawgps(uint8_t argc,               const Menu::arg *argv);
 //static int8_t	test_mission(uint8_t argc,      const Menu::arg *argv);
-
-// this is declared here to remove compiler errors
-extern void print_latlon(AP_HAL::BetterStream *s, int32_t lat_or_lon);      // in Log.pde
+#if CONFIG_HAL_BOARD == HAL_BOARD_PX4
+static int8_t   test_shell(uint8_t argc,              const Menu::arg *argv);
+#endif
 
 // This is the help function
 // PSTR is an AVR macro to read strings from flash memory
@@ -75,7 +75,7 @@ const struct Menu::command test_menu_commands[] PROGMEM = {
     {"relay",               test_relay},
     {"wp",                  test_wp},
 //	{"toy",			test_toy},
-#if HIL_MODE != HIL_MODE_ATTITUDE
+#if HIL_MODE != HIL_MODE_ATTITUDE && HIL_MODE != HIL_MODE_SENSORS
     {"altitude",    test_baro},
     {"sonar",               test_sonar},
 #endif
@@ -88,6 +88,9 @@ const struct Menu::command test_menu_commands[] PROGMEM = {
 //	{"mission",		test_mission},
     //{"reverse",		test_reverse},
     {"nav",                 test_wp_nav},
+#if CONFIG_HAL_BOARD == HAL_BOARD_PX4
+    {"shell", 				test_shell},
+#endif
 };
 
 // A Macro to create the Menu
@@ -121,10 +124,6 @@ test_eedump(uint8_t argc, const Menu::arg *argv)
 static int8_t
 test_radio_pwm(uint8_t argc, const Menu::arg *argv)
 {
-#if defined( __AVR_ATmega1280__ )          // test disabled to save code size for 1280
-    print_test_disabled();
-    return (0);
-#else
     print_hit_enter();
     delay(1000);
 
@@ -152,7 +151,6 @@ test_radio_pwm(uint8_t argc, const Menu::arg *argv)
             return (0);
         }
     }
-#endif
 }
 
 /*
@@ -188,7 +186,6 @@ test_radio_pwm(uint8_t argc, const Menu::arg *argv)
 //static int8_t
 //test_toy(uint8_t argc, const Menu::arg *argv)
 {
-	set_alt_change(ASCENDING)
 
  	for(altitude_error = 2000; altitude_error > -100; altitude_error--){
  		int16_t temp = get_desired_climb_rate();
@@ -200,9 +197,9 @@ test_radio_pwm(uint8_t argc, const Menu::arg *argv)
 	int16_t max_speed = 0;
 
  	for(int16_t i = 0; i < 200; i++){
-	 	int32_t temp = 2 * 100 * (wp_distance - g.waypoint_radius * 100);
+	 	int32_t temp = 2 * 100 * (wp_distance - wp_nav.get_waypoint_radius());
 		max_speed = sqrtf((float)temp);
-		max_speed = min(max_speed, g.waypoint_speed_max);
+		max_speed = min(max_speed, wp_nav.get_horizontal_speed());
 		cliSerial->printf("Zspeed: %ld, %d, %ld\n", temp, max_speed, wp_distance);
 	 	wp_distance += 100;
 	}
@@ -348,7 +345,7 @@ test_radio(uint8_t argc, const Menu::arg *argv)
  *       cliSerial->printf_P(PSTR("g.pi_stabilize_roll.kP: %4.4f\n"), g.pi_stabilize_roll.kP());
  *       cliSerial->printf_P(PSTR("max_stabilize_dampener:%d\n\n "), max_stabilize_dampener);
  *
- *       motors.auto_armed(false);
+ *       set_auto_armed(false);
  *       motors.armed(true);
  *
  *       while(1){
@@ -451,10 +448,6 @@ test_radio(uint8_t argc, const Menu::arg *argv)
 static int8_t
 test_ins(uint8_t argc, const Menu::arg *argv)
 {
-#if defined( __AVR_ATmega1280__ )          // test disabled to save code size for 1280
-    print_test_disabled();
-    return (0);
-#else
     Vector3f gyro, accel;
     print_hit_enter();
     cliSerial->printf_P(PSTR("INS\n"));
@@ -484,22 +477,16 @@ test_ins(uint8_t argc, const Menu::arg *argv)
             return (0);
         }
     }
-#endif
 }
 
 static int8_t
 test_gps(uint8_t argc, const Menu::arg *argv)
 {
-    // test disabled to save code size for 1280
-#if defined( __AVR_ATmega1280__ ) || HIL_MODE != HIL_MODE_DISABLED
-    print_test_disabled();
-    return (0);
-#else
     print_hit_enter();
     delay(1000);
 
     while(1) {
-        delay(333);
+        delay(100);
 
         // Blink GPS LED if we don't have a fix
         // ------------------------------------
@@ -524,7 +511,6 @@ test_gps(uint8_t argc, const Menu::arg *argv)
         }
     }
     return 0;
-#endif
 }
 
 /*
@@ -660,10 +646,6 @@ test_tuning(uint8_t argc, const Menu::arg *argv)
 static int8_t
 test_battery(uint8_t argc, const Menu::arg *argv)
 {
-#if defined( __AVR_ATmega1280__ )          // disable this test if we are using 1280
-    print_test_disabled();
-    return (0);
-#else
     cliSerial->printf_P(PSTR("\nCareful! Motors will spin! Press Enter to start.\n"));
     while (cliSerial->read() != -1); /* flush */
     while(!cliSerial->available()) { /* wait for input */
@@ -680,7 +662,7 @@ test_battery(uint8_t argc, const Menu::arg *argv)
         delay(100);
         read_radio();
         read_battery();
-        if (g.battery_monitoring == 3) {
+        if (g.battery_monitoring == BATT_MONITOR_VOLTAGE_ONLY) {
             cliSerial->printf_P(PSTR("V: %4.4f\n"),
                             battery_voltage1,
                             current_amps1,
@@ -700,16 +682,10 @@ test_battery(uint8_t argc, const Menu::arg *argv)
     }
     motors.armed(false);
     return (0);
-#endif
 }
 
 static int8_t test_relay(uint8_t argc, const Menu::arg *argv)
 {
-#if defined( __AVR_ATmega1280__ )          // test disabled to save code size for 1280
-    print_test_disabled();
-    return (0);
-#else
-
     print_hit_enter();
     delay(1000);
 
@@ -728,7 +704,6 @@ static int8_t test_relay(uint8_t argc, const Menu::arg *argv)
             return (0);
         }
     }
-#endif
 }
 
 
@@ -746,8 +721,7 @@ test_wp(uint8_t argc, const Menu::arg *argv)
     }
 
     cliSerial->printf_P(PSTR("%d wp\n"), (int)g.command_total);
-    cliSerial->printf_P(PSTR("Hit rad: %dm\n"), (int)g.waypoint_radius);
-    //cliSerial->printf_P(PSTR("Loiter radius: %d\n\n"), (int)g.loiter_radius);
+    cliSerial->printf_P(PSTR("Hit rad: %dm\n"), (int)wp_nav.get_waypoint_radius());
 
     report_wp();
 
@@ -794,14 +768,10 @@ test_wp(uint8_t argc, const Menu::arg *argv)
  *  }
  */
 
-#if HIL_MODE != HIL_MODE_ATTITUDE
+#if HIL_MODE != HIL_MODE_ATTITUDE && HIL_MODE != HIL_MODE_SENSORS
 static int8_t
 test_baro(uint8_t argc, const Menu::arg *argv)
 {
- #if defined( __AVR_ATmega1280__ )         // test disabled to save code size for 1280
-    print_test_disabled();
-    return (0);
- #else
     print_hit_enter();
     init_barometer();
 
@@ -821,7 +791,6 @@ test_baro(uint8_t argc, const Menu::arg *argv)
         }
     }
     return 0;
- #endif
 }
 #endif
 
@@ -829,10 +798,6 @@ test_baro(uint8_t argc, const Menu::arg *argv)
 static int8_t
 test_mag(uint8_t argc, const Menu::arg *argv)
 {
-#if defined( __AVR_ATmega1280__ )          // test disabled to save code size for 1280
-    print_test_disabled();
-    return (0);
-#else
     if(g.compass_enabled) {
         print_hit_enter();
 
@@ -841,7 +806,7 @@ test_mag(uint8_t argc, const Menu::arg *argv)
             if (compass.read()) {
                 float heading = compass.calculate_heading(ahrs.get_dcm_matrix());
                 cliSerial->printf_P(PSTR("Heading: %ld, XYZ: %d, %d, %d\n"),
-                                (wrap_360(ToDeg(heading) * 100)) /100,
+                                (wrap_360_cd(ToDeg(heading) * 100)) /100,
                                 compass.mag_x,
                                 compass.mag_y,
                                 compass.mag_z);
@@ -859,7 +824,6 @@ test_mag(uint8_t argc, const Menu::arg *argv)
         return (0);
     }
     return (0);
-#endif
 }
 
 /*
@@ -902,13 +866,14 @@ test_mag(uint8_t argc, const Menu::arg *argv)
  *       }
  *  }*/
 
-#if HIL_MODE != HIL_MODE_ATTITUDE
+#if HIL_MODE != HIL_MODE_ATTITUDE && HIL_MODE != HIL_MODE_SENSORS
 /*
  *  test the sonar
  */
 static int8_t
 test_sonar(uint8_t argc, const Menu::arg *argv)
 {
+#if CONFIG_SONAR == ENABLED
     if(g.sonar_enabled == false) {
         cliSerial->printf_P(PSTR("Sonar disabled\n"));
         return (0);
@@ -922,13 +887,12 @@ test_sonar(uint8_t argc, const Menu::arg *argv)
         delay(100);
 
         cliSerial->printf_P(PSTR("Sonar: %d cm\n"), sonar->read());
-        //cliSerial->printf_P(PSTR("Sonar, %d, %d\n"), sonar.read(), sonar.raw_value);
 
         if(cliSerial->available() > 0) {
             return (0);
         }
     }
-
+#endif
     return (0);
 }
 #endif
@@ -962,9 +926,7 @@ test_optflow(uint8_t argc, const Menu::arg *argv)
         print_enabled(false);
     }
     return (0);
-
 #else
-    print_test_disabled();
     return (0);
 #endif      // OPTFLOW == ENABLED
 }
@@ -976,8 +938,7 @@ test_wp_nav(uint8_t argc, const Menu::arg *argv)
     current_loc.lat = 389539260;
     current_loc.lng = -1199540200;
 
-    next_WP.lat = 389538528;
-    next_WP.lng = -1199541248;
+    wp_nav.set_destination(pv_latlon_to_vector(389538528,-1199541248,0));
 
     // got 23506;, should be 22800
     update_navigation();
@@ -992,27 +953,9 @@ test_wp_nav(uint8_t argc, const Menu::arg *argv)
 static int8_t
 test_logging(uint8_t argc, const Menu::arg *argv)
 {
-#if defined( __AVR_ATmega1280__ )          // test disabled to save code size for 1280
-    print_test_disabled();
-    return (0);
-#else
     cliSerial->println_P(PSTR("Testing dataflash logging"));
-    if (!DataFlash.CardInserted()) {
-        cliSerial->println_P(PSTR("ERR: No dataflash inserted"));
-        return 0;
-    }
-    DataFlash.ReadManufacturerID();
-    cliSerial->printf_P(PSTR("Manufacturer: 0x%02x   Device: 0x%04x\n"),
-                    (unsigned)DataFlash.df_manufacturer,
-                    (unsigned)DataFlash.df_device);
-    cliSerial->printf_P(PSTR("NumPages: %u  PageSize: %u\n"),
-                    (unsigned)DataFlash.df_NumPages+1,
-                    (unsigned)DataFlash.df_PageSize);
-    DataFlash.StartRead(DataFlash.df_NumPages+1);
-    cliSerial->printf_P(PSTR("Format version: %lx  Expected format version: %lx\n"),
-                    (unsigned long)DataFlash.ReadLong(), (unsigned long)DF_LOGGING_FORMAT);
+    DataFlash.ShowDeviceInfo(cliSerial);
     return 0;
-#endif
 }
 
 
@@ -1070,21 +1013,29 @@ test_logging(uint8_t argc, const Menu::arg *argv)
  *
  *       g.rtl_altitude.set_and_save(300);
  *       g.command_total.set_and_save(4);
- *       g.waypoint_radius.set_and_save(3);
+ *       wp_nav.set_waypoint_radius(300);
  *
  *       test_wp(NULL, NULL);
  *       return (0);
  *  }
  */
 
+
+#if CONFIG_HAL_BOARD == HAL_BOARD_PX4
+/*
+ *  run a debug shell
+ */
+static int8_t
+test_shell(uint8_t argc, const Menu::arg *argv)
+{
+    hal.util->run_debug_shell(cliSerial);
+    return 0;
+}
+#endif
+
 static void print_hit_enter()
 {
     cliSerial->printf_P(PSTR("Hit Enter to exit.\n\n"));
-}
-
-static void print_test_disabled()
-{
-    cliSerial->printf_P(PSTR("Sorry, not 1280 compat.\n"));
 }
 
 /*

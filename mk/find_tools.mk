@@ -10,28 +10,29 @@ ifeq ($(SYSTYPE),Darwin)
   TOOLPATH :=  $(ARDUINOS)/hardware/tools/avr/bin
   # use BWK awk
   AWK =  awk
+  FIND_TOOL    =  $(firstword $(wildcard $(addsuffix /$(1),$(TOOLPATH))))
 endif
 ifeq ($(SYSTYPE),Linux)
   # expect that tools are on the path
   TOOLPATH :=  $(subst :, ,$(PATH))
+  FIND_TOOL    =  $(firstword $(wildcard $(addsuffix /$(1),$(TOOLPATH))))
 endif
 ifeq ($(findstring CYGWIN, $(SYSTYPE)),CYGWIN) 
   TOOLPATH :=  $(ARDUINO)/hardware/tools/avr/bin
+  FIND_TOOL    =  $(firstword $(wildcard $(addsuffix /$(1).exe,$(TOOLPATH))))
+endif
+ifeq ($(findstring MINGW, $(SYSTYPE)),MINGW) 
+  TOOLPATH :=  $(ARDUINO)/hardware/tools/avr/bin
+  FIND_TOOL    =  $(firstword $(wildcard $(addsuffix /$(1).exe,$(TOOLPATH))))
 endif
 
-ifeq ($(findstring CYGWIN, $(SYSTYPE)),) 
-FIND_TOOL    =  $(firstword $(wildcard $(addsuffix /$(1),$(TOOLPATH))))
-else
-FIND_TOOL    =  $(firstword $(wildcard $(addsuffix /$(1).exe,$(TOOLPATH))))
-endif
-
-NATIVE_CXX     :=  $(call FIND_TOOL,g++)
-NATIVE_CC      :=  $(call FIND_TOOL,gcc)
-NATIVE_AS      :=  $(call FIND_TOOL,gcc)
-NATIVE_AR      :=  $(call FIND_TOOL,ar)
-NATIVE_LD      :=  $(call FIND_TOOL,g++)
-NATIVE_GDB     :=  $(call FIND_TOOL,gdb)
-NATIVE_OBJCOPY :=  $(call FIND_TOOL,objcopy)
+NATIVE_CXX     :=  g++
+NATIVE_CC      :=  gcc
+NATIVE_AS      :=  gcc
+NATIVE_AR      :=  ar
+NATIVE_LD      :=  g++
+NATIVE_GDB     :=  gdb
+NATIVE_OBJCOPY :=  objcopy
 
 AVR_CXX     :=  $(call FIND_TOOL,avr-g++)
 AVR_CC      :=  $(call FIND_TOOL,avr-gcc)
@@ -52,8 +53,8 @@ LD = $($(TOOLCHAIN)_LD)
 GDB = $($(TOOLCHAIN)_GDB)
 OBJCOPY = $($(TOOLCHAIN)_OBJCOPY)
 
-ifeq ($(AVR_CXX),)
-$(error ERROR: cannot find the AVR compiler tools anywhere on the path $(TOOLPATH))
+ifeq ($(CXX),)
+$(error ERROR: cannot find the compiler tools anywhere on the path $(TOOLPATH))
 endif
 
 # Find awk

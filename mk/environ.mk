@@ -46,9 +46,8 @@ else
   endif
 endif
 ifneq ($(findstring CYGWIN, $(SYSTYPE)),) 
-	# Convert cygwin path into a windows normal path
-    SKETCHBOOK	:=	$(shell cygpath -d ${SKETCHBOOK})
-    SKETCHBOOK	:=	$(subst \,/,$(SKETCHBOOK))
+    # Convert cygwin path into a windows normal path
+    SKETCHBOOK	:= $(shell cygpath ${SKETCHBOOK})
 endif
 
 #
@@ -72,6 +71,8 @@ ifneq ($(findstring CYGWIN, $(SYSTYPE)),)
     BUILDROOT	:=	C:$(TMPDIR)/$(SKETCH).build
     $(warning your abspath function is not working)
     $(warning > setting BUILDROOT to $(BUILDROOT))
+  else
+    BUILDROOT	:=	$(shell cygpath ${BUILDROOT})
   endif
 endif
 
@@ -123,6 +124,10 @@ endif
 HARDWARE		?=	arduino
 ifeq ($(BOARD),)
 BOARD = mega2560
+endif
+
+ifneq ($(findstring apm1-1280, $(MAKECMDGOALS)),)
+BOARD = mega
 endif
 
 endif

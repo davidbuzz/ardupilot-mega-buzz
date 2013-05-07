@@ -54,7 +54,9 @@
 #define CH_RUDDER CH_4
 #define CH_YAW CH_4
 
-// HIL enumerations
+// HIL enumerations. Note that HIL_MODE_ATTITUDE and HIL_MODE_SENSORS
+// are now the same thing, and are sensors based. The old define is
+// kept to allow old APM_Config.h headers to keep working
 #define HIL_MODE_DISABLED                       0
 #define HIL_MODE_ATTITUDE                       1
 #define HIL_MODE_SENSORS                        2
@@ -73,6 +75,20 @@ enum FlightMode {
     INITIALISING  = 16
 };
 
+// type of stick mixing enabled
+enum StickMixing {
+    STICK_MIXING_DISABLED = 0,
+    STICK_MIXING_FBW      = 1,
+    STICK_MIXING_DIRECT   = 2
+};
+
+enum VTailMixing {
+    VTAIL_DISABLED = 0,
+    VTAIL_UPUP     = 1,
+    VTAIL_UPDN     = 2,
+    VTAIL_DNUP     = 3,
+    VTAIL_DNDN     = 4
+};
 
 // Commands - Note that APM now uses a subset of the MAVLink protocol
 // commands.  See enum MAV_CMD in the GCS_Mavlink library
@@ -142,18 +158,18 @@ enum gcs_severity {
 // mark unused ones as 'deprecated', but leave them in
 enum log_messages {
     LOG_INDEX_MSG,
-    LOG_ATTITUDE_MSG,
-    LOG_GPS_MSG,
-    LOG_MODE_MSG,
-    LOG_CONTROL_TUNING_MSG,
-    LOG_NAV_TUNING_MSG,
+    LOG_CTUN_MSG,
+    LOG_NTUN_MSG,
     LOG_PERFORMANCE_MSG,
-    LOG_IMU_MSG,
     LOG_CMD_MSG,
     LOG_CURRENT_MSG,
     LOG_STARTUP_MSG,
     TYPE_AIRSTART_MSG,
     TYPE_GROUNDSTART_MSG,
+    LOG_CAMERA_MSG,
+    LOG_ATTITUDE_MSG,
+    LOG_MODE_MSG,
+    LOG_COMPASS_MSG,
     MAX_NUM_LOGS
 };
 
@@ -167,6 +183,7 @@ enum log_messages {
 #define MASK_LOG_IMU                    (1<<7)
 #define MASK_LOG_CMD                    (1<<8)
 #define MASK_LOG_CURRENT                (1<<9)
+#define MASK_LOG_COMPASS                (1<<10)
 
 // Waypoint Modes
 // ----------------
@@ -191,8 +208,8 @@ enum log_messages {
                                         // regress a climb rate from
 
 
-#define BATTERY_VOLTAGE(x) (x*(g.input_voltage/1024.0))*g.volt_div_ratio
-#define CURRENT_AMPS(x) ((x*(g.input_voltage/1024.0))-g.curr_amp_offset)*g.curr_amp_per_volt
+#define BATTERY_VOLTAGE(x) (x->voltage_average()*g.volt_div_ratio)
+#define CURRENT_AMPS(x) (x->voltage_average()-g.curr_amp_offset)*g.curr_amp_per_volt
 
 #define AN4                     4
 #define AN5                     5
