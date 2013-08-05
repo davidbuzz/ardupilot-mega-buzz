@@ -58,6 +58,7 @@ uint16_t DataFlash_Block::start_new_log(void)
         SetFileNumber(1);
         StartWrite(1);
         //Serial.println("start log from 0");
+        log_write_started = true;
         return 1;
     }
 
@@ -78,6 +79,7 @@ uint16_t DataFlash_Block::start_new_log(void)
         SetFileNumber(new_log_num);
         StartWrite(last_page + 1);
     }
+    log_write_started = true;
     return new_log_num;
 }
 
@@ -608,9 +610,9 @@ void DataFlash_Class::Log_Write_GPS(const GPS *gps, int32_t relative_alt)
         latitude      : gps->latitude,
         longitude     : gps->longitude,
         rel_altitude  : relative_alt,
-        altitude      : gps->altitude,
-        ground_speed  : gps->ground_speed,
-        ground_course : gps->ground_course
+        altitude      : gps->altitude_cm,
+        ground_speed  : gps->ground_speed_cm,
+        ground_course : gps->ground_course_cd
     };
     WriteBlock(&pkt, sizeof(pkt));
 }
@@ -630,5 +632,27 @@ void DataFlash_Class::Log_Write_IMU(const AP_InertialSensor *ins)
         accel_y : accel.y,
         accel_z : accel.z
     };
+    WriteBlock(&pkt, sizeof(pkt));
+}
+
+// Write a text message to the log
+void DataFlash_Class::Log_Write_Message(const char *message)
+{
+    struct log_Message pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_MESSAGE_MSG),
+        msg  : {}
+    };
+    strncpy(pkt.msg, message, sizeof(pkt.msg));
+    WriteBlock(&pkt, sizeof(pkt));
+}
+
+// Write a text message to the log
+void DataFlash_Class::Log_Write_Message_P(const prog_char_t *message)
+{
+    struct log_Message pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_MESSAGE_MSG),
+        msg  : {}
+    };
+    strncpy_P(pkt.msg, message, sizeof(pkt.msg));
     WriteBlock(&pkt, sizeof(pkt));
 }

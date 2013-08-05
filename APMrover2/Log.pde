@@ -50,6 +50,7 @@ print_log_menu(void)
 		PLOG(CURRENT);
 		PLOG(SONAR);
 		PLOG(COMPASS);
+		PLOG(CAMERA);
 		#undef PLOG
 	}
 
@@ -141,6 +142,7 @@ select_logs(uint8_t argc, const Menu::arg *argv)
 		TARG(CURRENT);
 		TARG(SONAR);
 		TARG(COMPASS);
+		TARG(CAMERA);
 		#undef TARG
 	}
 
@@ -171,10 +173,10 @@ struct PACKED log_Performance {
     int16_t  gyro_drift_y;
     int16_t  gyro_drift_z;
     int16_t  pm_test;
+    uint8_t  i2c_lockup_count;
 };
 
 // Write a performance monitoring packet. Total length : 19 bytes
-#if HIL_MODE != HIL_MODE_ATTITUDE
 static void Log_Write_Performance()
 {
     struct log_Performance pkt = {
@@ -188,11 +190,11 @@ static void Log_Write_Performance()
         gyro_drift_x    : (int16_t)(ahrs.get_gyro_drift().x * 1000),
         gyro_drift_y    : (int16_t)(ahrs.get_gyro_drift().y * 1000),
         gyro_drift_z    : (int16_t)(ahrs.get_gyro_drift().z * 1000),
-        pm_test         : pmTest1
+        pm_test         : pmTest1,
+        i2c_lockup_count: hal.i2c->lockup_count()
     };
     DataFlash.WriteBlock(&pkt, sizeof(pkt));
 }
-#endif
 
 struct PACKED log_Cmd {
     LOG_PACKET_HEADER;
@@ -221,6 +223,33 @@ static void Log_Write_Cmd(uint8_t num, const struct Location *wp)
         waypoint_longitude  : wp->lng
     };
     DataFlash.WriteBlock(&pkt, sizeof(pkt));
+}
+
+struct PACKED log_Camera {
+    LOG_PACKET_HEADER;
+    uint32_t gps_time;
+    int32_t  latitude;
+    int32_t  longitude;
+    int16_t  roll;
+    int16_t  pitch;
+    uint16_t yaw;
+};
+
+// Write a Camera packet. Total length : 26 bytes
+static void Log_Write_Camera()
+{
+#if CAMERA == ENABLED
+    struct log_Camera pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_CAMERA_MSG),
+        gps_time    : g_gps->time,
+        latitude    : current_loc.lat,
+        longitude   : current_loc.lng,
+        roll        : (int16_t)ahrs.roll_sensor,
+        pitch       : (int16_t)ahrs.pitch_sensor,
+        yaw         : (uint16_t)ahrs.yaw_sensor
+    };
+    DataFlash.WriteBlock(&pkt, sizeof(pkt));
+#endif
 }
 
 struct PACKED log_Startup {
@@ -256,21 +285,19 @@ struct PACKED log_Control_Tuning {
 };
 
 // Write a control tuning packet. Total length : 22 bytes
-#if HIL_MODE != HIL_MODE_ATTITUDE
 static void Log_Write_Control_Tuning()
 {
     Vector3f accel = ins.get_accel();
     struct log_Control_Tuning pkt = {
         LOG_PACKET_HEADER_INIT(LOG_CTUN_MSG),
-        steer_out       : (int16_t)g.channel_steer.servo_out,
+        steer_out       : (int16_t)channel_steer->servo_out,
         roll            : (int16_t)ahrs.roll_sensor,
         pitch           : (int16_t)ahrs.pitch_sensor,
-        throttle_out    : (int16_t)g.channel_throttle.servo_out,
+        throttle_out    : (int16_t)channel_throttle->servo_out,
         accel_y         : accel.y
     };
     DataFlash.WriteBlock(&pkt, sizeof(pkt));
 }
-#endif
 
 struct PACKED log_Nav_Tuning {
     LOG_PACKET_HEADER;
@@ -292,7 +319,7 @@ static void Log_Write_Nav_Tuning()
         target_bearing_cd   : (uint16_t)target_bearing,
         nav_bearing_cd      : (uint16_t)nav_bearing,
         nav_gain_scalar     : (int16_t)(nav_gain_scaler*1000),
-        throttle            : (int8_t)(100 * g.channel_throttle.norm_output())
+        throttle            : (int8_t)(100 * channel_throttle->norm_output())
     };
     DataFlash.WriteBlock(&pkt, sizeof(pkt));
 }
@@ -320,6 +347,7 @@ static void Log_Write_Attitude()
 struct log_Mode {
     LOG_PACKET_HEADER;
     uint8_t mode;
+    uint8_t mode_num;
 };
 
 // Write a mode packet. Total length : 7 bytes
@@ -327,7 +355,8 @@ static void Log_Write_Mode()
 {
     struct log_Mode pkt = {
         LOG_PACKET_HEADER_INIT(LOG_MODE_MSG),
-        mode            : (uint8_t)control_mode
+        mode            : (uint8_t)control_mode,
+        mode_num        : (uint8_t)control_mode
     };
     DataFlash.WriteBlock(&pkt, sizeof(pkt));
 }
@@ -346,7 +375,6 @@ struct PACKED log_Sonar {
 };
 
 // Write a sonar packet
-#if HIL_MODE != HIL_MODE_ATTITUDE
 static void Log_Write_Sonar()
 {
     uint16_t turn_time = 0;
@@ -362,11 +390,10 @@ static void Log_Write_Sonar()
         turn_angle      : (int8_t)obstacle.turn_angle,
         turn_time       : turn_time,
         ground_speed    : (uint16_t)(ground_speed*100),
-        throttle        : (int8_t)(100 * g.channel_throttle.norm_output())
+        throttle        : (int8_t)(100 * channel_throttle->norm_output())
     };
     DataFlash.WriteBlock(&pkt, sizeof(pkt));
 }
-#endif
 
 struct PACKED log_Current {
     LOG_PACKET_HEADER;
@@ -381,7 +408,7 @@ static void Log_Write_Current()
 {
     struct log_Current pkt = {
         LOG_PACKET_HEADER_INIT(LOG_CURRENT_MSG),
-        throttle_in             : g.channel_throttle.control_in,
+        throttle_in             : channel_throttle->control_in,
         battery_voltage         : (int16_t)(battery_voltage1 * 100.0),
         current_amps            : (int16_t)(current_amps1 * 100.0),
         board_voltage           : board_voltage(),
@@ -429,9 +456,11 @@ static const struct LogStructure log_structure[] PROGMEM = {
     { LOG_ATTITUDE_MSG, sizeof(log_Attitude),       
       "ATT", "ccC",        "Roll,Pitch,Yaw" },
     { LOG_PERFORMANCE_MSG, sizeof(log_Performance), 
-      "PM",  "IHhBBBhhhh", "LTime,MLC,gDt,RNCnt,RNBl,GPScnt,GDx,GDy,GDz,PMT" },
+      "PM",  "IHhBBBhhhhB", "LTime,MLC,gDt,RNCnt,RNBl,GPScnt,GDx,GDy,GDz,PMT,I2CErr" },
     { LOG_CMD_MSG, sizeof(log_Cmd),                 
       "CMD", "BBBBBeLL",   "CTot,CNum,CId,COpt,Prm1,Alt,Lat,Lng" },
+    { LOG_CAMERA_MSG, sizeof(log_Camera),                 
+      "CAM", "ILLccC",   "GPSTime,Lat,Lng,Roll,Pitch,Yaw" },
     { LOG_STARTUP_MSG, sizeof(log_Startup),         
       "STRT", "BB",         "SType,CTot" },
     { LOG_CTUN_MSG, sizeof(log_Control_Tuning),     
@@ -443,7 +472,7 @@ static const struct LogStructure log_structure[] PROGMEM = {
     { LOG_CURRENT_MSG, sizeof(log_Current),             
       "CURR", "hhhHf",      "Thr,Volt,Curr,Vcc,CurrTot" },
     { LOG_MODE_MSG, sizeof(log_Mode),             
-      "MODE", "B",          "Mode" },
+      "MODE", "MB",          "Mode,ModeNum" },
     { LOG_COMPASS_MSG, sizeof(log_Compass),             
       "MAG", "hhhhhhhhh",   "MagX,MagY,MagZ,OfsX,OfsY,OfsZ,MOfsX,MOfsY,MOfsZ" },
 };

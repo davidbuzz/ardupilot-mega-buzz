@@ -1,4 +1,4 @@
-// -*- tab-width: 4; Mode: C++; c-basic-offset: 3; indent-tabs-mode: t -*-
+// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 /*
  *       AP_RangeFinder.cpp - Arduino Library for Sharpe GP2Y0A02YK0F
  *       infrared proximity sensor
@@ -32,7 +32,7 @@ int RangeFinder::read()
     temp_dist = convert_raw_to_distance(raw_value);
 
     // ensure distance is within min and max
-    temp_dist = constrain(temp_dist, min_distance, max_distance);
+    temp_dist = constrain_float(temp_dist, min_distance, max_distance);
 
     distance = _mode_filter->apply(temp_dist);
     return distance;

@@ -1,4 +1,4 @@
-// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: t -*-
+// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 //
 // Test for AP_GPS_AUTO
 //
@@ -43,9 +43,9 @@ void loop()
             hal.console->print(" Lon: ");
             print_latlon(hal.console,gps->longitude);
             hal.console->printf(" Alt: %.2fm GSP: %.2fm/s CoG: %d SAT: %d TIM: %lu STATUS: %u\n",
-                          (float)gps->altitude / 100.0,
-                          (float)gps->ground_speed / 100.0,
-                          (int)gps->ground_course / 100,
+                          (float)gps->altitude_cm / 100.0,
+                          (float)gps->ground_speed_cm / 100.0,
+                          (int)gps->ground_course_cd / 100,
                           gps->num_sats,
                           gps->time,
                           gps->status());

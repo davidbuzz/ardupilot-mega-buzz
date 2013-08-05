@@ -1,4 +1,4 @@
-// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: t -*-
+// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 //
 //  DIYDrones Custom Mediatek GPS driver for ArduPilot and ArduPilotMega.
 //	Code by Michael Smith, Jordi Munoz and Jose Julio, Craig Elder, DIYDrones.com
@@ -14,6 +14,7 @@
 #define AP_GPS_MTK19_h
 
 #include "GPS.h"
+#include <AP_Common.h>
 #include "AP_GPS_MTK_Common.h"
 
 #define MTK_GPS_REVISION_V16  16
@@ -34,8 +35,7 @@ public:
     static bool 		_detect(uint8_t );
 
 private:
-	#pragma pack(push,1)
-    struct diyd_mtk_msg {
+    struct PACKED diyd_mtk_msg {
         int32_t latitude;
         int32_t longitude;
         int32_t altitude;
@@ -47,7 +47,6 @@ private:
         uint32_t utc_time;
         uint16_t hdop;
     };
-	#pragma pack(pop)
     enum diyd_mtk_fix_type {
         FIX_NONE = 1,
         FIX_2D = 2,

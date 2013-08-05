@@ -39,7 +39,7 @@ static void update_commands()
     //uint8_t tmp = g.command_index.get();
     //cliSerial->printf("command_index %u \n", tmp);
 
-    if(g.command_total <= 1 || g.command_index >= 255)
+    if(g.command_total <= 1)
         return;
 
     if(command_nav_queue.id == NO_COMMAND) {
@@ -142,26 +142,24 @@ static void execute_nav_command(void)
 }
 
 // verify_commands - high level function to check if navigation and conditional commands have completed
-// called after GPS navigation update - not constantly
 static void verify_commands(void)
 {
-    if(verify_must()) {
-        //cliSerial->printf("verified must cmd %d\n" , command_nav_index);
+    // check if navigation command completed
+    if(verify_nav_command()) {
+        // clear navigation command queue so next command can be loaded
         command_nav_queue.id    = NO_COMMAND;
 
         // store our most recent executed nav command
-        prev_nav_index                  = command_nav_index;
+        prev_nav_index          = command_nav_index;
 
         // Wipe existing conditionals
-        command_cond_index              = NO_COMMAND;
+        command_cond_index      = NO_COMMAND;
         command_cond_queue.id   = NO_COMMAND;
-
-    }else{
-        //cliSerial->printf("verified must false %d\n" , command_nav_index);
     }
 
-    if(verify_may()) {
-        //cliSerial->printf("verified may cmd %d\n" , command_cond_index);
+    // check if conditional command completed
+    if(verify_cond_command()) {
+        // clear conditional command queue so next command can be loaded
         command_cond_queue.id = NO_COMMAND;
     }
 }
@@ -186,16 +184,16 @@ static void exit_mission()
     // we are out of commands
     g.command_index = 255;
 
-    // if we are on the ground, enter stabilize, else Land
-    if(ap.land_complete) {
-        // we will disarm the motors after landing.
-    }else{
+    // if we are not on the ground switch to loiter or land
+    if(!ap.land_complete) {
         // If the approach altitude is valid (above 1m), do approach, else land
         if(g.rtl_alt_final == 0) {
             set_mode(LAND);
         }else{
-            set_mode(LOITER);
-            wp_nav.set_desired_alt(g.rtl_alt_final);
+            // try to enter loiter but if that fails land
+            if (!set_mode(LOITER)) {
+                set_mode(LAND);
+            }
         }
     }
 

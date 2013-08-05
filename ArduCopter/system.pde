@@ -82,7 +82,7 @@ static void init_ardupilot()
     // USB_MUX_PIN
     pinMode(USB_MUX_PIN, INPUT);
 
-    ap_system.usb_connected = !digitalReadFast(USB_MUX_PIN);
+    ap_system.usb_connected = !digitalRead(USB_MUX_PIN);
     if (!ap_system.usb_connected) {
         // USB is not connected, this means UART0 may be a Xbee, with
         // its darned bricking problem. We can't write to it for at
@@ -142,6 +142,10 @@ static void init_ardupilot()
     // load parameters from EEPROM
     load_parameters();
 
+#if HIL_MODE != HIL_MODE_ATTITUDE
+    barometer.init();
+#endif
+
     // init the GCS
     gcs0.init(hal.uartA);
 
@@ -176,9 +180,6 @@ static void init_ardupilot()
         do_erase_logs();
         gcs0.reset_cli_timeout();
     }
-    if (g.log_bitmask != 0) {
-		start_logging();
-    }
 #endif
 
 #if FRAME_CONFIG == HELI_FRAME
@@ -187,7 +188,8 @@ static void init_ardupilot()
 #endif
 
     init_rc_in();               // sets up rc channels from radio
-    init_rc_out();              // sets up the timer libs
+    init_rc_out();              // sets up motors and output to escs
+
     /*
      *  setup the 'main loop is dead' check. Note that this relies on
      *  the RC library being initialised.
@@ -199,9 +201,6 @@ static void init_ardupilot()
     // begin filtering the ADC Gyros
     adc.Init();           // APM ADC library initialization
  #endif // CONFIG_ADC
-
-    barometer.init();
-
 #endif // HIL_MODE
 
     // Do GPS init
@@ -253,18 +252,18 @@ static void init_ardupilot()
 #endif
 
 #if FRAME_CONFIG == HELI_FRAME
-// initialise controller filters
-init_rate_controllers();
+    // initialise controller filters
+    init_rate_controllers();
 #endif // HELI_FRAME
 
     // initialize commands
     // -------------------
     init_commands();
 
-    // set the correct flight mode
+    // initialise the flight mode and aux switch
     // ---------------------------
     reset_control_switch();
-
+    init_aux_switches();
 
     startup_ground();
 
@@ -272,42 +271,7 @@ init_rate_controllers();
     Log_Write_Startup();
 #endif
 
-    init_ap_limits();
-
     cliSerial->print_P(PSTR("\nReady to FLY "));
-}
-
-
-
-///////////////////////////////////////////////////////////////////////////////
-// Experimental AP_Limits library - set constraints, limits, fences, minima,
-// maxima on various parameters
-////////////////////////////////////////////////////////////////////////////////
-static void init_ap_limits() {
-#if AP_LIMITS == ENABLED
-    // The linked list looks (logically) like this [limits module] -> [first
-    // limit module] -> [second limit module] -> [third limit module] -> NULL
-
-
-    // The details of the linked list are handled by the methods
-    // modules_first, modules_current, modules_next, modules_last, modules_add
-    // in limits
-
-    limits.modules_add(&gpslock_limit);
-    limits.modules_add(&geofence_limit);
-    limits.modules_add(&altitude_limit);
-
-
-    if (limits.debug())  {
-        gcs_send_text_P(SEVERITY_LOW,PSTR("Limits Modules Loaded"));
-
-        AP_Limit_Module *m = limits.modules_first();
-        while (m) {
-            gcs_send_text_P(SEVERITY_LOW, get_module_name(m->get_module_id()));
-            m = limits.modules_next();
-        }
-    }
-#endif
 }
 
 
@@ -346,178 +310,249 @@ static void startup_ground(void)
     // when we re-calibrate the gyros,
     // all previous I values are invalid
     reset_I_all();
+
+    // set landed flag
+    set_land_complete(true);
+}
+
+// returns true if the GPS is ok and home position is set
+static bool GPS_ok()
+{
+    if (g_gps != NULL && ap.home_is_set && g_gps->status() == GPS::GPS_OK_FIX_3D) {
+        return true;
+    }else{
+        return false;
+    }
+}
+
+// returns true or false whether mode requires GPS
+static bool mode_requires_GPS(uint8_t mode) {
+    switch(mode) {
+        case AUTO:
+        case GUIDED:
+        case LOITER: 
+        case RTL:
+        case CIRCLE:
+        case POSITION:
+            return true;
+        default:
+            return false;
+    }   
+
+    return false;
+}
+
+// manual_flight_mode - returns true if flight mode is completely manual (i.e. roll, pitch and yaw controlled by pilot)
+static bool manual_flight_mode(uint8_t mode) {
+    switch(mode) {
+        case ACRO:
+        case STABILIZE:
+        case TOY_A:
+        case TOY_M:
+        case SPORT:
+            return true;
+        default:
+            return false;
+    }
+
+    return false;
 }
 
 // set_mode - change flight mode and perform any necessary initialisation
-static void set_mode(uint8_t mode)
+// returns true if mode was succesfully set
+// STABILIZE, ACRO, SPORT and LAND can always be set successfully but the return state of other flight modes should be checked and the caller should deal with failures appropriately
+static bool set_mode(uint8_t mode)
 {
-    // Switch to stabilize mode if requested mode requires a GPS lock
-    if(!ap.home_is_set) {
-        if (mode > ALT_HOLD && mode != TOY_A && mode != TOY_M && mode != OF_LOITER && mode != LAND) {
-            mode = STABILIZE;
-        }
-    }
-
-    // Switch to stabilize if OF_LOITER requested but no optical flow sensor
-    if (mode == OF_LOITER && !g.optflow_enabled ) {
-        mode = STABILIZE;
-    }
-
-    control_mode 	= mode;
-    control_mode    = constrain_int16(control_mode, 0, NUM_MODES - 1);
-
-    // if we change modes, we must clear landed flag
-    set_land_complete(false);
+    // boolean to record if flight mode could be set
+    bool success = false;
 
     // report the GPS and Motor arming status
+    // To-Do: this should be initialised somewhere else related to the LEDs
     led_mode = NORMAL_LEDS;
 
-    switch(control_mode)
-    {
-    case ACRO:
-    	ap.manual_throttle = true;
-    	ap.manual_attitude = true;
-        set_yaw_mode(ACRO_YAW);
-        set_roll_pitch_mode(ACRO_RP);
-        set_throttle_mode(ACRO_THR);
-        set_nav_mode(NAV_NONE);
-        // reset acro axis targets to current attitude
-		if(g.axis_enabled){
-            roll_axis 	= ahrs.roll_sensor;
-            pitch_axis 	= ahrs.pitch_sensor;
-            nav_yaw 	= ahrs.yaw_sensor;
-        }
-        break;
-
-    case STABILIZE:
-    	ap.manual_throttle = true;
-    	ap.manual_attitude = true;
-        set_yaw_mode(YAW_HOLD);
-        set_roll_pitch_mode(ROLL_PITCH_STABLE);
-        set_throttle_mode(THROTTLE_MANUAL_TILT_COMPENSATED);
-        set_nav_mode(NAV_NONE);
-        break;
-
-    case ALT_HOLD:
-    	ap.manual_throttle = false;
-    	ap.manual_attitude = true;
-        set_yaw_mode(ALT_HOLD_YAW);
-        set_roll_pitch_mode(ALT_HOLD_RP);
-        set_throttle_mode(ALT_HOLD_THR);
-        set_nav_mode(NAV_NONE);
-        break;
-
-    case AUTO:
-    	ap.manual_throttle = false;
-    	ap.manual_attitude = false;
-        set_yaw_mode(YAW_HOLD);     // yaw mode will be set by mission command
-        set_roll_pitch_mode(AUTO_RP);
-        set_throttle_mode(AUTO_THR);
-        // we do not set nav mode for auto because it will be overwritten when first command runs
-        // loads the commands from where we left off
-        init_commands();
-        break;
-
-    case CIRCLE:
-    	ap.manual_throttle = false;
-    	ap.manual_attitude = false;
-        set_roll_pitch_mode(CIRCLE_RP);
-        set_throttle_mode(CIRCLE_THR);
-        set_nav_mode(CIRCLE_NAV);
-        set_yaw_mode(CIRCLE_YAW);
-        break;
-
-    case LOITER:
-    	ap.manual_throttle = false;
-    	ap.manual_attitude = false;
-        set_yaw_mode(LOITER_YAW);
-        set_roll_pitch_mode(LOITER_RP);
-        set_throttle_mode(LOITER_THR);
-        set_nav_mode(LOITER_NAV);
-        break;
-
-    case POSITION:
-    	ap.manual_throttle = true;
-    	ap.manual_attitude = false;
-        set_yaw_mode(POSITION_YAW);
-        set_roll_pitch_mode(POSITION_RP);
-        set_throttle_mode(POSITION_THR);
-        set_nav_mode(POSITION_NAV);
-        wp_nav.clear_angle_limit();     // ensure there are no left over angle limits from throttle controller.  To-Do: move this to the exit routine of throttle controller
-        break;
-
-    case GUIDED:
-    	ap.manual_throttle = false;
-    	ap.manual_attitude = false;
-        set_yaw_mode(get_wp_yaw_mode(false));
-        set_roll_pitch_mode(GUIDED_RP);
-        set_throttle_mode(GUIDED_THR);
-        set_nav_mode(GUIDED_NAV);
-        break;
-
-    case LAND:
-        // To-Do: it is messy to set manual_attitude here because the do_land function is reponsible for setting the roll_pitch_mode
-        if( ap.home_is_set ) {
-            // switch to loiter if we have gps
-            ap.manual_attitude = false;
-        }else{
-            // otherwise remain with stabilize roll and pitch
+    switch(mode) {
+        case ACRO:
+            success = true;
+            ap.manual_throttle = true;
             ap.manual_attitude = true;
+            set_yaw_mode(ACRO_YAW);
+            set_roll_pitch_mode(ACRO_RP);
+            set_throttle_mode(ACRO_THR);
+            set_nav_mode(NAV_NONE);
+            // reset acro level rates
+            acro_roll_rate = 0;
+            acro_pitch_rate = 0;
+            acro_yaw_rate = 0;
+            break;
+
+        case STABILIZE:
+            success = true;
+            ap.manual_throttle = true;
+            ap.manual_attitude = true;
+            set_yaw_mode(YAW_HOLD);
+            set_roll_pitch_mode(ROLL_PITCH_STABLE);
+            set_throttle_mode(THROTTLE_MANUAL_TILT_COMPENSATED);
+            set_nav_mode(NAV_NONE);
+            break;
+
+        case ALT_HOLD:
+            success = true;
+            ap.manual_throttle = false;
+            ap.manual_attitude = true;
+            set_yaw_mode(ALT_HOLD_YAW);
+            set_roll_pitch_mode(ALT_HOLD_RP);
+            set_throttle_mode(ALT_HOLD_THR);
+            set_nav_mode(NAV_NONE);
+            break;
+
+        case AUTO:
+            // check we have a GPS and at least one mission command (note the home position is always command 0)
+            if (GPS_ok() && g.command_total > 1) {
+                success = true;
+                ap.manual_throttle = false;
+                ap.manual_attitude = false;
+                // roll-pitch, throttle and yaw modes will all be set by the first nav command
+                init_commands();            // clear the command queues. will be reloaded when "run_autopilot" calls "update_commands" function
+            }
+            break;
+
+        case CIRCLE:
+            if (GPS_ok()) {
+                success = true;
+                ap.manual_throttle = false;
+                ap.manual_attitude = false;
+                set_roll_pitch_mode(CIRCLE_RP);
+                set_throttle_mode(CIRCLE_THR);
+                set_nav_mode(CIRCLE_NAV);
+                set_yaw_mode(CIRCLE_YAW);
+            }
+            break;
+
+        case LOITER:
+            if (GPS_ok()) {
+                success = true;
+                ap.manual_throttle = false;
+                ap.manual_attitude = false;
+                set_yaw_mode(LOITER_YAW);
+                set_roll_pitch_mode(LOITER_RP);
+                set_throttle_mode(LOITER_THR);
+                set_nav_mode(LOITER_NAV);
+            }
+            break;
+
+        case POSITION:
+            if (GPS_ok()) {
+                success = true;
+                ap.manual_throttle = true;
+                ap.manual_attitude = false;
+                set_yaw_mode(POSITION_YAW);
+                set_roll_pitch_mode(POSITION_RP);
+                set_throttle_mode(POSITION_THR);
+                set_nav_mode(POSITION_NAV);
+            }
+            break;
+
+        case GUIDED:
+            if (GPS_ok()) {
+                success = true;
+                ap.manual_throttle = false;
+                ap.manual_attitude = false;
+                set_yaw_mode(get_wp_yaw_mode(false));
+                set_roll_pitch_mode(GUIDED_RP);
+                set_throttle_mode(GUIDED_THR);
+                set_nav_mode(GUIDED_NAV);
+            }
+            break;
+
+        case LAND:
+            success = true;
+            // To-Do: it is messy to set manual_attitude here because the do_land function is reponsible for setting the roll_pitch_mode
+            ap.manual_attitude = !GPS_ok();
+            ap.manual_throttle = false;
+            do_land(NULL);  // land at current location
+            break;
+
+        case RTL:
+            if (GPS_ok()) {
+                success = true;
+                ap.manual_throttle = false;
+                ap.manual_attitude = false;
+                do_RTL();
+            }
+            break;
+
+        case OF_LOITER:
+            if (g.optflow_enabled) {
+                success = true;
+                ap.manual_throttle = false;
+                ap.manual_attitude = false;
+                set_yaw_mode(OF_LOITER_YAW);
+                set_roll_pitch_mode(OF_LOITER_RP);
+                set_throttle_mode(OF_LOITER_THR);
+                set_nav_mode(OF_LOITER_NAV);
+            }
+            break;
+
+        // THOR
+        // These are the flight modes for Toy mode
+        // See the defines for the enumerated values
+        case TOY_A:
+            success = true;
+            ap.manual_throttle = false;
+            ap.manual_attitude = true;
+            set_yaw_mode(YAW_TOY);
+            set_roll_pitch_mode(ROLL_PITCH_TOY);
+            set_throttle_mode(THROTTLE_AUTO);
+            set_nav_mode(NAV_NONE);
+
+            // save throttle for fast exit of Alt hold
+            saved_toy_throttle = g.rc_3.control_in;
+            break;
+
+        case TOY_M:
+            success = true;
+            ap.manual_throttle = false;
+            ap.manual_attitude = true;
+            set_yaw_mode(YAW_TOY);
+            set_roll_pitch_mode(ROLL_PITCH_TOY);
+            set_nav_mode(NAV_NONE);
+            set_throttle_mode(THROTTLE_HOLD);
+            break;
+
+        case SPORT:
+            success = true;
+            ap.manual_throttle = true;
+            ap.manual_attitude = true;
+            set_yaw_mode(SPORT_YAW);
+            set_roll_pitch_mode(SPORT_RP);
+            set_throttle_mode(SPORT_THR);
+            set_nav_mode(NAV_NONE);
+            // reset acro angle targets to current attitude
+            acro_roll = ahrs.roll_sensor;
+            acro_pitch = ahrs.pitch_sensor;
+            nav_yaw = ahrs.yaw_sensor;
+            break;
+
+        default:
+            success = false;
+            break;
+    }
+
+    // update flight mode
+    if (success) {
+        if(ap.manual_attitude) {
+            // We are under manual attitude control so initialise nav parameter for when we next enter an autopilot mode
+            reset_nav_params();
         }
-    	ap.manual_throttle = false;
-        do_land();
-        break;
-
-    case RTL:
-    	ap.manual_throttle = false;
-    	ap.manual_attitude = false;
-        do_RTL();
-        break;
-
-    case OF_LOITER:
-    	ap.manual_throttle = false;
-    	ap.manual_attitude = false;
-        set_yaw_mode(OF_LOITER_YAW);
-        set_roll_pitch_mode(OF_LOITER_RP);
-        set_throttle_mode(OF_LOITER_THR);
-        set_nav_mode(OF_LOITER_NAV);
-        break;
-
-    // THOR
-    // These are the flight modes for Toy mode
-    // See the defines for the enumerated values
-    case TOY_A:
-    	ap.manual_throttle = false;
-    	ap.manual_attitude = true;
-        set_yaw_mode(YAW_TOY);
-        set_roll_pitch_mode(ROLL_PITCH_TOY);
-        set_throttle_mode(THROTTLE_AUTO);
-        set_nav_mode(NAV_NONE);
-
-        // save throttle for fast exit of Alt hold
-        saved_toy_throttle = g.rc_3.control_in;
-        break;
-
-    case TOY_M:
-    	ap.manual_throttle = false;
-    	ap.manual_attitude = true;
-        set_yaw_mode(YAW_TOY);
-        set_roll_pitch_mode(ROLL_PITCH_TOY);
-        set_nav_mode(NAV_NONE);
-        set_throttle_mode(THROTTLE_HOLD);
-        break;
-
-    default:
-        break;
+        control_mode = mode;
+        Log_Write_Mode(control_mode);
+    }else{
+        // Log error that we failed to enter desired flight mode
+        Log_Write_Error(ERROR_SUBSYSTEM_FLGHT_MODE,mode);
     }
 
-    if(ap.manual_attitude) {
-        // We are under manual attitude control
-        // remove the navigation from roll and pitch command
-        reset_nav_params();
-    }
-
-    Log_Write_Mode(control_mode);
+    // return success or failure
+    return success;
 }
 
 static void
@@ -540,7 +575,7 @@ static void update_auto_armed()
             return;
         }
         // if in stabilize or acro flight mode and throttle is zero, auto-armed should become false
-        if(control_mode <= ACRO && g.rc_3.control_in == 0 && !ap.failsafe_radio) {
+        if(manual_flight_mode(control_mode) && g.rc_3.control_in == 0 && !ap.failsafe_radio) {
             set_auto_armed(false);
         }
     }else{
@@ -575,7 +610,7 @@ static uint32_t map_baudrate(int8_t rate, uint32_t default_baud)
 #if USB_MUX_PIN > 0
 static void check_usb_mux(void)
 {
-    bool usb_check = !digitalReadFast(USB_MUX_PIN);
+    bool usb_check = !digitalRead(USB_MUX_PIN);
     if (usb_check == ap_system.usb_connected) {
         return;
     }
@@ -660,6 +695,9 @@ print_flight_mode(AP_HAL::BetterStream *port, uint8_t mode)
         break;
     case TOY_A:
         port->print_P(PSTR("TOY_A"));
+        break;
+    case SPORT:
+        port->print_P(PSTR("SPORT"));
         break;
     default:
         port->printf_P(PSTR("Mode(%u)"), (unsigned)mode);

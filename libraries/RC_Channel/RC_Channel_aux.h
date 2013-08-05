@@ -1,4 +1,4 @@
-// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: t -*-
+// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
 /// @file	RC_Channel_aux.h
 /// @brief	RC_Channel manager for auxiliary channels (5..8), with EEPROM-backed storage of constants.
@@ -47,6 +47,9 @@ public:
         k_aileron_with_input    = 18,            ///< aileron, with rc input
         k_elevator              = 19,            ///< elevator
         k_elevator_with_input   = 20,            ///< elevator, with rc input
+        k_rudder                = 21,            ///< secondary rudder channel
+        k_sprayer_pump          = 22,            ///< crop sprayer pump channel
+        k_sprayer_spinner       = 23,            ///< crop sprayer spinner channel
         k_nr_aux_servo_functions         ///< This must be the last enum value (only add new values _before_ this one)
     } Aux_servo_function_t;
 
@@ -88,7 +91,7 @@ public:
 void update_aux_servo_function(RC_Channel_aux* rc_a = NULL, RC_Channel_aux* rc_b = NULL, 
 							   RC_Channel_aux* rc_c = NULL, RC_Channel_aux* rc_d = NULL, 
 							   RC_Channel_aux* rc_e = NULL, RC_Channel_aux* rc_f = NULL, 
-							   RC_Channel_aux* rc_g = NULL);
+							   RC_Channel_aux* rc_g = NULL, RC_Channel_aux* rc_h = NULL);
 void enable_aux_servos();
 
 #endif /* RC_CHANNEL_AUX_H_ */

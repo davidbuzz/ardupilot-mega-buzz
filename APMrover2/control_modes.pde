@@ -59,7 +59,7 @@ static void read_trim_switch()
     case CH7_DO_NOTHING:
         break;
     case CH7_SAVE_WP:
-		if (g.rc_7.radio_in > CH_7_PWM_TRIGGER) {
+		if (channel_learn->radio_in > CH_7_PWM_TRIGGER) {
             // switch is engaged
 			ch7_flag = true;
 		} else { // switch is disengaged
@@ -73,7 +73,7 @@ static void read_trim_switch()
                     g.command_total = 0;
                     g.command_index =0;
                     nav_command_index = 0;
-                    if (g.channel_steer.control_in > 3000) {
+                    if (channel_steer->control_in > 3000) {
 						// if roll is full right store the current location as home
                         init_home();
                     }

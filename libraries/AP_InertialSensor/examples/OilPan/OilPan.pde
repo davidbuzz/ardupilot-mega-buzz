@@ -1,4 +1,4 @@
-// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: t -*-
+// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
 //
 // Simple test for the AP_InertialSensor driver.
@@ -15,6 +15,7 @@
 #include <AP_Param.h>
 #include <AP_ADC.h>
 #include <AP_InertialSensor.h>
+#include <GCS_MAVLink.h>
 
 #define A_LED_PIN 37
 #define C_LED_PIN 35

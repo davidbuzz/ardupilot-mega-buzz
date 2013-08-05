@@ -18,12 +18,12 @@
 
 // failsafe
 // ----------------------
-#define FAILSAFE_NONE   0
-#define FAILSAFE_SHORT  1
-#define FAILSAFE_LONG   2
-#define FAILSAFE_GCS    3
-#define FAILSAFE_SHORT_TIME 1500        // Miliiseconds
-#define FAILSAFE_LONG_TIME  20000       // Miliiseconds
+enum failsafe_state {
+    FAILSAFE_NONE=0,
+    FAILSAFE_SHORT=1,
+    FAILSAFE_LONG=2,
+    FAILSAFE_GCS=3
+};
 
 
 // active altitude sensor
@@ -48,12 +48,6 @@
 #define GPS_PROTOCOL_MTK19      6
 #define GPS_PROTOCOL_AUTO       7
 
-#define CH_ROLL CH_1
-#define CH_PITCH CH_2
-#define CH_THROTTLE CH_3
-#define CH_RUDDER CH_4
-#define CH_YAW CH_4
-
 // HIL enumerations. Note that HIL_MODE_ATTITUDE and HIL_MODE_SENSORS
 // are now the same thing, and are sensors based. The old define is
 // kept to allow old APM_Config.h headers to keep working
@@ -66,8 +60,10 @@ enum FlightMode {
     CIRCLE        = 1,
     STABILIZE     = 2,
     TRAINING      = 3,
+    ACRO          = 4,
     FLY_BY_WIRE_A = 5,
     FLY_BY_WIRE_B = 6,
+    CRUISE        = 7,
     AUTO          = 10,
     RTL           = 11,
     LOITER        = 12,
@@ -82,12 +78,12 @@ enum StickMixing {
     STICK_MIXING_DIRECT   = 2
 };
 
-enum VTailMixing {
-    VTAIL_DISABLED = 0,
-    VTAIL_UPUP     = 1,
-    VTAIL_UPDN     = 2,
-    VTAIL_DNUP     = 3,
-    VTAIL_DNDN     = 4
+enum ChannelMixing {
+    MIXING_DISABLED = 0,
+    MIXING_UPUP     = 1,
+    MIXING_UPDN     = 2,
+    MIXING_DNUP     = 3,
+    MIXING_DNDN     = 4
 };
 
 // Commands - Note that APM now uses a subset of the MAVLink protocol
@@ -146,13 +142,6 @@ enum ap_message {
     MSG_RETRY_DEFERRED // this must be last
 };
 
-enum gcs_severity {
-    SEVERITY_LOW=1,
-    SEVERITY_MEDIUM,
-    SEVERITY_HIGH,
-    SEVERITY_CRITICAL
-};
-
 // Logging message types. NOTE: If you change the value of one
 // of these then existing logs will break! Only add at the end, and 
 // mark unused ones as 'deprecated', but leave them in
@@ -170,7 +159,8 @@ enum log_messages {
     LOG_ATTITUDE_MSG,
     LOG_MODE_MSG,
     LOG_COMPASS_MSG,
-    MAX_NUM_LOGS
+    LOG_TECS_MSG,
+    MAX_NUM_LOGS // always at the end
 };
 
 #define MASK_LOG_ATTITUDE_FAST          (1<<0)
@@ -184,6 +174,8 @@ enum log_messages {
 #define MASK_LOG_CMD                    (1<<8)
 #define MASK_LOG_CURRENT                (1<<9)
 #define MASK_LOG_COMPASS                (1<<10)
+#define MASK_LOG_TECS                   (1<<11)
+#define MASK_LOG_CAMERA                 (1<<12)
 
 // Waypoint Modes
 // ----------------
@@ -263,9 +255,16 @@ enum log_messages {
 
 // altitude control algorithms
 enum {
-    ALT_CONTROL_DEFAULT=0,
-    ALT_CONTROL_NON_AIRSPEED=1
+    ALT_CONTROL_DEFAULT      = 0,
+    ALT_CONTROL_NON_AIRSPEED = 1,
+    ALT_CONTROL_TECS         = 2,
+    ALT_CONTROL_AIRSPEED     = 3
 };
 
+// attitude controller choice
+enum {
+    ATT_CONTROL_PID = 0,
+    ATT_CONTROL_APMCONTROL = 1
+};
 
 #endif // _DEFINES_H

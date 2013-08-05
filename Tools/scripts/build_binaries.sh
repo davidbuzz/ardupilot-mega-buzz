@@ -35,6 +35,7 @@ checkout() {
 # check if we should skip this build because we have already
 # built this version
 skip_build() {
+    [ "$FORCE_BUILD" -eq "1" ] && return 1
     tag="$1"
     ddir="$2"
     bname=$(basename $ddir)
@@ -53,6 +54,16 @@ skip_build() {
     return 1
 }
 
+addfwversion() {
+    destdir="$1"
+    git log -1 > "$destdir/git-version.txt"
+    [ -f APM_Config.h ] && {
+	version=$(grep 'define.THISFIRMWARE' *.pde 2> /dev/null | cut -d'"' -f2)
+	echo >> "$destdir/git-version.txt"
+	echo "APMVERSION: $version" >> "$destdir/git-version.txt"
+    }    
+}
+
 # copy the built firmware to the right directory
 copyit() {
     file="$1"
@@ -63,11 +74,12 @@ copyit() {
     if [ "$tag" = "latest" ]; then
 	mkdir -p "$dir"
 	/bin/cp "$file" "$dir"
-	git log -1 > "$dir/git-version.txt"
+	addfwversion "$dir"
     fi
     echo "Copying $file to $tdir"
     mkdir -p "$tdir"
-    git log -1 > "$tdir/git-version.txt"
+    addfwversion "$tdir"
+
     rsync "$file" "$tdir"
 }
 
@@ -77,7 +89,7 @@ build_arduplane() {
     echo "Building ArduPlane $tag binaries"
     checkout ArduPlane $tag || return
     pushd ArduPlane
-    for b in apm1 apm2 apm1-hilsensors apm2-hilsensors apm1-1280; do
+    for b in apm1 apm2 apm1-hilsensors apm2-hilsensors; do
 	echo "Building ArduPlane $b binaries"
 	ddir=$binaries/Plane/$hdate/$b
 	skip_build $tag $ddir && continue
@@ -92,7 +104,9 @@ build_arduplane() {
 	skip_build $tag $ddir || {
 	    make px4-clean &&
 	    make px4 &&
-	    copyit $PX4_ROOT/Images/px4fmu.px4 $ddir $tag
+	    rsync ArduPlane.px4 px4fmu.px4 &&
+	    copyit px4fmu.px4 $ddir $tag &&
+	    copyit ArduPlane.px4 $ddir $tag
 	}
     }
     popd
@@ -123,7 +137,9 @@ build_arducopter() {
 	    skip_build $tag $ddir && continue
 	    make px4-clean || continue
 	    make px4-$f || continue
-	    copyit $PX4_ROOT/Images/px4fmu.px4 $ddir $tag
+	    rsync ArduCopter.px4 px4fmu.px4 &&
+	    copyit px4fmu.px4 $ddir $tag &&
+	    copyit ArduCopter.px4 $ddir $tag
 	done
     }
     popd
@@ -134,7 +150,7 @@ build_arducopter() {
 build_rover() {
     tag="$1"
     checkout APMrover2 $tag || return
-    echo "Building APMRover2 $tag binaries"
+    echo "Building APMrover2 $tag binaries"
     pushd APMrover2
     for b in apm1 apm2 apm1-1280; do
 	echo "Building APMrover2 $b binaries"
@@ -151,7 +167,9 @@ build_rover() {
 	skip_build $tag $ddir || {
 	    make px4-clean &&
 	    make px4 &&
-	    copyit $PX4_ROOT/Images/px4fmu.px4 $binaries/Rover/$hdate/PX4 $tag
+	    rsync APMrover2.px4 px4fmu.px4 &&
+	    copyit px4fmu.px4 $ddir $tag &&
+	    copyit APMrover2.px4 $binaries/Rover/$hdate/PX4 $tag
 	}
     }
     popd
@@ -167,12 +185,14 @@ build_px4io() {
 	checkout PX4IO $tag || return
 	ddir=$binaries/PX4IO/$hdate/PX4IO
 	skip_build $tag $ddir || {
-	    make clean &&
-	    make configure_px4io &&
-	    make && 
-	    copyit $PX4_ROOT/Images/px4io.bin $ddir $tag &&
-	    make configure_px4fmu
+	    popd
+	    pushd ArduPlane
+	    make px4-clean &&
+	    make px4-io &&
+	    copyit px4io.bin $ddir $tag
+	    popd
 	}
+	pushd $PX4_ROOT
 	git checkout master
 	popd
     }

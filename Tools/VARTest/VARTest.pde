@@ -1,4 +1,4 @@
-/// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: t -*-
+/// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
 /*
   new variable scheme
@@ -30,6 +30,7 @@
 #include <AP_Relay.h>       // APM relay
 #include <AP_Camera.h>          // Photo or video camera
 #include <AP_Airspeed.h>
+#include <AP_SpdHgtControl.h>
 #include <memcheck.h>
 
 #include <APM_OBC.h>
@@ -66,7 +67,7 @@ AP_InertialSensor_MPU6000 ins;
 AP_AHRS_DCM  ahrs(&ins, g_gps);
 
 static AP_Compass_HIL compass;
-AP_Baro_BMP085_HIL      barometer;
+AP_Baro_HIL      barometer;
 SITL					sitl;
 
 #define SERIAL0_BAUD 115200

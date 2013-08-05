@@ -19,9 +19,6 @@
 #define SONAR 0
 #define BARO 1
 
-#define SONAR_SOURCE_ADC 1
-#define SONAR_SOURCE_ANALOG_PIN 2
-
 // CH 7 control
 enum ch7_option {
     CH7_DO_NOTHING=0,
@@ -41,9 +38,6 @@ enum ch7_option {
 #define GPS_PROTOCOL_HIL	5
 #define GPS_PROTOCOL_MTK19	6
 #define GPS_PROTOCOL_AUTO	7
-
-#define CH_STEER    CH_1
-#define CH_THROTTLE CH_3
 
 // HIL enumerations
 #define HIL_MODE_DISABLED			0
@@ -118,13 +112,6 @@ enum ap_message {
     MSG_RETRY_DEFERRED // this must be last
 };
 
-enum gcs_severity {
-    SEVERITY_LOW=1,
-    SEVERITY_MEDIUM,
-    SEVERITY_HIGH,
-    SEVERITY_CRITICAL
-};
-
 //  Logging parameters
 #define LOG_CTUN_MSG	        0x01
 #define LOG_NTUN_MSG    		0x02
@@ -136,6 +123,7 @@ enum gcs_severity {
 #define LOG_ATTITUDE_MSG        0x08
 #define LOG_MODE_MSG            0x09
 #define LOG_COMPASS_MSG         0x0A
+#define LOG_CAMERA_MSG          0x0B
 
 #define TYPE_AIRSTART_MSG		0x00
 #define TYPE_GROUNDSTART_MSG	0x01
@@ -153,6 +141,7 @@ enum gcs_severity {
 #define MASK_LOG_CURRENT		(1<<9)
 #define MASK_LOG_SONAR   		(1<<10)
 #define MASK_LOG_COMPASS   		(1<<11)
+#define MASK_LOG_CAMERA   		(1<<12)
 
 // Waypoint Modes
 // ----------------

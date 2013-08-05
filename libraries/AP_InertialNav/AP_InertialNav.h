@@ -8,7 +8,7 @@
 #include <AP_Baro.h>                    // ArduPilot Mega Barometer Library
 #include <AP_Buffer.h>                  // FIFO buffer library
 
-#define AP_INTERTIALNAV_TC_XY   3.0f // default time constant for complementary filter's X & Y axis
+#define AP_INTERTIALNAV_TC_XY   2.5f // default time constant for complementary filter's X & Y axis
 #define AP_INTERTIALNAV_TC_Z    5.0f // default time constant for complementary filter's Z axis
 
 // #defines to control how often historical accel based positions are saved
@@ -16,8 +16,6 @@
 #define AP_INTERTIALNAV_SAVE_POS_AFTER_ITERATIONS   10
 #define AP_INTERTIALNAV_GPS_LAG_IN_10HZ_INCREMENTS  4       // must not be larger than size of _hist_position_estimate_x and _hist_position_estimate_y
 #define AP_INTERTIALNAV_GPS_TIMEOUT_MS              300     // timeout after which position error from GPS will fall to zero
-
-#define AP_INERTIALNAV_LATLON_TO_CM 1.1113175f
 
 /*
  * AP_InertialNav is an attempt to use accelerometers to augment other sensors to improve altitud e position hold

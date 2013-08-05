@@ -1,4 +1,4 @@
-// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: t -*-
+// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 //
 //  DIYDrones Custom Mediatek GPS driver for ArduPilot and ArduPilotMega.
 //	Code by Michael Smith, Jordi Munoz and Jose Julio, DIYDrones.com
@@ -147,9 +147,9 @@ restart:
             }
             latitude            = _swapl(&_buffer.msg.latitude)  * 10;
             longitude           = _swapl(&_buffer.msg.longitude) * 10;
-            altitude            = _swapl(&_buffer.msg.altitude);
-            ground_speed        = _swapl(&_buffer.msg.ground_speed);
-            ground_course       = _swapl(&_buffer.msg.ground_course) / 10000;
+            altitude_cm         = _swapl(&_buffer.msg.altitude);
+            ground_speed_cm     = _swapl(&_buffer.msg.ground_speed);
+            ground_course_cd    = _swapl(&_buffer.msg.ground_course) / 10000;
             num_sats            = _buffer.msg.satellites;
 
             // time from gps is UTC, but convert here to msToD

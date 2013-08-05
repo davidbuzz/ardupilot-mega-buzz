@@ -33,7 +33,7 @@ uint32_t SITL_State::_update_count;
 bool SITL_State::_motors_on;
 uint16_t SITL_State::airspeed_pin_value;
 
-AP_Baro_BMP085_HIL *SITL_State::_barometer;
+AP_Baro_HIL *SITL_State::_barometer;
 AP_InertialSensor_Stub *SITL_State::_ins;
 SITLScheduler *SITL_State::_scheduler;
 AP_Compass_HIL *SITL_State::_compass;
@@ -133,7 +133,7 @@ void SITL_State::_sitl_setup(void)
 
 	// find the barometer object if it exists
 	_sitl = (SITL *)AP_Param::find_object("SIM_");
-	_barometer = (AP_Baro_BMP085_HIL *)AP_Param::find_object("GND_");
+	_barometer = (AP_Baro_HIL *)AP_Param::find_object("GND_");
 	_ins = (AP_InertialSensor_Stub *)AP_Param::find_object("INS_");
 	_compass = (AP_Compass_HIL *)AP_Param::find_object("COMPASS_");
 
@@ -256,7 +256,7 @@ void SITL_State::_timer_handler(int signum)
                     _sitl->state.xAccel, _sitl->state.yAccel, _sitl->state.zAccel,
                     _sitl->state.airspeed);
         _update_barometer(_sitl->state.altitude);
-        _update_compass(_sitl->state.rollDeg, _sitl->state.pitchDeg, _sitl->state.heading);
+        _update_compass(_sitl->state.rollDeg, _sitl->state.pitchDeg, _sitl->state.yawDeg);
     }
 
 	// trigger all APM timers. We do this last as it can re-enable
@@ -392,10 +392,16 @@ void SITL_State::_simulator_output(void)
 		_motors_on = ((control.pwm[2]-1500)/500.0) != 0;
 	} else {
 		_motors_on = false;
+        // apply engine multiplier to first motor
+        control.pwm[0] = ((control.pwm[0]-1000) * _sitl->engine_mul) + 1000;
+        // run checks on each motor
 		for (i=0; i<4; i++) {
+            // check motors do not exceed their limits
+            if (control.pwm[i] > 2000) control.pwm[i] = 2000;
+            if (control.pwm[i] < 1000) control.pwm[i] = 1000;
+            // update motor_on flag
 			if ((control.pwm[i]-1000)/1000.0 > 0) {
-                control.pwm[i] = ((control.pwm[i]-1000) * _sitl->engine_mul) + 1000;                
-				_motors_on = true;
+                _motors_on = true;
 			}
 		}
 	}

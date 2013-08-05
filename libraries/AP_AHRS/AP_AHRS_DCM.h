@@ -14,7 +14,10 @@ class AP_AHRS_DCM : public AP_AHRS
 {
 public:
     // Constructors
-    AP_AHRS_DCM(AP_InertialSensor *ins, GPS *&gps) : AP_AHRS(ins, gps)
+    AP_AHRS_DCM(AP_InertialSensor *ins, GPS *&gps) :
+        AP_AHRS(ins, gps),
+        _last_declination(0),
+        _mag_earth(1,0)
     {
         _dcm_matrix.identity();
 
@@ -42,7 +45,7 @@ public:
     void            reset(bool recover_eulers = false);
 
     // dead-reckoning support
-    bool get_position(struct Location *loc);
+    bool get_position(struct Location &loc);
 
     // status reporting
     float           get_error_rp(void);
@@ -57,7 +60,7 @@ public:
     // if we have an estimate
     bool airspeed_estimate(float *airspeed_ret);
 
-    bool            use_compass(void);
+    bool            use_compass(void) const;
 
 private:
     float _ki;
@@ -71,10 +74,9 @@ private:
     void            drift_correction(float deltat);
     void            drift_correction_yaw(void);
     float           yaw_error_compass();
-    float           yaw_error_gps();
     void            euler_angles(void);
     void            estimate_wind(Vector3f &velocity);
-    bool            have_gps(void);
+    bool            have_gps(void) const;
 
     // primary representation of attitude
     Matrix3f _dcm_matrix;
@@ -111,8 +113,9 @@ private:
     float _ra_deltat;
     uint32_t _ra_sum_start;
 
-    // current drift error in earth frame
-    Vector3f _drift_error_earth;
+    // the earths magnetic field
+    float _last_declination;
+    Vector2f _mag_earth;
 
     // whether we have GPS lock
     bool _have_gps_lock;

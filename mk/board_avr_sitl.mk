@@ -18,7 +18,10 @@ CXXOPTS         =   -ffunction-sections -fdata-sections -fno-exceptions -fsigned
 COPTS           =   -ffunction-sections -fdata-sections -fsigned-char
 
 ASOPTS          =   -x assembler-with-cpp 
+
+ifneq ($(SYSTYPE),Darwin)
 LISTOPTS        =   -adhlns=$(@:.o=.lst)
+endif
 
 CPUFLAGS     = -D_GNU_SOURCE
 CPULDFLAGS   = -g
@@ -31,7 +34,10 @@ CFLAGS         +=   $(WARNFLAGS) $(DEPFLAGS) $(COPTS)
 ASFLAGS         =   -g $(CPUFLAGS) $(DEFINES) -Wa,$(LISTOPTS) $(DEPFLAGS)
 ASFLAGS        +=   $(ASOPTS)
 LDFLAGS         =   -g $(CPUFLAGS) $(OPTFLAGS) $(WARNFLAGS)
+
+ifneq ($(SYSTYPE),Darwin)
 LDFLAGS        +=   -Wl,--gc-sections -Wl,-Map -Wl,$(SKETCHMAP)
+endif
 
 LIBS = -lm
 
@@ -82,12 +88,6 @@ print-%:
 
 # fetch dependency info from a previous build if any of it exists
 -include $(ALLDEPS)
-
-# common header for rules, prints what is being built
-define RULEHDR
-	@echo %% $(subst $(BUILDROOT)/,,$@)
-	@mkdir -p $(dir $@)
-endef
 
 # Link the final object
 $(SKETCHELF):	$(SKETCHOBJS) $(LIBOBJS)

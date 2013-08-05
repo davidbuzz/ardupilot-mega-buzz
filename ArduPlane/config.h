@@ -98,8 +98,6 @@
  # define BATTERY_VOLT_PIN      0      // Battery voltage on A0
  # define BATTERY_CURR_PIN      1      // Battery current on A1
  # define CONFIG_INS_TYPE CONFIG_INS_OILPAN
- # define CONFIG_PITOT_SOURCE PITOT_SOURCE_ADC
- # define CONFIG_PITOT_SOURCE_ADC_CHANNEL 7
  # define CONFIG_BARO     AP_BARO_BMP085
  # define CONFIG_COMPASS  AP_COMPASS_HMC5843
 #elif CONFIG_HAL_BOARD == HAL_BOARD_APM2
@@ -116,11 +114,6 @@
  # define BATTERY_VOLT_PIN      1      // Battery voltage on A1
  # define BATTERY_CURR_PIN      2      // Battery current on A2
  # define CONFIG_INS_TYPE CONFIG_INS_MPU6000
- # define CONFIG_PITOT_SOURCE PITOT_SOURCE_ANALOG_PIN
- # define CONFIG_PITOT_SOURCE_ANALOG_PIN 0
- # define CONFIG_PITOT_SCALING 4.0
- # define MAG_ORIENTATION   AP_COMPASS_APM2_SHIELD
- # define MAGNETOMETER ENABLED
  # ifdef APM2_BETA_HARDWARE
  #  define CONFIG_BARO     AP_BARO_BMP085
  # else // APM2 Production Hardware (default)
@@ -137,10 +130,6 @@
  # define BATTERY_VOLT_PIN      1      // Battery voltage on A1
  # define BATTERY_CURR_PIN      2      // Battery current on A2
  # define CONFIG_INS_TYPE CONFIG_INS_STUB
- # define CONFIG_PITOT_SOURCE PITOT_SOURCE_ANALOG_PIN
- # define CONFIG_PITOT_SOURCE_ANALOG_PIN 0
- # define CONFIG_PITOT_SCALING 4.0
- # define MAGNETOMETER ENABLED
  # define CONFIG_BARO     AP_BARO_HIL
  # define CONFIG_COMPASS  AP_COMPASS_HIL
 #elif CONFIG_HAL_BOARD == HAL_BOARD_PX4
@@ -153,27 +142,11 @@
  # define BATTERY_VOLT_PIN      -1
  # define BATTERY_CURR_PIN      -1
  # define CONFIG_INS_TYPE CONFIG_INS_PX4
- # define CONFIG_PITOT_SOURCE PITOT_SOURCE_ANALOG_PIN
- # define CONFIG_PITOT_SOURCE_ANALOG_PIN 11
- # define CONFIG_PITOT_SCALING (4.0*5.0/3.3)
- # define MAGNETOMETER ENABLED
- # define MAG_ORIENTATION   ROTATION_NONE
  # define CONFIG_BARO AP_BARO_PX4
  # define CONFIG_COMPASS  AP_COMPASS_PX4
  # define SERIAL0_BAUD 115200
 #endif
 
-
-//////////////////////////////////////////////////////////////////////////////
-// ADC Enable - used to eliminate for systems which don't have ADC.
-//
-#ifndef CONFIG_ADC
- # if CONFIG_INS_TYPE == CONFIG_INS_OILPAN
-  #   define CONFIG_ADC ENABLED
- # else
-  #   define CONFIG_ADC DISABLED
- # endif
-#endif
 
 #ifndef CONFIG_BARO
  # error "CONFIG_BARO not set"
@@ -181,10 +154,6 @@
 
 #ifndef CONFIG_COMPASS
  # error "CONFIG_COMPASS not set"
-#endif
-
-#ifndef CONFIG_PITOT_SOURCE
- # error "CONFIG_PITOT_SOURCE not set"
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -201,14 +170,6 @@
  #define CONFIG_BARO AP_BARO_HIL
  #undef CONFIG_INS_TYPE
  #define CONFIG_INS_TYPE CONFIG_INS_STUB
- #undef CONFIG_ADC
- #define CONFIG_ADC DISABLED
- #undef CONFIG_PITOT_SOURCE
- #define CONFIG_PITOT_SOURCE PITOT_SOURCE_ANALOG_PIN
- #undef CONFIG_PITOT_SOURCE_ANALOG_PIN
- #define CONFIG_PITOT_SOURCE_ANALOG_PIN -1
- #undef CONFIG_PITOT_SCALING
- #define CONFIG_PITOT_SCALING 4.0
  #undef  CONFIG_COMPASS
  #define CONFIG_COMPASS  AP_COMPASS_HIL
 #endif
@@ -241,12 +202,6 @@
 //////////////////////////////////////////////////////////////////////////////
 // Battery monitoring
 //
-#ifndef BATTERY_EVENT
- # define BATTERY_EVENT                  DISABLED
-#endif
-#ifndef LOW_VOLTAGE
- # define LOW_VOLTAGE                    9.6
-#endif
 #ifndef VOLT_DIV_RATIO
  # define VOLT_DIV_RATIO                 3.56   // This is the proper value for an on-board APM1 voltage divider with a 3.9kOhm resistor
 //# define VOLT_DIV_RATIO		15.70	// This is the proper value for the AttoPilot 50V/90A sensor
@@ -258,24 +213,6 @@
  # define CURR_AMP_PER_VOLT              27.32  // This is the proper value for the AttoPilot 50V/90A sensor
 //# define CURR_AMP_PER_VOLT	13.66	// This is the proper value for the AttoPilot 13.6V/45A sensor
 #endif
-
-//////////////////////////////////////////////////////////////////////////////
-// INPUT_VOLTAGE
-//
-#ifndef INPUT_VOLTAGE
- # define INPUT_VOLTAGE                  4.68   //  4.68 is the average value for a sample set.  This is the value at the processor with 5.02 applied at the servo rail
-#endif
-
-//////////////////////////////////////////////////////////////////////////////
-//  MAGNETOMETER
-#ifndef MAGNETOMETER
- # define MAGNETOMETER                   DISABLED
-#endif
-
-#ifndef MAG_ORIENTATION
- # define MAG_ORIENTATION                AP_COMPASS_COMPONENTS_DOWN_PINS_FORWARD
-#endif
-
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -408,24 +345,10 @@
 
 
 //////////////////////////////////////////////////////////////////////////////
-// Level with each startup = 0, level with MP/CLI only = 1
-//
-#ifndef MANUAL_LEVEL
- # define MANUAL_LEVEL        0
-#endif
-
-//////////////////////////////////////////////////////////////////////////////
 // GROUND_START_DELAY
 //
 #ifndef GROUND_START_DELAY
  # define GROUND_START_DELAY             0
-#endif
-
-//////////////////////////////////////////////////////////////////////////////
-// ENABLE_AIR_START
-//
-#ifndef ENABLE_AIR_START
- # define ENABLE_AIR_START               DISABLED
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -580,9 +503,6 @@
  # define SERVO_ROLL_INT_MAX   5
 #endif
 #define SERVO_ROLL_INT_MAX_CENTIDEGREE SERVO_ROLL_INT_MAX*100
-#ifndef ROLL_SLEW_LIMIT
- # define ROLL_SLEW_LIMIT      0
-#endif
 #ifndef SERVO_PITCH_P
  # define SERVO_PITCH_P        0.6
 #endif
@@ -675,15 +595,6 @@
 #ifndef THROTTLE_TE_INT_MAX
  # define THROTTLE_TE_INT_MAX  20
 #endif
-#ifndef THROTTLE_SLEW_LIMIT
- # define THROTTLE_SLEW_LIMIT  0
-#endif
-#ifndef P_TO_T
- # define P_TO_T               0
-#endif
-#ifndef T_TO_P
- # define T_TO_P               0
-#endif
 #ifndef PITCH_TARGET
  # define PITCH_TARGET         0
 #endif
@@ -719,10 +630,13 @@
     MASK_LOG_GPS | \
     MASK_LOG_PM | \
     MASK_LOG_NTUN | \
+    MASK_LOG_CTUN | \
     MASK_LOG_MODE | \
     MASK_LOG_CMD | \
     MASK_LOG_COMPASS | \
-    MASK_LOG_CURRENT
+    MASK_LOG_CURRENT | \
+    MASK_LOG_TECS | \
+    MASK_LOG_CAMERA
 
 
 
@@ -792,12 +706,7 @@
  # define OBC_FAILSAFE DISABLED
 #endif
 
-// new APM_Control controller library by Jon Challinger
-#ifndef APM_CONTROL
-# define APM_CONTROL DISABLED
-#endif
-
 #ifndef SERIAL_BUFSIZE
- # define SERIAL_BUFSIZE 256
+ # define SERIAL_BUFSIZE 512
 #endif
 

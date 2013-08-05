@@ -58,8 +58,6 @@
 #if CONFIG_HAL_BOARD == HAL_BOARD_APM2
  # define CONFIG_IMU_TYPE   CONFIG_IMU_MPU6000
  # define CONFIG_PUSHBUTTON DISABLED
- # define CONFIG_RELAY      DISABLED
- # define MAG_ORIENTATION   AP_COMPASS_APM2_SHIELD
  # define CONFIG_SONAR_SOURCE SONAR_SOURCE_ANALOG_PIN
  # define MAGNETOMETER ENABLED
  # ifdef APM2_BETA_HARDWARE
@@ -71,16 +69,12 @@
 #elif CONFIG_HAL_BOARD == HAL_BOARD_AVR_SITL
  # define CONFIG_IMU_TYPE   CONFIG_IMU_SITL
  # define CONFIG_PUSHBUTTON DISABLED
- # define CONFIG_RELAY      DISABLED
- # define MAG_ORIENTATION   AP_COMPASS_COMPONENTS_DOWN_PINS_FORWARD
  # define CONFIG_SONAR_SOURCE SONAR_SOURCE_ANALOG_PIN
  # define MAGNETOMETER ENABLED
 #elif CONFIG_HAL_BOARD == HAL_BOARD_PX4
  # define CONFIG_IMU_TYPE   CONFIG_IMU_PX4
  # define CONFIG_BARO       AP_BARO_PX4
  # define CONFIG_PUSHBUTTON DISABLED
- # define CONFIG_RELAY      DISABLED
- # define MAG_ORIENTATION   ROTATION_NONE
  # define CONFIG_SONAR_SOURCE SONAR_SOURCE_ANALOG_PIN
  # define MAGNETOMETER ENABLED
 #elif CONFIG_HAL_BOARD == HAL_BOARD_SMACCM
@@ -89,8 +83,6 @@
  # define CONFIG_MS5611_SERIAL AP_BARO_MS5611_I2C
  # define CONFIG_ADC        DISABLED
  # define CONFIG_PUSHBUTTON DISABLED
- # define CONFIG_RELAY      DISABLED
- # define MAG_ORIENTATION   AP_COMPASS_COMPONENTS_DOWN_PINS_BACK
  # define CONFIG_SONAR_SOURCE SONAR_SOURCE_ANALOG_PIN
  # define MAGNETOMETER ENABLED
 #endif
@@ -257,10 +249,6 @@
  # define CONFIG_PUSHBUTTON ENABLED
 #endif
 
-#ifndef CONFIG_RELAY
- # define CONFIG_RELAY ENABLED
-#endif
-
 //////////////////////////////////////////////////////////////////////////////
 // Barometer
 //
@@ -314,13 +302,16 @@
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
-// Channel 7 default option
+// Channel 7 and 8 default options
 //
 
 #ifndef CH7_OPTION
- # define CH7_OPTION             CH7_SAVE_WP
+ # define CH7_OPTION            AUX_SWITCH_SAVE_WP
 #endif
 
+#ifndef CH8_OPTION
+ # define CH8_OPTION            AUX_SWITCH_DO_NOTHING
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 // HIL_MODE                                 OPTIONAL
@@ -383,6 +374,14 @@
  # define HIGH_DISCHARGE                 1760
 #endif
 
+#ifndef BOARD_VOLTAGE_MIN
+ # define BOARD_VOLTAGE_MIN             4300        // min board voltage in milli volts for pre-arm checks
+#endif
+
+#ifndef BOARD_VOLTAGE_MAX
+ # define BOARD_VOLTAGE_MAX             5800        // max board voltage in milli volts for pre-arm checks
+#endif
+
 // Battery failsafe
 #ifndef FS_BATTERY
  # define FS_BATTERY              DISABLED
@@ -390,21 +389,40 @@
 
 // GPS failsafe
 #ifndef FS_GPS
- # define FS_GPS                        DISABLED
+ # define FS_GPS                        ENABLED
 #endif
 #ifndef FAILSAFE_GPS_TIMEOUT_MS
  # define FAILSAFE_GPS_TIMEOUT_MS       5000    // gps failsafe triggers after 5 seconds with no GPS
 #endif
+
+// GCS failsafe
+#ifndef FS_GCS
+ # define FS_GCS                        DISABLED
+#endif
+#ifndef FS_GCS_TIMEOUT_MS
+ # define FS_GCS_TIMEOUT_MS             5000    // gcs failsafe triggers after 5 seconds with no GCS heartbeat
+#endif
+// possible values for FS_GCS parameter
+#define FS_GCS_DISABLED                     0
+#define FS_GCS_ENABLED_ALWAYS_RTL           1
+#define FS_GCS_ENABLED_CONTINUE_MISSION     2
 
 //////////////////////////////////////////////////////////////////////////////
 //  MAGNETOMETER
 #ifndef MAGNETOMETER
  # define MAGNETOMETER                   ENABLED
 #endif
-#ifndef MAG_ORIENTATION
- # define MAG_ORIENTATION                AP_COMPASS_COMPONENTS_DOWN_PINS_FORWARD
-#endif
 
+// expected magnetic field strength.  pre-arm checks will fail if 50% higher or lower than this value
+#if CONFIG_HAL_BOARD == HAL_BOARD_APM2
+ #ifndef COMPASS_MAGFIELD_EXPECTED
+  # define COMPASS_MAGFIELD_EXPECTED     330        // pre arm will fail if mag field > 495 or < 165
+ #endif
+#else // APM1, PX4, SITL
+ #ifndef COMPASS_MAGFIELD_EXPECTED
+  #define COMPASS_MAGFIELD_EXPECTED      530        // pre arm will fail if mag field > 795 or < 265
+ #endif
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 //  OPTICAL_FLOW
@@ -446,6 +464,11 @@
  #define OPTFLOW_IMAX 1
 #endif
 
+//////////////////////////////////////////////////////////////////////////////
+//  Crop Sprayer
+#ifndef SPRAYER
+ # define SPRAYER  DISABLED
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 // RADIO CONFIGURATION
@@ -484,6 +507,7 @@
 #define FS_THR_DISABLED                    0
 #define FS_THR_ENABLED_ALWAYS_RTL          1
 #define FS_THR_ENABLED_CONTINUE_MISSION    2
+#define FS_THR_ENABLED_ALWAYS_LAND         3
 
 #ifndef FS_THR_VALUE_DEFAULT
  # define FS_THR_VALUE_DEFAULT             975
@@ -546,8 +570,9 @@
 
 // definitions for earth frame and body frame
 // used to specify frame to rate controllers
-#define EARTH_FRAME     0
-#define BODY_FRAME      1
+#define EARTH_FRAME         0
+#define BODY_FRAME          1
+#define BODY_EARTH_FRAME    2
 
 
 // Flight mode roll, pitch, yaw, throttle and navigation definitions
@@ -563,6 +588,23 @@
 
 #ifndef ACRO_THR
  # define ACRO_THR           	    THROTTLE_MANUAL
+#endif
+
+#ifndef ACRO_LEVEL_MAX_ANGLE
+ # define ACRO_LEVEL_MAX_ANGLE      3000
+#endif
+
+// Sport Mode
+#ifndef SPORT_YAW
+ # define SPORT_YAW           	    YAW_HOLD
+#endif
+
+#ifndef SPORT_RP
+ # define SPORT_RP            	    ROLL_PITCH_SPORT
+#endif
+
+#ifndef SPORT_THR
+ # define SPORT_THR           	    THROTTLE_MANUAL
 #endif
 
 // Alt Hold Mode
@@ -581,7 +623,7 @@
 // AUTO Mode
 // Note: Auto mode yaw behaviour is controlled by WP_YAW_BEHAVIOR parameter
 #ifndef WP_YAW_BEHAVIOR_DEFAULT
- # define WP_YAW_BEHAVIOR_DEFAULT   WP_YAW_BEHAVIOR_LOOK_AT_NEXT_WP     
+ # define WP_YAW_BEHAVIOR_DEFAULT   WP_YAW_BEHAVIOR_LOOK_AT_NEXT_WP_EXCEPT_RTL     
 #endif
 
 #ifndef AUTO_RP
@@ -610,7 +652,7 @@
 #endif
 
 #ifndef CIRCLE_RATE
- # define CIRCLE_RATE               5.0f        // degrees per second turn rate
+ # define CIRCLE_RATE               20.0f        // degrees per second turn rate
 #endif
 
 // Guided Mode
@@ -650,11 +692,11 @@
 #endif
 
 #ifndef POSITION_RP
- # define POSITION_RP               ROLL_PITCH_AUTO
+ # define POSITION_RP               ROLL_PITCH_LOITER
 #endif
 
 #ifndef POSITION_THR
- # define POSITION_THR              THROTTLE_HOLD
+ # define POSITION_THR              THROTTLE_MANUAL_TILT_COMPENSATED
 #endif
 
 #ifndef POSITION_NAV
@@ -720,36 +762,16 @@
 // Attitude Control
 //
 
-// Extra motor values that are changed from time to time by jani @ jDrones as software
-// and charachteristics changes.
-#ifdef MOTORS_JD880
- # define STABILIZE_ROLL_P          3.7f
- # define STABILIZE_ROLL_I          0.0f
- # define STABILIZE_ROLL_IMAX    	8.0f            // degrees
- # define STABILIZE_PITCH_P         3.7f
- # define STABILIZE_PITCH_I         0.0f
- # define STABILIZE_PITCH_IMAX   	8.0f            // degrees
+// Acro mode gains
+#ifndef ACRO_RP_P
+ # define ACRO_RP_P                 4.5f
 #endif
 
-#ifdef MOTORS_JD850
- # define STABILIZE_ROLL_P          4.2f
- # define STABILIZE_ROLL_I          0.0f
- # define STABILIZE_ROLL_IMAX    	8.0f            // degrees
- # define STABILIZE_PITCH_P         4.2f
- # define STABILIZE_PITCH_I         0.0f
- # define STABILIZE_PITCH_IMAX   	8.0f            // degrees
+#ifndef ACRO_YAW_P
+ # define ACRO_YAW_P                4.5f
 #endif
 
-
-#ifndef ACRO_P
- # define ACRO_P                 4.5f
-#endif
-
-#ifndef AXIS_LOCK_ENABLED
- # define AXIS_LOCK_ENABLED      ENABLED
-#endif
-
-// Good for smaller payload motors.
+// Stabilize (angle controller) gains
 #ifndef STABILIZE_ROLL_P
  # define STABILIZE_ROLL_P          4.5f
 #endif
@@ -781,7 +803,7 @@
 #endif
 
 #ifndef YAW_LOOK_AHEAD_MIN_SPEED
- # define YAW_LOOK_AHEAD_MIN_SPEED  1000             // minimum ground speed in cm/s required before copter is aimed at ground course
+ # define YAW_LOOK_AHEAD_MIN_SPEED  100             // minimum ground speed in cm/s required before copter is aimed at ground course
 #endif
 
 
@@ -825,7 +847,7 @@
  # define RATE_YAW_P              	0.200f
 #endif
 #ifndef RATE_YAW_I
- # define RATE_YAW_I              	0.015f
+ # define RATE_YAW_I              	0.020f
 #endif
 #ifndef RATE_YAW_D
  # define RATE_YAW_D              	0.000f
@@ -852,15 +874,11 @@
 #endif
 
 #ifndef ACRO_BALANCE_ROLL
- #define ACRO_BALANCE_ROLL			200
+ #define ACRO_BALANCE_ROLL			1.0f
 #endif
 
 #ifndef ACRO_BALANCE_PITCH
- #define ACRO_BALANCE_PITCH			200
-#endif
-
-#ifndef ACRO_TRAINER_ENABLED
- #define ACRO_TRAINER_ENABLED       ENABLED
+ #define ACRO_BALANCE_PITCH			1.0f
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -895,10 +913,6 @@
 //////////////////////////////////////////////////////////////////////////////
 // Autopilot rotate rate limits
 //
-#ifndef AUTO_SLEW_RATE
- # define AUTO_SLEW_RATE         	45                     // degrees/sec
-#endif
-
 #ifndef AUTO_YAW_SLEW_RATE
  # define AUTO_YAW_SLEW_RATE        60                     // degrees/sec
 #endif
@@ -916,7 +930,7 @@
 #endif
 
 #ifndef ALT_HOLD_P
- # define ALT_HOLD_P            2.0f
+ # define ALT_HOLD_P            1.0f
 #endif
 #ifndef ALT_HOLD_I
  # define ALT_HOLD_I            0.0f
@@ -926,18 +940,18 @@
 #endif
 
 // RATE control
-#ifndef THROTTLE_P
- # define THROTTLE_P            6.0f
+#ifndef THROTTLE_RATE_P
+ # define THROTTLE_RATE_P       6.0f
 #endif
-#ifndef THROTTLE_I
- # define THROTTLE_I            0.0f
+#ifndef THROTTLE_RATE_I
+ # define THROTTLE_RATE_I       0.0f
 #endif
-#ifndef THROTTLE_D
- # define THROTTLE_D            0.0f
+#ifndef THROTTLE_RATE_D
+ # define THROTTLE_RATE_D       0.0f
 #endif
 
-#ifndef THROTTLE_IMAX
- # define THROTTLE_IMAX         300
+#ifndef THROTTLE_RATE_IMAX
+ # define THROTTLE_RATE_IMAX    300
 #endif
 
 // default maximum vertical velocity the pilot may request
@@ -952,7 +966,7 @@
 #endif
 // the acceleration used to define the distance-velocity curve
 #ifndef ALT_HOLD_ACCEL_MAX
- # define ALT_HOLD_ACCEL_MAX 250
+ # define ALT_HOLD_ACCEL_MAX 250    // if you change this you must also update the duplicate declaration in AC_WPNav.h
 #endif
 
 // Throttle Accel control
@@ -996,9 +1010,6 @@
 #ifndef LOG_NTUN
  # define LOG_NTUN                      ENABLED
 #endif
-#ifndef LOG_MODE
- # define LOG_MODE                      ENABLED
-#endif
 #ifndef LOG_IMU
  # define LOG_IMU                       DISABLED
 #endif
@@ -1027,7 +1038,7 @@
  # define LOG_INAV                      DISABLED
 #endif
 #ifndef LOG_CAMERA
- # define LOG_CAMERA                    DISABLED
+ # define LOG_CAMERA                    ENABLED
 #endif
 
 // calculate the default log_bitmask
@@ -1040,7 +1051,6 @@
     LOGBIT(PM)              | \
     LOGBIT(CTUN)            | \
     LOGBIT(NTUN)            | \
-    LOGBIT(MODE)            | \
     LOGBIT(IMU)             | \
     LOGBIT(CMD)             | \
     LOGBIT(CURRENT)         | \
@@ -1062,36 +1072,9 @@
 //
 
 // Enable/disable AP_Limits
-#ifndef AP_LIMITS
- #define AP_LIMITS ENABLED
+#ifndef AC_FENCE
+ #define AC_FENCE ENABLED
 #endif
-
-// Use PIN for displaying LIMITS status. 0 is disabled.
-#ifndef LIMITS_TRIGGERED_PIN
- #define LIMITS_TRIGGERED_PIN 0
-#endif
-
-// PWM of "on" state for LIM_CHANNEL
-#ifndef LIMITS_ENABLE_PWM
- #define LIMITS_ENABLE_PWM 1800
-#endif
-
-#ifndef LIM_ENABLED
- #define LIM_ENABLED 0
-#endif
-
-#ifndef LIM_ALT_ON
- #define LIM_ALT_ON 0
-#endif
-
-#ifndef LIM_FNC_ON
- #define LIM_FNC_ON 0
-#endif
-
-#ifndef LIM_GPSLCK_ON
- #define LIM_GPSLCK_ON 0
-#endif
-
 
 
 //////////////////////////////////////////////////////////////////////////////

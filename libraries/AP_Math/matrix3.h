@@ -1,4 +1,4 @@
-// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: t -*-
+// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
 // Copyright 2010 Michael Smith, all rights reserved.
 
@@ -122,6 +122,9 @@ public:
     // multiplication of transpose by a vector
     Vector3<T>                  mul_transpose(const Vector3<T> &v) const;
 
+    // multiplication by a vector giving a Vector2 result (XY components)
+    Vector2<T> mulXY(const Vector3<T> &v) const;
+
     // extract x column
     Vector3<T>                  colx(void) const
     {
@@ -185,6 +188,10 @@ public:
     // apply an additional rotation from a body frame gyro vector
     // to a rotation matrix.
     void        rotate(const Vector3<T> &g);
+
+    // apply an additional rotation from a body frame gyro vector
+    // to a rotation matrix but only use X, Y elements from gyro vector
+    void        rotateXY(const Vector3<T> &g);
 };
 
 typedef Matrix3<int16_t>                Matrix3i;

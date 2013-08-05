@@ -191,7 +191,7 @@ static NOINLINE void send_extended_status1(mavlink_channel_t chan, uint16_t pack
         control_sensors_present,
         control_sensors_enabled,
         control_sensors_health,
-        (uint16_t)(load * 1000),
+        (uint16_t)(scheduler.load_average(20000) * 1000),
         battery_voltage1 * 1000, // mV
         battery_current,        // in 10mA units
         battery_remaining,      // in %
@@ -227,7 +227,7 @@ static void NOINLINE send_location(mavlink_channel_t chan)
         fix_time,
         current_loc.lat,                // in 1E7 degrees
         current_loc.lng,                // in 1E7 degrees
-        g_gps->altitude * 10,             // millimeters above sea level
+        g_gps->altitude_cm * 10,             // millimeters above sea level
         (current_loc.alt - home.alt) * 10,           // millimeters above ground
         g_gps->velocity_north() * 100,  // X speed cm/s (+ve North)
         g_gps->velocity_east()  * 100,  // Y speed cm/s (+ve East)
@@ -258,11 +258,11 @@ static void NOINLINE send_gps_raw(mavlink_channel_t chan)
         g_gps->status(),
         g_gps->latitude,      // in 1E7 degrees
         g_gps->longitude,     // in 1E7 degrees
-        g_gps->altitude * 10, // in mm
+        g_gps->altitude_cm * 10, // in mm
         g_gps->hdop,
         65535,
-        g_gps->ground_speed,  // cm/s
-        g_gps->ground_course, // 1/100 degrees,
+        g_gps->ground_speed_cm,  // cm/s
+        g_gps->ground_course_cd, // 1/100 degrees,
         g_gps->num_sats);
 }
 
@@ -275,9 +275,9 @@ static void NOINLINE send_servo_out(mavlink_channel_t chan)
         chan,
         millis(),
         0, // port 0
-        10000 * g.channel_steer.norm_output(),
+        10000 * channel_steer->norm_output(),
         0,
-        10000 * g.channel_throttle.norm_output(),
+        10000 * channel_throttle->norm_output(),
         0,
         0,
         0,
@@ -319,19 +319,18 @@ static void NOINLINE send_radio_out(mavlink_channel_t chan)
         hal.rcout->read(6),
         hal.rcout->read(7));
 #else
-    extern RC_Channel* rc_ch[8];
     mavlink_msg_servo_output_raw_send(
         chan,
         micros(),
         0,     // port
-        rc_ch[0]->radio_out,
-        rc_ch[1]->radio_out,
-        rc_ch[2]->radio_out,
-        rc_ch[3]->radio_out,
-        rc_ch[4]->radio_out,
-        rc_ch[5]->radio_out,
-        rc_ch[6]->radio_out,
-        rc_ch[7]->radio_out);
+        RC_Channel::rc_channel(0)->radio_out,
+        RC_Channel::rc_channel(1)->radio_out,
+        RC_Channel::rc_channel(2)->radio_out,
+        RC_Channel::rc_channel(3)->radio_out,
+        RC_Channel::rc_channel(4)->radio_out,
+        RC_Channel::rc_channel(5)->radio_out,
+        RC_Channel::rc_channel(6)->radio_out,
+        RC_Channel::rc_channel(7)->radio_out);
 #endif
 }
 
@@ -339,10 +338,10 @@ static void NOINLINE send_vfr_hud(mavlink_channel_t chan)
 {
     mavlink_msg_vfr_hud_send(
         chan,
-        (float)g_gps->ground_speed / 100.0,
-        (float)g_gps->ground_speed / 100.0,
+        (float)g_gps->ground_speed_cm / 100.0,
+        (float)g_gps->ground_speed_cm / 100.0,
         (ahrs.yaw_sensor / 100) % 360,
-        (uint16_t)(100 * g.channel_throttle.norm_output()),
+        (uint16_t)(100 * channel_throttle->norm_output()),
         current_loc.alt / 100.0,
         0);
 }
@@ -912,6 +911,9 @@ GCS_MAVLINK::send_text_P(gcs_severity severity, const prog_char_t *str)
     uint8_t i;
     for (i=0; i<sizeof(m.text); i++) {
         m.text[i] = pgm_read_byte((const prog_char *)(str++));
+        if (m.text[i] == '\0') {
+            break;
+        }
     }
     if (i < sizeof(m.text)) m.text[i] = 0;
     mavlink_send_text(chan, severity, (const char *)m.text);
@@ -1595,17 +1597,17 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
                 } else if (var_type == AP_PARAM_INT32) {
                     if (packet.param_value < 0) rounding_addition = -rounding_addition;
                     float v = packet.param_value+rounding_addition;
-                    v = constrain(v, -2147483648.0f, 2147483647.0f);
+                    v = constrain_float(v, -2147483648.0f, 2147483647.0f);
 					((AP_Int32 *)vp)->set_and_save(v);
                 } else if (var_type == AP_PARAM_INT16) {
                     if (packet.param_value < 0) rounding_addition = -rounding_addition;
                     float v = packet.param_value+rounding_addition;
-                    v = constrain(v, -32768, 32767);
+                    v = constrain_float(v, -32768, 32767);
 					((AP_Int16 *)vp)->set_and_save(v);
                 } else if (var_type == AP_PARAM_INT8) {
                     if (packet.param_value < 0) rounding_addition = -rounding_addition;
                     float v = packet.param_value+rounding_addition;
-                    v = constrain(v, -128, 127);
+                    v = constrain_float(v, -128, 127);
 					((AP_Int8 *)vp)->set_and_save(v);
                 } else {
                     // we don't support mavlink set on this parameter
@@ -1697,16 +1699,24 @@ void GCS_MAVLINK::handleMessage(mavlink_message_t* msg)
             ins.set_gyro(gyros);
 
             ins.set_accel(accels);
-			
- #if HIL_MODE == HIL_MODE_ATTITUDE
-			// set AHRS hil sensor
-            ahrs.setHil(packet.roll,packet.pitch,packet.yaw,packet.rollspeed,
-            packet.pitchspeed,packet.yawspeed);
- #endif
-
-			break;
+            compass.setHIL(packet.roll, packet.pitch, packet.yaw);
+            break;
 		}
 #endif // HIL_MODE
+
+#if CAMERA == ENABLED
+    case MAVLINK_MSG_ID_DIGICAM_CONFIGURE:
+    {
+        camera.configure_msg(msg);
+        break;
+    }
+
+    case MAVLINK_MSG_ID_DIGICAM_CONTROL:
+    {
+        camera.control_msg(msg);
+        break;
+    }
+#endif // CAMERA == ENABLED
 
 #if MOUNT == ENABLED
     case MAVLINK_MSG_ID_MOUNT_CONFIGURE:
@@ -1924,6 +1934,7 @@ static void gcs_send_text_P(gcs_severity severity, const prog_char_t *str)
     if (gcs3.initialised) {
         gcs3.send_text_P(severity, str);
     }
+    DataFlash.Log_Write_Message_P(str);
 }
 
 /*
@@ -1939,6 +1950,7 @@ void gcs_send_text_fmt(const prog_char_t *fmt, ...)
     hal.util->vsnprintf_P((char *)gcs0.pending_status.text,
             sizeof(gcs0.pending_status.text), fmt, arg_list);
     va_end(arg_list);
+    DataFlash.Log_Write_Message(gcs0.pending_status.text);
     gcs3.pending_status = gcs0.pending_status;
     mavlink_send_message(MAVLINK_COMM_0, MSG_STATUSTEXT, 0);
     if (gcs3.initialised) {

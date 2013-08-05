@@ -1,4 +1,4 @@
-// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: t -*-
+// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
 // Copyright 2010 Michael Smith, all rights reserved.
 
@@ -82,7 +82,7 @@ struct Vector2
     T operator *(const Vector2<T> &v) const;
 
     // cross product
-    Vector2<T> operator %(const Vector2<T> &v) const;
+    T operator %(const Vector2<T> &v) const;
 
     // computes the angle between this vector and another vector
     float angle(const Vector2<T> &v2) const;

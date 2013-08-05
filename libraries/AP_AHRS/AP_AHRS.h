@@ -39,23 +39,40 @@ public:
         // which will make us less prone to increasing omegaI
         // incorrectly due to sensor noise
         _gyro_drift_limit = ins->get_gyro_drift_rate();
+
+        // enable centrifugal correction by default
+        _flags.correct_centrifugal = true;
     }
 
     // init sets up INS board orientation
     virtual void init() {
-        _ins->set_board_orientation((enum Rotation)_board_orientation.get());
+        set_orientation();
     };
 
     // Accessors
     void set_fly_forward(bool b) {
-        _fly_forward = b;
+        _flags.fly_forward = b;
     }
+
+    void set_wind_estimation(bool b) {
+        _flags.wind_estimation = b;
+    }
+
     void set_compass(Compass *compass) {
         _compass = compass;
+        set_orientation();
+    }
+
+
+    // allow for runtime change of orientation
+    // this makes initial config easier
+    void set_orientation() {
+        _ins->set_board_orientation((enum Rotation)_board_orientation.get());
         if (_compass != NULL) {
             _compass->set_board_orientation((enum Rotation)_board_orientation.get());
         }
     }
+
     void set_airspeed(AP_Airspeed *airspeed) {
         _airspeed = airspeed;
     }
@@ -79,10 +96,6 @@ public:
     int32_t roll_sensor;
     int32_t pitch_sensor;
     int32_t yaw_sensor;
-
-    // roll and pitch rates in earth frame, in radians/s
-    float get_pitch_rate_earth(void) const;
-    float get_roll_rate_earth(void) const;
 
     // return a smoothed and corrected gyro vector
     virtual const Vector3f get_gyro(void) const = 0;
@@ -115,14 +128,18 @@ public:
     // dead-reckoning. Return true if a position is available,
     // otherwise false. This only updates the lat and lng fields
     // of the Location
-    virtual bool get_position(struct Location *loc) {
+    virtual bool get_position(struct Location &loc) {
         if (!_gps || _gps->status() <= GPS::NO_FIX) {
             return false;
         }
-        loc->lat = _gps->latitude;
-        loc->lng = _gps->longitude;
+        loc.lat = _gps->latitude;
+        loc.lng = _gps->longitude;
         return true;
     }
+
+    // get our projected position, based on our GPS position plus
+    // heading and ground speed
+    bool get_projected_position(struct Location &loc);
 
     // return a wind estimation vector, in m/s
     virtual Vector3f wind_estimate(void) {
@@ -133,23 +150,50 @@ public:
     // if we have an estimate
     virtual bool airspeed_estimate(float *airspeed_ret);
 
+    // return a true airspeed estimate (navigation airspeed) if
+    // available. return true if we have an estimate
+    bool airspeed_estimate_true(float *airspeed_ret) {
+        if (!airspeed_estimate(airspeed_ret)) {
+            return false;
+        }
+        *airspeed_ret *= get_EAS2TAS();
+        return true;
+    }
+
+    // get apparent to true airspeed ratio
+    float get_EAS2TAS(void) const {
+        if (_airspeed) {
+            return _airspeed->get_EAS2TAS();
+        }
+        return 1.0f;
+    }
+
+    // return true if airspeed comes from an airspeed sensor, as
+    // opposed to an IMU estimate
+    bool airspeed_sensor_enabled(void) const {
+        return _airspeed != NULL && _airspeed->use();
+    }
+
     // return a ground vector estimate in meters/second, in North/East order
     Vector2f groundspeed_vector(void);
 
     // return true if we will use compass for yaw
     virtual bool use_compass(void) const { return _compass && _compass->use_for_yaw(); }
 
-    // correct a bearing in centi-degrees for wind
-    void wind_correct_bearing(int32_t &nav_bearing_cd);
-
     // return true if yaw has been initialised
     bool yaw_initialised(void) const {
-        return _have_initial_yaw;
+        return _flags.have_initial_yaw;
     }
 
     // set the fast gains flag
     void set_fast_gains(bool setting) {
-        _fast_ground_gains = setting;
+        _flags.fast_ground_gains = setting;
+    }
+
+    // set the correct centrifugal flag
+    // allows arducopter to disable corrections when disarmed
+    void set_correct_centrifugal(bool setting) {
+        _flags.correct_centrifugal = setting;
     }
 
     // get trim
@@ -161,21 +205,30 @@ public:
     // add_trim - adjust the roll and pitch trim up to a total of 10 degrees
     virtual void            add_trim(float roll_in_radians, float pitch_in_radians, bool save_to_eeprom = true);
 
-    // settable parameters
-    AP_Float beta;
-	AP_Float _kp_yaw;
-    AP_Float _kp;
-    AP_Float gps_gain;
-    AP_Int8 _gps_use;
-    AP_Int8 _wind_max;
-    AP_Int8 _board_orientation;
-
     // for holding parameters
     static const struct AP_Param::GroupInfo var_info[];
 
+    // these are public for ArduCopter
+	AP_Float _kp_yaw;
+    AP_Float _kp;
+    AP_Float gps_gain;
+
 protected:
-    // whether the yaw value has been intialised with a reference
-    bool _have_initial_yaw;
+    // settable parameters
+    AP_Float beta;
+    AP_Int8 _gps_use;
+    AP_Int8 _wind_max;
+    AP_Int8 _board_orientation;
+    AP_Int8 _gps_minsats;
+
+    // flags structure
+    struct ahrs_flags {
+        uint8_t have_initial_yaw        : 1;    // whether the yaw value has been intialised with a reference
+        uint8_t fast_ground_gains       : 1;    // should we raise the gain on the accelerometers for faster convergence, used when disarmed for ArduCopter
+        uint8_t fly_forward             : 1;    // 1 if we can assume the aircraft will be flying forward on its X axis
+        uint8_t correct_centrifugal     : 1;    // 1 if we should correct for centrifugal forces (allows arducopter to turn this off when motors are disarmed)
+        uint8_t wind_estimation         : 1;    // 1 if we should do wind estimation
+    } _flags;
 
     // pointer to compass object, if available
     Compass         * _compass;
@@ -194,14 +247,6 @@ protected:
     // a vector to capture the difference between the controller and body frames
     AP_Vector3f         _trim;
 
-    // should we raise the gain on the accelerometers for faster
-    // convergence, used when disarmed for ArduCopter
-    bool _fast_ground_gains;
-
-    // true if we can assume the aircraft will be flying forward
-    // on its X axis
-    bool _fly_forward;
-
     // the limit of the gyro drift claimed by the sensors, in
     // radians/s/s
     float _gyro_drift_limit;
@@ -211,13 +256,10 @@ protected:
 
 	// Declare filter states for HPF and LPF used by complementary
 	// filter in AP_AHRS::groundspeed_vector
-	float _xlp; // x component low-pass filter
-	float _ylp; // y component low-pass filter
-	float _xhp; // x component high-pass filter
-	float _yhp; // y component high-pass filter
-    Vector2f _lastGndVelADS; // previous HPF input
-		
-	};
+	Vector2f _lp; // ground vector low-pass filter
+	Vector2f _hp; // ground vector high-pass filter
+    Vector2f _lastGndVelADS; // previous HPF input		
+};
 
 #include <AP_AHRS_DCM.h>
 #include <AP_AHRS_MPU6000.h>

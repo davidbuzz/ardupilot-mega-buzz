@@ -1,4 +1,4 @@
-// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: t -*-
+// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
 
 
@@ -74,7 +74,7 @@ GPS::update(void)
 
         if (_status >= GPS_OK_FIX_2D) {
             last_fix_time = _idleTimer;
-            _last_ground_speed_cm = ground_speed;
+            _last_ground_speed_cm = ground_speed_cm;
 
             if (_have_raw_velocity) {
                 // the GPS is able to give us velocity numbers directly
@@ -82,8 +82,8 @@ GPS::update(void)
                 _velocity_east  = _vel_east * 0.01f;
                 _velocity_down  = _vel_down * 0.01f;
             } else {
-                float gps_heading = ToRad(ground_course * 0.01f);
-                float gps_speed   = ground_speed * 0.01f;
+                float gps_heading = ToRad(ground_course_cd * 0.01f);
+                float gps_speed   = ground_speed_cm * 0.01f;
                 float sin_heading, cos_heading;
 
                 cos_heading = cosf(gps_heading);
@@ -178,4 +178,34 @@ void GPS::_update_progstr(void)
 			progstr_state.idx = 0;
 		}
 	}
+}
+
+int32_t GPS::_swapl(const void *bytes) const
+{
+    const uint8_t       *b = (const uint8_t *)bytes;
+    union {
+        int32_t v;
+        uint8_t b[4];
+    } u;
+
+    u.b[0] = b[3];
+    u.b[1] = b[2];
+    u.b[2] = b[1];
+    u.b[3] = b[0];
+
+    return(u.v);
+}
+
+int16_t GPS::_swapi(const void *bytes) const
+{
+    const uint8_t       *b = (const uint8_t *)bytes;
+    union {
+        int16_t v;
+        uint8_t b[2];
+    } u;
+
+    u.b[0] = b[1];
+    u.b[1] = b[0];
+
+    return(u.v);
 }

@@ -1,4 +1,4 @@
-// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: t -*-
+// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
 /// @file	GPS.h
 /// @brief	Interface definition for the various GPS drivers.
@@ -10,6 +10,7 @@
 
 #include <inttypes.h>
 #include <AP_Progmem.h>
+#include <AP_Math.h>
 
 /// @class	GPS
 /// @brief	Abstract base class for GPS receiver drivers.
@@ -103,10 +104,10 @@ public:
     uint32_t date;                      ///< GPS date (FORMAT TBD)
     int32_t latitude;                   ///< latitude in degrees * 10,000,000
     int32_t longitude;                  ///< longitude in degrees * 10,000,000
-    int32_t altitude;                   ///< altitude in cm
-    uint32_t ground_speed;      ///< ground speed in cm/sec
-    int32_t ground_course;      ///< ground course in 100ths of a degree
-    int32_t speed_3d;                   ///< 3D speed in cm/sec (not always available)
+    int32_t altitude_cm;                ///< altitude in cm
+    uint32_t ground_speed_cm;           ///< ground speed in cm/sec
+    int32_t ground_course_cd;           ///< ground course in 100ths of a degree
+    int32_t speed_3d_cm;                ///< 3D speed in cm/sec (not always available)
     int16_t hdop;                       ///< horizontal dilution of precision in cm
     uint8_t num_sats;           ///< Number of visible satelites
 
@@ -126,20 +127,25 @@ public:
                         float ground_speed, float ground_course, float speed_3d, uint8_t num_sats);
 
     // components of velocity in 2D, in m/s
-    float velocity_north(void) {
+    float velocity_north(void) const {
         return _status >= GPS_OK_FIX_2D ? _velocity_north : 0;
     }
-    float velocity_east(void)  {
+    float velocity_east(void)  const {
         return _status >= GPS_OK_FIX_2D ? _velocity_east  : 0;
     }
-    float velocity_down(void)  {
+    float velocity_down(void)  const {
         return _status >= GPS_OK_FIX_3D ? _velocity_down  : 0;
+    }
+
+    // GPS velocity vector as NED in m/s
+    Vector3f velocity_vector(void) const {
+        return Vector3f(_velocity_north, _velocity_east, _velocity_down);
     }
 
     // last ground speed in m/s. This can be used when we have no GPS
     // lock to return the last ground speed we had with lock
     float last_ground_speed(void) {
-        return _last_ground_speed_cm * 0.01;
+        return static_cast<float>(_last_ground_speed_cm) * 0.01;
     }
 
     // the expected lag (in seconds) in the position and velocity readings from the gps
@@ -147,6 +153,9 @@ public:
 
     // the time we got our last fix in system milliseconds
     uint32_t last_fix_time;
+
+	// the time we last processed a message in milliseconds
+	uint32_t last_message_time_ms(void) { return _idleTimer; }
 
 	// return true if the GPS supports raw velocity values
 
@@ -168,14 +177,14 @@ protected:
     ///						long in the wrong byte order
     /// @returns			endian-swapped value
     ///
-    int32_t                             _swapl(const void *bytes);
+    int32_t                             _swapl(const void *bytes) const;
 
     /// perform an endian swap on an int
     ///
     /// @param	bytes		pointer to a buffer containing bytes representing an
     ///						int in the wrong byte order
     ///	@returns			endian-swapped value
-    int16_t                             _swapi(const void *bytes);
+    int16_t                             _swapi(const void *bytes) const;
 
     /// emit an error message
     ///
@@ -227,37 +236,5 @@ private:
     float _velocity_east;
     float _velocity_down;
 };
-
-inline int32_t
-GPS::_swapl(const void *bytes)
-{
-    const uint8_t       *b = (const uint8_t *)bytes;
-    union {
-        int32_t v;
-        uint8_t b[4];
-    } u;
-
-    u.b[0] = b[3];
-    u.b[1] = b[2];
-    u.b[2] = b[1];
-    u.b[3] = b[0];
-
-    return(u.v);
-}
-
-inline int16_t
-GPS::_swapi(const void *bytes)
-{
-    const uint8_t       *b = (const uint8_t *)bytes;
-    union {
-        int16_t v;
-        uint8_t b[2];
-    } u;
-
-    u.b[0] = b[1];
-    u.b[1] = b[0];
-
-    return(u.v);
-}
 
 #endif // __GPS_H__

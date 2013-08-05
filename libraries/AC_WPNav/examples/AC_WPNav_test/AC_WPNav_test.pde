@@ -12,6 +12,7 @@
 
 #include <AP_GPS.h>             // ArduPilot GPS library
 #include <AP_ADC.h>             // ArduPilot Mega Analog to Digital Converter Library
+#include <AP_ADC_AnalogSource.h>
 #include <AP_Baro.h>            // ArduPilot Mega Barometer Library
 #include <Filter.h>
 #include <AP_Compass.h>         // ArduPilot Mega Magnetometer Library
@@ -24,6 +25,7 @@
 #include <AP_Buffer.h>          // ArduPilot general purpose FIFO buffer
 #include <AP_InertialNav.h>     // Inertial Navigation library
 #include <AC_WPNav.h>           // Waypoint Navigation library
+#include <GCS_MAVLink.h>
 
 const AP_HAL::HAL& hal = AP_HAL_BOARD_DRIVER;
 

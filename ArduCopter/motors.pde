@@ -1,29 +1,35 @@
 /// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
-// 10 = 1 second
-#define ARM_DELAY 20
-#define DISARM_DELAY 20
-#define AUTO_TRIM_DELAY 100
+#define ARM_DELAY               20  // called at 10hz so 2 seconds
+#define DISARM_DELAY            20  // called at 10hz so 2 seconds
+#define AUTO_TRIM_DELAY         100 // called at 10hz so 10 seconds
+#define AUTO_DISARMING_DELAY    25  // called at 1hz so 25 seconds
 
-
+// arm_motors_check - checks for pilot input to arm or disarm the copter
 // called at 10hz
-static void arm_motors()
+static void arm_motors_check()
 {
     static int16_t arming_counter;
+    bool allow_arming = false;
 
-    // don't allow arming/disarming in anything but manual
+    // ensure throttle is down
     if (g.rc_3.control_in > 0) {
         arming_counter = 0;
         return;
     }
 
-    // ensure pre-arm checks have been successful
-    if(!ap.pre_arm_check) {
-        return;
+    // allow arming/disarming in fully manual flight modes ACRO, STABILIZE, SPORT and TOY
+    if (manual_flight_mode(control_mode)) {
+        allow_arming = true;
     }
 
-    // ensure we are in Stabilize, Acro or TOY mode
-    if ((control_mode > ACRO) && ((control_mode != TOY_A) && (control_mode != TOY_M))) {
+    // allow arming/disarming in Loiter and AltHold if landed
+    if (ap.land_complete && (control_mode == LOITER || control_mode == ALT_HOLD)) {
+        allow_arming = true;
+    }
+
+    // kick out other flight modes
+    if (!allow_arming) {
         arming_counter = 0;
         return;
     }
@@ -51,29 +57,14 @@ static void arm_motors()
 
         // arm the motors and configure for flight
         if (arming_counter == ARM_DELAY && !motors.armed()) {
-////////////////////////////////////////////////////////////////////////////////
-// Experimental AP_Limits library - set constraints, limits, fences, minima, maxima on various parameters
-////////////////////////////////////////////////////////////////////////////////
-#if AP_LIMITS == ENABLED
-            if (limits.enabled() && limits.required()) {
-                gcs_send_text_P(SEVERITY_LOW, PSTR("Limits - Running pre-arm checks"));
-
-                // check only pre-arm required modules
-                if (limits.check_required()) {
-                    gcs_send_text_P(SEVERITY_LOW, PSTR("ARMING PREVENTED - Limit Breached"));
-                    limits.set_state(LIMITS_TRIGGERED);
-                    gcs_send_message(MSG_LIMITS_STATUS);
-
-                    arming_counter++;                                 // restart timer by cycling
-                }else{
-                    init_arm_motors();
-                }
-            }else{
+            // run pre-arm-checks and display failures
+            pre_arm_checks(true);
+            if(ap.pre_arm_check) {
                 init_arm_motors();
+            }else{
+                // reset arming counter if pre-arm checks fail
+                arming_counter = 0;
             }
-#else  // without AP_LIMITS, just arm motors
-            init_arm_motors();
-#endif //AP_LIMITS_ENABLED
         }
 
         // arm the motors and configure for flight
@@ -100,7 +91,26 @@ static void arm_motors()
     }
 }
 
+// auto_disarm_check - disarms the copter if it has been sitting on the ground in manual mode with throttle low for at least 25 seconds
+// called at 1hz
+static void auto_disarm_check()
+{
+    static uint8_t auto_disarming_counter;
 
+    if(manual_flight_mode(control_mode) && (g.rc_3.control_in == 0) && motors.armed()) {
+        auto_disarming_counter++;
+
+        if(auto_disarming_counter == AUTO_DISARMING_DELAY) {
+            init_disarm_motors();
+        }else if (auto_disarming_counter > AUTO_DISARMING_DELAY) {
+            auto_disarming_counter = AUTO_DISARMING_DELAY + 1;
+        }
+    }else{
+        auto_disarming_counter = 0;
+    }
+}
+
+// init_arm_motors - performs arming process including initialisation of barometer and gyros
 static void init_arm_motors()
 {
 	// arming marker
@@ -109,10 +119,14 @@ static void init_arm_motors()
     // which calibrates the IMU
     static bool did_ground_start = false;
 
-    // disable failsafe because initialising everything takes a while
+    // disable cpu failsafe because initialising everything takes a while
     failsafe_disable();
 
-    //cliSerial->printf("\nARM\n");
+#if LOGGING_ENABLED == ENABLED
+    // start dataflash
+    start_logging();
+#endif
+
 #if HIL_MODE != HIL_MODE_DISABLED || CONFIG_HAL_BOARD == HAL_BOARD_AVR_SITL
     gcs_send_text_P(SEVERITY_HIGH, PSTR("ARMING MOTORS"));
 #endif
@@ -132,6 +146,8 @@ static void init_arm_motors()
     // Remember Orientation
     // --------------------
     init_simple_bearing();
+
+    initial_armed_bearing = ahrs.yaw_sensor;
 
     // Reset home position
     // -------------------
@@ -154,29 +170,167 @@ static void init_arm_motors()
     init_barometer();
 #endif
 
-    // temp hack
-    ap_system.motor_light = true;
-    digitalWrite(A_LED_PIN, LED_ON);
-
     // go back to normal AHRS gains
     ahrs.set_fast_gains(false);
 #if SECONDARY_DMP_ENABLED == ENABLED
     ahrs2.set_fast_gains(false);
 #endif
 
+    // enable gps velocity based centrefugal force compensation
+    ahrs.set_correct_centrifugal(true);
+
+    // set hover throttle
+    motors.set_mid_throttle(g.throttle_mid);
+
+    // update leds on board
+    update_arming_light();
+
+#if COPTER_LEDS == ENABLED
+    piezo_beep_twice();
+#endif
+
+    // Cancel arming if throttle is raised too high so that copter does not suddenly take off
+    read_radio();
+    if (g.rc_3.control_in > g.throttle_cruise && g.throttle_cruise > 100) {
+        motors.output_min();
+        failsafe_enable();
+        return;
+    }
+
+    // enable output to motors
+    output_min();
+
     // finally actually arm the motors
     motors.armed(true);
-    set_armed(true);
+
+    // log arming to dataflash
+    Log_Write_Event(DATA_ARMED);
 
     // reenable failsafe
     failsafe_enable();
 }
 
-// perform pre-arm checks and set 
-static void pre_arm_checks()
+// perform pre-arm checks and set ap.pre_arm_check flag
+static void pre_arm_checks(bool display_failure)
 {
     // exit immediately if we've already successfully performed the pre-arm check
     if( ap.pre_arm_check ) {
+        return;
+    }
+
+    // succeed if pre arm checks are disabled
+    if(!g.arming_check_enabled) {
+        ap.pre_arm_check = true;
+        return;
+    }
+
+    // pre-arm rc checks a prerequisite
+    pre_arm_rc_checks();
+    if(!ap.pre_arm_rc_check) {
+        if (display_failure) {
+            gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: RC not calibrated"));
+        }
+        return;
+    }
+    
+    // pre-arm check to ensure ch7 and ch8 have different functions
+    if ((g.ch7_option != 0 || g.ch8_option != 0) && g.ch7_option == g.ch8_option) {
+        if (display_failure) {
+            gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Ch7&Ch8 Opt cannot be same"));
+        }
+        return;
+    }
+
+    // check accelerometers have been calibrated
+    if(!ins.calibrated()) {
+        if (display_failure) {
+            gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: INS not calibrated"));
+        }
+        return;
+    }
+
+    // check the compass is healthy
+    if(!compass.healthy) {
+        if (display_failure) {
+            gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Compass not healthy"));
+        }
+        return;
+    }
+
+    // check compass learning is on or offsets have been set
+    Vector3f offsets = compass.get_offsets();
+    if(!compass._learn && offsets.length() == 0) {
+        if (display_failure) {
+            gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Compass not calibrated"));
+        }
+        return;
+    }
+
+    // check for unreasonable compass offsets
+    if(offsets.length() > 500) {
+        if (display_failure) {
+            gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Compass offsets too high"));
+        }
+        return;
+    }
+
+    // check for unreasonable mag field length
+    float mag_field = pythagorous3(compass.mag_x, compass.mag_y, compass.mag_z);
+    if (mag_field > COMPASS_MAGFIELD_EXPECTED*1.65 || mag_field < COMPASS_MAGFIELD_EXPECTED*0.35) {
+        if (display_failure) {
+            gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Check mag field"));
+        }
+        return;
+    }
+
+    // barometer health check
+    if(!barometer.healthy) {
+        if (display_failure) {
+            gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Baro not healthy"));
+        }
+        return;
+    }
+
+#if AC_FENCE == ENABLED
+    // check fence is initialised
+    if(!fence.pre_arm_check()) {
+        if (display_failure) {
+            gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: No GPS Lock"));
+        }
+        return;
+    }
+#endif
+
+#if CONFIG_HAL_BOARD != HAL_BOARD_PX4
+    // check board voltage
+    if(board_voltage() < BOARD_VOLTAGE_MIN || board_voltage() > BOARD_VOLTAGE_MAX) {
+        if (display_failure) {
+            gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Check Board Voltage"));
+        }
+        return;
+    }
+#endif
+
+    // failsafe parameter checks
+    if (g.failsafe_throttle) {
+        // check throttle min is above throttle failsafe trigger and that the trigger is above ppm encoder's loss-of-signal value of 900
+        if (g.rc_3.radio_min <= g.failsafe_throttle_value+10 || g.failsafe_throttle_value < 910) {
+            if (display_failure) {
+                gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Check FS_THR_VALUE"));
+            }
+            return;
+        }
+    }
+
+    // if we've gotten this far then pre arm checks have completed
+    ap.pre_arm_check = true;
+}
+
+// perform pre_arm_rc_checks checks and set ap.pre_arm_rc_check flag
+static void pre_arm_rc_checks()
+{
+    // exit immediately if we've already successfully performed the pre-arm rc check
+    if( ap.pre_arm_rc_check ) {
         return;
     }
 
@@ -185,13 +339,18 @@ static void pre_arm_checks()
         return;
     }
 
-    // check accelerometers have been calibrated
-    if(!ins.calibrated()) {
+    // check channels 1 & 2 have min <= 1300 and max >= 1700
+    if (g.rc_1.radio_min > 1300 || g.rc_1.radio_max < 1700 || g.rc_2.radio_min > 1300 || g.rc_2.radio_max < 1700) {
         return;
     }
 
-    // if we've gotten this far then pre arm checks have completed
-    ap.pre_arm_check = true;
+    // check channels 3 & 4 have min <= 1300 and max >= 1700
+    if (g.rc_3.radio_min > 1300 || g.rc_3.radio_max < 1700 || g.rc_4.radio_min > 1300 || g.rc_4.radio_max < 1700) {
+        return;
+    }
+
+    // if we've gotten this far rc is ok
+    ap.pre_arm_rc_check = true;
 }
 
 static void init_disarm_motors()
@@ -201,7 +360,6 @@ static void init_disarm_motors()
 #endif
 
     motors.armed(false);
-    set_armed(false);
 
     compass.save_offsets();
 
@@ -219,6 +377,12 @@ static void init_disarm_motors()
 #if SECONDARY_DMP_ENABLED == ENABLED
     ahrs2.set_fast_gains(true);
 #endif
+
+    // log disarm to the dataflash
+    Log_Write_Event(DATA_DISARMED);
+
+    // disable gps velocity based centrefugal force compensation
+    ahrs.set_correct_centrifugal(false);
 }
 
 /*****************************************

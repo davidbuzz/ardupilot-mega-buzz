@@ -36,12 +36,6 @@
  // default choices for a 1280. We can't fit everything in, so we 
  // make some popular choices by default
  #define LOGGING_ENABLED DISABLED
- #ifndef CONFIG_RELAY
- # define CONFIG_RELAY DISABLED
- #endif
- #ifndef MOUNT2
- # define MOUNT2 DISABLED
- #endif
  #ifndef MOUNT
  # define MOUNT DISABLED
  #endif
@@ -74,17 +68,12 @@
 # define SLIDE_SWITCH_PIN 40
 # define PUSHBUTTON_PIN   41
 # define USB_MUX_PIN      -1
-# define CONFIG_RELAY     ENABLED
 # define BATTERY_PIN_1	  0
 # define CURRENT_PIN_1	  1
-# define CONFIG_SONAR_SOURCE SONAR_SOURCE_ADC
 #elif CONFIG_HAL_BOARD == HAL_BOARD_APM2
 # define CONFIG_INS_TYPE   CONFIG_INS_MPU6000
 # define CONFIG_COMPASS  AP_COMPASS_HMC5843
 # define CONFIG_PUSHBUTTON DISABLED
-# define CONFIG_RELAY      DISABLED
-# define MAG_ORIENTATION   AP_COMPASS_APM2_SHIELD
-# define CONFIG_SONAR_SOURCE SONAR_SOURCE_ANALOG_PIN
 # define A_LED_PIN        27
 # define B_LED_PIN        26
 # define C_LED_PIN        25
@@ -100,8 +89,6 @@
 # define CONFIG_INS_TYPE CONFIG_INS_STUB
 # define CONFIG_COMPASS  AP_COMPASS_HIL
 # define CONFIG_PUSHBUTTON DISABLED
-# define CONFIG_RELAY      DISABLED
-# define CONFIG_SONAR_SOURCE SONAR_SOURCE_ANALOG_PIN
 # define A_LED_PIN        27
 # define B_LED_PIN        26
 # define C_LED_PIN        25
@@ -113,13 +100,10 @@
 # define USB_MUX_PIN -1
 # define BATTERY_PIN_1	  1
 # define CURRENT_PIN_1	  2
-# define MAG_ORIENTATION  AP_COMPASS_COMPONENTS_DOWN_PINS_FORWARD
 #elif CONFIG_HAL_BOARD == HAL_BOARD_PX4
 # define CONFIG_INS_TYPE   CONFIG_INS_PX4
 # define CONFIG_COMPASS  AP_COMPASS_PX4
 # define CONFIG_PUSHBUTTON DISABLED
-# define CONFIG_RELAY      DISABLED
-# define CONFIG_SONAR_SOURCE SONAR_SOURCE_ANALOG_PIN
 # define A_LED_PIN        27
 # define B_LED_PIN        26
 # define C_LED_PIN        25
@@ -131,7 +115,6 @@
 # define USB_MUX_PIN -1
 # define BATTERY_PIN_1	  -1
 # define CURRENT_PIN_1	  -1
-# define MAG_ORIENTATION   ROTATION_NONE
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -139,50 +122,6 @@
 //
 #ifndef CONFIG_INS_TYPE
 # define CONFIG_INS_TYPE CONFIG_INS_OILPAN
-#endif
-
-//////////////////////////////////////////////////////////////////////////////
-// ADC Enable - used to eliminate for systems which don't have ADC.
-//
-#ifndef CONFIG_ADC
-# if CONFIG_INS_TYPE == CONFIG_INS_OILPAN
-#   define CONFIG_ADC ENABLED
-# else
-#   define CONFIG_ADC DISABLED
-# endif
-#endif
-
-#ifndef SONAR_TYPE
-# define SONAR_TYPE             MAX_SONAR_LV	// MAX_SONAR_XL,
-#endif
-
-//////////////////////////////////////////////////////////////////////////////
-// Sonar
-//
-
-#ifndef CONFIG_SONAR_SOURCE
-# define CONFIG_SONAR_SOURCE SONAR_SOURCE_ADC
-#endif
-
-#if CONFIG_SONAR_SOURCE == SONAR_SOURCE_ADC && CONFIG_ADC == DISABLED
-# warning Cannot use ADC for CONFIG_SONAR_SOURCE, becaude CONFIG_ADC is DISABLED
-# warning Defaulting CONFIG_SONAR_SOURCE to ANALOG_PIN
-# undef CONFIG_SONAR_SOURCE
-# define CONFIG_SONAR_SOURCE SONAR_SOURCE_ANALOG_PIN
-#endif
-
-#if CONFIG_SONAR_SOURCE == SONAR_SOURCE_ADC
-# ifndef CONFIG_SONAR_SOURCE_ADC_CHANNEL
-#  define CONFIG_SONAR_SOURCE_ADC_CHANNEL 7
-# endif
-#elif CONFIG_SONAR_SOURCE == SONAR_SOURCE_ANALOG_PIN
-# ifndef CONFIG_SONAR_SOURCE_ANALOG_PIN
-#  define CONFIG_SONAR_SOURCE_ANALOG_PIN 0
-# endif
-#else
-# warning Invalid value for CONFIG_SONAR_SOURCE, disabling sonar
-# undef SONAR_ENABLED
-# define SONAR_ENABLED DISABLED
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -197,8 +136,6 @@
  #define GPS_PROTOCOL GPS_PROTOCOL_HIL
  #undef CONFIG_INS_TYPE
  #define CONFIG_INS_TYPE CONFIG_INS_STUB
- #undef CONFIG_ADC
- #define CONFIG_ADC DISABLED
  #undef  CONFIG_COMPASS
  #define CONFIG_COMPASS  AP_COMPASS_HIL
 #endif
@@ -270,9 +207,6 @@
 //  MAGNETOMETER
 #ifndef MAGNETOMETER
 # define MAGNETOMETER			ENABLED
-#endif
-#ifndef MAG_ORIENTATION
-# define MAG_ORIENTATION		AP_COMPASS_COMPONENTS_DOWN_PINS_FORWARD
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -349,7 +283,14 @@
 // MOUNT (ANTENNA OR CAMERA)
 //
 #ifndef MOUNT
-# define MOUNT		DISABLED
+# define MOUNT		ENABLED
+#endif
+
+//////////////////////////////////////////////////////////////////////////////
+// CAMERA control
+//
+#ifndef CAMERA
+# define CAMERA ENABLED
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
@@ -431,12 +372,14 @@
     MASK_LOG_ATTITUDE_MED | \
     MASK_LOG_GPS | \
     MASK_LOG_PM | \
+    MASK_LOG_CTUN | \
     MASK_LOG_NTUN | \
     MASK_LOG_MODE | \
     MASK_LOG_CMD | \
     MASK_LOG_SONAR | \
     MASK_LOG_COMPASS | \
-    MASK_LOG_CURRENT
+    MASK_LOG_CURRENT | \
+    MASK_LOG_CAMERA
 
 
 

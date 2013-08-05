@@ -22,9 +22,11 @@
 #include <AP_Baro.h>
 #include <AP_AHRS.h>
 #include <AP_ADC.h>
+#include <AP_ADC_AnalogSource.h>
 #include <AP_InertialSensor.h>
 #include <AP_GPS.h>
 #include <DataFlash.h>
+#include <GCS_MAVLink.h>
 
 
 

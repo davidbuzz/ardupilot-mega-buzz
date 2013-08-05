@@ -94,6 +94,10 @@ endif
 ifneq ($(findstring MINGW, $(SYSTYPE)),) 
   USERAVRDUDEFLAGS := -C $(ARDUINO)/hardware/tools/avr/etc/avrdude.conf
 endif
+#make sure the avrdude conf file is referenced correctly in darwin
+ifneq ($(findstring Darwin, $(SYSTYPE)),)
+  USERAVRDUDEFLAGS := -C $(ARDUINO)/hardware/tools/avr/etc/avrdude.conf
+endif
 
 ifeq ($(UPLOAD_PROTOCOL),)
   UPLOAD_PROTOCOL	:=	$(shell grep $(BOARD).upload.protocol $(BOARDFILE) | cut -d = -f 2)
@@ -165,12 +169,6 @@ jtag-program:
 
 # fetch dependency info from a previous build if any of it exists
 -include $(ALLDEPS)
-
-# common header for rules, prints what is being built
-define RULEHDR
-	@echo %% $(subst $(BUILDROOT)/,,$@)
-	@mkdir -p $(dir $@)
-endef
 
 # Link the final object
 $(SKETCHELF):	$(SKETCHOBJS) $(LIBOBJS)

@@ -68,7 +68,7 @@ static struct Location get_cmd_with_index(int i)
 static void set_cmd_with_index(struct Location temp, int i)
 {
 
-    i = constrain(i, 0, g.command_total.get());
+    i = constrain_int16(i, 0, g.command_total.get());
     //cliSerial->printf("set_command: %d with id: %d\n", i, temp.id);
 
     // store home as 0 altitude!!!
@@ -135,7 +135,7 @@ static void init_home()
         Log_Write_Cmd(0, &home);
 
     // update navigation scalers.  used to offset the shrinking longitude as we go towards the poles
-    scaleLongDown = longitude_scale(&home);
+    scaleLongDown = longitude_scale(home);
     scaleLongUp   = 1.0f/scaleLongDown;
 }
 
