@@ -218,6 +218,7 @@ protected:
 #include "AP_InertialSensor_MPU6000.h"
 #include "AP_InertialSensor_HIL.h"
 #include "AP_InertialSensor_PX4.h"
+#include "AP_InertialSensor_Quanton.h"
 #include "AP_InertialSensor_UserInteract_Stream.h"
 #include "AP_InertialSensor_UserInteract_MAVLink.h"
 #include "AP_InertialSensor_Flymaple.h"

@@ -15,7 +15,7 @@
 #include <drivers/drv_led.h>
 #include <drivers/drv_tone_alarm.h>
 #include <drivers/drv_gpio.h>
-#include <modules/Quantoniofirmware/protocol.h>
+//#include <modules/Quantoniofirmware/protocol.h>
 #include <arch/board/board.h>
 #include <board_config.h>
 
@@ -59,10 +59,10 @@ void QuantonGPIO::init()
 #endif
 
     // also try to setup for the relay pins on the IO board
-    _gpio_io_fd = open(QuantonIO_DEVICE_PATH, O_RDWR);
-    if (_gpio_io_fd == -1) {
-        hal.console->printf("GPIO: Unable to open Quantonio\n");
-    }
+//    _gpio_io_fd = open(QuantonIO_DEVICE_PATH, O_RDWR);
+//    if (_gpio_io_fd == -1) {
+//        hal.console->printf("GPIO: Unable to open Quantonio\n");
+//    }
 }
 
 void QuantonGPIO::pinMode(uint8_t pin, uint8_t output)

@@ -87,6 +87,13 @@
 #define HAL_BOARD_NAME "EMPTY"
 #define HAL_CPU_CLASS HAL_CPU_CLASS_16
 
+#elif CONFIG_HAL_BOARD == HAL_BOARD_Quanton
+#define AP_HAL_BOARD_DRIVER AP_HAL_Quanton
+#define HAL_BOARD_NAME "Quanton"
+#define HAL_CPU_CLASS HAL_CPU_CLASS_150
+#define HAL_OS_POSIX_IO 1
+
+
 #else
 #error "Unknown CONFIG_HAL_BOARD type"
 #endif

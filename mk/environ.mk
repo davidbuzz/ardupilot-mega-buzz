@@ -76,6 +76,13 @@ else
 BUILDROOT		:=	$(abspath $(TMPDIR)/$(SKETCH).build)
 endif
 
+# quanton is lime px4 too....
+ifneq ($(findstring quanton, $(MAKECMDGOALS)),)
+BUILDROOT		:=	$(SKETCHBOOK)/Build.$(SKETCH)
+endif
+
+
+
 ifneq ($(findstring CYGWIN, $(SYSTYPE)),)
   # Workaround a $(abspath ) bug on cygwin
   ifeq ($(BUILDROOT),)
@@ -103,6 +110,11 @@ endif
 ifneq ($(APPDIR),)
 # this is a recusive PX4 build
 HAL_BOARD = HAL_BOARD_PX4
+endif
+
+# handle target based overrides for board type
+ifneq ($(findstring quanton, $(MAKECMDGOALS)),)
+HAL_BOARD = HAL_BOARD_Quanton
 endif
 
 # handle target based overrides for board type
