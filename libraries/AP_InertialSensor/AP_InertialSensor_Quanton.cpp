@@ -20,9 +20,9 @@ const extern AP_HAL::HAL& hal;
 uint16_t AP_InertialSensor_Quanton::_init_sensor( Sample_rate sample_rate ) 
 {
     // assumes max 2 instances
-    _accel_fd[0] = open(ACCEL_DEVICE_PATH, O_RDONLY);
+    _accel_fd[0] = open(ACCEL_DEVICE_PATH, O_RDONLY);    // typically "/dev/accel" file.  see src/drivers/drv_accel.h
     _accel_fd[1] = open(ACCEL_DEVICE_PATH "1", O_RDONLY);
-    _gyro_fd[0] = open(GYRO_DEVICE_PATH, O_RDONLY);
+    _gyro_fd[0] = open(GYRO_DEVICE_PATH, O_RDONLY);  //typically "/dev/gyro". see /src/drivers/drv_gyro.h
     _gyro_fd[1] = open(GYRO_DEVICE_PATH "1", O_RDONLY);
 
 	if (_accel_fd[0] < 0) {

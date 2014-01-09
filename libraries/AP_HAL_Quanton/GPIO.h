@@ -8,12 +8,9 @@
 #define Quanton_GPIO_PIEZO_PIN              110
 #define Quanton_GPIO_EXT_FMU_RELAY1_PIN     111
 #define Quanton_GPIO_EXT_FMU_RELAY2_PIN     112
-#define Quanton_GPIO_EXT_IO_RELAY1_PIN      113
-#define Quanton_GPIO_EXT_IO_RELAY2_PIN      114
-#define Quanton_GPIO_EXT_IO_ACC1_PIN        115
-#define Quanton_GPIO_EXT_IO_ACC2_PIN        116
 
-#if CONFIG_HAL_BOARD == HAL_BOARD_Quanton
+#if CONFIG_HAL_BOARD == HAL_BOARD_Quanton  
+// BUZZ TODO CHECK THESE LED PINS ARE RIGHT! ? 
  # define HAL_GPIO_A_LED_PIN        27
  # define HAL_GPIO_B_LED_PIN        26
  # define HAL_GPIO_C_LED_PIN        25
@@ -44,7 +41,7 @@ private:
     int _led_fd;
     int _tone_alarm_fd;
     int _gpio_fmu_fd;
-    int _gpio_io_fd;
+  //  int _gpio_io_fd;
 };
 
 class Quanton::QuantonDigitalSource : public AP_HAL::DigitalSource {

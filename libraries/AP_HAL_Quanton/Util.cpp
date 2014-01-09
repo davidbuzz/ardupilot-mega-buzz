@@ -106,11 +106,8 @@ bool QuantonUtil::get_system_id(char buf[40])
     uint8_t serialid[12];
     memset(serialid, 0, sizeof(serialid));
     val_read(serialid, (const void *)UDID_START, sizeof(serialid));
-#ifdef CONFIG_ARCH_BOARD_QuantonFMU_V1
-    const char *board_type = "Quantonv1";
-#else
-    const char *board_type = "Quantonv2";
-#endif
+    const char *board_type = "QuantonRev1";
+
     // this format is chosen to match the human_readable_serial()
     // function in auth.c
     snprintf(buf, 40, "%s %02X%02X%02X%02X %02X%02X%02X%02X %02X%02X%02X%02X",

@@ -10,14 +10,10 @@
 #define Quanton_ANALOG_MAX_CHANNELS 16
 
 
-#ifdef CONFIG_ARCH_BOARD_QuantonFMU_V1
+#ifdef CONFIG_ARCH_BOARD_Quanton
 // these are virtual pins that read from the ORB
-#define Quanton_ANALOG_ORB_BATTERY_VOLTAGE_PIN     100
-#define Quanton_ANALOG_ORB_BATTERY_CURRENT_PIN     101
-#elif defined(CONFIG_ARCH_BOARD_QuantonFMU_V2)
-#define Quanton_ANALOG_VCC_5V_PIN                4
-#define Quanton_ANALOG_ORB_SERVO_VOLTAGE_PIN       102
-#define Quanton_ANALOG_ORB_SERVO_VRSSI_PIN         103
+#define QUANTON_ANALOG_ORB_BATTERY_VOLTAGE_PIN     100
+#define QUANTON_ANALOG_ORB_BATTERY_CURRENT_PIN     101
 #endif
 
 class Quanton::QuantonAnalogSource : public AP_HAL::AnalogSource {

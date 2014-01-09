@@ -5,6 +5,7 @@
 #include <AP_HAL_Quanton.h>
 #include <systemlib/perf_counter.h>
 
+
 #define Quanton_NUM_OUTPUT_CHANNELS 16
 
 class Quanton::QuantonRCOutput : public AP_HAL::RCOutput 

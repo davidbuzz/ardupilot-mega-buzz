@@ -43,6 +43,8 @@ static QuantonAnalogIn analogIn;
 static QuantonUtil utilInstance;
 static QuantonGPIO gpioDriver;
 
+
+// BUZZ TODO ADD ANOTHER UART HERE? 
 #define UARTA_DEFAULT_DEVICE "/dev/ttyACM0"
 #define UARTB_DEFAULT_DEVICE "/dev/ttyS3"
 #define UARTC_DEFAULT_DEVICE "/dev/ttyS1"

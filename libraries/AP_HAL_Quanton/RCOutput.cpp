@@ -18,21 +18,26 @@ using namespace Quanton;
 
 void QuantonRCOutput::init(void* unused) 
 {
+    
+    //TODO BUZZ change this entire init, so it always inits one way, no need to go looking for IO board and 
+    // changing method/s based on that.....? 
+    // TODO BUZZ ditch all use of _alt_fd and 
+    
     _perf_rcout = perf_alloc(PC_ELAPSED, "APM_rcout");
-    _pwm_fd = open(PWM_OUTPUT_DEVICE_PATH, O_RDWR);
+    _pwm_fd = open(PWM_OUTPUT_DEVICE_PATH, O_RDWR); // typically "/dev/pwm_output"
     if (_pwm_fd == -1) {
         hal.scheduler->panic("Unable to open " PWM_OUTPUT_DEVICE_PATH);
     }
     if (ioctl(_pwm_fd, PWM_SERVO_ARM, 0) != 0) {
-        hal.console->printf("RCOutput: Unable to setup IO arming\n");
+        hal.console->printf("RCOutput: Unable to setup RC Output arming\n");
     }
 #ifdef PWM_SERVO_SET_ARM_OK
     if (ioctl(_pwm_fd, PWM_SERVO_SET_ARM_OK, 0) != 0) {
-        hal.console->printf("RCOutput: Unable to setup IO arming OK\n");
+        hal.console->printf("RCOutput: Unable to setup RC Output arming OK\n");
     }
 #endif
     _rate_mask = 0;
-    _alt_fd = -1;    
+  //  _alt_fd = -1;    
     _servo_count = 0;
     _alt_servo_count = 0;
 
@@ -46,19 +51,20 @@ void QuantonRCOutput::init(void* unused)
      * channels
      */
     if (_servo_count <= 4) {
+        hal.console->printf("RCOutput: servo count seems shorter than 4 - BUZZ ERROR! \n");
         return;
     }
-    _alt_fd = open("/dev/Quantonfmu", O_RDWR);
+    _alt_fd = open("/dev/quanton", O_RDWR); //TODO BUZZ rename or delete this bolck /  this file descriptor? 
     if (_alt_fd == -1) {
-        hal.console->printf("RCOutput: failed to open /dev/Quantonfmu");
+        hal.console->printf("RCOutput: failed to open /dev/quanton");
         return;
     }
     if (ioctl(_alt_fd, PWM_SERVO_ARM, 0) != 0) {
-        hal.console->printf("RCOutput: Unable to setup alt IO arming\n");
+        hal.console->printf("RCOutput: Unable to setup alt Quanton arming\n");
     }
 #ifdef PWM_SERVO_SET_ARM_OK
     if (ioctl(_alt_fd, PWM_SERVO_SET_ARM_OK, 0) != 0) {
-        hal.console->printf("RCOutput: Unable to setup IO arming OK\n");
+        hal.console->printf("RCOutput: Unable to setup Quanton arming OK\n");
     }
 #endif
     if (ioctl(_alt_fd, PWM_SERVO_GET_COUNT, (unsigned long)&_alt_servo_count) != 0) {
@@ -79,7 +85,7 @@ void QuantonRCOutput::set_freq(uint32_t chmask, uint16_t freq_hz)
         _freq_hz = freq_hz;
     }
 
-    /* work out the new rate mask. The QuantonIO board has 3 groups of servos. 
+    /* work out the new rate mask. The Quanton board has 3 groups of servos. ? TODO BUZZ check this? 
 
        Group 0: channels 0 1
        Group 1: channels 4 5 6 7
@@ -197,19 +203,19 @@ void QuantonRCOutput::_timer_tick(void)
     if (_need_update && _pwm_fd != -1) {
         _need_update = false;
         perf_begin(_perf_rcout);
-        if (_max_channel <= _servo_count) {
+    //    if (_max_channel <= _servo_count) {
             ::write(_pwm_fd, _period, _max_channel*sizeof(_period[0]));
-        } else {
-            // we're using both sets of outputs
-            ::write(_pwm_fd, _period, _servo_count*sizeof(_period[0]));
-            if (_alt_fd != -1 && _alt_servo_count > 0) {
-                uint8_t n = _max_channel - _servo_count;
-                if (n > _alt_servo_count) {
-                    n = _alt_servo_count;
-                }
-                ::write(_alt_fd, &_period[_servo_count], n*sizeof(_period[0]));
-            }
-        }
+//        } else {
+//            // we're using both sets of outputs
+//            ::write(_pwm_fd, _period, _servo_count*sizeof(_period[0]));
+//            if (_alt_fd != -1 && _alt_servo_count > 0) {
+//                uint8_t n = _max_channel - _servo_count;
+//                if (n > _alt_servo_count) {
+//                    n = _alt_servo_count;
+//                }
+//                ::write(_alt_fd, &_period[_servo_count], n*sizeof(_period[0]));
+//            }
+//        }
         perf_end(_perf_rcout);
         _last_output = now;
     }

@@ -15,7 +15,6 @@
 #include <drivers/drv_led.h>
 #include <drivers/drv_tone_alarm.h>
 #include <drivers/drv_gpio.h>
-//#include <modules/Quantoniofirmware/protocol.h>
 #include <arch/board/board.h>
 #include <board_config.h>
 
@@ -31,7 +30,7 @@ QuantonGPIO::QuantonGPIO()
 
 void QuantonGPIO::init()
 {
-#ifdef CONFIG_ARCH_BOARD_QuantonFMU_V1
+#ifdef CONFIG_ARCH_BOARD_Quanton
     _led_fd = open(LED_DEVICE_PATH, O_RDWR);
     if (_led_fd == -1) {
         hal.scheduler->panic("Unable to open " LED_DEVICE_PATH);
@@ -48,8 +47,8 @@ void QuantonGPIO::init()
         hal.scheduler->panic("Unable to open /dev/tone_alarm");
     }
 
-#ifdef CONFIG_ARCH_BOARD_QuantonFMU_V1
-    _gpio_fmu_fd = open(QuantonFMU_DEVICE_PATH, O_RDWR);
+#ifdef CONFIG_ARCH_BOARD_Quanton
+    _gpio_fmu_fd = open(QUANTON_DEVICE_PATH, O_RDWR); // use the "/dev/px4fmu" path to talk to lower layer NuttX 
     if (_gpio_fmu_fd == -1) {
         hal.scheduler->panic("Unable to open GPIO");
     }
@@ -90,30 +89,6 @@ uint8_t QuantonGPIO::read(uint8_t pin) {
             return (relays & GPIO_EXT_2)?HIGH:LOW;
             break;
 #endif
-
-#ifdef QuantonIO_P_SETUP_RELAYS_POWER1
-        case Quanton_GPIO_EXT_IO_RELAY1_PIN:
-            ioctl(_gpio_io_fd, GPIO_GET, (unsigned long)&relays);
-            return (relays & QuantonIO_P_SETUP_RELAYS_POWER1)?HIGH:LOW;
-#endif
-
-#ifdef QuantonIO_P_SETUP_RELAYS_POWER2
-        case Quanton_GPIO_EXT_IO_RELAY2_PIN:
-            ioctl(_gpio_io_fd, GPIO_GET, (unsigned long)&relays);
-            return (relays & QuantonIO_P_SETUP_RELAYS_POWER2)?HIGH:LOW;
-#endif
-
-#ifdef QuantonIO_P_SETUP_RELAYS_ACC1
-        case Quanton_GPIO_EXT_IO_ACC1_PIN:
-            ioctl(_gpio_io_fd, GPIO_GET, (unsigned long)&relays);
-            return (relays & QuantonIO_P_SETUP_RELAYS_ACC1)?HIGH:LOW;
-#endif
-
-#ifdef QuantonIO_P_SETUP_RELAYS_ACC2
-        case Quanton_GPIO_EXT_IO_ACC2_PIN:
-            ioctl(_gpio_io_fd, GPIO_GET, (unsigned long)&relays);
-            return (relays & QuantonIO_P_SETUP_RELAYS_ACC2)?HIGH:LOW;
-#endif
     }
 }
 
@@ -121,7 +96,6 @@ void QuantonGPIO::write(uint8_t pin, uint8_t value)
 {
     switch (pin) {
 
-#ifdef CONFIG_ARCH_BOARD_QuantonFMU_V1
         case HAL_GPIO_A_LED_PIN:    // Arming LED
             if (value == LOW) {
                 ioctl(_led_fd, LED_OFF, LED_RED);
@@ -140,8 +114,6 @@ void QuantonGPIO::write(uint8_t pin, uint8_t value)
                 ioctl(_led_fd, LED_ON, LED_BLUE);
             }
             break;
-#endif
-
         case Quanton_GPIO_PIEZO_PIN:    // Piezo beeper 
             if (value == LOW) { // this is inverted 
                 ioctl(_tone_alarm_fd, TONE_SET_ALARM, 3);    // Alarm on !! 
@@ -151,41 +123,6 @@ void QuantonGPIO::write(uint8_t pin, uint8_t value)
             }
             break;
 
-#ifdef GPIO_EXT_1
-        case Quanton_GPIO_EXT_FMU_RELAY1_PIN:
-            ioctl(_gpio_fmu_fd, value==LOW?GPIO_CLEAR:GPIO_SET, GPIO_EXT_1);
-            break;
-#endif
-
-#ifdef GPIO_EXT_2
-        case Quanton_GPIO_EXT_FMU_RELAY2_PIN:
-            ioctl(_gpio_fmu_fd, value==LOW?GPIO_CLEAR:GPIO_SET, GPIO_EXT_2);
-            break;
-#endif
-
-#ifdef QuantonIO_P_SETUP_RELAYS_POWER1
-        case Quanton_GPIO_EXT_IO_RELAY1_PIN:
-            ioctl(_gpio_io_fd, value==LOW?GPIO_CLEAR:GPIO_SET, QuantonIO_P_SETUP_RELAYS_POWER1);
-            break;
-#endif
-
-#ifdef QuantonIO_P_SETUP_RELAYS_POWER2
-        case Quanton_GPIO_EXT_IO_RELAY2_PIN:
-            ioctl(_gpio_io_fd, value==LOW?GPIO_CLEAR:GPIO_SET, QuantonIO_P_SETUP_RELAYS_POWER2);
-            break;
-#endif
-
-#ifdef QuantonIO_P_SETUP_RELAYS_ACC1
-        case Quanton_GPIO_EXT_IO_ACC1_PIN:
-            ioctl(_gpio_io_fd, value==LOW?GPIO_CLEAR:GPIO_SET, QuantonIO_P_SETUP_RELAYS_ACC1);
-            break;
-#endif
-
-#ifdef QuantonIO_P_SETUP_RELAYS_ACC2
-        case Quanton_GPIO_EXT_IO_ACC2_PIN:
-            ioctl(_gpio_io_fd, value==LOW?GPIO_CLEAR:GPIO_SET, QuantonIO_P_SETUP_RELAYS_ACC2);
-            break;
-#endif
     }
 }
 

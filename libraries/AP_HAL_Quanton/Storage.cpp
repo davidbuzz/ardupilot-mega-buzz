@@ -16,6 +16,12 @@ using namespace Quanton;
   This stores 'eeprom' data on the SD card, with a 4k size, and a
   in-memory buffer. This keeps the latency down.
  */
+ 
+//  TODO BUZZ   - SD card Vs 32Mibt flash chip Vs other? 
+// 1 - either replace with a non-SD card solution that maybe uses the 32Mbit external flash..?
+// existing code ofr it: https://github.com/TauLabs/TauLabs/blob/next/flight/PiOS/Common/pios_flash_jedec.c
+// 2- OR change the underlying HAL so it still *LOOKS* like a sd card, but usn't.... :-) 
+// 3 - OR connect an SD card to some arbitrary pins ion the CPU, and use it?  
 
 // name the storage file after the sketch so you can use the same sd
 // card for ArduCopter and ArduPlane

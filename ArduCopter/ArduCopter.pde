@@ -38,6 +38,7 @@
  *  Christof Schmid		:Alpha testing
  *  Craig Elder         :Release Management, Support
  *  Dani Saez           :V Octo Support
+ *  David "Buzz" Bussenschutt : Quanton Port,  OTP, misc
  *  Doug Weibel			:DCM, Libraries, Control law advice
  *  Gregory Fletcher	:Camera mount orientation math
  *  Guntars				:Arming safety suggestion

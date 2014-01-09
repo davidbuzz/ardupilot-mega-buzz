@@ -3,6 +3,7 @@
 #include <AP_HAL.h>
 
 #if CONFIG_HAL_BOARD == HAL_BOARD_Quanton
+
 #include "AnalogIn.h"
 #include <drivers/drv_adc.h>
 #include <stdio.h>
@@ -37,28 +38,14 @@ static const struct {
     uint8_t pin;
     float scaling;
 } pin_scaling[] = {
-#ifdef CONFIG_ARCH_BOARD_Quanton
-    // Quanton has 4 FMU analog input pins
+
+    // Quanton has 2 FMU analog input pins?   TODO BUZZ CHANGE /CHECK PIN MAP! 
     { 10, (5.7*3.3)/4096 }, // FMU battery on multi-connector pin 5,
                             // 5.7:1 scaling
     { 11,  6.6f/4096  }, // analog airspeed input, 2:1 scaling
     { 12,  3.3f/4096  }, // analog2, on SPI port pin 3
     { 13, 16.8f/4096  }, // analog3, on SPI port pin 4
-#elif defined(CONFIG_ARCH_BOARD_QuantonOTHER)
-    { 2,   3.3f/4096  },    // 3DR Brick voltage, usually 10.1:1
-                            // scaled from battery voltage
-    { 3,   3.3f/4096  },    // 3DR Brick current, usually 17:1 scaled
-                            // for APM_PER_VOLT
-    { 4,   6.6f/4096  },    // VCC 5V rail sense
-    { 10,  3.3f/4096  },    // spare ADC
-    { 11,  3.3f/4096  },    // spare ADC
-    { 12,  3.3f/4096  },    // spare ADC
-    { 13,  3.3f/4096  },    // AUX ADC pin 4
-    { 14,  3.3f/4096  },    // AUX ADC pin 3
-    { 15,  6.6f/4096  },    // analog airspeed sensor, 2:1 scaling
-#else
-#error "Unknown board type for AnalogIn scaling"
-#endif
+
 };
 
 using namespace Quanton;
@@ -214,13 +201,7 @@ void QuantonAnalogIn::_timer_tick(void)
         uint16_t vcc5V_mV = 0;
         // match the incoming channels to the currently active pins
         for (uint8_t i=0; i<ret/sizeof(buf_adc[0]); i++) {
-#ifdef CONFIG_ARCH_BOARD_QuantonFMU_V2
-            if (buf_adc[i].am_channel == 4) {
-                // record the Vcc value for later use in
-                // voltage_average_ratiometric()
-                vcc5V_mV = buf_adc[i].am_data * 6600 / 4096;
-            }
-#endif
+
         }
         for (uint8_t i=0; i<ret/sizeof(buf_adc[0]); i++) {
             Debug("chan %u value=%u\n",
@@ -235,8 +216,7 @@ void QuantonAnalogIn::_timer_tick(void)
         }
     }
 
-#ifdef CONFIG_ARCH_BOARD_QuantonFMU_V1
-    // check for new battery data on FMUv1
+    // check for new battery data on Quanton
     if (_battery_handle != -1) {
         struct battery_status_s battery;
         if (orb_copy(ORB_ID(battery_status), _battery_handle, &battery) == OK &&
@@ -245,10 +225,10 @@ void QuantonAnalogIn::_timer_tick(void)
             for (uint8_t j=0; j<Quanton_ANALOG_MAX_CHANNELS; j++) {
                 Quanton::QuantonAnalogSource *c = _channels[j];
                 if (c == NULL) continue;
-                if (c->_pin == Quanton_ANALOG_ORB_BATTERY_VOLTAGE_PIN) {
+                if (c->_pin == QUANTON_ANALOG_ORB_BATTERY_VOLTAGE_PIN) {
                     c->_add_value(battery.voltage_v / Quanton_VOLTAGE_SCALING, 0);
                 }
-                if (c->_pin == Quanton_ANALOG_ORB_BATTERY_CURRENT_PIN) {
+                if (c->_pin == QUANTON_ANALOG_ORB_BATTERY_CURRENT_PIN) {
                     // scale it back to voltage, knowing that the
                     // Quantonio code scales by 90.0/5.0
                     c->_add_value(battery.current_a * (5.0f/90.0f) / Quanton_VOLTAGE_SCALING, 0);
@@ -256,28 +236,6 @@ void QuantonAnalogIn::_timer_tick(void)
             }
         }
     }
-#endif
-
-#ifdef CONFIG_ARCH_BOARD_QuantonFMU_V2
-    // check for new servorail data on FMUv2
-    if (_servorail_handle != -1) {
-        struct servorail_status_s servorail;
-        if (orb_copy(ORB_ID(servorail_status), _servorail_handle, &servorail) == OK &&
-            servorail.timestamp != _servorail_timestamp) {
-            _servorail_timestamp = servorail.timestamp;
-            for (uint8_t j=0; j<Quanton_ANALOG_MAX_CHANNELS; j++) {
-                Quanton::QuantonAnalogSource *c = _channels[j];
-                if (c == NULL) continue;
-                if (c->_pin == Quanton_ANALOG_ORB_SERVO_VOLTAGE_PIN) {
-                    c->_add_value(servorail.voltage_v / Quanton_VOLTAGE_SCALING, 0);
-                }
-                if (c->_pin == Quanton_ANALOG_ORB_SERVO_VRSSI_PIN) {
-                    c->_add_value(servorail.rssi_v / Quanton_VOLTAGE_SCALING, 0);
-                }
-            }
-        }
-    }
-#endif
 
 }
 
