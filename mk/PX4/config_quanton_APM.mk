@@ -15,7 +15,7 @@ MODULES		+= $(APM_MODULE_DIR)
 MODULES		+= drivers/device
 MODULES		+= drivers/stm32
 MODULES		+= drivers/stm32/adc
-MODULES		+= drivers/stm32/tone_alarm
+#MODULES		+= drivers/stm32/tone_alarm
 MODULES		+= drivers/led
 MODULES		+= drivers/quanton
 MODULES		+= drivers/boards/quanton
@@ -30,25 +30,25 @@ MODULES		+= drivers/gps
 #MODULES		+= drivers/hil
 #MODULES		+= drivers/hott_telemetry
 #MODULES		+= drivers/blinkm
-MODULES		+= drivers/airspeed
-MODULES		+= drivers/ets_airspeed
-MODULES		+= drivers/meas_airspeed
-MODULES		+= drivers/mkblctrl
+#MODULES		+= drivers/airspeed
+#MODULES		+= drivers/ets_airspeed
+#MODULES		+= drivers/meas_airspeed
+#MODULES		+= drivers/mkblctrl
 #MODULES	+= modules/sensors
 
 #
 # System commands
 #
 MODULES		+= systemcmds/eeprom
-MODULES		+= systemcmds/bl_update
+#MODULES		+= systemcmds/bl_update
 MODULES		+= systemcmds/boardinfo
 MODULES		+= systemcmds/i2c
 MODULES		+= systemcmds/mixer
-MODULES		+= systemcmds/perf
+#MODULES		+= systemcmds/perf
 MODULES		+= systemcmds/pwm
-MODULES		+= systemcmds/reboot
+#MODULES		+= systemcmds/reboot
 MODULES		+= systemcmds/top
-MODULES		+= systemcmds/tests
+#MODULES		+= systemcmds/tests
 MODULES		+= systemcmds/nshterm
 #MODULES         += systemcmds/auth
 
@@ -59,8 +59,8 @@ MODULES		+= modules/systemlib
 MODULES		+= modules/systemlib/mixer
 MODULES		+= modules/uORB
 MODULES		+= lib/mathlib/math/filter
-MODULES	        += modules/libtomfastmath
-MODULES         += modules/libtomcrypt
+#MODULES	        += modules/libtomfastmath
+#MODULES         += modules/libtomcrypt
 
 #
 # Transitional support - add commands from the NuttX export archive.
