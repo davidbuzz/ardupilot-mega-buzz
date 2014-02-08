@@ -23,24 +23,24 @@ set USB autoconnect
 #
 
 #
-
+echo "[init] running ROMFS/rcS"
 
 #
 # Try to mount the microSD card.
 #
-echo "[init] looking for microSD..."
-if mount -t vfat /dev/mmcsd0 /fs/microsd
-then
-	echo "[init] card mounted at /fs/microsd"
-        set HAVE_MICROSD 1
-	# Start playing the startup tune
-	tone_alarm start
-else
-	echo "[init] no microSD card found"
-        set HAVE_MICROSD 0
-	# Play SOS
-	tone_alarm 2
-fi
+#echo "[init] looking for microSD..."
+#if mount -t vfat /dev/mmcsd0 /fs/microsd
+#then
+#	echo "[init] card mounted at /fs/microsd"
+#        set HAVE_MICROSD 1
+#	# Start playing the startup tune
+#	tone_alarm start
+#else
+#	echo "[init] no microSD card found"
+#        set HAVE_MICROSD 0
+#	# Play SOS
+#	tone_alarm 2
+#fi
 
 #
 # Look for an init script on the microSD card.
@@ -48,17 +48,17 @@ fi
 # To prevent automatic startup in the current flight mode,
 # the script should set MODE to some other value.
 #
-if [ -f /fs/microsd/etc/rc ]
-then
-	echo "[init] reading /fs/microsd/etc/rc"
-	sh /fs/microsd/etc/rc
-fi
-# Also consider rc.txt files
-if [ -f /fs/microsd/etc/rc.txt ]
-then
-	echo "[init] reading /fs/microsd/etc/rc.txt"
-	sh /fs/microsd/etc/rc.txt
-fi
+#if [ -f /fs/microsd/etc/rc ]
+#then
+#	echo "[init] reading /fs/microsd/etc/rc"
+#	sh /fs/microsd/etc/rc
+#fi
+## Also consider rc.txt files
+#if [ -f /fs/microsd/etc/rc.txt ]
+#then
+#	echo "[init] reading /fs/microsd/etc/rc.txt"
+#	sh /fs/microsd/etc/rc.txt
+#fi
 
 #
 # Check for USB host
@@ -75,13 +75,13 @@ else
 	fi
 fi
 
-# if this is an APM build then there will be a rc.APM script
-# from an EXTERNAL_SCRIPTS build option
-if [ -f /etc/init.d/rc.APM -a $HAVE_MICROSD == 1 -a ! -f /fs/microsd/APM/nostart ]
-then
-	echo Running rc.APM
-	# if APM startup is successful then nsh will exit
-	sh /etc/init.d/rc.APM
-else
-        nshterm /dev/ttyACM0 &
-fi
+#
+#
+#if [ -f /etc/init.d/rc.Q ] 
+#then
+#	echo Running rc.Q for Quanton board…
+#	# if APM startup is successful then nsh will exit
+#	sh /etc/init.d/rc.Q
+#else
+#        nshterm /dev/ttyACM0 &
+#fi
