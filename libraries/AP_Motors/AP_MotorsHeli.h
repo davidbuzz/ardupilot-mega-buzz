@@ -12,10 +12,6 @@
 #include <RC_Channel.h>     // RC Channel Library
 #include "AP_Motors.h"
 
-// output channels
-#define AP_MOTORS_HELI_EXT_GYRO                 CH_7    // tail servo uses channel 7
-#define AP_MOTORS_HELI_EXT_RSC                  CH_8    // main rotor controlled with channel 8
-
 // maximum number of swashplate servos
 #define AP_MOTORS_HELI_NUM_SWASHPLATE_SERVOS    3
 
@@ -38,8 +34,8 @@
 #define AP_MOTORS_HELI_SWASH_H1                 1
 
 // default swash min and max angles and positions
-#define AP_MOTORS_HELI_SWASH_ROLL_MAX           4500
-#define AP_MOTORS_HELI_SWASH_PITCH_MAX          4500
+#define AP_MOTORS_HELI_SWASH_ROLL_MAX           2500
+#define AP_MOTORS_HELI_SWASH_PITCH_MAX          2500
 #define AP_MOTORS_HELI_COLLECTIVE_MIN           1250
 #define AP_MOTORS_HELI_COLLECTIVE_MAX           1750
 #define AP_MOTORS_HELI_COLLECTIVE_MID           1500
@@ -61,7 +57,7 @@
 #define AP_MOTORS_HELI_EXT_GYRO_GAIN            350
 
 // minimum outputs for direct drive motors
-#define AP_MOTOR_HELI_DIRECTDRIVE_DEFAULT       500
+#define AP_MOTOR_HELI_DDTAIL_DEFAULT       500
 
 
 // main rotor speed control types (ch8 out)

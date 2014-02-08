@@ -123,6 +123,11 @@ static void init_ardupilot()
     // load parameters from EEPROM
     load_parameters();
 
+    BoardConfig.init();
+
+    // FIX: this needs to be the inverse motors mask
+    ServoRelayEvents.set_channel_mask(0xFFF0);
+
     relay.init();
 
     bool enable_external_leds = true;
@@ -263,7 +268,7 @@ static void init_ardupilot()
 #if HIL_MODE != HIL_MODE_ATTITUDE
     // read Baro pressure at ground
     //-----------------------------
-    init_barometer();
+    init_barometer(true);
 #endif
 
     // initialise sonar
@@ -479,7 +484,7 @@ static bool set_mode(uint8_t mode)
             set_yaw_mode(YAW_DRIFT);
             set_roll_pitch_mode(ROLL_PITCH_DRIFT);
             set_nav_mode(NAV_NONE);
-            set_throttle_mode(THROTTLE_MANUAL_TILT_COMPENSATED);
+            set_throttle_mode(DRIFT_THR);
             break;
 
         case SPORT:

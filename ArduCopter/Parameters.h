@@ -70,6 +70,9 @@ public:
         // EPM object
         k_param_epm,
 
+        // BoardConfig object
+        k_param_BoardConfig,
+
         // Misc
         //
         k_param_log_bitmask = 20,
@@ -104,7 +107,7 @@ public:
         k_param_gps_glitch,             // 70
 
         //
-        // 75: Singlecopter
+        // 75: Singlecopter, CoaxCopter
         //
         k_param_single_servo_1 = 75,
         k_param_single_servo_2,
@@ -375,6 +378,11 @@ public:
     RC_Channel      single_servo_1, single_servo_2, single_servo_3, single_servo_4;     // servos for four flaps
 #endif
 
+#if FRAME_CONFIG ==     COAX_FRAME
+    // Coax copter flaps
+    RC_Channel      single_servo_1, single_servo_2; // servos for two flaps
+#endif
+
     // RC channels
     RC_Channel              rc_1;
     RC_Channel              rc_2;
@@ -436,6 +444,11 @@ public:
         single_servo_2        (CH_2),
         single_servo_3        (CH_3),
         single_servo_4        (CH_4),
+#endif
+
+#if FRAME_CONFIG ==     COAX_FRAME
+        single_servo_1        (CH_1),
+        single_servo_2        (CH_2),
 #endif
 
         rc_1                (CH_1),

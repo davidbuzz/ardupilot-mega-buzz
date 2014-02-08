@@ -169,10 +169,8 @@ static void init_arm_motors()
     }
 
 #if HIL_MODE != HIL_MODE_ATTITUDE
-    // read Baro pressure at ground -
-    // this resets Baro for more accuracy
-    //-----------------------------------
-    init_barometer();
+    // fast baro calibration to reset ground pressure
+    init_barometer(false);
 #endif
 
     // go back to normal AHRS gains
@@ -240,6 +238,13 @@ static void pre_arm_checks(bool display_failure)
         if(!barometer.healthy) {
             if (display_failure) {
                 gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Baro not healthy"));
+            }
+            return;
+        }
+        // check Baro & inav alt are within 1m
+        if(fabs(inertial_nav.get_altitude() - baro_alt) > 100) {
+            if (display_failure) {
+                gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Alt disparity"));
             }
             return;
         }
@@ -438,6 +443,16 @@ static bool arm_checks(bool display_failure)
         return true;
     }
 
+    // check Baro & inav alt are within 1m
+    if ((g.arming_check == ARMING_CHECK_ALL) || (g.arming_check & ARMING_CHECK_BARO)) {
+        if(fabs(inertial_nav.get_altitude() - baro_alt) > 100) {
+            if (display_failure) {
+                gcs_send_text_P(SEVERITY_HIGH,PSTR("Arm: Alt disparity"));
+            }
+            return false;
+        }
+    }
+
     // check gps is ok if required - note this same check is also done in pre-arm checks
     if ((g.arming_check == ARMING_CHECK_ALL) || (g.arming_check & ARMING_CHECK_GPS)) {
         if ((mode_requires_GPS(control_mode) || g.failsafe_gps_enabled == FS_GPS_LAND_EVEN_STABILIZE) && !pre_arm_gps_checks(display_failure)) {
@@ -451,6 +466,16 @@ static bool arm_checks(bool display_failure)
         if (g.failsafe_throttle != FS_THR_DISABLED && g.rc_3.radio_in < g.failsafe_throttle_value) {
             if (display_failure) {
                 gcs_send_text_P(SEVERITY_HIGH,PSTR("Arm: Thr below FS"));
+            }
+            return false;
+        }
+    }
+
+    // check lean angle
+    if ((g.arming_check == ARMING_CHECK_ALL) || (g.arming_check & ARMING_CHECK_INS)) {
+        if (labs(ahrs.roll_sensor) > g.angle_max || labs(ahrs.pitch_sensor) > g.angle_max) {
+            if (display_failure) {
+                gcs_send_text_P(SEVERITY_HIGH,PSTR("Arm: Leaning"));
             }
             return false;
         }
@@ -523,3 +548,33 @@ set_servos_4()
     motors.output();
 }
 
+// servo_write - writes to a servo after checking the channel is not used for a motor
+static void servo_write(uint8_t ch, uint16_t pwm)
+{
+    bool servo_ok = false;
+
+    #if (FRAME_CONFIG == QUAD_FRAME || FRAME_CONFIG == COAX_FRAME)
+        // Quads can use RC5 and higher as servos
+        if (ch >= CH_5) servo_ok = true;
+    #elif (FRAME_CONFIG == TRI_FRAME || FRAME_CONFIG == SINGLE_FRAME)
+        // Tri's and Singles can use RC5, RC6, RC8 and higher
+        if (ch == CH_5 || ch == CH_6 || ch >= CH_8) servo_ok = true;
+    #elif (FRAME_CONFIG == HEXA_FRAME || FRAME_CONFIG == Y6_FRAME)
+        // Hexa and Y6 can use RC7 and higher
+        if (ch >= CH_7) servo_ok = true;
+    #elif (FRAME_CONFIG == OCTA_FRAME || FRAME_CONFIG == OCTA_QUAD_FRAME)
+        // Octa and X8 can use RC9 and higher
+        if (ch >= CH_9) servo_ok = true;
+    #elif (FRAME_CONFIG == HELI_FRAME)
+        // Heli's can use RC5, RC6, RC7, not RC8, and higher
+        if (ch == CH_5 || ch == CH_6 || ch == CH_7 || ch >= CH_9) servo_ok = true;
+    #else
+        // throw compile error if frame type is unrecognise
+        #error Unrecognised frame type
+    #endif
+
+    if (servo_ok) {
+        hal.rcout->enable_ch(ch);
+        hal.rcout->write(ch, pwm);
+    }
+}

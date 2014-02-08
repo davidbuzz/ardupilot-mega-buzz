@@ -117,6 +117,7 @@
 #include <Filter.h>             // Filter library
 #include <AP_Buffer.h>          // APM FIFO Buffer
 #include <AP_Relay.h>           // APM relay
+#include <AP_ServoRelayEvents.h>
 #include <AP_Camera.h>          // Photo or video camera
 #include <AP_Mount.h>           // Camera/Antenna mount
 #include <AP_Airspeed.h>        // needed for AHRS build
@@ -130,6 +131,7 @@
 #include <AP_RCMapper.h>        // RC input mapping library
 #include <AP_Notify.h>          // Notify library
 #include <AP_BattMonitor.h>     // Battery monitor library
+#include <AP_BoardConfig.h>     // board configuration library
 #if SPRAYER == ENABLED
 #include <AC_Sprayer.h>         // crop sprayer library
 #endif
@@ -197,7 +199,7 @@ static DataFlash_APM1 DataFlash;
 static DataFlash_File DataFlash("logs");
 //static DataFlash_SITL DataFlash;
 #elif CONFIG_HAL_BOARD == HAL_BOARD_PX4
-static DataFlash_File DataFlash("/fs/microsd/APM/logs");
+static DataFlash_File DataFlash("/fs/microsd/APM/LOGS");
 #elif CONFIG_HAL_BOARD == HAL_BOARD_LINUX
 static DataFlash_File DataFlash("logs");
 #else
@@ -347,8 +349,6 @@ static SITL sitl;
 ////////////////////////////////////////////////////////////////////////////////
  #if OPTFLOW == ENABLED
 static AP_OpticalFlow_ADNS3080 optflow;
- #else
-static AP_OpticalFlow optflow;
  #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -431,6 +431,9 @@ static int8_t control_mode = STABILIZE;
 static uint8_t oldSwitchPosition;
 static RCMapper rcmap;
 
+// board specific config
+static AP_BoardConfig BoardConfig;
+
 // receiver RSSI
 static uint8_t receiver_rssi;
 
@@ -468,6 +471,8 @@ static struct {
  #define MOTOR_CLASS AP_MotorsHeli
 #elif FRAME_CONFIG == SINGLE_FRAME
  #define MOTOR_CLASS AP_MotorsSingle
+#elif FRAME_CONFIG == COAX_FRAME
+ #define MOTOR_CLASS AP_MotorsCoax
 #else
  #error Unrecognised frame type
 #endif
@@ -478,6 +483,8 @@ static MOTOR_CLASS motors(&g.rc_1, &g.rc_2, &g.rc_3, &g.rc_4, &g.rc_7, &g.rc_8, 
 static MOTOR_CLASS motors(&g.rc_1, &g.rc_2, &g.rc_3, &g.rc_4, &g.rc_7);
 #elif FRAME_CONFIG == SINGLE_FRAME  // single constructor requires extra servos for flaps
 static MOTOR_CLASS motors(&g.rc_1, &g.rc_2, &g.rc_3, &g.rc_4, &g.single_servo_1, &g.single_servo_2, &g.single_servo_3, &g.single_servo_4);
+#elif FRAME_CONFIG == COAX_FRAME  // single constructor requires extra servos for flaps
+static MOTOR_CLASS motors(&g.rc_1, &g.rc_2, &g.rc_3, &g.rc_4, &g.single_servo_1, &g.single_servo_2);
 #else
 static MOTOR_CLASS motors(&g.rc_1, &g.rc_2, &g.rc_3, &g.rc_4);
 #endif
@@ -490,8 +497,6 @@ static MOTOR_CLASS motors(&g.rc_1, &g.rc_2, &g.rc_3, &g.rc_4);
 static Vector3f omega;
 // This is used to hold radio tuning values for in-flight CH6 tuning
 float tuning_value;
-// used to limit the rate that the pid controller output is logged so that it doesn't negatively affect performance
-static uint8_t pid_log_counter;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -732,22 +737,6 @@ static int16_t yaw_look_at_heading_slew;
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Repeat Mission Scripting Command
-////////////////////////////////////////////////////////////////////////////////
-// The type of repeating event - Toggle a servo channel, Toggle the APM1 relay, etc
-static uint8_t event_id;
-// Used to manage the timimng of repeating events
-static uint32_t event_timer;
-// How long to delay the next firing of event in millis
-static uint16_t event_delay;
-// how many times to fire : 0 = forever, 1 = do once, 2 = do twice
-static int16_t event_repeat;
-// per command value, such as PWM for servos
-static int16_t event_value;
-// the stored value used to undo commands - such as original PWM command
-static int16_t event_undo_value;
-
-////////////////////////////////////////////////////////////////////////////////
 // Delay Mission Scripting Command
 ////////////////////////////////////////////////////////////////////////////////
 static int32_t condition_value;  // used in condition commands (eg delay, change alt, etc.)
@@ -791,6 +780,9 @@ static uint8_t auto_trim_counter;
 
 // Reference to the relay object (APM1 -> PORTL 2) (APM2 -> PORTB 7)
 static AP_Relay relay;
+
+// handle repeated servo and relay events
+static AP_ServoRelayEvents ServoRelayEvents(relay);
 
 //Reference to the camera object (it uses the relay object inside it)
 #if CAMERA == ENABLED
@@ -1211,8 +1203,7 @@ static void one_hz_loop()
     }
 
     // update assigned functions and enable auxiliar servos
-    aux_servos_update_fn();
-    enable_aux_servos();
+    RC_Channel_aux::enable_aux_servos();
 
 #if MOUNT == ENABLED
     camera_mount.update_mount_type();
@@ -2211,8 +2202,8 @@ static void tuning(){
         break;
 
     case CH6_RELAY:
-        if (g.rc_6.control_in > 525) relay.on();
-        if (g.rc_6.control_in < 475) relay.off();
+        if (g.rc_6.control_in > 525) relay.on(0);
+        if (g.rc_6.control_in < 475) relay.off(0);
         break;
 
 #if FRAME_CONFIG == HELI_FRAME
@@ -2265,6 +2256,11 @@ static void tuning(){
     case CH6_SONAR_GAIN:
         // set sonar gain
         g.sonar_gain.set(tuning_value);
+        break;
+
+    case CH6_LOIT_SPEED:
+        // set max loiter speed to 0 ~ 1000 cm/s
+        wp_nav.set_loiter_velocity(g.rc_6.control_in);
         break;
     }
 }

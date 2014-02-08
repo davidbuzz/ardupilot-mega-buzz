@@ -40,12 +40,14 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @Param: SYSID_THISMAV
     // @DisplayName: Mavlink version
     // @Description: Allows reconising the mavlink version
+    // @Range: 1 255
     // @User: Advanced
     GSCALAR(sysid_this_mav, "SYSID_THISMAV",   MAV_SYSTEM_ID),
 
     // @Param: SYSID_MYGCS
     // @DisplayName: My ground station number
     // @Description: Allows restricting radio overrides to only come from my ground station
+    // @Range: 1 255
     // @User: Advanced
     GSCALAR(sysid_my_gcs,   "SYSID_MYGCS",     255),
 
@@ -360,7 +362,7 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @Param: LOG_BITMASK
     // @DisplayName: Log bitmask
     // @Description: 2 byte bitmap of log types to enable
-    // @Values: 0:Disabled,830:Default,894:Default+RCIN,958:Default+IMU,1854:Default+Motors,17214:Default+INav,-6146:NearlyAll
+    // @Values: 0:Disabled,830:Default,894:Default+RCIN,958:Default+IMU,1854:Default+Motors,-6146:NearlyAll
     // @User: Standard
     GSCALAR(log_bitmask,    "LOG_BITMASK",          DEFAULT_LOG_BITMASK),
 
@@ -375,7 +377,7 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @DisplayName: Channel 6 Tuning
     // @Description: Controls which parameters (normally PID gains) are being tuned with transmitter's channel 6 knob
     // @User: Standard
-    // @Values: 0:None,1:Stab Roll/Pitch kP,4:Rate Roll/Pitch kP,5:Rate Roll/Pitch kI,21:Rate Roll/Pitch kD,3:Stab Yaw kP,6:Rate Yaw kP,26:Rate Yaw kD,14:Altitude Hold kP,7:Throttle Rate kP,37:Throttle Rate kD,34:Throttle Accel kP,35:Throttle Accel kI,36:Throttle Accel kD,12:Loiter Pos kP,22:Loiter Rate kP,28:Loiter Rate kI,23:Loiter Rate kD,10:WP Speed,25:Acro RollPitch kP,40:Acro Yaw kP,9:Relay On/Off,13:Heli Ext Gyro,17:OF Loiter kP,18:OF Loiter kI,19:OF Loiter kD,30:AHRS Yaw kP,31:AHRS kP,32:INAV_TC,38:Declination,39:Circle Rate,41:Sonar Gain
+    // @Values: 0:None,1:Stab Roll/Pitch kP,4:Rate Roll/Pitch kP,5:Rate Roll/Pitch kI,21:Rate Roll/Pitch kD,3:Stab Yaw kP,6:Rate Yaw kP,26:Rate Yaw kD,14:Altitude Hold kP,7:Throttle Rate kP,37:Throttle Rate kD,34:Throttle Accel kP,35:Throttle Accel kI,36:Throttle Accel kD,42:Loiter Speed,12:Loiter Pos kP,22:Loiter Rate kP,28:Loiter Rate kI,23:Loiter Rate kD,10:WP Speed,25:Acro RollPitch kP,40:Acro Yaw kP,9:Relay On/Off,13:Heli Ext Gyro,17:OF Loiter kP,18:OF Loiter kI,19:OF Loiter kD,30:AHRS Yaw kP,31:AHRS kP,32:INAV_TC,38:Declination,39:Circle Rate,41:Sonar Gain
     GSCALAR(radio_tuning, "TUNE",                   0),
 
     // @Param: TUNE_LOW
@@ -395,9 +397,9 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @Param: FRAME
     // @DisplayName: Frame Orientation (+, X or V)
     // @Description: Controls motor mixing for multicopters.  Not used for Tri or Traditional Helicopters.
-    // @Values: 0:Plus, 1:X, 2:V, 3:H
+    // @Values: 0:Plus, 1:X, 2:V, 3:H, 10:Y6B (New)
     // @User: Standard
-    GSCALAR(frame_orientation, "FRAME",             FRAME_ORIENTATION),
+    GSCALAR(frame_orientation, "FRAME",             AP_MOTORS_X_FRAME),
 
     // @Param: CH7_OPT
     // @DisplayName: Channel 7 option
@@ -472,40 +474,24 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @User: Standard
 	GSCALAR(heli_yaw_ff, "RATE_YAW_FF",            HELI_YAW_FF),
 
-    // @Param: STAB_COL_MIN
+    // @Param: H_STAB_COL_MIN
     // @DisplayName: Heli Stabilize Throttle Collective Minimum
     // @Description: Helicopter's minimum collective position while pilot directly controls collective in stabilize mode
     // @Range: 0 500
     // @Units: Percent*10
     // @Increment: 1
     // @User: Standard
-    GSCALAR(heli_stab_col_min, "STAB_COL_MIN", HELI_STAB_COLLECTIVE_MIN_DEFAULT),
+    GSCALAR(heli_stab_col_min, "H_STAB_COL_MIN", HELI_STAB_COLLECTIVE_MIN_DEFAULT),
 
-    // @Param: STAB_COL_MAX
+    // @Param: H_STAB_COL_MAX
     // @DisplayName: Stabilize Throttle Maximum
     // @Description: Helicopter's maximum collective position while pilot directly controls collective in stabilize mode
     // @Range: 500 1000
     // @Units: Percent*10
     // @Increment: 1
     // @User: Standard
-    GSCALAR(heli_stab_col_max, "STAB_COL_MAX", HELI_STAB_COLLECTIVE_MAX_DEFAULT),
+    GSCALAR(heli_stab_col_max, "H_STAB_COL_MAX", HELI_STAB_COLLECTIVE_MAX_DEFAULT),
 #endif
-
-#if FRAME_CONFIG ==     SINGLE_FRAME
-    // @Group: SS1_
-    // @Path: ../libraries/RC_Channel/RC_Channel.cpp
-    GGROUP(single_servo_1,    "SS1_", RC_Channel),
-    // @Group: SS2_
-    // @Path: ../libraries/RC_Channel/RC_Channel.cpp
-    GGROUP(single_servo_2,    "SS2_", RC_Channel),
-    // @Group: SS3_
-    // @Path: ../libraries/RC_Channel/RC_Channel.cpp
-    GGROUP(single_servo_3,    "SS3_", RC_Channel),
-    // @Group: SS4_
-    // @Path: ../libraries/RC_Channel/RC_Channel.cpp
-    GGROUP(single_servo_4,    "SS4_", RC_Channel),
-#endif
-
 
     // RC channel
     //-----------
@@ -1047,6 +1033,10 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @Path: ../libraries/AP_BattMonitor/AP_BattMonitor.cpp
     GOBJECT(battery,                "BATT_",       AP_BattMonitor),
 
+    // @Group: BRD_
+    // @Path: ../libraries/AP_BoardConfig/AP_BoardConfig.cpp
+    GOBJECT(BoardConfig,            "BRD_",       AP_BoardConfig),    
+
 #if SPRAYER == ENABLED
     // @Group: SPRAYER_
     // @Path: ../libraries/AC_Sprayer/AC_Sprayer.cpp
@@ -1097,6 +1087,17 @@ const AP_Param::Info var_info[] PROGMEM = {
     // @Path: ../libraries/AP_Motors/AP_MotorsSingle.cpp
     GOBJECT(motors, "MOT_",           AP_MotorsSingle),
 
+#elif FRAME_CONFIG == COAX_FRAME
+    // @Group: SS1_
+    // @Path: ../libraries/RC_Channel/RC_Channel.cpp
+    GGROUP(single_servo_1,    "SS1_", RC_Channel),
+    // @Group: SS2_
+    // @Path: ../libraries/RC_Channel/RC_Channel.cpp
+    GGROUP(single_servo_2,    "SS2_", RC_Channel),
+    // @Group: MOT_
+    // @Path: ../libraries/AP_Motors/AP_MotorsCoax.cpp
+    GOBJECT(motors, "MOT_",           AP_MotorsCoax),
+
 #else
     // @Group: MOT_
     // @Path: ../libraries/AP_Motors/AP_Motors_Class.cpp
@@ -1134,6 +1135,11 @@ const AP_Param::ConversionInfo conversion_table[] PROGMEM = {
 
 static void load_parameters(void)
 {
+    if (!AP_Param::check_var_info()) {
+        cliSerial->printf_P(PSTR("Bad var table\n"));        
+        hal.scheduler->panic(PSTR("Bad var table"));
+    }
+
     // change the default for the AHRS_GPS_GAIN for ArduCopter
     // if it hasn't been set by the user
     if (!ahrs.gps_gain.load()) {

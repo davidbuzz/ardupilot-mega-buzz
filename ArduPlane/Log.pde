@@ -112,7 +112,7 @@ erase_logs(uint8_t argc, const Menu::arg *argv)
 static int8_t
 select_logs(uint8_t argc, const Menu::arg *argv)
 {
-    uint16_t bits;
+    uint32_t bits;
 
     if (argc != 2) {
         cliSerial->printf_P(PSTR("missing log type\n"));
@@ -128,7 +128,7 @@ select_logs(uint8_t argc, const Menu::arg *argv)
     // bits accordingly.
     //
     if (!strcasecmp_P(argv[1].str, PSTR("all"))) {
-        bits = ~0;
+        bits = 0xFFFFFFFFUL;
     } else {
  #define TARG(_s)        if (!strcasecmp_P(argv[1].str, PSTR(# _s))) bits |= MASK_LOG_ ## _s
         TARG(ATTITUDE_FAST);
@@ -519,6 +519,36 @@ static void Log_Write_RC(void)
     DataFlash.Log_Write_RCOUT();
 }
 
+static void Log_Write_Baro(void)
+{
+    DataFlash.Log_Write_Baro(barometer);
+}
+
+struct PACKED log_AIRSPEED {
+    LOG_PACKET_HEADER;
+    uint32_t timestamp;
+    float   airspeed;
+    float   diffpressure;
+    int16_t temperature;
+};
+
+// Write a AIRSPEED packet
+static void Log_Write_Airspeed(void)
+{
+    float temperature;
+    if (!airspeed.get_temperature(temperature)) {
+        temperature = 0;
+    }
+    struct log_AIRSPEED pkt = {
+        LOG_PACKET_HEADER_INIT(LOG_AIRSPEED_MSG),
+        timestamp     : hal.scheduler->millis(),
+        airspeed      : airspeed.get_raw_airspeed(),
+        diffpressure  : airspeed.get_differential_pressure(),
+        temperature   : (int16_t)(temperature * 100.0f)
+    };
+    DataFlash.WriteBlock(&pkt, sizeof(pkt));
+}
+
 static const struct LogStructure log_structure[] PROGMEM = {
     LOG_COMMON_STRUCTURES,
     { LOG_ATTITUDE_MSG, sizeof(log_Attitude),       
@@ -547,6 +577,8 @@ static const struct LogStructure log_structure[] PROGMEM = {
       "MAG2", "Ihhhhhh",   "TimeMS,MagX,MagY,MagZ,OfsX,OfsY,OfsZ" },
     { LOG_ARM_DISARM_MSG, sizeof(log_Arm_Disarm),
       "ARM", "IHB", "TimeMS,ArmState,ArmChecks" },
+    { LOG_AIRSPEED_MSG, sizeof(log_AIRSPEED),
+      "ARSP",  "Iffc",     "TimeMS,Airspeed,DiffPress,Temp" },
     TECS_LOG_FORMAT(LOG_TECS_MSG),
 };
 
@@ -569,6 +601,9 @@ static void start_logging()
 {
     DataFlash.StartNewLog();
     DataFlash.Log_Write_Message_P(PSTR(FIRMWARE_STRING));
+#if defined(PX4_GIT_VERSION) && defined(NUTTX_GIT_VERSION)
+    DataFlash.Log_Write_Message_P(PSTR("PX4: " PX4_GIT_VERSION " NuttX: " NUTTX_GIT_VERSION));
+#endif
 
     // write system identifier as well if available
     char sysid[40];
@@ -594,6 +629,8 @@ static void Log_Write_Compass() {}
 static void Log_Write_GPS() {}
 static void Log_Write_IMU() {}
 static void Log_Write_RC() {}
+static void Log_Write_Airspeed(void) {}
+static void Log_Write_Baro(void) {}
 
 static int8_t process_logs(uint8_t argc, const Menu::arg *argv) {
     return 0;

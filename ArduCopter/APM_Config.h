@@ -6,8 +6,7 @@
 // valid! You should switch to using a HAL_BOARD flag in your local config.mk.
 
 //#define FRAME_CONFIG QUAD_FRAME
-/*
- *  options:
+/*  options:
  *  QUAD_FRAME
  *  TRI_FRAME
  *  HEXA_FRAME
@@ -16,6 +15,7 @@
  *  OCTA_QUAD_FRAME
  *  HELI_FRAME
  *  SINGLE_FRAME
+ *  COAX_FRAME
  */
 
 // uncomment the lines below to save on flash space if compiling for the APM using Arduino IDE.  Top items save the most flash space
@@ -34,8 +34,9 @@
 //#define SPRAYER               ENABLED             // enable the crop sprayer feature (two ESC controlled pumps the speed of which depends upon the vehicle's horizontal velocity)
 //#define EPM_ENABLED           ENABLED             // enable epm cargo gripper costs 500bytes of flash
 
-// redefine size of throttle deadband in pwm (0 ~ 1000)
-//#define THROTTLE_IN_DEADBAND   100
+// other settings
+//#define THROTTLE_IN_DEADBAND   100                // redefine size of throttle deadband in pwm (0 ~ 1000)
+//#define LAND_REQUIRE_MIN_THROTTLE_TO_DISARM   DISABLED    // when set to DISABLED vehicle will disarm after landing (in LAND mode or RTL) even if pilot has not put throttle to zero
 
 //#define HIL_MODE              HIL_MODE_SENSORS    // build for hardware-in-the-loop simulation
 

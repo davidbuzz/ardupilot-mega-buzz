@@ -92,6 +92,11 @@ static void init_ardupilot()
     //
     load_parameters();
 
+    BoardConfig.init();
+
+    // allow servo set on all channels except first 4
+    ServoRelayEvents.set_channel_mask(0xFFF0);
+
     set_control_channels();
 
     // reset the uartA baud rate after parameter load
@@ -141,9 +146,6 @@ static void init_ardupilot()
         for (uint8_t i=0; i<num_gcs; i++) {
             gcs[i].reset_cli_timeout();
         }
-    }
-    if (g.log_bitmask != 0) {
-        start_logging();
     }
 #endif
 
@@ -205,7 +207,7 @@ static void init_ardupilot()
     }
 
     startup_ground();
-    if (g.log_bitmask & MASK_LOG_CMD)
+    if (should_log(MASK_LOG_CMD))
         Log_Write_Startup(TYPE_GROUNDSTART_MSG);
 
     // choose the nav controller
@@ -359,7 +361,7 @@ static void set_mode(enum FlightMode mode)
         throttle_suppressed = false;
     }
 
-    if (g.log_bitmask & MASK_LOG_MODE)
+    if (should_log(MASK_LOG_MODE))
         Log_Write_Mode(control_mode);
 
     // reset attitude integrators on mode change
@@ -579,6 +581,9 @@ print_flight_mode(AP_HAL::BetterStream *port, uint8_t mode)
     case LOITER:
         port->print_P(PSTR("Loiter"));
         break;
+    case GUIDED:
+        port->print_P(PSTR("Guided"));
+        break;
     default:
         port->printf_P(PSTR("Mode(%u)"), (unsigned)mode);
         break;
@@ -606,4 +611,31 @@ static void servo_write(uint8_t ch, uint16_t pwm)
 #endif
     hal.rcout->enable_ch(ch);
     hal.rcout->write(ch, pwm);
+}
+
+/*
+  should we log a message type now?
+ */
+static bool should_log(uint32_t mask)
+{
+    if (!(mask & g.log_bitmask) || in_mavlink_delay) {
+        return false;
+    }
+    bool armed;
+    if (arming.arming_required() == AP_Arming::NO) {
+        // for logging purposes consider us armed if we either don't
+        // have a safety switch, or we have one and it is disarmed
+        armed = (hal.util->safety_switch_state() != AP_HAL::Util::SAFETY_DISARMED);
+    } else {
+        armed = arming.is_armed();
+    }
+    bool ret = armed || (g.log_bitmask & MASK_LOG_WHEN_DISARMED) != 0;
+    if (ret && !DataFlash.logging_started() && !in_log_download) {
+        // we have to set in_mavlink_delay to prevent logging while
+        // writing headers
+        in_mavlink_delay = true;
+        start_logging();
+        in_mavlink_delay = false;
+    }
+    return ret;
 }

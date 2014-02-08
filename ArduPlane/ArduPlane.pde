@@ -1,6 +1,6 @@
 /// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
-#define THISFIRMWARE "ArduPlane V2.76"
+#define THISFIRMWARE "ArduPlane V2.78b"
 /*
    Lead developer: Andrew Tridgell
  
@@ -74,6 +74,8 @@
 #include <AP_BattMonitor.h> // Battery monitor library
 
 #include <AP_Arming.h>
+#include <AP_BoardConfig.h>
+#include <AP_ServoRelayEvents.h>
 
 // Pre-AP_HAL compatibility
 #include "compat.h"
@@ -127,6 +129,9 @@ static AP_Scheduler scheduler;
 // mapping between input channels
 static RCMapper rcmap;
 
+// board specific config
+static AP_BoardConfig BoardConfig;
+
 // primary control channels
 static RC_Channel *channel_roll;
 static RC_Channel *channel_pitch;
@@ -155,7 +160,7 @@ static DataFlash_APM2 DataFlash;
 static DataFlash_File DataFlash("logs");
 //static DataFlash_SITL DataFlash;
 #elif CONFIG_HAL_BOARD == HAL_BOARD_PX4
-static DataFlash_File DataFlash("/fs/microsd/APM/logs");
+static DataFlash_File DataFlash("/fs/microsd/APM/LOGS");
 #elif CONFIG_HAL_BOARD == HAL_BOARD_LINUX
 static DataFlash_File DataFlash("logs");
 #else
@@ -163,6 +168,9 @@ static DataFlash_File DataFlash("logs");
 DataFlash_Empty DataFlash;
 #endif
 #endif
+
+// has a log download started?
+static bool in_log_download;
 
 // scaled roll limit based on pitch
 static int32_t roll_limit_cd;
@@ -317,6 +325,9 @@ static AP_RangeFinder_analog sonar;
 // Relay
 ////////////////////////////////////////////////////////////////////////////////
 static AP_Relay relay;
+
+// handle servo and relay events
+static AP_ServoRelayEvents ServoRelayEvents(relay);
 
 // Camera
 #if CAMERA == ENABLED
@@ -592,35 +603,6 @@ static struct {
 } loiter;
 
 
-// event control state
-enum event_type { 
-    EVENT_TYPE_RELAY=0,
-    EVENT_TYPE_SERVO=1
-};
-
-static struct {
-    enum event_type type;
-
-	// when the event was started in ms
-    uint32_t start_time_ms;
-
-	// how long to delay the next firing of event in millis
-    uint16_t delay_ms;
-
-	// how many times to cycle : -1 (or -2) = forever, 2 = do one cycle, 4 = do two cycles
-    int16_t repeat;
-
-    // RC channel for servos
-    uint8_t rc_channel;
-
-	// PWM for servos
-	uint16_t servo_value;
-
-	// the value used to cycle events (alternate value to event_value)
-    uint16_t undo_value;
-} event_state;
-
-
 ////////////////////////////////////////////////////////////////////////////////
 // Conditional command
 ////////////////////////////////////////////////////////////////////////////////
@@ -740,7 +722,7 @@ static const AP_Scheduler::Task scheduler_tasks[] PROGMEM = {
     { obc_fs_check,           5,   1000 },
     { gcs_update,             1,   1700 },
     { gcs_data_stream_send,   1,   3000 },
-    { update_events,		 15,   1500 }, // 20
+    { update_events,		  1,   1500 }, // 20
     { check_usb_mux,          5,    300 },
     { read_battery,           5,   1000 },
     { compass_accumulate,     1,   1500 },
@@ -825,10 +807,10 @@ static void ahrs_update()
 
     ahrs.update();
 
-    if (g.log_bitmask & MASK_LOG_ATTITUDE_FAST)
+    if (should_log(MASK_LOG_ATTITUDE_FAST))
         Log_Write_Attitude();
 
-    if (g.log_bitmask & MASK_LOG_IMU)
+    if (should_log(MASK_LOG_IMU))
         Log_Write_IMU();
 
     // calculate a scaled roll limit based on current pitch
@@ -876,7 +858,7 @@ static void update_compass(void)
     if (g.compass_enabled && compass.read()) {
         ahrs.set_compass(&compass);
         compass.null_offsets();
-        if (g.log_bitmask & MASK_LOG_COMPASS) {
+        if (should_log(MASK_LOG_COMPASS)) {
             Log_Write_Compass();
         }
     } else {
@@ -907,10 +889,10 @@ static void barometer_accumulate(void)
  */
 static void update_logging1(void)
 {
-    if ((g.log_bitmask & MASK_LOG_ATTITUDE_MED) && !(g.log_bitmask & MASK_LOG_ATTITUDE_FAST))
+    if (should_log(MASK_LOG_ATTITUDE_MED) && !should_log(MASK_LOG_ATTITUDE_FAST))
         Log_Write_Attitude();
 
-    if ((g.log_bitmask & MASK_LOG_ATTITUDE_MED) && !(g.log_bitmask & MASK_LOG_IMU))
+    if (should_log(MASK_LOG_ATTITUDE_MED) && !should_log(MASK_LOG_IMU))
         Log_Write_IMU();
 }
 
@@ -919,13 +901,13 @@ static void update_logging1(void)
  */
 static void update_logging2(void)
 {
-    if (g.log_bitmask & MASK_LOG_CTUN)
+    if (should_log(MASK_LOG_CTUN))
         Log_Write_Control_Tuning();
     
-    if (g.log_bitmask & MASK_LOG_NTUN)
+    if (should_log(MASK_LOG_NTUN))
         Log_Write_Nav_Tuning();
 
-    if (g.log_bitmask & MASK_LOG_RC)
+    if (should_log(MASK_LOG_RC))
         Log_Write_RC();
 }
 
@@ -949,14 +931,7 @@ static void obc_fs_check(void)
  */
 static void update_aux(void)
 {
-#if CONFIG_HAL_BOARD == HAL_BOARD_PX4
-        update_aux_servo_function(&g.rc_5, &g.rc_6, &g.rc_7, &g.rc_8, &g.rc_9, &g.rc_10, &g.rc_11, &g.rc_12);
-#elif CONFIG_HAL_BOARD == HAL_BOARD_APM2
-        update_aux_servo_function(&g.rc_5, &g.rc_6, &g.rc_7, &g.rc_8, &g.rc_10, &g.rc_11);
-#else
-        update_aux_servo_function(&g.rc_5, &g.rc_6, &g.rc_7, &g.rc_8);
-#endif
-        enable_aux_servos();
+    RC_Channel_aux::enable_aux_servos();
 
 #if MOUNT == ENABLED
         camera_mount.update_mount_type();
@@ -968,7 +943,7 @@ static void update_aux(void)
 
 static void one_second_loop()
 {
-    if (g.log_bitmask & MASK_LOG_CURRENT)
+    if (should_log(MASK_LOG_CURRENT))
         Log_Write_Current();
 
     // send a heartbeat
@@ -984,6 +959,10 @@ static void one_second_loop()
     mavlink_system.sysid = g.sysid_this_mav;
 
     update_aux();
+
+    // update notify flags
+    AP_Notify::flags.pre_arm_check = arming.pre_arm_checks(false);
+    AP_Notify::flags.armed = arming.is_armed() || arming.arming_required() == AP_Arming::NO;
 }
 
 static void log_perf_info()
@@ -991,7 +970,7 @@ static void log_perf_info()
     if (scheduler.debug() != 0) {
         hal.console->printf_P(PSTR("G_Dt_max=%lu\n"), (unsigned long)G_Dt_max);
     }
-    if (g.log_bitmask & MASK_LOG_PM)
+    if (should_log(MASK_LOG_PM))
         Log_Write_Performance();
     G_Dt_max = 0;
     resetPerfData();
@@ -1011,9 +990,16 @@ static void airspeed_ratio_update(void)
 {
     if (!airspeed.enabled() ||
         g_gps->status() < GPS::GPS_OK_FIX_3D ||
-        g_gps->ground_speed_cm < 400 ||
-        airspeed.get_airspeed() < aparm.airspeed_min) {
+        g_gps->ground_speed_cm < 400) {
         // don't calibrate when not moving
+        return;        
+    }
+    if (airspeed.get_airspeed() < aparm.airspeed_min && 
+        g_gps->ground_speed_cm < (uint32_t)aparm.airspeed_min*100) {
+        // don't calibrate when flying below the minimum airspeed. We
+        // check both airspeed and ground speed to catch cases where
+        // the airspeed ratio is way too low, which could lead to it
+        // never coming up again
         return;
     }
     if (abs(ahrs.roll_sensor) > roll_limit_cd ||
@@ -1037,7 +1023,7 @@ static void update_GPS_50Hz(void)
     g_gps->update();
     if (g_gps->last_message_time_ms() != last_gps_reading) {
         last_gps_reading = g_gps->last_message_time_ms();
-        if (g.log_bitmask & MASK_LOG_GPS) {
+        if (should_log(MASK_LOG_GPS)) {
             Log_Write_GPS();
         }
     }
@@ -1402,7 +1388,7 @@ static void update_alt()
                                                  takeoff_pitch_cd,
                                                  throttle_nudge,
                                                  relative_altitude());
-        if (g.log_bitmask & MASK_LOG_TECS) {
+        if (should_log(MASK_LOG_TECS)) {
             Log_Write_TECS_Tuning();
         }
     }

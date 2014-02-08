@@ -23,7 +23,7 @@ const AP_Param::GroupInfo AP_Arming::var_info[] PROGMEM = {
     // @Param: REQUIRE
     // @DisplayName: Require Arming Motors 
     // @Description: Arming disabled until some requirements are met. If 0, there are no requirements (arm immediately).  If 1, require rudder stick or GCS arming before arming motors and send THR_MIN PWM to throttle channel when disarmed.  If 2, require rudder stick or GCS arming and send 0 PWM to throttle channel when disarmed. See the ARMING_CHECK_* parameters to see what checks are done before arming. Note, if setting this parameter to 0 a reboot is required to arm the plane.  Also note, even with this parameter at 0, if ARMING_CHECK parameter is not also zero the plane may fail to arm throttle at boot due to a pre-arm check failure.
-    // @Values: 0:Disabled,1: THR_MIN PWM when disarmed,2: 0 PWM when disarmed 
+    // @Values: 0:Disabled,1:THR_MIN PWM when disarmed,2:0 PWM when disarmed
     // @User: Advanced
     AP_GROUPINFO("REQUIRE",     0,      AP_Arming,  require,                 0),
 
@@ -36,8 +36,8 @@ const AP_Param::GroupInfo AP_Arming::var_info[] PROGMEM = {
     
     // @Param: CHECK
     // @DisplayName: Arm Checks to Peform (bitmask)
-    // @Description: Checks prior to arming motor. 
-    // @Values: 0: None, 1: All, 2: Barometer, 4: Compass, 8: GPS, 16: INS, 32: Parameters, 64: Manual RC Trasmitter, 128: Board voltage, 256: Battery Level 
+    // @Description: Checks prior to arming motor. This is a bitmask of checks that will be performed befor allowing arming. The default is no checks, allowing arming at any time. You can select whatever checks you prefer by adding together the values of each check type to set this parameter. For example, to only allow arming when you have GPS lock and manual RC control you would set ARMING_CHECK to 72.
+    // @Values: 0:None,1:All,2:Barometer,4:Compass,8:GPS,16:INS,32:Parameters,64:Manual RC Trasmitter,128:Board voltage,256:Battery Level 
     // @User: Advanced
     AP_GROUPINFO("CHECK",        2,     AP_Arming,  checks_to_perform,       0),
 
@@ -72,12 +72,14 @@ void AP_Arming::set_enabled_checks(uint16_t ap) {
     checks_to_perform = ap;
 }
 
-bool AP_Arming::barometer_checks() 
+bool AP_Arming::barometer_checks(bool report) 
 {
     if ((checks_to_perform & ARMING_CHECK_ALL) ||
         (checks_to_perform & ARMING_CHECK_BARO)) {
         if (! barometer.healthy) {
-            gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Baro not healthy!"));
+            if (report) {
+                gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Baro not healthy!"));
+            }
             return false;
         }
     }
@@ -85,7 +87,7 @@ bool AP_Arming::barometer_checks()
     return true;
 }
 
-bool AP_Arming::compass_checks() 
+bool AP_Arming::compass_checks(bool report) 
 {
     if ((checks_to_perform) & ARMING_CHECK_ALL ||
         (checks_to_perform) & ARMING_CHECK_COMPASS) {
@@ -94,7 +96,9 @@ bool AP_Arming::compass_checks()
         //if there is no compass and the user has specifically asked to check
         //the compass, then there is a problem
         if (compass == NULL && (checks_to_perform & ARMING_CHECK_COMPASS)) {
-            gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: No compass detected."));
+            if (report) {
+                gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: No compass detected."));
+            }
             return false;
         } else if (compass == NULL) {
             //if the user's not asking to check and there isn't a compass
@@ -103,13 +107,17 @@ bool AP_Arming::compass_checks()
         }
 
         if (! compass->healthy()) {
-            gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Compass not healthy!"));
+            if (report) {
+                gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Compass not healthy!"));
+            }
             return false;
         }
         // check compass learning is on or offsets have been set
         Vector3f offsets = compass->get_offsets();
         if(!compass->_learn && offsets.length() == 0) {
-            gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Compass not calibrated"));
+            if (report) {
+                gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Compass not calibrated"));
+            }
             return false;
         }
         
@@ -118,7 +126,7 @@ bool AP_Arming::compass_checks()
     return true;
 }
 
-bool AP_Arming::gps_checks() 
+bool AP_Arming::gps_checks(bool report) 
 {
     if ((checks_to_perform & ARMING_CHECK_ALL) ||
         (checks_to_perform & ARMING_CHECK_GPS)) {
@@ -127,7 +135,9 @@ bool AP_Arming::gps_checks()
         //If no GPS and the user has specifically asked to check GPS, then
         //there is a problem
         if (gps == NULL && (checks_to_perform & ARMING_CHECK_GPS)) {
-            gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: No GPS detected."));
+            if (report) {
+                gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: No GPS detected."));
+            }
             return false;
         } else if (gps == NULL) {
             //assume the user doesn't have a GPS on purpose
@@ -138,7 +148,9 @@ bool AP_Arming::gps_checks()
         if (!home_is_set || gps->status() != GPS::GPS_OK_FIX_3D ||              
             AP_Notify::flags.gps_glitching ||
             AP_Notify::flags.failsafe_gps) {
-            gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Bad GPS Pos"));
+            if (report) {
+                gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Bad GPS Pos"));
+            }
             return false;
         }      
     }
@@ -146,13 +158,15 @@ bool AP_Arming::gps_checks()
     return true;
 }
 
-bool AP_Arming::battery_checks() 
+bool AP_Arming::battery_checks(bool report) 
 {
     if ((checks_to_perform & ARMING_CHECK_ALL) ||
         (checks_to_perform & ARMING_CHECK_BATTERY)) {
 
         if (AP_Notify::flags.failsafe_battery) {
-            gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Battery failsafe on."));
+            if (report) {
+                gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Battery failsafe on."));
+            }
             return false;
         }
     }
@@ -160,24 +174,28 @@ bool AP_Arming::battery_checks()
     return true;
 }
 
-bool AP_Arming::hardware_safety_check() 
+bool AP_Arming::hardware_safety_check(bool report) 
 {
     // check if safety switch has been pushed
     if (hal.util->safety_switch_state() == AP_HAL::Util::SAFETY_DISARMED) {
-        gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Hardware Safety Switch"));
+        if (report) {
+            gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Hardware Safety Switch"));
+        }
         return false;
     }
 
     return true;
 }
 
-bool AP_Arming::manual_transmitter_checks() 
+bool AP_Arming::manual_transmitter_checks(bool report) 
 {
     if ((checks_to_perform & ARMING_CHECK_ALL) ||
         (checks_to_perform & ARMING_CHECK_RC)) {
 
         if (AP_Notify::flags.failsafe_radio) {
-            gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Radio failsafe on."));
+            if (report) {
+                gcs_send_text_P(SEVERITY_HIGH,PSTR("PreArm: Radio failsafe on."));
+            }
             return false;
         }
 
@@ -189,24 +207,30 @@ bool AP_Arming::manual_transmitter_checks()
     return true;
 }
 
-bool AP_Arming::pre_arm_checks() 
+bool AP_Arming::pre_arm_checks(bool report) 
 {
-    if (! hardware_safety_check())
+    if (armed || require == NONE) {
+        // if we are already armed or don't need any arming checks
+        // then skip the checks
+        return true;
+    }
+
+    if (! hardware_safety_check(report))
         return false;
 
-    if (! barometer_checks())
+    if (! barometer_checks(report))
         return false;
 
-    if (! compass_checks())
+    if (! compass_checks(report))
         return false;
 
-    if (! gps_checks())
+    if (! gps_checks(report))
         return false;
 
-    if (! battery_checks())
+    if (! battery_checks(report))
         return false;
 
-    if (! manual_transmitter_checks())
+    if (! manual_transmitter_checks(report))
         return false;
 
     //all checks passed, allow arming!
@@ -228,7 +252,7 @@ bool AP_Arming::arm(uint8_t method)
         return true;
     }
 
-    if (pre_arm_checks()) {
+    if (pre_arm_checks(true)) {
         armed = true;
         arming_method = method;
 

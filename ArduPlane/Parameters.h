@@ -55,7 +55,7 @@ public:
         // Misc
         //
         k_param_auto_trim      = 10,
-        k_param_log_bitmask,
+        k_param_log_bitmask_old,  // unused
         k_param_pitch_trim_cd,
         k_param_mix_mode,
         k_param_reverse_elevons,
@@ -99,6 +99,11 @@ public:
         k_param_rally_limit_km,
         k_param_hil_err_limit,
         k_param_sonar,
+        k_param_log_bitmask,
+        k_param_BoardConfig,
+        k_param_rssi_range,
+        k_param_flapin_channel,
+        k_param_flaperon_output,
 
         // 100: Arming parameters
         k_param_arming = 100,
@@ -388,7 +393,7 @@ public:
     AP_Int8 reverse_ch1_elevon;
     AP_Int8 reverse_ch2_elevon;
     AP_Int16 num_resets;
-    AP_Int16 log_bitmask;
+    AP_Int32 log_bitmask;
     AP_Int8 reset_switch_chan;
     AP_Int8 reset_mission_chan;
     AP_Int32 airspeed_cruise_cm;
@@ -409,12 +414,15 @@ public:
     AP_Int8 flap_2_percent;
     AP_Int8 flap_2_speed;
     AP_Int8 rssi_pin;
+    AP_Float rssi_range;             // allows to set max voltage for rssi pin such as 5.0, 3.3 etc.     
     AP_Int8 inverted_flight_ch;             // 0=disabled, 1-8 is channel for inverted flight trigger
     AP_Int8 stick_mixing;
     AP_Float takeoff_throttle_min_speed;
     AP_Float takeoff_throttle_min_accel;
     AP_Int8 takeoff_throttle_delay;
     AP_Int8 level_roll_limit;
+    AP_Int8 flapin_channel;
+    AP_Int8 flaperon_output;
 
     // RC channels
     RC_Channel rc_1;
