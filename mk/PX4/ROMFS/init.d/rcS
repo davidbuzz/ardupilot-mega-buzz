@@ -28,10 +28,13 @@ set USB autoconnect
 if rgbled start
 then
         set HAVE_RGBLED 1
+        # px4/pixhawk units with a LED typically have a beeper too. 
+        set HAVE_BEEPER 1
         # show startup white
         rgbled rgb 16 16 16
 else
         set HAVE_RGBLED 0
+        set HAVE_BEEPER 0
 fi
 
 #
@@ -43,12 +46,18 @@ then
 	echo "[init] card mounted at /fs/microsd"
         set HAVE_MICROSD 1
 	# Start playing the startup tune
-	tone_alarm start
+	if [ $HAVE_BEEPER == 1 ]
+	then
+	   tone_alarm start
+	fi
 else
 	echo "[init] no microSD card found"
         set HAVE_MICROSD 0
-	# Play SOS
-	tone_alarm 2
+    	# Play SOS
+    	if [ $HAVE_BEEPER == 1 ]
+    	then
+    	   tone_alarm 2
+    	fi
         if [ $HAVE_RGBLED == 1 ]
         then
                 rgbled rgb 16 0 0
@@ -56,21 +65,26 @@ else
 fi
 
 #
-# Look for an init script on the microSD card.
+# Look for an init script on the microSD card, if we have one.
 #
 # To prevent automatic startup in the current flight mode,
 # the script should set MODE to some other value.
 #
-if [ -f /fs/microsd/etc/rc ]
+if [ $HAVE_MICROSD == 1 ]
 then
-	echo "[init] reading /fs/microsd/etc/rc"
-	sh /fs/microsd/etc/rc
-fi
-# Also consider rc.txt files
-if [ -f /fs/microsd/etc/rc.txt ]
-then
-	echo "[init] reading /fs/microsd/etc/rc.txt"
-	sh /fs/microsd/etc/rc.txt
+    if [ -f /fs/microsd/etc/rc ]
+    then
+    	echo "[init] reading /fs/microsd/etc/rc"
+    	sh /fs/microsd/etc/rc
+    fi
+    # Also consider rc.txt files
+    if [ -f /fs/microsd/etc/rc.txt ]
+    then
+    	echo "[init] reading /fs/microsd/etc/rc.txt"
+    	sh /fs/microsd/etc/rc.txt
+    fi
+else
+    echo "[init] skipped reading init files on SD as no SD was found"
 fi
 
 #
@@ -98,3 +112,15 @@ then
 else
         nshterm /dev/ttyACM0 &
 fi
+
+
+if [ -f /etc/init.d/rc.Q ] 
+then
+	echo "Running rc.Q for Quanton board…"
+	# if APM startup is successful then nsh will exit
+	sh /etc/init.d/rc.Q
+else
+        nshterm /dev/ttyACM0 &
+fi
+
+
