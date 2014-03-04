@@ -21,48 +21,48 @@ set MODE autostart
 set USB autoconnect
 
 #
-
+#sleep 1
 #
 
 
-if rgbled start
-then
-        set HAVE_RGBLED 1
+#if rgbled start
+#then
+#        set HAVE_RGBLED 1
         # px4/pixhawk units with a LED typically have a beeper too. 
-        set HAVE_BEEPER 1
+#        set HAVE_BEEPER 1
         # show startup white
-        rgbled rgb 16 16 16
-else
-        set HAVE_RGBLED 0
-        set HAVE_BEEPER 0
-fi
+#        rgbled rgb 16 16 16
+#else
+#        set HAVE_RGBLED 0
+#        set HAVE_BEEPER 0
+#fi
 
 #
 # Try to mount the microSD card.
 #
 echo "[init] looking for microSD..."
-if mount -t vfat /dev/mmcsd0 /fs/microsd
-then
-	echo "[init] card mounted at /fs/microsd"
-        set HAVE_MICROSD 1
-	# Start playing the startup tune
-	if [ $HAVE_BEEPER == 1 ]
-	then
-	   tone_alarm start
-	fi
-else
+#if mount -t vfat /dev/mmcsd0 /fs/microsd
+#then
+#	echo "[init] card mounted at /fs/microsd"
+##        set HAVE_MICROSD 1
+#	# Start playing the startup tune
+#	if [ $HAVE_BEEPER == 1 ]
+#	then
+#	   tone_alarm start
+#	fi
+#else
 	echo "[init] no microSD card found"
-        set HAVE_MICROSD 0
-    	# Play SOS
-    	if [ $HAVE_BEEPER == 1 ]
-    	then
-    	   tone_alarm 2
-    	fi
-        if [ $HAVE_RGBLED == 1 ]
-        then
-                rgbled rgb 16 0 0
-        fi
-fi
+#        set HAVE_MICROSD 0
+#    	# Play SOS
+#    	if [ $HAVE_BEEPER == 1 ]
+#    	then
+#    	   tone_alarm 2
+#    	fi
+#        if [ $HAVE_RGBLED == 1 ]
+#        then
+#                rgbled rgb 16 0 0
+#        fi
+#fi
 
 #
 # Look for an init script on the microSD card, if we have one.
@@ -104,14 +104,14 @@ fi
 
 # if this is an APM build then there will be a rc.APM script
 # from an EXTERNAL_SCRIPTS build option
-if [ -f /etc/init.d/rc.APM -a $HAVE_MICROSD == 1 -a ! -f /fs/microsd/APM/nostart ]
-then
-	echo Running rc.APM
-	# if APM startup is successful then nsh will exit
-	sh /etc/init.d/rc.APM
-else
-        nshterm /dev/ttyACM0 &
-fi
+#if [ -f /etc/init.d/rc.APM -a $HAVE_MICROSD == 1 -a ! -f /fs/microsd/APM/nostart ]
+#then
+#	echo Running rc.APM
+#	# if APM startup is successful then nsh will exit
+#	sh /etc/init.d/rc.APM
+#else
+#       nshterm /dev/ttyACM0 &
+#fi
 
 
 if [ -f /etc/init.d/rc.Q ] 
@@ -119,8 +119,8 @@ then
 	echo "Running rc.Q for Quanton board…"
 	# if APM startup is successful then nsh will exit
 	sh /etc/init.d/rc.Q
-else
-        nshterm /dev/ttyACM0 &
+#else
+#        nshterm /dev/ttyACM0 &
 fi
 
 

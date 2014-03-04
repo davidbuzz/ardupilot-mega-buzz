@@ -5,7 +5,7 @@ if [ $HAVE_BEEPER == 1 ]
 then
     tone_alarm MNCC
 else
-    print "error beep! MNCC"    
+    echo "error beep! MNCC"    
 fi
     	
 if [ $HAVE_RGBLED == 1 ]
