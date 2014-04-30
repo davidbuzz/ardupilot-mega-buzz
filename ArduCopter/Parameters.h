@@ -73,6 +73,12 @@ public:
         // BoardConfig object
         k_param_BoardConfig,
 
+        // GPS object
+        k_param_gps,
+
+        // Parachute object
+        k_param_parachute,	// 17
+
         // Misc
         //
         k_param_log_bitmask = 20,
@@ -86,7 +92,7 @@ public:
         k_param_wp_yaw_behavior,
         k_param_acro_trainer,
         k_param_pilot_velocity_z_max,
-        k_param_circle_rate,
+        k_param_circle_rate,                // deprecated - remove
         k_param_sonar_gain,
         k_param_ch8_option,
         k_param_arming_check,
@@ -95,8 +101,17 @@ public:
         k_param_gps_hdop_good,
         k_param_battery,
         k_param_fs_batt_mah,
-        k_param_angle_rate_max,
-        k_param_rssi_range,             // 39
+        k_param_angle_rate_max,         // remove
+        k_param_rssi_range,
+        k_param_rc_feel_rp,
+        k_param_NavEKF,                 // Extended Kalman Filter Inertial Navigation Group
+        k_param_mission,                // mission library
+        k_param_rc_13,
+        k_param_rc_14,
+        k_param_rally,
+        k_param_hybrid_brake_rate,
+        k_param_hybrid_brake_angle_max,
+        k_param_pilot_accel_z,          // 48
 
         // 65: AP_Limits Library
         k_param_limits = 65,            // deprecated - remove
@@ -121,9 +136,9 @@ public:
         k_param_heli_servo_2,
         k_param_heli_servo_3,
         k_param_heli_servo_4,
-        k_param_heli_pitch_ff,
-        k_param_heli_roll_ff,
-        k_param_heli_yaw_ff,
+        k_param_heli_pitch_ff,      // remove
+        k_param_heli_roll_ff,       // remove
+        k_param_heli_yaw_ff,        // remove
         k_param_heli_stab_col_min,
         k_param_heli_stab_col_max,  // 88
 
@@ -136,7 +151,10 @@ public:
         // 100: Inertial Nav
         //
         k_param_inertial_nav = 100,
-        k_param_wp_nav = 101,
+        k_param_wp_nav,
+        k_param_attitude_control,
+        k_param_pos_control,
+        k_param_circle_nav,     // 104
 
         // 110: Telemetry control
         //
@@ -242,11 +260,11 @@ public:
         // 210: Waypoint data
         //
         k_param_waypoint_mode = 210, // remove
-        k_param_command_total,
-        k_param_command_index,
+        k_param_command_total,       // remove
+        k_param_command_index,       // remove
         k_param_command_nav_index,   // remove
         k_param_waypoint_radius,     // remove
-        k_param_circle_radius,
+        k_param_circle_radius,       // remove
         k_param_waypoint_speed_max,  // remove
         k_param_land_speed,
         k_param_auto_velocity_z_min, // remove
@@ -260,17 +278,17 @@ public:
         k_param_pid_rate_roll,
         k_param_pid_rate_pitch,
         k_param_pid_rate_yaw,
-        k_param_pi_stabilize_roll,
-        k_param_pi_stabilize_pitch,
-        k_param_pi_stabilize_yaw,
-        k_param_pi_loiter_lat,
-        k_param_pi_loiter_lon,
+        k_param_p_stabilize_roll,
+        k_param_p_stabilize_pitch,
+        k_param_p_stabilize_yaw,
+        k_param_p_loiter_pos,
+        k_param_p_loiter_lon,       // remove
         k_param_pid_loiter_rate_lat,
         k_param_pid_loiter_rate_lon,
         k_param_pid_nav_lat,        // 233 - remove
         k_param_pid_nav_lon,        // 234 - remove
-        k_param_pi_alt_hold,
-        k_param_pid_throttle_rate,
+        k_param_p_alt_hold,
+        k_param_p_throttle_rate,
         k_param_pid_optflow_roll,
         k_param_pid_optflow_pitch,
         k_param_acro_balance_roll_old,  // 239 - remove
@@ -319,19 +337,17 @@ public:
     AP_Int8         rssi_pin;
     AP_Float        rssi_range;                 // allows to set max voltage for rssi pin such as 5.0, 3.3 etc. 
     AP_Int8         wp_yaw_behavior;            // controls how the autopilot controls yaw during missions
-    AP_Int16        angle_max;                  // maximum lean angle of the copter in centi-degrees
-    AP_Int32        angle_rate_max;             // maximum rotation rate in roll/pitch axis requested by angle controller used in stabilize, loiter, rtl, auto flight modes
+    AP_Int8         rc_feel_rp;                 // controls vehicle response to user input with 0 being extremely soft and 100 begin extremely crisp
+
+    AP_Int16        hybrid_brake_rate;          // hybrid flight mode's rotation rate during braking in deg/sec
+    AP_Int16        hybrid_brake_angle_max;     // hybrid flight mode's max lean angle during braking in centi-degrees
     
     // Waypoints
     //
-    AP_Int8         command_total;
-    AP_Int8         command_index;
-    AP_Int16        circle_radius;
-    AP_Float        circle_rate;                // Circle mode's turn rate in deg/s.  positive to rotate clockwise, negative for counter clockwise
     AP_Int32        rtl_loiter_time;
     AP_Int16        land_speed;
     AP_Int16        pilot_velocity_z_max;        // maximum vertical velocity the pilot may request
-
+    AP_Int16        pilot_accel_z;               // vertical acceleration the pilot may request
 
     // Throttle
     //
@@ -367,9 +383,6 @@ public:
 #if FRAME_CONFIG ==     HELI_FRAME
     // Heli
     RC_Channel      heli_servo_1, heli_servo_2, heli_servo_3, heli_servo_4;     // servos for swash plate and tail
-    AP_Float        heli_pitch_ff;												// pitch rate feed-forward
-    AP_Float        heli_roll_ff;												// roll rate feed-forward
-    AP_Float        heli_yaw_ff;												// yaw rate feed-forward
     AP_Int16        heli_stab_col_min;                                          // min collective while pilot directly controls collective in stabilize mode
     AP_Int16        heli_stab_col_max;                                          // min collective while pilot directly controls collective in stabilize mode
 #endif
@@ -392,13 +405,15 @@ public:
     RC_Channel_aux          rc_6;
     RC_Channel_aux          rc_7;
     RC_Channel_aux          rc_8;
-#if CONFIG_HAL_BOARD == HAL_BOARD_PX4
+#if CONFIG_HAL_BOARD == HAL_BOARD_PX4 || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
     RC_Channel_aux          rc_9;
 #endif
     RC_Channel_aux          rc_10;
     RC_Channel_aux          rc_11;
-#if CONFIG_HAL_BOARD == HAL_BOARD_PX4
+#if CONFIG_HAL_BOARD == HAL_BOARD_PX4 || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
     RC_Channel_aux          rc_12;
+    RC_Channel_aux          rc_13;
+    RC_Channel_aux          rc_14;
 #endif
 
     AP_Int16                rc_speed; // speed of fast RC Channels in Hz
@@ -417,17 +432,16 @@ public:
     AC_PID                  pid_loiter_rate_lat;
     AC_PID                  pid_loiter_rate_lon;
 
-    AC_PID                  pid_throttle_rate;
+    AC_P                    p_throttle_rate;
     AC_PID                  pid_throttle_accel;
     AC_PID                  pid_optflow_roll;
     AC_PID                  pid_optflow_pitch;
 
-    APM_PI                  pi_loiter_lat;
-    APM_PI                  pi_loiter_lon;
-    APM_PI                  pi_stabilize_roll;
-    APM_PI                  pi_stabilize_pitch;
-    APM_PI                  pi_stabilize_yaw;
-    APM_PI                  pi_alt_hold;
+    AC_P                    p_loiter_pos;
+    AC_P                    p_stabilize_roll;
+    AC_P                    p_stabilize_pitch;
+    AC_P                    p_stabilize_yaw;
+    AC_P                    p_alt_hold;
 
     // Note: keep initializers here in the same order as they are declared
     // above.
@@ -459,18 +473,19 @@ public:
         rc_6                (CH_6),
         rc_7                (CH_7),
         rc_8                (CH_8),
-#if CONFIG_HAL_BOARD == HAL_BOARD_PX4
+#if CONFIG_HAL_BOARD == HAL_BOARD_PX4 || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
         rc_9                (CH_9),
 #endif
         rc_10               (CH_10),
         rc_11               (CH_11),
-#if CONFIG_HAL_BOARD == HAL_BOARD_PX4
+#if CONFIG_HAL_BOARD == HAL_BOARD_PX4 || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
         rc_12               (CH_12),
+        rc_13               (CH_13),
+        rc_14               (CH_14),
 #endif
 
-        // PID controller	initial P	        initial I		    initial D
-        //          initial imax
-        //-----------------------------------------------------------------------------------------------------
+        // PID controller	    initial P	            initial I		        initial D               initial imax
+        //----------------------------------------------------------------------------------------------------------
         pid_rate_roll           (RATE_ROLL_P,           RATE_ROLL_I,            RATE_ROLL_D,            RATE_ROLL_IMAX),
         pid_rate_pitch          (RATE_PITCH_P,          RATE_PITCH_I,           RATE_PITCH_D,           RATE_PITCH_IMAX),
         pid_rate_yaw            (RATE_YAW_P,            RATE_YAW_I,             RATE_YAW_D,             RATE_YAW_IMAX),
@@ -478,22 +493,20 @@ public:
         pid_loiter_rate_lat     (LOITER_RATE_P,         LOITER_RATE_I,          LOITER_RATE_D,          LOITER_RATE_IMAX),
         pid_loiter_rate_lon     (LOITER_RATE_P,         LOITER_RATE_I,          LOITER_RATE_D,          LOITER_RATE_IMAX),
 
-        pid_throttle_rate       (THROTTLE_RATE_P,       THROTTLE_RATE_I,        THROTTLE_RATE_D,        THROTTLE_RATE_IMAX),
+        p_throttle_rate         (THROTTLE_RATE_P),
         pid_throttle_accel      (THROTTLE_ACCEL_P,      THROTTLE_ACCEL_I,       THROTTLE_ACCEL_D,       THROTTLE_ACCEL_IMAX),
         pid_optflow_roll        (OPTFLOW_ROLL_P,        OPTFLOW_ROLL_I,         OPTFLOW_ROLL_D,         OPTFLOW_IMAX),
         pid_optflow_pitch       (OPTFLOW_PITCH_P,       OPTFLOW_PITCH_I,        OPTFLOW_PITCH_D,        OPTFLOW_IMAX),
 
-        // PI controller	initial P			initial I			initial
-        // imax
+        // P controller	        initial P
         //----------------------------------------------------------------------
-        pi_loiter_lat           (LOITER_P,              LOITER_I,               LOITER_IMAX),
-        pi_loiter_lon           (LOITER_P,              LOITER_I,               LOITER_IMAX),
+        p_loiter_pos            (LOITER_POS_P),
 
-        pi_stabilize_roll       (STABILIZE_ROLL_P,      STABILIZE_ROLL_I,       STABILIZE_ROLL_IMAX),
-        pi_stabilize_pitch      (STABILIZE_PITCH_P,     STABILIZE_PITCH_I,      STABILIZE_PITCH_IMAX),
-        pi_stabilize_yaw        (STABILIZE_YAW_P,       STABILIZE_YAW_I,        STABILIZE_YAW_IMAX),
+        p_stabilize_roll        (STABILIZE_ROLL_P),
+        p_stabilize_pitch       (STABILIZE_PITCH_P),
+        p_stabilize_yaw         (STABILIZE_YAW_P),
 
-        pi_alt_hold             (ALT_HOLD_P,            ALT_HOLD_I,             ALT_HOLD_IMAX)
+        p_alt_hold              (ALT_HOLD_P)
     {
     }
 };

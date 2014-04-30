@@ -12,19 +12,19 @@ const AP_Param::GroupInfo RC_Channel_aux::var_info[] PROGMEM = {
     // @Param: FUNCTION
     // @DisplayName: Servo out function
     // @Description: Setting this to Disabled(0) will setup this output for control by auto missions or MAVLink servo set commands. any other value will enable the corresponding function
-    // @Values: 0:Disabled,1:RCPassThru,2:Flap,3:Flap_auto,4:Aileron,6:mount_pan,7:mount_tilt,8:mount_roll,9:mount_open,10:camera_trigger,11:release,12:mount2_pan,13:mount2_tilt,14:mount2_roll,15:mount2_open,16:DifferentialSpoiler1,17:DifferentialSpoiler2,18:AileronWithInput,19:Elevator,20:ElevatorWithInput,21:Rudder,24:Flaperon1,25:Flaperon2
+    // @Values: 0:Disabled,1:RCPassThru,2:Flap,3:Flap_auto,4:Aileron,6:mount_pan,7:mount_tilt,8:mount_roll,9:mount_open,10:camera_trigger,11:release,12:mount2_pan,13:mount2_tilt,14:mount2_roll,15:mount2_open,16:DifferentialSpoiler1,17:DifferentialSpoiler2,18:AileronWithInput,19:Elevator,20:ElevatorWithInput,21:Rudder,24:Flaperon1,25:Flaperon2,26:GroundSteering,27:Parachute
     // @User: Standard
     AP_GROUPINFO("FUNCTION",       1, RC_Channel_aux, function, 0),
 
     AP_GROUPEND
 };
 
-RC_Channel_aux *RC_Channel_aux::_aux_channels[8];
+RC_Channel_aux *RC_Channel_aux::_aux_channels[RC_AUX_MAX_CHANNELS];
 uint32_t RC_Channel_aux::_function_mask;
 
 /// map a function to a servo channel and output it
 void
-RC_Channel_aux::output_ch(unsigned char ch_nr)
+RC_Channel_aux::output_ch(void)
 {
     // take care of two corner cases
     switch(function)
@@ -35,7 +35,20 @@ RC_Channel_aux::output_ch(unsigned char ch_nr)
         radio_out = radio_in;
         break;
     }
-    hal.rcout->write(ch_nr, radio_out);
+    hal.rcout->write(_ch_out, radio_out);
+}
+
+/*
+  call output_ch() on all auxillary channels
+ */
+void
+RC_Channel_aux::output_ch_all(void)
+{
+    for (uint8_t i = 0; i < RC_AUX_MAX_CHANNELS; i++) {
+        if (_aux_channels[i]) {
+            _aux_channels[i]->output_ch();
+        }
+    }    
 }
 
 /*
@@ -80,6 +93,7 @@ void RC_Channel_aux::update_aux_servo_function(void)
 		case RC_Channel_aux::k_dspoiler1:
 		case RC_Channel_aux::k_dspoiler2:
 		case RC_Channel_aux::k_rudder:
+		case RC_Channel_aux::k_steering:
 		    _aux_channels[i]->set_angle(4500);
 			break;
 		default:
@@ -104,7 +118,9 @@ void RC_Channel_aux::enable_aux_servos()
 {
     update_aux_servo_function();
 
-    // enable all channels that are not set to k_none or k_nr_aux_servo_functions
+    // enable all channels that are not set to a valid function. This
+    // includes k_none servos, which allows those to get their initial
+    // trim value on startup
     for (uint8_t i = 0; i < RC_AUX_MAX_CHANNELS; i++) {
         if (_aux_channels[i]) {
 			RC_Channel_aux::Aux_servo_function_t function = (RC_Channel_aux::Aux_servo_function_t)_aux_channels[i]->function.get();
@@ -241,6 +257,42 @@ RC_Channel_aux::set_servo_out(RC_Channel_aux::Aux_servo_function_t function, int
 			_aux_channels[i]->calc_pwm();
             _aux_channels[i]->output();
 		}
+    }
+}
+
+/*
+  setup failsafe value for an auxiliary function type to a LimitValue
+ */
+void
+RC_Channel_aux::set_servo_failsafe(RC_Channel_aux::Aux_servo_function_t function, RC_Channel::LimitValue limit)
+{
+    if (!function_assigned(function)) {
+        return;
+    }
+    for (uint8_t i = 0; i < RC_AUX_MAX_CHANNELS; i++) {
+        const RC_Channel_aux *ch = _aux_channels[i];
+        if (ch && ch->function.get() == function) {
+            uint16_t pwm = ch->get_limit_pwm(limit);
+            hal.rcout->set_failsafe_pwm(1U<<ch->get_ch_out(), pwm);
+        }
+    }
+}
+
+/*
+  set radio output value for an auxiliary function type to a LimitValue
+ */
+void
+RC_Channel_aux::set_servo_limit(RC_Channel_aux::Aux_servo_function_t function, RC_Channel::LimitValue limit)
+{
+    if (!function_assigned(function)) {
+        return;
+    }
+    for (uint8_t i = 0; i < RC_AUX_MAX_CHANNELS; i++) {
+        RC_Channel_aux *ch = _aux_channels[i];
+        if (ch && ch->function.get() == function) {
+            uint16_t pwm = ch->get_limit_pwm(limit);
+            ch->radio_out = pwm;
+        }
     }
 }
 

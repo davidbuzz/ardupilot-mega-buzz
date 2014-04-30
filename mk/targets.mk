@@ -20,9 +20,8 @@ apm2: all
 flymaple: HAL_BOARD = HAL_BOARD_FLYMAPLE
 flymaple: TOOLCHAIN = ARM
 flymaple: all
-
-quanton: HAL_BOARD = HAL_BOARD_Quanton
-quanton: TOOLCHAIN = NATIVE
+flymaple-hil: EXTRAFLAGS += "-DHIL_MODE=HIL_MODE_ATTITUDE "
+flymaple-hil: flymaple
 
 linux: HAL_BOARD = HAL_BOARD_LINUX
 linux: TOOLCHAIN = NATIVE
@@ -33,12 +32,15 @@ empty: TOOLCHAIN = AVR
 empty: all
 
 # cope with HIL targets
-%-hil: EXTRAFLAGS += "-DHIL_MODE=HIL_MODE_ATTITUDE "
+%-hil: EXTRAFLAGS += "-DHIL_MODE=HIL_MODE_SENSORS "
 %-hilsensors: EXTRAFLAGS += "-DHIL_MODE=HIL_MODE_SENSORS "
+
+# cope with OBC targets
+%-obc: EXTRAFLAGS += "-DOBC_FAILSAFE=ENABLED "
 
 # cope with copter and hil targets
 FRAMES = quad tri hexa y6 octa octa-quad heli single
-BOARDS = apm1 apm2 apm2beta apm1-1280 px4 px4-v1 px4-v2 sitl flymaple linux quanton
+BOARDS = apm1 apm2 apm2beta apm1-1280 px4 px4-v1 px4-v2 sitl flymaple linux vrbrain vrbrain-v4 vrbrainv-5 vrhero-v1
 
 define frame_template
 $(1)-$(2) : EXTRAFLAGS += "-DFRAME_CONFIG=$(shell echo $(2) | tr a-z A-Z | sed s/-/_/g)_FRAME "
@@ -46,6 +48,7 @@ $(1)-$(2) : $(1)
 $(1)-$(2)-hil : $(1)-$(2)
 $(1)-$(2)-hilsensors : $(1)-$(2)
 $(1)-hil : $(1)
+$(1)-obc : $(1)
 $(1)-hilsensors : $(1)
 endef
 
@@ -54,15 +57,6 @@ $(foreach board,$(BOARDS),$(foreach frame,$(FRAMES),$(eval $(call frame_template
 
 apm2beta: EXTRAFLAGS += "-DAPM2_BETA_HARDWARE "
 apm2beta: apm2
-
-obc-sitl: EXTRAFLAGS += "-DOBC_FAILSAFE=ENABLED "
-obc-sitl: EXTRAFLAGS += "-DSERIAL_BUFSIZE=512 "
-obc-sitl: sitl
-
-obc: EXTRAFLAGS += "-DOBC_FAILSAFE=ENABLED "
-obc: EXTRAFLAGS += "-DTELEMETRY_UART2=ENABLED "
-obc: EXTRAFLAGS += "-DSERIAL_BUFSIZE=512 "
-obc: apm2
 
 sitl-mount: EXTRAFLAGS += "-DMOUNT=ENABLED"
 sitl-mount: sitl

@@ -7,6 +7,7 @@
 #include <AP_Common.h>
 #include <AP_Math.h>
 #include <GCS_MAVLink.h>
+#include <DataFlash.h>
 
 struct PACKED sitl_fdm {
 	// this is the packet sent by the simulator
@@ -38,7 +39,9 @@ public:
         GPS_TYPE_MTK   = 2,
         GPS_TYPE_MTK16 = 3,
         GPS_TYPE_MTK19 = 4,
-        GPS_TYPE_NMEA  = 5
+        GPS_TYPE_NMEA  = 5,
+        GPS_TYPE_SBP   = 6,
+        GPS_TYPE_SBP_RTK = 7,
     };
 
 	struct sitl_fdm state;
@@ -62,6 +65,7 @@ public:
 	AP_Float drift_time;  // period in minutes
     AP_Float engine_mul;  // engine multiplier
 	AP_Int8  gps_disable; // disable simulated GPS
+	AP_Int8  gps2_enable; // enable 2nd simulated GPS
 	AP_Int8  gps_delay;   // delay in samples
     AP_Int8  gps_type;    // see enum GPSType
     AP_Float gps_byteloss;// byte loss as a percent
@@ -71,6 +75,8 @@ public:
     AP_Float batt_voltage; // battery voltage base
     AP_Float accel_fail;  // accelerometer failure value
 	AP_Int8  rc_fail;     // fail RC input
+	AP_Int8  baro_disable; // disable simulated barometer
+    AP_Int8  float_exception; // enable floating point exception checks
 
     // wind control
     AP_Float wind_speed;
@@ -78,6 +84,8 @@ public:
     AP_Float wind_turbulance;
     
 	void simstate_send(mavlink_channel_t chan);
+
+    void Log_Write_SIMSTATE(DataFlash_Class &dataflash);
 
 	// convert a set of roll rates from earth frame to body frame
 	static void convert_body_frame(double rollDeg, double pitchDeg,

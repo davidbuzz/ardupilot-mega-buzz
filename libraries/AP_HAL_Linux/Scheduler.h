@@ -39,7 +39,7 @@ public:
     void     panic(const prog_char_t *errormsg);
     void     reboot(bool hold_in_bootloader);
 
-    void     time_shift(uint32_t shift_ms);
+    void     stop_clock(uint64_t time_usec);
 
 private:
     struct timespec _sketch_start_time;    
@@ -77,6 +77,8 @@ private:
     void _run_timers(bool called_from_timer_thread);
     void _run_io(void);
     void _setup_realtime(uint32_t size);
+
+    uint64_t stopped_clock_usec;
 };
 
 #endif // CONFIG_HAL_BOARD

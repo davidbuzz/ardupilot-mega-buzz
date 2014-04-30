@@ -108,13 +108,17 @@ const AP_Param::GroupInfo AP_AHRS::var_info[] PROGMEM = {
     // @User: Advanced
     AP_GROUPINFO("GPS_MINSATS", 11, AP_AHRS, _gps_minsats, 6),
 
-    // @Param: GPS_DELAY
-    // @DisplayName: AHRS GPS delay steps
-    // @Description: number of GPS samples to delay accels for synchronisation with the GPS velocity data
-    // @Range: 0 5
-    // @Increment: 1
+    // NOTE: index 12 was for GPS_DELAY, but now removed, fixed delay
+    // of 1 was found to be the best choice
+
+#if AP_AHRS_NAVEKF_AVAILABLE
+    // @Param: EKF_USE
+    // @DisplayName: Use NavEKF Kalman filter for attitude and position estimation
+    // @Description: This controls whether the NavEKF Kalman filter is used for attitude and position estimation
+    // @Values: 0:Disabled,1:Enabled
     // @User: Advanced
-    AP_GROUPINFO("GPS_DELAY", 12, AP_AHRS, _gps_delay, 1),
+    AP_GROUPINFO("EKF_USE",  13, AP_AHRS, _ekf_use, 0),
+#endif
 
     AP_GROUPEND
 };
@@ -124,10 +128,10 @@ bool AP_AHRS::airspeed_estimate(float *airspeed_ret) const
 {
 	if (_airspeed && _airspeed->use()) {
 		*airspeed_ret = _airspeed->get_airspeed();
-		if (_wind_max > 0 && _gps && _gps->status() >= GPS::GPS_OK_FIX_2D) {
+		if (_wind_max > 0 && _gps.status() >= AP_GPS::GPS_OK_FIX_2D) {
                     // constrain the airspeed by the ground speed
                     // and AHRS_WIND_MAX
-                    float gnd_speed = _gps->ground_speed_cm*0.01f;
+                    float gnd_speed = _gps.ground_speed();
                     float true_airspeed = *airspeed_ret * get_EAS2TAS();
                     true_airspeed = constrain_float(true_airspeed,
                                                     gnd_speed - _wind_max, 
@@ -174,7 +178,7 @@ Vector2f AP_AHRS::groundspeed_vector(void)
     Vector2f gndVelGPS;
     float airspeed;
     bool gotAirspeed = airspeed_estimate_true(&airspeed);
-    bool gotGPS = (_gps && _gps->status() >= GPS::GPS_OK_FIX_2D);
+    bool gotGPS = (_gps.status() >= AP_GPS::GPS_OK_FIX_2D);
     if (gotAirspeed) {
 	    Vector3f wind = wind_estimate();
 	    Vector2f wind2d = Vector2f(wind.x, wind.y);
@@ -184,8 +188,8 @@ Vector2f AP_AHRS::groundspeed_vector(void)
     
     // Generate estimate of ground speed vector using GPS
     if (gotGPS) {
-	    float cog = radians(_gps->ground_course_cd*0.01f);
-	    gndVelGPS = Vector2f(cosf(cog), sinf(cog)) * _gps->ground_speed_cm * 0.01f;
+        float cog = radians(_gps.ground_course_cd()*0.01f);
+        gndVelGPS = Vector2f(cosf(cog), sinf(cog)) * _gps.ground_speed();
     }
     // If both ADS and GPS data is available, apply a complementary filter
     if (gotAirspeed && gotGPS) {
@@ -217,26 +221,6 @@ Vector2f AP_AHRS::groundspeed_vector(void)
 	    return gndVelGPS;
     }
     return Vector2f(0.0f, 0.0f);
-}
-
-/*
-  get position projected by groundspeed and heading
- */
-bool AP_AHRS::get_projected_position(struct Location &loc)
-{
-        if (!get_position(loc)) {
-		return false;
-        }
-        location_update(loc, degrees(yaw), _gps->ground_speed_cm * 0.01 * _gps->get_lag());
-        return true;
-}
-
-/*
-  get the GPS lag in seconds
- */
-float AP_AHRS::get_position_lag(void) const
-{
-    return _gps->get_lag();
 }
 
 // update_trig - recalculates _cos_roll, _cos_pitch, etc based on latest attitude

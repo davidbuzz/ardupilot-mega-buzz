@@ -60,8 +60,7 @@
  # define HAL_GPIO_C_LED_PIN        -1
  # define HAL_GPIO_LED_ON           LOW
  # define HAL_GPIO_LED_OFF          HIGH
-//TODO BUZZ CHECK THESE VIRTUAL PIN ASSIGNMENTS ARE OK? 
-#elif CONFIG_HAL_BOARD == HAL_BOARD_Quanton
+#elif CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
  # define HAL_GPIO_A_LED_PIN        27
  # define HAL_GPIO_B_LED_PIN        26
  # define HAL_GPIO_C_LED_PIN        25

@@ -14,6 +14,7 @@
 #define AP_COMPASS_TYPE_HMC5843  0x02
 #define AP_COMPASS_TYPE_HMC5883L 0x03
 #define AP_COMPASS_TYPE_PX4      0x04
+#define AP_COMPASS_TYPE_VRBRAIN  0x05
 
 // motor compensation types (for use with motor_comp_enabled)
 #define AP_COMPASS_MOT_COMP_DISABLED    0x00
@@ -33,7 +34,7 @@
 # define MAG_BOARD_ORIENTATION ROTATION_NONE
 #elif CONFIG_HAL_BOARD == HAL_BOARD_LINUX
 # define MAG_BOARD_ORIENTATION ROTATION_YAW_90
-#elif CONFIG_HAL_BOARD == HAL_BOARD_Quanton
+#elif CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
 # define MAG_BOARD_ORIENTATION ROTATION_NONE
 #else
 # error "You must define a default compass orientation for this board"
@@ -93,7 +94,7 @@ public:
     /// Saves the current compass offset x/y/z values.
     ///
     /// This should be invoked periodically to save the offset values maintained by
-    /// ::null_offsets.
+    /// ::learn_offsets.
     ///
     void save_offsets();
 
@@ -137,7 +138,7 @@ public:
 
     /// Perform automatic offset updates
     ///
-    void null_offsets(void);
+    void learn_offsets(void);
 
     /// return true if the compass should be used for yaw calculations
     bool use_for_yaw(void) const {
