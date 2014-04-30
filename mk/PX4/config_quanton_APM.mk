@@ -39,7 +39,7 @@ MODULES		+= drivers/gps
 #
 # System commands
 #
-MODULES		+= systemcmds/eeprom
+#MODULES		+= systemcmds/eeprom
 #MODULES		+= systemcmds/bl_update
 MODULES		+= systemcmds/boardinfo
 MODULES		+= systemcmds/i2c
