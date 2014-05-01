@@ -80,13 +80,13 @@ ifneq ($(findstring vrbrain, $(MAKECMDGOALS)),)
 BUILDROOT		:=	$(SKETCHBOOK)/Build.$(SKETCH)
 endif
 
-ifeq ($(BUILDROOT),)
-BUILDROOT		:=	$(abspath $(TMPDIR)/$(SKETCH).build)
-endif
-
 # quanton is lime px4 too....
 ifneq ($(findstring quanton, $(MAKECMDGOALS)),)
 BUILDROOT		:=	$(SKETCHBOOK)/Build.$(SKETCH)
+endif
+
+ifeq ($(BUILDROOT),)
+BUILDROOT		:=	$(abspath $(TMPDIR)/$(SKETCH).build)
 endif
 
 
@@ -122,7 +122,7 @@ endif
 
 # handle target based overrides for board type
 ifneq ($(findstring quanton, $(MAKECMDGOALS)),)
-HAL_BOARD = HAL_BOARD_Quanton
+HAL_BOARD = HAL_BOARD_QUANTON
 endif
 
 # handle target based overrides for board type

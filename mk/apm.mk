@@ -38,7 +38,7 @@ ifeq ($(HAL_BOARD),HAL_BOARD_LINUX)
 include $(MK_DIR)/board_linux.mk
 endif
 
-ifeq ($(HAL_BOARD),HAL_BOARD_Quanton)
+ifeq ($(HAL_BOARD),HAL_BOARD_QUANTON)
 include $(MK_DIR)/board_quanton.mk
 endif
 
