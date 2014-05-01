@@ -142,5 +142,6 @@ struct PACKED Location {
 #define AP_PRODUCT_ID_FLYMAPLE          0x100   // Flymaple with ITG3205, ADXL345, HMC5883, BMP085
 #define AP_PRODUCT_ID_L3G4200D          0x101   // Linux with L3G4200D and ADXL345
 #define AP_PRODUCT_ID_VRBRAIN           0x150   // VRBRAIN on NuttX
+#define AP_PRODUCT_ID_QUANTON           0x160   // QUANTON on NuttX
 
 #endif // _AP_COMMON_H

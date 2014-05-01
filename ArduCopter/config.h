@@ -160,6 +160,7 @@
 // IMU Selection
 //
 #ifndef CONFIG_IMU_TYPE
+ #warn defaulting IMU type to oilpan. probably not right.
  # define CONFIG_IMU_TYPE CONFIG_IMU_OILPAN
 #endif
 
