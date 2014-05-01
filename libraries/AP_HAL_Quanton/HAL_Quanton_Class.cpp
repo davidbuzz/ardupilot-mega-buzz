@@ -2,7 +2,7 @@
 
 #include <AP_HAL.h>
 
-#if CONFIG_HAL_BOARD == HAL_BOARD_Quanton
+#if CONFIG_HAL_BOARD == HAL_BOARD_QUANTON
 
 #include <AP_HAL_Quanton.h>
 #include "AP_HAL_Quanton_Namespace.h"
@@ -282,5 +282,5 @@ void HAL_Quanton::init(int argc, char * const argv[]) const
 
 const HAL_Quanton AP_HAL_Quanton;
 
-#endif // CONFIG_HAL_BOARD == HAL_BOARD_Quanton
+#endif // CONFIG_HAL_BOARD == HAL_BOARD_QUANTON
 

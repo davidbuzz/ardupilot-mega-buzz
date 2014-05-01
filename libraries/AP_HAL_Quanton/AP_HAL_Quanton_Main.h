@@ -1,7 +1,7 @@
 #ifndef __AP_HAL_Quanton_MAIN_H__
 #define __AP_HAL_Quanton_MAIN_H__
 
-#if CONFIG_HAL_BOARD == HAL_BOARD_Quanton
+#if CONFIG_HAL_BOARD == HAL_BOARD_QUANTON
 
 #define AP_HAL_MAIN() \
     extern "C" __EXPORT int SKETCH_MAIN(int argc, char * const argv[]); \

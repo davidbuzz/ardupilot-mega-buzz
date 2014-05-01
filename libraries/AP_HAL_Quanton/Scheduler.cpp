@@ -1,7 +1,7 @@
 /// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
 #include <AP_HAL.h>
-#if CONFIG_HAL_BOARD == HAL_BOARD_Quanton
+#if CONFIG_HAL_BOARD == HAL_BOARD_QUANTON
 
 #include "AP_HAL_Quanton.h"
 #include "Scheduler.h"

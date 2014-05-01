@@ -4,7 +4,7 @@
 
 #include <AP_HAL.h>
 
-#if CONFIG_HAL_BOARD == HAL_BOARD_Quanton
+#if CONFIG_HAL_BOARD == HAL_BOARD_QUANTON
 
 #include <AP_HAL_Quanton.h>
 #include "AP_HAL_Quanton_Namespace.h"
@@ -19,5 +19,5 @@ public:
 
 extern const HAL_Quanton AP_HAL_Quanton;
 
-#endif // CONFIG_HAL_BOARD == HAL_BOARD_Quanton
+#endif // CONFIG_HAL_BOARD == HAL_BOARD_QUANTON
 #endif // __AP_HAL_Quanton_CLASS_H__

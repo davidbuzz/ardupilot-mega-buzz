@@ -9,7 +9,7 @@
 #define Quanton_GPIO_EXT_FMU_RELAY1_PIN     111
 #define Quanton_GPIO_EXT_FMU_RELAY2_PIN     112
 
-#if CONFIG_HAL_BOARD == HAL_BOARD_Quanton  
+#if CONFIG_HAL_BOARD == HAL_BOARD_QUANTON  
 // BUZZ TODO CHECK THESE LED PINS ARE RIGHT! ? 
  # define HAL_GPIO_A_LED_PIN        27
  # define HAL_GPIO_B_LED_PIN        26

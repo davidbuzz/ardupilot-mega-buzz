@@ -94,6 +94,7 @@
 #include <AP_HAL_PX4.h>
 #include <AP_HAL_VRBRAIN.h>
 #include <AP_HAL_FLYMAPLE.h>
+#include <AP_HAL_Quanton.h>
 #include <AP_HAL_Linux.h>
 #include <AP_HAL_Empty.h>
 
@@ -260,7 +261,7 @@ static AP_Int8 *flight_modes = &g.flight_mode1;
 static AP_ADC_ADS7844 adc;
  #endif
 
- #if CONFIG_IMU_TYPE == CONFIG_IMU_MPU6000
+#if CONFIG_IMU_TYPE == CONFIG_IMU_MPU6000
 static AP_InertialSensor_MPU6000 ins;
 #elif CONFIG_IMU_TYPE == CONFIG_IMU_OILPAN
 static AP_InertialSensor_Oilpan ins(&adc);
@@ -271,9 +272,11 @@ static AP_InertialSensor_PX4 ins;
 #elif CONFIG_IMU_TYPE == CONFIG_IMU_VRBRAIN
 static AP_InertialSensor_VRBRAIN ins;
 #elif CONFIG_IMU_TYPE == CONFIG_IMU_FLYMAPLE
-AP_InertialSensor_Flymaple ins;
+static AP_InertialSensor_Flymaple ins;
 #elif CONFIG_IMU_TYPE == CONFIG_IMU_L3G4200D
-AP_InertialSensor_L3G4200D ins;
+//AP_InertialSensor_L3G4200D ins;
+#elif CONFIG_IMU_TYPE == CONFIG_IMU_Quanton
+AP_InertialSensor_Quanton ins;
 #endif
 
  #if CONFIG_HAL_BOARD == HAL_BOARD_AVR_SITL

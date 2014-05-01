@@ -1,6 +1,6 @@
 
 #include <AP_HAL.h>
-#if CONFIG_HAL_BOARD == HAL_BOARD_Quanton
+#if CONFIG_HAL_BOARD == HAL_BOARD_QUANTON
 #include <stdio.h>
 #include <stdarg.h>
 #include <unistd.h>
@@ -131,4 +131,4 @@ uint16_t QuantonUtil::available_memory(void)
     return mem.fordblks;
 }
 
-#endif // CONFIG_HAL_BOARD == HAL_BOARD_Quanton
+#endif // CONFIG_HAL_BOARD == HAL_BOARD_QUANTON

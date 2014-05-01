@@ -2,7 +2,7 @@
 
 #include <AP_HAL.h>
 
-#if CONFIG_HAL_BOARD == HAL_BOARD_Quanton
+#if CONFIG_HAL_BOARD == HAL_BOARD_QUANTON
 
 #include "AnalogIn.h"
 #include <drivers/drv_adc.h>

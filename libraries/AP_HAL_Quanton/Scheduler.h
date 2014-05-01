@@ -3,7 +3,7 @@
 #define __AP_HAL_Quanton_SCHEDULER_H__
 
 #include <AP_HAL.h>
-#if CONFIG_HAL_BOARD == HAL_BOARD_Quanton
+#if CONFIG_HAL_BOARD == HAL_BOARD_QUANTON
 #include "AP_HAL_Quanton_Namespace.h"
 #include <sys/time.h>
 #include <signal.h>
