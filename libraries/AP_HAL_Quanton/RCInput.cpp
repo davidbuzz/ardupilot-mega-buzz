@@ -20,12 +20,20 @@ void QuantonRCInput::init(void* unused)
         pthread_mutex_init(&rcin_mutex, NULL);
 }
 
-uint8_t QuantonRCInput::valid_channels() 
+bool QuantonRCInput::new_input() 
 {
     pthread_mutex_lock(&rcin_mutex);
-    bool valid = _rcin.timestamp != _last_read || _override_valid;
+    bool valid = _rcin.timestamp_last_signal != _last_read || _override_valid;
     pthread_mutex_unlock(&rcin_mutex);
     return valid;
+}
+
+uint8_t QuantonRCInput::num_channels() 
+{
+    pthread_mutex_lock(&rcin_mutex);
+    uint8_t n = _rcin.channel_count;
+    pthread_mutex_unlock(&rcin_mutex);
+    return n;
 }
 
 uint16_t QuantonRCInput::read(uint8_t ch) 
@@ -34,7 +42,7 @@ uint16_t QuantonRCInput::read(uint8_t ch)
 		return 0;
 	}
         pthread_mutex_lock(&rcin_mutex);
-	_last_read = _rcin.timestamp;
+	_last_read = _rcin.timestamp_last_signal;
 	_override_valid = false;
 	if (_override[ch]) {
             uint16_t v = _override[ch];

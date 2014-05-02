@@ -20,7 +20,7 @@
 #define ANLOGIN_DEBUGGING 0
 
 // base voltage scaling for 12 bit 3.3V ADC
-#define Quanton_VOLTAGE_SCALING (3.3f/4096.0f)
+#define QUANTON_VOLTAGE_SCALING (3.3f/4096.0f)
 
 #if ANLOGIN_DEBUGGING
  # define Debug(fmt, args ...)  do {printf("%s:%d: " fmt "\n", __FUNCTION__, __LINE__, ## args); } while(0)
@@ -59,9 +59,9 @@ QuantonAnalogSource::QuantonAnalogSource(int16_t pin, float initial_value) :
     _sum_value(0),
     _sum_ratiometric(0)
 {
-#ifdef Quanton_ANALOG_VCC_5V_PIN
+#ifdef QUANTON_ANALOG_VCC_5V_PIN
     if (_pin == ANALOG_INPUT_BOARD_VCC) {
-        _pin = Quanton_ANALOG_VCC_5V_PIN;
+        _pin = QUANTON_ANALOG_VCC_5V_PIN;
     }
 #endif
 }
@@ -91,7 +91,7 @@ float QuantonAnalogSource::read_latest()
  */
 float QuantonAnalogSource::_pin_scaler(void)
 {
-    float scaling = Quanton_VOLTAGE_SCALING;
+    float scaling = QUANTON_VOLTAGE_SCALING;
     uint8_t num_scalings = sizeof(pin_scaling)/sizeof(pin_scaling[0]);
     for (uint8_t i=0; i<num_scalings; i++) {
         if (pin_scaling[i].pin == _pin) {
@@ -147,16 +147,16 @@ void QuantonAnalogSource::set_pin(uint8_t pin)
 /*
   apply a reading in ADC counts
  */
-void QuantonAnalogSource::_add_value(float v, uint16_t vcc5V_mV)
+void QuantonAnalogSource::_add_value(float v, float vcc5V)
 {
     _latest_value = v;
     _sum_value += v;
-    if (vcc5V_mV == 0) {
+    if (vcc5V < 3.0f) {
         _sum_ratiometric += v;
     } else {
         // this compensates for changes in the 5V rail relative to the
         // 3.3V reference used by the ADC.
-        _sum_ratiometric += v * 5000 / vcc5V_mV;
+        _sum_ratiometric += v * 5.0f / vcc5V;
     }
     _sum_count++;
     if (_sum_count == 254) {
@@ -167,7 +167,10 @@ void QuantonAnalogSource::_add_value(float v, uint16_t vcc5V_mV)
 }
 
 
-QuantonAnalogIn::QuantonAnalogIn()
+QuantonAnalogIn::QuantonAnalogIn():
+	_board_voltage(0),
+    _servorail_voltage(0),
+    _power_flags(0)    
 {}
 
 void QuantonAnalogIn::init(void* machtnichts)
@@ -178,6 +181,7 @@ void QuantonAnalogIn::init(void* machtnichts)
 	}
     _battery_handle   = orb_subscribe(ORB_ID(battery_status));
     _servorail_handle = orb_subscribe(ORB_ID(servorail_status));
+ // TODO BUZZ FIX    _system_power_handle = orb_subscribe(ORB_ID(system_power));
 }
 
 /*
@@ -193,12 +197,11 @@ void QuantonAnalogIn::_timer_tick(void)
     }
     _last_run = now;
 
-    struct adc_msg_s buf_adc[Quanton_ANALOG_MAX_CHANNELS];
+    struct adc_msg_s buf_adc[QUANTON_ANALOG_MAX_CHANNELS];
 
     /* read all channels available */
     int ret = read(_adc_fd, &buf_adc, sizeof(buf_adc));
     if (ret > 0) {
-        uint16_t vcc5V_mV = 0;
         // match the incoming channels to the currently active pins
         for (uint8_t i=0; i<ret/sizeof(buf_adc[0]); i++) {
 
@@ -207,10 +210,10 @@ void QuantonAnalogIn::_timer_tick(void)
             Debug("chan %u value=%u\n",
                   (unsigned)buf_adc[i].am_channel,
                   (unsigned)buf_adc[i].am_data);
-            for (uint8_t j=0; j<Quanton_ANALOG_MAX_CHANNELS; j++) {
+            for (uint8_t j=0; j<QUANTON_ANALOG_MAX_CHANNELS; j++) {
                 Quanton::QuantonAnalogSource *c = _channels[j];
                 if (c != NULL && buf_adc[i].am_channel == c->_pin) {
-                    c->_add_value(buf_adc[i].am_data, vcc5V_mV);
+                    c->_add_value(buf_adc[i].am_data, _board_voltage);
                 }
             }
         }
@@ -219,29 +222,33 @@ void QuantonAnalogIn::_timer_tick(void)
     // check for new battery data on Quanton
     if (_battery_handle != -1) {
         struct battery_status_s battery;
-        if (orb_copy(ORB_ID(battery_status), _battery_handle, &battery) == OK &&
-            battery.timestamp != _battery_timestamp) {
-            _battery_timestamp = battery.timestamp;
-            for (uint8_t j=0; j<Quanton_ANALOG_MAX_CHANNELS; j++) {
-                Quanton::QuantonAnalogSource *c = _channels[j];
-                if (c == NULL) continue;
-                if (c->_pin == QUANTON_ANALOG_ORB_BATTERY_VOLTAGE_PIN) {
-                    c->_add_value(battery.voltage_v / Quanton_VOLTAGE_SCALING, 0);
-                }
-                if (c->_pin == QUANTON_ANALOG_ORB_BATTERY_CURRENT_PIN) {
-                    // scale it back to voltage, knowing that the
-                    // Quantonio code scales by 90.0/5.0
-                    c->_add_value(battery.current_a * (5.0f/90.0f) / Quanton_VOLTAGE_SCALING, 0);
+        bool updated = false;
+        if (orb_check(_battery_handle, &updated) == 0 && updated) {
+            orb_copy(ORB_ID(battery_status), _battery_handle, &battery);
+            if (battery.timestamp != _battery_timestamp) {
+                _battery_timestamp = battery.timestamp;
+                for (uint8_t j=0; j<QUANTON_ANALOG_MAX_CHANNELS; j++) {
+                    Quanton::QuantonAnalogSource *c = _channels[j];
+                    if (c == NULL) continue;
+                    if (c->_pin == QUANTON_ANALOG_ORB_BATTERY_VOLTAGE_PIN) {
+                        c->_add_value(battery.voltage_v / QUANTON_VOLTAGE_SCALING, 0);
+                    }
+                    if (c->_pin == QUANTON_ANALOG_ORB_BATTERY_CURRENT_PIN) {
+                        // scale it back to voltage, knowing that the
+                        // px4io code scales by 90.0/5.0
+                        c->_add_value(battery.current_a * (5.0f/90.0f) / QUANTON_VOLTAGE_SCALING, 0);
+                    }
                 }
             }
         }
     }
 
+
 }
 
 AP_HAL::AnalogSource* QuantonAnalogIn::channel(int16_t pin) 
 {
-    for (uint8_t j=0; j<Quanton_ANALOG_MAX_CHANNELS; j++) {
+    for (uint8_t j=0; j<QUANTON_ANALOG_MAX_CHANNELS; j++) {
         if (_channels[j] == NULL) {
             _channels[j] = new QuantonAnalogSource(pin, 0.0);
             return _channels[j];

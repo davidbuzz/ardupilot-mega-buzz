@@ -48,13 +48,16 @@ static QuantonGPIO gpioDriver;
 #define UARTA_DEFAULT_DEVICE "/dev/ttyACM0"
 #define UARTB_DEFAULT_DEVICE "/dev/ttyS3"
 #define UARTC_DEFAULT_DEVICE "/dev/ttyS1"
-#define UARTD_DEFAULT_DEVICE "/dev/null"
+#define UARTD_DEFAULT_DEVICE "/dev/ttyS2"
+#define UARTE_DEFAULT_DEVICE "/dev/ttyS6"
+
 
 // 3 UART drivers, for GPS plus two mavlink-enabled devices
 static QuantonUARTDriver uartADriver(UARTA_DEFAULT_DEVICE, "APM_uartA");
 static QuantonUARTDriver uartBDriver(UARTB_DEFAULT_DEVICE, "APM_uartB");
 static QuantonUARTDriver uartCDriver(UARTC_DEFAULT_DEVICE, "APM_uartC");
 static QuantonUARTDriver uartDDriver(UARTD_DEFAULT_DEVICE, "APM_uartD");
+static QuantonUARTDriver uartEDriver(UARTE_DEFAULT_DEVICE, "APM_uartE");
 
 HAL_Quanton::HAL_Quanton() :
     AP_HAL::HAL(
@@ -62,6 +65,7 @@ HAL_Quanton::HAL_Quanton() :
         &uartBDriver,  /* uartB */
         &uartCDriver,  /* uartC */
         &uartDDriver,  /* uartD */
+        &uartEDriver,  /* uartE */
         &i2cDriver, /* i2c */
         &spiDeviceManager, /* spi */
         &analogIn, /* analogin */
@@ -113,6 +117,7 @@ static int main_loop(int argc, char **argv)
     hal.uartB->begin(38400);
     hal.uartC->begin(57600);
     hal.uartD->begin(57600);
+    hal.uartE->begin(57600);
     hal.scheduler->init(NULL);
     hal.rcin->init(NULL);
     hal.rcout->init(NULL);
@@ -184,6 +189,8 @@ static void usage(void)
     printf("Options:\n");
     printf("\t-d  DEVICE         set terminal device (default %s)\n", UARTA_DEFAULT_DEVICE);
     printf("\t-d2 DEVICE         set second terminal device (default %s)\n", UARTC_DEFAULT_DEVICE);
+    printf("\t-d3 DEVICE         set 3rd terminal device (default %s)\n", UARTD_DEFAULT_DEVICE);
+    printf("\t-d4 DEVICE         set 2nd GPS device (default %s)\n", UARTE_DEFAULT_DEVICE);
     printf("\n");
 }
 
@@ -194,6 +201,7 @@ void HAL_Quanton::init(int argc, char * const argv[]) const
     const char *deviceA = UARTA_DEFAULT_DEVICE;
     const char *deviceC = UARTC_DEFAULT_DEVICE;
     const char *deviceD = UARTD_DEFAULT_DEVICE;
+    const char *deviceE = UARTE_DEFAULT_DEVICE;
 
     if (argc < 1) {
         printf("%s: missing command (try '%s start')", 
@@ -213,8 +221,9 @@ void HAL_Quanton::init(int argc, char * const argv[]) const
             uartADriver.set_device_path(deviceA);
             uartCDriver.set_device_path(deviceC);
             uartDDriver.set_device_path(deviceD);
-            printf("Starting %s uartA=%s uartC=%s uartD=%s\n", 
-                   SKETCHNAME, deviceA, deviceC, deviceD);
+            uartEDriver.set_device_path(deviceE);
+            printf("Starting %s uartA=%s uartC=%s uartD=%s uartE=%s\n", 
+                   SKETCHNAME, deviceA, deviceC, deviceD, deviceE);
 
             _Quanton_thread_should_exit = false;
             daemon_task = task_spawn_cmd(SKETCHNAME,
@@ -270,6 +279,17 @@ void HAL_Quanton::init(int argc, char * const argv[]) const
                 deviceD = strdup(argv[i+1]);
             } else {
                 printf("missing parameter to -d3 DEVICE\n");
+                usage();
+                exit(1);
+            }
+        }
+
+        if (strcmp(argv[i], "-d4") == 0) {
+            // set uartE 2nd GPS device
+            if (argc > i + 1) {
+                deviceE = strdup(argv[i+1]);
+            } else {
+                printf("missing parameter to -d4 DEVICE\n");
                 usage();
                 exit(1);
             }

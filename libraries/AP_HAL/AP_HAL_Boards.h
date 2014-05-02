@@ -112,7 +112,7 @@
 #define HAL_STORAGE_SIZE_AVAILABLE  HAL_STORAGE_SIZE
 
 #elif CONFIG_HAL_BOARD == HAL_BOARD_QUANTON
-#define AP_HAL_BOARD_DRIVER HAL_BOARD_QUANTON
+#define AP_HAL_BOARD_DRIVER AP_HAL_Quanton   // the class name to instantiate for this HAL.
 #define HAL_BOARD_NAME "Quanton"
 #define HAL_CPU_CLASS HAL_CPU_CLASS_150
 #define HAL_OS_POSIX_IO 1

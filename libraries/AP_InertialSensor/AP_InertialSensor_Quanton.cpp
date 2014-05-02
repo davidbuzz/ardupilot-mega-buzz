@@ -1,7 +1,7 @@
 /// -*- tab-width: 4; Mode: C++; c-basic-offset: 4; indent-tabs-mode: nil -*-
 
 #include <AP_HAL.h>
-#if CONFIG_HAL_BOARD == HAL_BOARD_Quanton
+#if CONFIG_HAL_BOARD == HAL_BOARD_QUANTON
 #include "AP_InertialSensor_Quanton.h"
 
 const extern AP_HAL::HAL& hal;
@@ -20,10 +20,13 @@ const extern AP_HAL::HAL& hal;
 uint16_t AP_InertialSensor_Quanton::_init_sensor( Sample_rate sample_rate ) 
 {
     // assumes max 2 instances
-    _accel_fd[0] = open(ACCEL_DEVICE_PATH, O_RDONLY);    // typically "/dev/accel" file.  see src/drivers/drv_accel.h
+    _accel_fd[0] = open(ACCEL_DEVICE_PATH, O_RDONLY);
     _accel_fd[1] = open(ACCEL_DEVICE_PATH "1", O_RDONLY);
-    _gyro_fd[0] = open(GYRO_DEVICE_PATH, O_RDONLY);  //typically "/dev/gyro". see /src/drivers/drv_gyro.h
+    _gyro_fd[0] = open(GYRO_DEVICE_PATH, O_RDONLY);
     _gyro_fd[1] = open(GYRO_DEVICE_PATH "1", O_RDONLY);
+
+//>     _accel_fd[0] = open(ACCEL_DEVICE_PATH, O_RDONLY);    // typically "/dev/accel" file.  see src/drivers/drv_accel.h
+//>     _gyro_fd[0] = open(GYRO_DEVICE_PATH, O_RDONLY);  //typically "/dev/gyro". see /src/drivers/drv_gyro.h
 
 	if (_accel_fd[0] < 0) {
         hal.scheduler->panic("Unable to open accel device " ACCEL_DEVICE_PATH);
@@ -44,15 +47,19 @@ uint16_t AP_InertialSensor_Quanton::_init_sensor( Sample_rate sample_rate )
         _sample_time_usec = 10000;
         break;
     case RATE_200HZ:
-    default:
         _default_filter_hz = 30;
         _sample_time_usec = 5000;
+        break;
+    case RATE_400HZ:
+    default:
+        _default_filter_hz = 30;
+        _sample_time_usec = 2500;
         break;
     }
 
     _set_filter_frequency(_mpu6000_filter);
 
-    return AP_PRODUCT_ID_Quanton;
+    return AP_PRODUCT_ID_QUANTON;
 }
 
 /*
@@ -163,7 +170,7 @@ bool AP_InertialSensor_Quanton::update(void)
     return true;
 }
 
-float AP_InertialSensor_Quanton::get_delta_time(void)
+float AP_InertialSensor_Quanton::get_delta_time(void) const
 {
     return _sample_time_usec * 1.0e-6f;
 }
@@ -244,7 +251,7 @@ uint8_t AP_InertialSensor_Quanton::_get_primary_gyro(void) const
     return 0;
 }
 
-uint8_t AP_InertialSensor_Quanton::_get_primary_accel(void) const 
+uint8_t AP_InertialSensor_Quanton::get_primary_accel(void) const 
 {
     for (uint8_t i=0; i<_num_accel_instances; i++) {
         if (get_accel_health(i)) return i;

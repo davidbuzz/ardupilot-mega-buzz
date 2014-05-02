@@ -221,6 +221,8 @@ static DataFlash_File DataFlash("/fs/microsd/APM/LOGS");
 static DataFlash_File DataFlash("logs");
 #elif CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
 static DataFlash_File DataFlash("/fs/microsd/APM/LOGS");
+#elif CONFIG_HAL_BOARD == HAL_BOARD_QUANTON
+static DataFlash_File DataFlash("/fs/microsd/APM/LOGS");
 #else
 static DataFlash_Empty DataFlash;
 #endif
@@ -275,9 +277,11 @@ static AP_InertialSensor_VRBRAIN ins;
 static AP_InertialSensor_Flymaple ins;
 #elif CONFIG_IMU_TYPE == CONFIG_IMU_L3G4200D
 //AP_InertialSensor_L3G4200D ins;
-#elif CONFIG_IMU_TYPE == CONFIG_IMU_Quanton
-AP_InertialSensor_Quanton ins;
+#elif CONFIG_IMU_TYPE == CONFIG_IMU_QUANTON
+//static AP_InertialSensor_Quanton ins;
 #endif
+static AP_InertialSensor_Quanton ins;
+
 
  #if CONFIG_HAL_BOARD == HAL_BOARD_AVR_SITL
  // When building for SITL we use the HIL barometer and compass drivers
@@ -290,8 +294,10 @@ static SITL sitl;
 static AP_Baro_BMP085 barometer;
   #elif CONFIG_BARO == AP_BARO_PX4
 static AP_Baro_PX4 barometer;
-#elif CONFIG_BARO == AP_BARO_VRBRAIN
+  #elif CONFIG_BARO == AP_BARO_VRBRAIN
 static AP_Baro_VRBRAIN barometer;
+  #elif CONFIG_BARO == AP_BARO_QUANTON
+static AP_Baro_Quanton barometer;
   #elif CONFIG_BARO == AP_BARO_MS5611
    #if CONFIG_MS5611_SERIAL == AP_BARO_MS5611_SPI
 static AP_Baro_MS5611 barometer(&AP_Baro_MS5611::spi);
@@ -306,7 +312,9 @@ static AP_Baro_MS5611 barometer(&AP_Baro_MS5611::i2c);
 static AP_Compass_PX4 compass;
  #elif CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN
 static AP_Compass_VRBRAIN compass;
- #else
+  #elif CONFIG_HAL_BOARD == HAL_BOARD_QUANTON
+static AP_Compass_Quanton compass;
+#else
 static AP_Compass_HMC5843 compass;
  #endif
  #endif

@@ -11,7 +11,7 @@
 #include "UARTDriver.h"
 #include <uORB/uORB.h>
 #include <uORB/topics/safety.h>
-#include <systemlib/otp.h>
+#include <systemlib/board_serial.h>
 
 extern const AP_HAL::HAL& hal;
 
@@ -105,7 +105,7 @@ bool QuantonUtil::get_system_id(char buf[40])
 {
     uint8_t serialid[12];
     memset(serialid, 0, sizeof(serialid));
-    val_read(serialid, (const void *)UDID_START, sizeof(serialid));
+    get_board_serial(serialid);
     const char *board_type = "QuantonRev1";
 
     // this format is chosen to match the human_readable_serial()

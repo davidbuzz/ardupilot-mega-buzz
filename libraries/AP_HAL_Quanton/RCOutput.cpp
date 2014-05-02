@@ -29,13 +29,11 @@ void QuantonRCOutput::init(void* unused)
         hal.scheduler->panic("Unable to open " PWM_OUTPUT_DEVICE_PATH);
     }
     if (ioctl(_pwm_fd, PWM_SERVO_ARM, 0) != 0) {
-        hal.console->printf("RCOutput: Unable to setup RC Output arming\n");
+        hal.console->printf("RCOutput: Unable to setup IO arming\n");
     }
-#ifdef PWM_SERVO_SET_ARM_OK
     if (ioctl(_pwm_fd, PWM_SERVO_SET_ARM_OK, 0) != 0) {
-        hal.console->printf("RCOutput: Unable to setup RC Output arming OK\n");
+        hal.console->printf("RCOutput: Unable to setup IO arming OK\n");
     }
-#endif
     _rate_mask = 0;
   //  _alt_fd = -1;    
     _servo_count = 0;
@@ -60,16 +58,15 @@ void QuantonRCOutput::init(void* unused)
         return;
     }
     if (ioctl(_alt_fd, PWM_SERVO_ARM, 0) != 0) {
-        hal.console->printf("RCOutput: Unable to setup alt Quanton arming\n");
+        hal.console->printf("RCOutput: Unable to setup alt IO arming\n");
+        return;
     }
-#ifdef PWM_SERVO_SET_ARM_OK
     if (ioctl(_alt_fd, PWM_SERVO_SET_ARM_OK, 0) != 0) {
-        hal.console->printf("RCOutput: Unable to setup Quanton arming OK\n");
+        hal.console->printf("RCOutput: Unable to setup alt IO arming OK\n");
+        return;
     }
-#endif
     if (ioctl(_alt_fd, PWM_SERVO_GET_COUNT, (unsigned long)&_alt_servo_count) != 0) {
         hal.console->printf("RCOutput: Unable to get servo count\n");        
-        return;
     }
 }
 
@@ -121,7 +118,7 @@ void QuantonRCOutput::set_freq(uint32_t chmask, uint16_t freq_hz)
         }
     }
 
-    if (ioctl(_pwm_fd, PWM_SERVO_SELECT_UPDATE_RATE, _rate_mask) != 0) {
+    if (ioctl(_pwm_fd, PWM_SERVO_SET_SELECT_UPDATE_RATE, _rate_mask) != 0) {
         hal.console->printf("RCOutput: Unable to set alt rate mask to 0x%x\n", (unsigned)_rate_mask);
     }
 }

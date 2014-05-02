@@ -27,9 +27,8 @@ linux: HAL_BOARD = HAL_BOARD_LINUX
 linux: TOOLCHAIN = NATIVE
 linux: all
 
-#quanton: HAL_BOARD = HAL_BOARD_QUANTON
-#quanton: TOOLCHAIN = NATIVE
-#quanton: all
+quanton: HAL_BOARD = HAL_BOARD_QUANTON
+quanton: TOOLCHAIN = NATIVE
 
 empty: HAL_BOARD = HAL_BOARD_EMPTY
 empty: TOOLCHAIN = AVR
