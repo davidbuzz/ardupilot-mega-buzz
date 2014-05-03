@@ -162,7 +162,6 @@ void PX4Storage::_storage_open(void)
                          (unsigned)sizeof(_buffer), (unsigned)ofs, &_buffer[ofs], (int)ret, (int)errno);
                 hal.scheduler->panic("Failed to read " MTD_PARAMS_FILE);
             }
-            ofs += chunk_size;
 	}
 	close(fd);
 	_initialised = true;
