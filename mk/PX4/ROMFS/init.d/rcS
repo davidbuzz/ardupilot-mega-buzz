@@ -41,18 +41,18 @@ set USB autoconnect
 # Try to mount the microSD card.
 #
 echo "[init] looking for microSD..."
-#if mount -t vfat /dev/mmcsd0 /fs/microsd
-#then
-#	echo "[init] card mounted at /fs/microsd"
-##        set HAVE_MICROSD 1
-#	# Start playing the startup tune
+if mount -t vfat /dev/mmcsd0 /fs/microsd
+then
+	echo "[init] card mounted at /fs/microsd"
+        set HAVE_MICROSD 1
+	# Start playing the startup tune
 #	if [ $HAVE_BEEPER == 1 ]
 #	then
 #	   tone_alarm start
 #	fi
-#else
+else
 	echo "[init] no microSD card found"
-#        set HAVE_MICROSD 0
+        set HAVE_MICROSD 0
 #    	# Play SOS
 #    	if [ $HAVE_BEEPER == 1 ]
 #    	then
@@ -62,7 +62,7 @@ echo "[init] looking for microSD..."
 #        then
 #                rgbled rgb 16 0 0
 #        fi
-#fi
+fi
 
 #
 # Look for an init script on the microSD card, if we have one.

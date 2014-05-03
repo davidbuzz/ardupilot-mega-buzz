@@ -40,15 +40,15 @@ MODULES		+= drivers/gps
 # System commands
 #
 #MODULES		+= systemcmds/eeprom
-#MODULES		+= systemcmds/bl_update
+MODULES		+= systemcmds/bl_update
 MODULES		+= systemcmds/boardinfo
 MODULES		+= systemcmds/i2c
 MODULES		+= systemcmds/mixer
 #MODULES		+= systemcmds/perf
 MODULES		+= systemcmds/pwm
-#MODULES		+= systemcmds/reboot
+MODULES		+= systemcmds/reboot
 MODULES		+= systemcmds/top
-#MODULES		+= systemcmds/tests
+MODULES		+= systemcmds/tests
 MODULES		+= systemcmds/nshterm
 #MODULES         += systemcmds/auth
 
