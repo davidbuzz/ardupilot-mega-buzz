@@ -273,13 +273,18 @@ static AP_InertialSensor_HIL ins;
 static AP_InertialSensor_PX4 ins;
 #elif CONFIG_IMU_TYPE == CONFIG_IMU_VRBRAIN
 static AP_InertialSensor_VRBRAIN ins;
+
 #elif CONFIG_IMU_TYPE == CONFIG_IMU_FLYMAPLE
 static AP_InertialSensor_Flymaple ins;
+
 #elif CONFIG_IMU_TYPE == CONFIG_IMU_L3G4200D
-//AP_InertialSensor_L3G4200D ins;
+//static AP_InertialSensor_L3G4200D ins;
+
 #elif CONFIG_IMU_TYPE == CONFIG_IMU_QUANTON
-//static AP_InertialSensor_Quanton ins;
+static AP_InertialSensor_Quanton ins;
 #endif
+
+// WEIRD...? 
 static AP_InertialSensor_Quanton ins;
 
 
