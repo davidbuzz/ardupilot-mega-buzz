@@ -227,6 +227,26 @@ static DataFlash_File DataFlash("/fs/microsd/APM/LOGS");
 static DataFlash_Empty DataFlash;
 #endif
 
+#ifndef CONFIG_HAL_BOARD
+#error CONFIG_HAL_BOARD not defined 
+#endif
+
+#ifndef HAL_BOARD_QUANTON
+#error HAL_BOARD_QUANTON not defined 
+#endif
+
+#ifndef AP_HAL_BOARD_DRIVER
+#error AP_HAL_BOARD_DRIVER not defined 
+#endif
+
+#ifndef AP_HAL_BOARD_DRIVER
+#error AP_HAL_BOARD_DRIVER not defined 
+#endif
+
+
+//#pragma message '(AP_HAL_BOARD_DRIVER) (HAL_BOARD_QUANTON) (CONFIG_HAL_BOARD)'
+
+//#error xxxx
 
 ////////////////////////////////////////////////////////////////////////////////
 // the rate we run the main loop at
