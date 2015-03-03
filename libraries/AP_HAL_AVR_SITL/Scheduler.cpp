@@ -210,7 +210,9 @@ void SITLScheduler::system_initialized() {
             PSTR("PANIC: scheduler system initialized called more than once"));
     }
     if (_sitlState->_sitl == NULL || _sitlState->_sitl->float_exception) {
+	#ifndef __APPLE__
         feenableexcept(FE_INVALID | FE_OVERFLOW | FE_DIVBYZERO);
+	#endif
     } else {
         feclearexcept(FE_INVALID | FE_OVERFLOW | FE_DIVBYZERO);
     }
